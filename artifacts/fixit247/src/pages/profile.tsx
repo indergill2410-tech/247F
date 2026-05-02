@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { useUpdateMe, useGetMe } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useUpdateMe,
+  useGetMe,
+  useListCategories,
+  useGetTradiedashboard,
+  getGetMeQueryKey,
+  getGetTradiedashboardQueryKey,
+} from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { AlertCircle, ChevronLeft, Star, LogOut } from "lucide-react";
+import { AlertCircle, ChevronLeft, Star, LogOut, Camera, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
   const [, setLocation] = useLocation();
   const { user, logout, updateUser } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: me } = useGetMe();
 
   const [name, setName] = useState(user?.name ?? "");
@@ -16,12 +25,48 @@ export default function ProfilePage() {
   const [suburb, setSuburb] = useState(user?.suburb ?? "");
   const [postcode, setPostcode] = useState(user?.postcode ?? "");
   const [bio, setBio] = useState(user?.bio ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
+  const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
   const [error, setError] = useState("");
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
+  const initializedFromMe = useRef(false);
+  const initializedSkills = useRef(false);
+
+  const isTradie = user?.role === "tradie";
+
+  const { data: categories, isLoading: categoriesLoading, isError: categoriesError } = useListCategories();
+  const { data: dashboardData } = useGetTradiedashboard({
+    query: { enabled: isTradie, queryKey: getGetTradiedashboardQueryKey() },
+  });
+
+  useEffect(() => {
+    if (me && !initializedFromMe.current) {
+      initializedFromMe.current = true;
+      setName(me.name ?? "");
+      setPhone(me.phone ?? "");
+      setSuburb(me.suburb ?? "");
+      setPostcode(me.postcode ?? "");
+      setBio(me.bio ?? "");
+      setAvatarUrl(me.avatarUrl ?? "");
+    }
+  }, [me]);
+
+  useEffect(() => {
+    if (dashboardData?.myCategories && !initializedSkills.current) {
+      initializedSkills.current = true;
+      setSelectedSkills(dashboardData.myCategories.map((c) => c.id));
+    }
+  }, [dashboardData]);
 
   const updateMutation = useUpdateMe({
     mutation: {
       onSuccess: (updated) => {
         updateUser(updated);
+        queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+        if (isTradie) {
+          queryClient.invalidateQueries({ queryKey: getGetTradiedashboardQueryKey() });
+        }
         toast({ title: "Saved!", description: "Your profile has been updated." });
       },
       onError: (err) => {
@@ -35,8 +80,22 @@ export default function ProfilePage() {
     e.preventDefault();
     setError("");
     updateMutation.mutate({
-      data: { name: name || undefined, phone: phone || undefined, suburb: suburb || undefined, postcode: postcode || undefined, bio: bio || undefined },
+      data: {
+        name: name || undefined,
+        phone: phone || undefined,
+        suburb: suburb || undefined,
+        postcode: postcode || undefined,
+        bio: bio || undefined,
+        avatarUrl: avatarUrl || undefined,
+        ...(isTradie ? { skills: selectedSkills } : {}),
+      },
     });
+  };
+
+  const toggleSkill = (categoryId: number) => {
+    setSelectedSkills((prev) =>
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
+    );
   };
 
   const handleLogout = () => { logout(); setLocation("/"); };
@@ -46,6 +105,9 @@ export default function ProfilePage() {
 
   const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
   const labelCls = "text-sm font-medium text-white/65";
+
+  const avatarInitial = (name?.charAt(0) ?? user?.name?.charAt(0) ?? "U").toUpperCase();
+  const hasAvatar = avatarUrl && avatarUrl.startsWith("http") && !avatarLoadFailed;
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
@@ -59,11 +121,26 @@ export default function ProfilePage() {
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#ffc800] text-black font-black text-2xl flex items-center justify-center flex-shrink-0">
-              {user?.name?.charAt(0).toUpperCase() ?? "U"}
+            {/* Avatar preview */}
+            <div className="relative flex-shrink-0">
+              {hasAvatar ? (
+                <img
+                  src={avatarUrl}
+                  alt={user?.name ?? "Avatar"}
+                  className="w-16 h-16 rounded-2xl object-cover"
+                  onError={() => setAvatarLoadFailed(true)}
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-[#ffc800] text-black font-black text-2xl flex items-center justify-center flex-shrink-0">
+                  {avatarInitial}
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#1a1508] border border-white/15 flex items-center justify-center">
+                <Camera className="h-2.5 w-2.5 text-white/50" />
+              </div>
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">{user?.name}</h1>
+              <h1 className="text-2xl font-black text-white">{name || user?.name}</h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white/10 text-white/60 capitalize">{user?.role}</span>
                 {user?.rating && (
@@ -86,6 +163,22 @@ export default function ProfilePage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Avatar */}
+          <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+            <h2 className="font-bold text-white">Profile Photo</h2>
+            <div className="space-y-1.5">
+              <label className={labelCls}>Avatar URL</label>
+              <input
+                className={inputCls}
+                type="url"
+                value={avatarUrl}
+                onChange={(e) => { setAvatarUrl(e.target.value); setAvatarLoadFailed(false); }}
+                placeholder="https://example.com/your-photo.jpg"
+              />
+              <p className="text-xs text-white/30">Paste a link to your profile photo (e.g. from Gravatar or LinkedIn).</p>
+            </div>
+          </div>
+
           {/* Personal */}
           <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
             <h2 className="font-bold text-white">Personal Information</h2>
@@ -119,17 +212,63 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Bio (tradie only) */}
-          {user?.role === "tradie" && (
+          {/* Bio */}
+          <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+            <h2 className="font-bold text-white">{isTradie ? "Professional Bio" : "About Me"}</h2>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              rows={4}
+              placeholder={
+                isTradie
+                  ? "Tell homeowners about your experience, qualifications, and what makes you stand out…"
+                  : "Tell us a bit about yourself…"
+              }
+              className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none"
+            />
+          </div>
+
+          {/* Skill categories (tradie only) */}
+          {isTradie && (
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
-              <h2 className="font-bold text-white">Professional Bio</h2>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                rows={4}
-                placeholder="Tell homeowners about your experience, qualifications, and what makes you stand out…"
-                className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none"
-              />
+              <div>
+                <h2 className="font-bold text-white">Trade Skills</h2>
+                <p className="text-xs text-white/40 mt-1">Select the trades you offer — this helps match you to the right jobs.</p>
+              </div>
+              {categoriesLoading ? (
+                <div className="text-xs text-white/30 py-4 text-center">Loading trade categories…</div>
+              ) : categoriesError ? (
+                <div className="text-xs text-red-400/60 py-4 text-center">Failed to load categories. Please try again.</div>
+              ) : !categories || categories.length === 0 ? (
+                <div className="text-xs text-white/30 py-4 text-center">No categories available.</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => {
+                    const selected = selectedSkills.includes(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => toggleSkill(cat.id)}
+                        className={`h-9 px-3.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 border ${
+                          selected
+                            ? "bg-[#ffc800]/15 border-[#ffc800]/40 text-[#ffc800]"
+                            : "bg-white/4 border-white/8 text-white/50 hover:bg-white/8 hover:text-white/70 hover:border-white/15"
+                        }`}
+                      >
+                        {selected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
+                        <span>{cat.icon}</span>
+                        <span>{cat.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {selectedSkills.length > 0 && (
+                <p className="text-xs text-white/35">
+                  {selectedSkills.length} service{selectedSkills.length !== 1 ? "s" : ""} selected
+                </p>
+              )}
             </div>
           )}
 
