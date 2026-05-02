@@ -38,7 +38,23 @@ const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
 };
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const cardItem = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
+const cardItem = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
+
+function timeAgo(date: string | Date): string {
+  const secs = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (secs < 60) return "just now";
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  const wks = Math.floor(days / 7);
+  if (wks < 5) return `${wks}w ago`;
+  const mths = Math.floor(days / 30);
+  if (mths < 12) return `${mths}mo ago`;
+  return `${Math.floor(mths / 12)}y ago`;
+}
 
 function StarRow({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
   const cls = size === "md" ? "h-4 w-4" : "h-3.5 w-3.5";
@@ -450,7 +466,7 @@ export default function TradieDashboard() {
                                   <MapPin className="h-3 w-3" /> {claim.jobSuburb}
                                 </span>
                               )}
-                              <span>{new Date(claim.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
+                              <span>{timeAgo(claim.createdAt)}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
@@ -507,7 +523,7 @@ export default function TradieDashboard() {
                       <div className="flex items-center justify-between mb-1.5">
                         <StarRow rating={rev.rating} />
                         <span className="text-[10px] text-white/30">
-                          {new Date(rev.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}
+                          {timeAgo(rev.createdAt)}
                         </span>
                       </div>
                       {rev.comment && (
@@ -631,7 +647,7 @@ export default function TradieDashboard() {
                             {job.budget && (
                               <span className="text-white/60 font-semibold">${job.budget.toLocaleString()}</span>
                             )}
-                            <span>{new Date(job.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
+                            <span>{timeAgo(job.createdAt)}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
@@ -722,7 +738,7 @@ export default function TradieDashboard() {
 
         {/* Quick Actions */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65 }}
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
@@ -734,11 +750,14 @@ export default function TradieDashboard() {
             { href: "/profile",  Icon: Star,           label: "See All Reviews", sub: "Your star ratings" },
           ].map(({ href, Icon, label, sub }) => (
             <Link key={label} href={href}>
-              <div className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-all group hover:bg-[#1a1508]">
+              <motion.div
+                whileHover={{ y: -4, transition: { duration: 0.15 } }}
+                className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-colors group hover:bg-[#1a1508]"
+              >
                 <Icon className="h-5 w-5 text-[#ffc800] mb-2.5 group-hover:scale-110 transition-transform" />
                 <p className="text-sm font-bold text-white">{label}</p>
                 <p className="text-xs text-white/35 mt-0.5">{sub}</p>
-              </div>
+              </motion.div>
             </Link>
           ))}
         </motion.div>
