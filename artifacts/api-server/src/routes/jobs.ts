@@ -20,7 +20,21 @@ import { runMatchingEngine } from "../lib/matching.js";
 
 const router = Router();
 
-function buildJobResponse(job: typeof jobsTable.$inferSelect & {
+function buildJobResponse(job: {
+  id: number;
+  title: string;
+  description: string;
+  status: "open" | "matched" | "in_progress" | "completed" | "cancelled";
+  urgency: "standard" | "urgent" | "emergency";
+  categoryId: number;
+  homeownerId: number;
+  suburb: string | null;
+  postcode: string | null;
+  address: string | null;
+  imageUrls: string[] | null;
+  budget: number | null;
+  scheduledFor: Date | null;
+  createdAt: Date;
   categoryName?: string | null;
   homeownerName?: string | null;
   claimCount?: number;

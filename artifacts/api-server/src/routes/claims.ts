@@ -18,15 +18,20 @@ const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
 
 const router = Router();
 
-function buildClaimResponse(
-  claim: typeof claimsTable.$inferSelect & {
-    tradieName?: string | null;
-    tradieRating?: number | null;
-    tradieReviewCount?: number | null;
-    tradieSuburb?: string | null;
-    tradieAvatarUrl?: string | null;
-  }
-) {
+function buildClaimResponse(claim: {
+  id: number;
+  jobId: number;
+  tradieId: number;
+  status: "pending" | "accepted" | "rejected" | "withdrawn" | "completed";
+  message: string | null;
+  proposedPrice: number | null;
+  createdAt: Date;
+  tradieName?: string | null;
+  tradieRating?: number | null;
+  tradieReviewCount?: number | null;
+  tradieSuburb?: string | null;
+  tradieAvatarUrl?: string | null;
+}) {
   return {
     id: claim.id,
     jobId: claim.jobId,

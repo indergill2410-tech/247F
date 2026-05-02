@@ -4,6 +4,7 @@ import { conversationsTable, messagesTable, usersTable, jobsTable, notifications
 import { eq, and, or, desc, count, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
+import { broadcastToRoom } from "../lib/ws-manager.js";
 
 const router = Router();
 
@@ -177,11 +178,16 @@ router.post("/conversations/:id/messages", requireAuth, async (req, res): Promis
     .from(usersTable)
     .where(eq(usersTable.id, userId));
 
-  res.status(201).json({
+  const fullMessage = {
     ...message,
     senderName: senderFull?.name ?? null,
     senderAvatarUrl: senderFull?.avatarUrl ?? null,
-  });
+  };
+
+  // Broadcast to all WS clients in this conversation room
+  broadcastToRoom(convoId, { type: "message", conversationId: convoId, message: fullMessage });
+
+  res.status(201).json(fullMessage);
 });
 
 export default router;
