@@ -202,7 +202,7 @@ export default function HomeownerDashboard() {
                 <Plus className="h-3.5 w-3.5" /> Post a Job
               </button>
             </Link>
-            <Link href="/messages">
+            <Link href="/conversations">
               <button className="h-8 px-3.5 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
                 <MessageSquare className="h-3.5 w-3.5" /> Messages
               </button>
@@ -332,13 +332,13 @@ export default function HomeownerDashboard() {
                                 <ThumbsUp className="h-4 w-4" /> Accept {claim.tradieName?.split(" ")[0]}
                               </button>
                               {claim.conversationId ? (
-                                <Link href={`/messages/${claim.conversationId}`}>
+                                <Link href={`/conversations/${claim.conversationId}`}>
                                   <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
                                     <MessageSquare className="h-4 w-4" /> Message
                                   </button>
                                 </Link>
                               ) : (
-                                <Link href="/messages">
+                                <Link href="/conversations">
                                   <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
                                     <MessageSquare className="h-4 w-4" /> Message
                                   </button>
@@ -557,7 +557,7 @@ export default function HomeownerDashboard() {
         >
           {[
             { href: "/jobs/new",    Icon: Plus,          label: "Post a Job",     sub: "Get matched fast" },
-            { href: "/messages",    Icon: MessageSquare, label: "Messages",       sub: "Chat with tradies" },
+            { href: "/conversations",    Icon: MessageSquare, label: "Messages",       sub: "Chat with tradies" },
             { href: "/jobs",        Icon: Briefcase,     label: "My Jobs",        sub: "Track all your jobs" },
             { href: "/profile",     Icon: User,          label: "My Profile",     sub: "Edit your details" },
           ].map(({ href, Icon, label, sub }) => (

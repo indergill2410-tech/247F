@@ -76,7 +76,7 @@ export default function MessagesPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  onClick={() => setLocation(`/messages/${convo.id}`)}
+                  onClick={() => setLocation(`/conversations/${convo.id}`)}
                   className="bg-[#130f07] border border-white/6 rounded-2xl p-4 cursor-pointer hover:border-[#ffc800]/25 hover:bg-[#1a1508] transition-all group"
                 >
                   <div className="flex items-center gap-4">

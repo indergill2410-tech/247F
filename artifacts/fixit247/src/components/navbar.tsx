@@ -114,8 +114,8 @@ export function Navbar() {
                 {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
               </span>
             </Link>
-            <Link href="/messages">
-              <span className={`${authNavCls("/messages", location)} relative`}>
+            <Link href="/conversations">
+              <span className={`${authNavCls("/conversations", location)} relative`}>
                 <MessageCircle className="h-4 w-4" aria-hidden="true" /> Messages
                 {unreadMessages > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-[#ffc800] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
@@ -189,7 +189,7 @@ export function Navbar() {
                     <Briefcase className="h-4 w-4 mr-2" />
                     {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/messages")}>
+                  <DropdownMenuItem onClick={() => setLocation("/conversations")}>
                     <MessageCircle className="h-4 w-4 mr-2" /> Messages
                     {unreadMessages > 0 && (
                       <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">
@@ -292,8 +292,8 @@ export function Navbar() {
                     {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
                   </span>
                 </Link>
-                <Link href="/messages">
-                  <span className={`${mobileLinkCls("/messages", location)} relative`}>
+                <Link href="/conversations">
+                  <span className={`${mobileLinkCls("/conversations", location)} relative`}>
                     <MessageCircle className="h-4 w-4" aria-hidden="true" /> Messages
                     {unreadMessages > 0 && (
                       <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">

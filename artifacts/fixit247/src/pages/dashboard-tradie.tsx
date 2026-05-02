@@ -239,7 +239,7 @@ export default function TradieDashboard() {
                 <Search className="h-3.5 w-3.5" /> Find Jobs
               </button>
             </Link>
-            <Link href="/messages">
+            <Link href="/conversations">
               <button className="h-8 px-3.5 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
                 <MessageSquare className="h-3.5 w-3.5" /> Messages
               </button>
@@ -371,7 +371,7 @@ export default function TradieDashboard() {
                                 )}
                               </div>
                             </div>
-                            <Link href={claim.conversationId ? `/messages/${claim.conversationId}` : "/messages"}>
+                            <Link href={claim.conversationId ? `/conversations/${claim.conversationId}` : "/conversations"}>
                               <button className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition-colors flex items-center gap-1.5 flex-shrink-0 border border-emerald-500/20">
                                 <MessageSquare className="h-3.5 w-3.5" /> Message
                               </button>
@@ -449,7 +449,7 @@ export default function TradieDashboard() {
                               {st.label}
                             </span>
                             {claim.status === "accepted" && (
-                              <Link href={claim.conversationId ? `/messages/${claim.conversationId}` : "/messages"}>
+                              <Link href={claim.conversationId ? `/conversations/${claim.conversationId}` : "/conversations"}>
                                 <button className="h-7 w-7 rounded-lg bg-white/6 hover:bg-white/12 transition-colors flex items-center justify-center" title="Open conversation">
                                   <MessageSquare className="h-3.5 w-3.5 text-white/60" />
                                 </button>
@@ -720,7 +720,7 @@ export default function TradieDashboard() {
         >
           {[
             { href: "/jobs",     Icon: Search,        label: "Find Jobs",       sub: "Browse open listings" },
-            { href: "/messages", Icon: MessageSquare,  label: "Messages",        sub: "Chat with homeowners" },
+            { href: "/conversations", Icon: MessageSquare,  label: "Messages",        sub: "Chat with homeowners" },
             { href: "/profile",  Icon: User,           label: "My Profile",      sub: "Edit your details" },
             { href: "/profile",  Icon: Star,           label: "See All Reviews", sub: "Your star ratings" },
           ].map(({ href, Icon, label, sub }) => (

@@ -113,7 +113,7 @@ export default function MessageThreadPage() {
       {/* Header */}
       <div className="border-b border-white/6 bg-[#0f0c06] px-4 py-4 flex-shrink-0">
         <div className="container max-w-2xl flex items-center gap-3">
-          <button onClick={() => setLocation("/messages")} className="text-white/40 hover:text-white transition-colors p-1 -ml-1">
+          <button onClick={() => setLocation("/conversations")} className="text-white/40 hover:text-white transition-colors p-1 -ml-1">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="w-9 h-9 rounded-xl bg-[#ffc800] text-black font-black text-base flex items-center justify-center flex-shrink-0">

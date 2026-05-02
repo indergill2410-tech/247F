@@ -209,7 +209,7 @@ export default function JobDetailPage() {
             {(isOwner || (isTradie && alreadyClaimed)) && job.status !== "open" && (
               <button
                 className="h-8 px-4 rounded-lg bg-white/6 border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-xs font-medium transition-all flex items-center gap-1.5"
-                onClick={() => setLocation("/messages")}
+                onClick={() => setLocation("/conversations")}
               >
                 <MessageCircle className="h-3.5 w-3.5" /> Messages
               </button>

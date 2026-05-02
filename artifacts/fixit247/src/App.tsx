@@ -119,6 +119,12 @@ function Router() {
         <Route path="/messages">
           {() => <ProtectedRoute component={MessagesPage} />}
         </Route>
+        <Route path="/conversations/:id">
+          {() => <ProtectedRoute component={MessageThreadPage} />}
+        </Route>
+        <Route path="/conversations">
+          {() => <ProtectedRoute component={MessagesPage} />}
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
