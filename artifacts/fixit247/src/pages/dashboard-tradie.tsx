@@ -3,21 +3,68 @@ import { motion } from "framer-motion";
 import { useGetTradiedashboard, useClaimJob } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star, Briefcase, CheckCircle, DollarSign, ChevronRight, MapPin, Clock, Zap } from "lucide-react";
+import {
+  Star,
+  Briefcase,
+  CheckCircle,
+  ChevronRight,
+  MapPin,
+  Clock,
+  Zap,
+  MessageSquare,
+  User,
+  TrendingUp,
+  Award,
+  Search,
+  PlusCircle,
+  Settings,
+  AlertCircle,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const URGENCY: Record<string, { label: string; cls: string; Icon: React.ElementType }> = {
-  emergency: { label: "Emergency", cls: "bg-red-500/15 text-red-400",    Icon: Zap },
+  emergency: { label: "Emergency", cls: "bg-red-500/15 text-red-400",      Icon: Zap },
   urgent:    { label: "Urgent",    cls: "bg-orange-500/15 text-orange-400", Icon: Clock },
-  standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",      Icon: Briefcase },
+  standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",         Icon: Briefcase },
 };
-const CLAIM_STATUS: Record<string, string> = {
-  pending:   "bg-[#ffc800]/15 text-[#ffc800]",
-  accepted:  "bg-emerald-500/15 text-emerald-400",
-  rejected:  "bg-red-500/15 text-red-400",
-  withdrawn: "bg-white/8 text-white/40",
-  completed: "bg-blue-500/15 text-blue-400",
+
+const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
+  pending:   { label: "Pending",   cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  accepted:  { label: "Accepted",  cls: "bg-emerald-500/15 text-emerald-400" },
+  rejected:  { label: "Rejected",  cls: "bg-red-500/15 text-red-400" },
+  withdrawn: { label: "Withdrawn", cls: "bg-white/8 text-white/40" },
+  completed: { label: "Completed", cls: "bg-blue-500/15 text-blue-400" },
 };
+
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const item = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
+
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`h-3.5 w-3.5 ${i < rating ? "fill-[#ffc800] text-[#ffc800]" : "text-white/20"}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ProfileBar({ pct }: { pct: number }) {
+  const color = pct >= 80 ? "bg-emerald-400" : pct >= 60 ? "bg-[#ffc800]" : "bg-orange-400";
+  return (
+    <div className="w-full bg-white/8 rounded-full h-2 overflow-hidden">
+      <motion.div
+        className={`h-full ${color} rounded-full`}
+        initial={{ width: 0 }}
+        animate={{ width: `${pct}%` }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      />
+    </div>
+  );
+}
 
 export default function TradieDashboard() {
   const { user } = useAuth();
@@ -37,55 +84,356 @@ export default function TradieDashboard() {
     },
   });
 
+  const firstName = user?.name?.split(" ")[0] ?? "Tradie";
+  const pct = data?.profileCompletion ?? 0;
+  const memberSince = data?.memberSince
+    ? new Date(data.memberSince).toLocaleDateString("en-AU", { month: "long", year: "numeric" })
+    : null;
+
   const stats = [
-    { label: "Active Jobs",     value: data?.activeJobs ?? 0,                       icon: Briefcase,   color: "text-blue-400",    bg: "bg-blue-500/10" },
-    { label: "Completed",       value: data?.completedJobs ?? 0,                    icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: "Available Leads", value: data?.availableLeads ?? 0,                   icon: DollarSign,  color: "text-[#ffc800]",   bg: "bg-[#ffc800]/10" },
-    { label: "My Rating",       value: data?.myRating ? `${data.myRating}★` : "–", icon: Star,        color: "text-[#ffc800]",   bg: "bg-[#ffc800]/10" },
+    {
+      label: "Pending",
+      value: data?.pendingCount ?? 0,
+      icon: Clock,
+      color: "text-[#ffc800]",
+      bg: "bg-[#ffc800]/10",
+      desc: "awaiting decision",
+    },
+    {
+      label: "Accepted",
+      value: data?.acceptedCount ?? 0,
+      icon: CheckCircle,
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      desc: "jobs in progress",
+    },
+    {
+      label: "Completed",
+      value: data?.completedJobs ?? 0,
+      icon: Award,
+      color: "text-blue-400",
+      bg: "bg-blue-500/10",
+      desc: "total finished",
+    },
+    {
+      label: "Rating",
+      value: data?.myRating != null ? data.myRating.toFixed(1) : "–",
+      icon: Star,
+      color: "text-[#ffc800]",
+      bg: "bg-[#ffc800]/10",
+      desc: `${data?.myReviewCount ?? 0} review${(data?.myReviewCount ?? 0) !== 1 ? "s" : ""}`,
+    },
+    {
+      label: "New Leads",
+      value: data?.availableLeads ?? 0,
+      icon: TrendingUp,
+      color: "text-purple-400",
+      bg: "bg-purple-500/10",
+      desc: "open jobs today",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6">
-          <h1 className="text-2xl font-black text-white">Welcome back, {user?.name?.split(" ")[0]}!</h1>
-          <p className="text-white/45 mt-1 text-sm">Find jobs and manage your work.</p>
+      {/* Hero header */}
+      <div className="border-b border-white/6 bg-[#0f0c06]">
+        <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white">
+                Welcome back, {firstName}!
+              </h1>
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                <p className="text-white/45 text-sm">Tradie dashboard</p>
+                {memberSince && (
+                  <>
+                    <span className="text-white/20 text-xs">·</span>
+                    <p className="text-white/35 text-xs">Member since {memberSince}</p>
+                  </>
+                )}
+                {data?.myCategories?.length ? (
+                  <>
+                    <span className="text-white/20 text-xs">·</span>
+                    <div className="flex gap-1 flex-wrap">
+                      {data.myCategories.slice(0, 3).map((cat) => (
+                        <span
+                          key={cat.id}
+                          className="text-[10px] font-semibold bg-[#ffc800]/10 text-[#ffc800] px-2 py-0.5 rounded-md"
+                        >
+                          {cat.name}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            </div>
+            {/* Quick actions */}
+            <div className="flex gap-2">
+              <Link href="/jobs">
+                <button className="h-9 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex items-center gap-2">
+                  <Search className="h-4 w-4" /> Find Jobs
+                </button>
+              </Link>
+              <Link href="/conversations">
+                <button className="h-9 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
+                  <MessageSquare className="h-4 w-4" /> Messages
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.07 }}
-              whileHover={{ y: -2 }}
-            >
-              <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-5 transition-colors h-full">
-                <div className="flex items-center justify-between">
+        {/* Stats grid */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+        >
+          {stats.map((s) => (
+            <motion.div key={s.label} variants={item} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+              <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-4 transition-colors h-full">
+                <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs text-white/40 font-medium">{s.label}</p>
-                    {isLoading
-                      ? <Skeleton className="h-8 w-12 mt-1.5 bg-white/8" />
-                      : <p className="text-3xl font-black text-white mt-1">{s.value}</p>
-                    }
+                    {isLoading ? (
+                      <Skeleton className="h-8 w-10 mt-1.5 bg-white/8" />
+                    ) : (
+                      <p className="text-3xl font-black text-white mt-1">{s.value}</p>
+                    )}
+                    <p className="text-[10px] text-white/25 mt-0.5">{s.desc}</p>
                   </div>
-                  <div className={`${s.bg} ${s.color} p-2.5 rounded-xl`}>
-                    <s.icon className="h-5 w-5" />
+                  <div className={`${s.bg} ${s.color} p-2 rounded-xl flex-shrink-0`}>
+                    <s.icon className="h-4 w-4" />
                   </div>
                 </div>
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Pipeline strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="bg-[#130f07] border border-white/6 rounded-2xl p-5"
+        >
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Job Pipeline</p>
+          <div className="flex items-center gap-2">
+            {[
+              { label: "Pending",   value: data?.pendingCount ?? 0,   color: "bg-[#ffc800]" },
+              { label: "Accepted",  value: data?.acceptedCount ?? 0,  color: "bg-emerald-400" },
+              { label: "Completed", value: data?.completedJobs ?? 0,  color: "bg-blue-400" },
+            ].map((stage, idx) => {
+              const total = (data?.pendingCount ?? 0) + (data?.acceptedCount ?? 0) + (data?.completedJobs ?? 0);
+              const pctW = total > 0 ? Math.max((stage.value / total) * 100, 4) : 33.3;
+              return (
+                <div key={stage.label} className="flex items-center gap-2 flex-1">
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs text-white/40">{stage.label}</span>
+                      <span className="text-xs font-bold text-white">{isLoading ? "…" : stage.value}</span>
+                    </div>
+                    <div className="h-2 bg-white/6 rounded-full overflow-hidden">
+                      <motion.div
+                        className={`h-full ${stage.color} rounded-full`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pctW}%` }}
+                        transition={{ duration: 0.7, delay: 0.4 + idx * 0.1 }}
+                      />
+                    </div>
+                  </div>
+                  {idx < 2 && <ChevronRight className="h-4 w-4 text-white/20 flex-shrink-0" />}
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Recent Claims — takes 2/3 width */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="lg:col-span-2 bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
+              <h2 className="font-bold text-white">My Recent Claims</h2>
+              <Link href="/jobs">
+                <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+                  All jobs <ChevronRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            </div>
+            <div className="divide-y divide-white/5">
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="px-6 py-4">
+                    <Skeleton className="h-12 w-full bg-white/6" />
+                  </div>
+                ))
+              ) : !data?.recentClaims?.length ? (
+                <div className="text-center py-12 text-white/35">
+                  <Briefcase className="h-8 w-8 mx-auto mb-3 text-white/15" />
+                  <p className="text-sm font-medium text-white/40">No claims yet</p>
+                  <p className="text-xs mt-1">Start claiming open jobs to grow your business.</p>
+                  <Link href="/jobs">
+                    <button className="mt-4 h-9 px-5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+                      Browse Jobs
+                    </button>
+                  </Link>
+                </div>
+              ) : (
+                data.recentClaims.map((claim) => {
+                  const st = CLAIM_STATUS[claim.status] ?? CLAIM_STATUS.pending;
+                  const urg = URGENCY[claim.jobUrgency ?? "standard"] ?? URGENCY.standard;
+                  const Icon = urg.Icon;
+                  return (
+                    <div key={claim.id} className="px-6 py-4 hover:bg-white/2 transition-colors">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link href={`/jobs/${claim.jobId}`}>
+                              <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                                {claim.jobTitle ?? `Job #${claim.jobId}`}
+                              </span>
+                            </Link>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${urg.cls}`}>
+                              <Icon className="h-2.5 w-2.5" /> {urg.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-white/35">
+                            {claim.jobSuburb && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" /> {claim.jobSuburb}
+                              </span>
+                            )}
+                            <span>{new Date(claim.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${st.cls}`}>
+                            {st.label}
+                          </span>
+                          {claim.conversationId && claim.status === "accepted" && (
+                            <Link href={`/conversations`}>
+                              <button className="h-7 w-7 rounded-lg bg-white/6 hover:bg-white/12 transition-colors flex items-center justify-center" title="Open conversation">
+                                <MessageSquare className="h-3.5 w-3.5 text-white/60" />
+                              </button>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </motion.div>
+
+          {/* Right column: reviews + profile */}
+          <div className="space-y-6">
+            {/* Recent Reviews */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+            >
+              <div className="px-5 py-4 border-b border-white/6">
+                <h2 className="font-bold text-white">Recent Reviews</h2>
+              </div>
+              <div className="divide-y divide-white/5">
+                {isLoading ? (
+                  Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="px-5 py-4"><Skeleton className="h-14 w-full bg-white/6" /></div>
+                  ))
+                ) : !data?.recentReviews?.length ? (
+                  <div className="text-center py-8 text-white/30 px-5">
+                    <Star className="h-6 w-6 mx-auto mb-2 text-white/15" />
+                    <p className="text-xs">No reviews yet. Complete jobs to earn them.</p>
+                  </div>
+                ) : (
+                  data.recentReviews.map((rev) => (
+                    <div key={rev.id} className="px-5 py-4">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <StarRow rating={rev.rating} />
+                        <span className="text-[10px] text-white/30">
+                          {new Date(rev.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}
+                        </span>
+                      </div>
+                      {rev.comment && (
+                        <p className="text-xs text-white/55 italic line-clamp-2">"{rev.comment}"</p>
+                      )}
+                      <p className="text-[10px] text-white/30 mt-1.5">— {rev.reviewerName ?? "Anonymous"}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+
+            {/* Profile Completion */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+              className="bg-[#130f07] border border-white/6 rounded-2xl p-5"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-bold text-white text-sm">Profile Strength</h2>
+                <span className={`text-sm font-black ${pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-[#ffc800]" : "text-orange-400"}`}>
+                  {isLoading ? "…" : `${pct}%`}
+                </span>
+              </div>
+              {!isLoading && <ProfileBar pct={pct} />}
+              {isLoading && <Skeleton className="h-2 w-full bg-white/8 rounded-full" />}
+              {!isLoading && pct < 100 && (
+                <div className="mt-3 space-y-1.5">
+                  {[
+                    { done: true, label: "Account created" },
+                    { done: !!user?.phone, label: "Add phone number" },
+                    { done: !!user?.bio, label: "Write a bio" },
+                    { done: !!user?.suburb, label: "Set your suburb" },
+                    { done: (data?.myCategories?.length ?? 0) > 0, label: "Add your skills" },
+                  ]
+                    .filter((s) => !s.done)
+                    .slice(0, 2)
+                    .map((s) => (
+                      <div key={s.label} className="flex items-center gap-2 text-xs text-white/40">
+                        <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0" />
+                        {s.label}
+                      </div>
+                    ))}
+                </div>
+              )}
+              {!isLoading && pct === 100 && (
+                <p className="mt-2 text-xs text-emerald-400 flex items-center gap-1.5">
+                  <CheckCircle className="h-3.5 w-3.5" /> Profile complete!
+                </p>
+              )}
+              <Link href="/profile">
+                <button className="mt-4 w-full h-8 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 border border-white/8">
+                  <Settings className="h-3.5 w-3.5" /> Edit Profile
+                </button>
+              </Link>
+            </motion.div>
+          </div>
         </div>
 
         {/* Available Jobs */}
-        <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+        >
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
-            <h2 className="font-bold text-white">Available Jobs Near You</h2>
+            <h2 className="font-bold text-white">Available Jobs</h2>
             <Link href="/jobs">
               <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
                 Browse all <ChevronRight className="h-3.5 w-3.5" />
@@ -94,82 +442,95 @@ export default function TradieDashboard() {
           </div>
           <div className="divide-y divide-white/5">
             {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
+              Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="px-6 py-4"><Skeleton className="h-16 w-full bg-white/6" /></div>
               ))
             ) : !data?.availableJobs?.length ? (
-              <div className="text-center py-10 text-white/35">
-                <p className="text-sm">No available jobs right now. Check back soon!</p>
+              <div className="text-center py-12 text-white/35">
+                <Search className="h-8 w-8 mx-auto mb-3 text-white/15" />
+                <p className="text-sm font-medium text-white/40">No available jobs right now</p>
+                <p className="text-xs mt-1">Check back soon — new jobs are posted regularly.</p>
               </div>
             ) : (
               data.availableJobs.map((job) => {
                 const u = URGENCY[job.urgency] ?? URGENCY.standard;
                 const Icon = u.Icon;
                 return (
-                  <div key={job.id} className="px-6 py-4 hover:bg-white/3 transition-colors">
-                    <div className="flex items-start justify-between gap-3">
+                  <div key={job.id} className="px-6 py-4 hover:bg-white/2 transition-colors group">
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <Link href={`/jobs/${job.id}`}>
-                            <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors">{job.title}</span>
+                            <span className="font-semibold text-white group-hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                              {job.title}
+                            </span>
                           </Link>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${u.cls}`}>
-                            <Icon className="h-3 w-3" /> {u.label}
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${u.cls}`}>
+                            <Icon className="h-2.5 w-2.5" /> {u.label}
                           </span>
+                          {job.categoryName && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/40">
+                              {job.categoryName}
+                            </span>
+                          )}
                         </div>
-                        <p className="text-sm text-white/45 line-clamp-1">{job.description}</p>
-                        <div className="flex items-center gap-4 mt-1.5 text-xs text-white/35">
-                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.suburb ?? "Remote"}</span>
-                          <span>{job.categoryName}</span>
-                          {job.budget && <span className="text-white/60 font-semibold">${job.budget}</span>}
+                        <p className="text-xs text-white/40 line-clamp-1">{job.description}</p>
+                        <div className="flex items-center gap-4 mt-1.5 text-xs text-white/30">
+                          {job.suburb && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" /> {job.suburb}
+                            </span>
+                          )}
+                          {job.budget && (
+                            <span className="text-white/60 font-semibold">${job.budget.toLocaleString()}</span>
+                          )}
+                          <span>{new Date(job.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
                         </div>
                       </div>
-                      <button
-                        className="h-8 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black font-bold text-xs transition-all flex-shrink-0 disabled:opacity-50"
-                        disabled={claimMutation.isPending}
-                        onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
-                      >
-                        Claim
-                      </button>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Link href={`/jobs/${job.id}`}>
+                          <button className="h-8 px-3 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors border border-white/8">
+                            View
+                          </button>
+                        </Link>
+                        <button
+                          className="h-8 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black font-bold text-xs transition-all disabled:opacity-50"
+                          disabled={claimMutation.isPending}
+                          onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
+                        >
+                          Claim
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
               })
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* My Recent Claims */}
-        <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-white/6">
-            <h2 className="font-bold text-white">My Recent Claims</h2>
-          </div>
-          <div className="divide-y divide-white/5">
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="px-6 py-3"><Skeleton className="h-10 w-full bg-white/6" /></div>
-              ))
-            ) : !data?.recentClaims?.length ? (
-              <div className="text-center py-8 text-white/35 text-sm">
-                No claims yet. Start claiming jobs above!
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        >
+          {[
+            { href: "/jobs",          Icon: Search,       label: "Find Jobs",       sub: "Browse open listings" },
+            { href: "/conversations", Icon: MessageSquare, label: "Messages",        sub: "Chat with homeowners" },
+            { href: "/profile",       Icon: User,          label: "My Profile",      sub: "Edit your details" },
+            { href: "/partner",       Icon: PlusCircle,    label: "Grow Business",   sub: "Become a partner" },
+          ].map(({ href, Icon, label, sub }) => (
+            <Link key={href} href={href}>
+              <div className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-all group hover:bg-[#1a1508]">
+                <Icon className="h-5 w-5 text-[#ffc800] mb-2.5 group-hover:scale-110 transition-transform" />
+                <p className="text-sm font-bold text-white">{label}</p>
+                <p className="text-xs text-white/35 mt-0.5">{sub}</p>
               </div>
-            ) : (
-              data.recentClaims.map((claim) => (
-                <Link href={`/jobs/${claim.jobId}`} key={claim.id}>
-                  <div className="flex items-center justify-between px-6 py-4 hover:bg-white/3 cursor-pointer transition-colors">
-                    <div>
-                      <p className="text-sm font-semibold text-white">Job #{claim.jobId}</p>
-                      <p className="text-xs text-white/35 mt-0.5">{new Date(claim.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${CLAIM_STATUS[claim.status] ?? "bg-white/8 text-white/40"}`}>
-                      {claim.status}
-                    </span>
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
+            </Link>
+          ))}
+        </motion.div>
       </div>
     </div>
   );

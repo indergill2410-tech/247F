@@ -1233,10 +1233,86 @@ components:
         - recentJobs
         - pendingClaims
 
+    DashboardClaim:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        tradieId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, accepted, rejected, withdrawn, completed]
+        message:
+          type: string
+          nullable: true
+        proposedPrice:
+          type: number
+          nullable: true
+        jobTitle:
+          type: string
+          nullable: true
+        jobSuburb:
+          type: string
+          nullable: true
+        jobUrgency:
+          type: string
+          nullable: true
+        conversationId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - jobId
+        - tradieId
+        - status
+        - createdAt
+
+    DashboardReview:
+      type: object
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+        comment:
+          type: string
+          nullable: true
+        reviewerName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - rating
+        - createdAt
+
+    DashboardCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+
     TradieDashboard:
       type: object
       properties:
         activeJobs:
+          type: integer
+        pendingCount:
+          type: integer
+        acceptedCount:
           type: integer
         completedJobs:
           type: integer
@@ -1247,20 +1323,42 @@ components:
         myRating:
           type: number
           nullable: true
+        myReviewCount:
+          type: integer
+        memberSince:
+          type: string
+          format: date-time
+        profileCompletion:
+          type: integer
         recentClaims:
           type: array
           items:
-            $ref: "#/components/schemas/Claim"
+            $ref: "#/components/schemas/DashboardClaim"
+        recentReviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/DashboardReview"
+        myCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/DashboardCategory"
         availableJobs:
           type: array
           items:
             $ref: "#/components/schemas/Job"
       required:
         - activeJobs
+        - pendingCount
+        - acceptedCount
         - completedJobs
         - totalEarnings
         - availableLeads
+        - myReviewCount
+        - memberSince
+        - profileCompletion
         - recentClaims
+        - recentReviews
+        - myCategories
         - availableJobs
 
     AdminDashboard:

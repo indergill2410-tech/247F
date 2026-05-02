@@ -533,20 +533,20 @@ export const GetHomeownerDashboardResponse = zod.object({
  */
 export const GetTradiedashboardResponse = zod.object({
   activeJobs: zod.number(),
+  pendingCount: zod.number(),
+  acceptedCount: zod.number(),
   completedJobs: zod.number(),
   totalEarnings: zod.number(),
   availableLeads: zod.number(),
   myRating: zod.number().nullish(),
+  myReviewCount: zod.number(),
+  memberSince: zod.coerce.date(),
+  profileCompletion: zod.number(),
   recentClaims: zod.array(
     zod.object({
       id: zod.number(),
       jobId: zod.number(),
       tradieId: zod.number(),
-      tradieName: zod.string().nullish(),
-      tradieRating: zod.number().nullish(),
-      tradieReviewCount: zod.number().nullable(),
-      tradieSuburb: zod.string().nullish(),
-      tradieAvatarUrl: zod.string().nullish(),
       status: zod.enum([
         "pending",
         "accepted",
@@ -556,7 +556,26 @@ export const GetTradiedashboardResponse = zod.object({
       ]),
       message: zod.string().nullish(),
       proposedPrice: zod.number().nullish(),
+      jobTitle: zod.string().nullish(),
+      jobSuburb: zod.string().nullish(),
+      jobUrgency: zod.string().nullish(),
+      conversationId: zod.number().nullish(),
       createdAt: zod.coerce.date(),
+    }),
+  ),
+  recentReviews: zod.array(
+    zod.object({
+      id: zod.number(),
+      rating: zod.number(),
+      comment: zod.string().nullish(),
+      reviewerName: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  myCategories: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
     }),
   ),
   availableJobs: zod.array(

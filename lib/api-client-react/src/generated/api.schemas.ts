@@ -291,13 +291,58 @@ export interface HomeownerDashboard {
   pendingClaims: number;
 }
 
+export type DashboardClaimStatus =
+  (typeof DashboardClaimStatus)[keyof typeof DashboardClaimStatus];
+
+export const DashboardClaimStatus = {
+  pending: "pending",
+  accepted: "accepted",
+  rejected: "rejected",
+  withdrawn: "withdrawn",
+  completed: "completed",
+} as const;
+
+export interface DashboardClaim {
+  id: number;
+  jobId: number;
+  tradieId: number;
+  status: DashboardClaimStatus;
+  message?: string | null;
+  proposedPrice?: number | null;
+  jobTitle?: string | null;
+  jobSuburb?: string | null;
+  jobUrgency?: string | null;
+  conversationId?: number | null;
+  createdAt: string;
+}
+
+export interface DashboardReview {
+  id: number;
+  rating: number;
+  comment?: string | null;
+  reviewerName?: string | null;
+  createdAt: string;
+}
+
+export interface DashboardCategory {
+  id: number;
+  name: string;
+}
+
 export interface TradieDashboard {
   activeJobs: number;
+  pendingCount: number;
+  acceptedCount: number;
   completedJobs: number;
   totalEarnings: number;
   availableLeads: number;
   myRating?: number | null;
-  recentClaims: Claim[];
+  myReviewCount: number;
+  memberSince: string;
+  profileCompletion: number;
+  recentClaims: DashboardClaim[];
+  recentReviews: DashboardReview[];
+  myCategories: DashboardCategory[];
   availableJobs: Job[];
 }
 
