@@ -26,6 +26,15 @@ function UrgencyBadge({ urgency }: { urgency: string }) {
   return <span className={`text-xs font-semibold px-2 py-0.5 rounded-md capitalize ${URGENCY_MAP[urgency] ?? "bg-white/8 text-white/40"}`}>{urgency}</span>;
 }
 
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
+
 export default function HomeownerDashboard() {
   const { user } = useAuth();
   const { data, isLoading } = useGetHomeownerDashboard();
@@ -51,24 +60,36 @@ export default function HomeownerDashboard() {
             <p className="text-white/45 mt-1 text-sm">Here's what's happening with your jobs.</p>
           </div>
           <Link href="/jobs/new">
-            <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors"
+            >
               <Plus className="h-4 w-4" /> Post New Job
-            </button>
+            </motion.button>
           </Link>
         </div>
       </div>
 
-      <div className="container max-w-5xl py-8 space-y-8">
+      <div className="container max-w-6xl py-8 space-y-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-              <div className="bg-[#130f07] border border-white/6 rounded-2xl p-5">
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {stats.map((s) => (
+            <motion.div
+              key={s.label}
+              variants={itemVariants}
+              whileHover={{ y: -3, transition: { duration: 0.15 } }}
+            >
+              <div className="bg-[#130f07] border border-white/6 hover:border-white/10 rounded-2xl p-5 transition-colors">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-white/45 font-medium">{s.label}</p>
                     {isLoading
-                      ? <Skeleton className="h-8 w-12 mt-1.5 bg-white/8" />
+                      ? <Skeleton className="h-8 w-12 mt-1.5 skeleton-shimmer bg-white/5" />
                       : <p className="text-3xl font-black text-white mt-1">{s.value}</p>
                     }
                   </div>
@@ -79,10 +100,15 @@ export default function HomeownerDashboard() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Recent Jobs */}
-        <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+        <motion.div
+          className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28, duration: 0.3 }}
+        >
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
             <h2 className="font-bold text-white">Recent Jobs</h2>
             <Link href="/jobs">
@@ -94,23 +120,33 @@ export default function HomeownerDashboard() {
           <div className="divide-y divide-white/5">
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
+                <div key={i} className="px-6 py-4">
+                  <div className="h-12 w-full rounded-lg skeleton-shimmer bg-white/5" />
+                </div>
               ))
             ) : !data?.recentJobs?.length ? (
               <div className="text-center py-14 text-white/35">
                 <Wrench className="h-10 w-10 mx-auto mb-3 opacity-30" />
                 <p className="font-semibold text-white/50">No jobs yet</p>
-                <p className="text-sm mt-1">Post your first job to get started</p>
+                <p className="text-sm mt-1">Post your first job to get matched instantly</p>
                 <Link href="/jobs/new">
-                  <button className="mt-5 h-9 px-5 rounded-xl bg-[#f5c518] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors inline-flex items-center gap-1.5">
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    className="mt-5 h-9 px-5 rounded-xl bg-[#f5c518] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors inline-flex items-center gap-1.5"
+                  >
                     <Plus className="h-4 w-4" /> Post a Job
-                  </button>
+                  </motion.button>
                 </Link>
               </div>
             ) : (
-              data.recentJobs.map((job) => (
+              data.recentJobs.map((job, i) => (
                 <Link href={`/jobs/${job.id}`} key={job.id}>
-                  <div className="flex items-center justify-between px-6 py-4 hover:bg-white/3 cursor-pointer transition-colors group">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.04 }}
+                    className="flex items-center justify-between px-6 py-4 hover:bg-white/3 cursor-pointer transition-colors group"
+                  >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-white truncate group-hover:text-[#f5c518] transition-colors">{job.title}</p>
@@ -119,18 +155,27 @@ export default function HomeownerDashboard() {
                       </div>
                       <p className="text-xs text-white/40 mt-0.5">{job.categoryName} · {job.suburb ?? "Remote"}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#f5c518] flex-shrink-0 ml-3 transition-colors" />
-                  </div>
+                    <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#f5c518] group-hover:translate-x-0.5 flex-shrink-0 ml-3 transition-all duration-150" />
+                  </motion.div>
                 </Link>
               ))
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Quick actions */}
-        <div className="grid sm:grid-cols-2 gap-4">
+        <motion.div
+          className="grid sm:grid-cols-2 gap-4"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.3 }}
+        >
           <Link href="/jobs/new">
-            <div className="group bg-[#130f07] border border-white/6 hover:border-[#f5c518]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all">
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.15 } }}
+              whileTap={{ scale: 0.98 }}
+              className="group bg-[#130f07] border border-white/6 hover:border-[#f5c518]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
+            >
               <div className="w-11 h-11 bg-[#f5c518] rounded-xl flex items-center justify-center flex-shrink-0">
                 <Plus className="h-5 w-5 text-black" />
               </div>
@@ -138,10 +183,14 @@ export default function HomeownerDashboard() {
                 <p className="font-bold text-white group-hover:text-[#f5c518] transition-colors">Post a New Job</p>
                 <p className="text-xs text-white/40 mt-0.5">Get matched with tradies in minutes</p>
               </div>
-            </div>
+            </motion.div>
           </Link>
           <Link href="/notifications">
-            <div className="group bg-[#130f07] border border-white/6 hover:border-[#f5c518]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all">
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.15 } }}
+              whileTap={{ scale: 0.98 }}
+              className="group bg-[#130f07] border border-white/6 hover:border-[#f5c518]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
+            >
               <div className="w-11 h-11 bg-white/8 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Bell className="h-5 w-5 text-[#f5c518]" />
               </div>
@@ -149,9 +198,9 @@ export default function HomeownerDashboard() {
                 <p className="font-bold text-white group-hover:text-[#f5c518] transition-colors">Notifications</p>
                 <p className="text-xs text-white/40 mt-0.5">See claims &amp; updates</p>
               </div>
-            </div>
+            </motion.div>
           </Link>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -45,12 +45,29 @@ export function Navbar() {
     user?.role === "tradie" ? "/dashboard/tradie" :
     "/dashboard";
 
+  const isActive = (href: string) =>
+    location === href || (href !== "/" && location.startsWith(href));
+
+  const navLinkCls = (href: string) =>
+    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
+      isActive(href)
+        ? "text-white bg-white/8"
+        : "text-white/55 hover:text-white hover:bg-white/5"
+    }`;
+
+  const navLinkWithIconCls = (href: string) =>
+    `flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
+      isActive(href)
+        ? "text-white bg-white/8"
+        : "text-white/55 hover:text-white hover:bg-white/5"
+    }`;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/8 bg-[#0b0904]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0904]/80">
       <div className="container flex h-16 items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/">
-          <span className="flex items-center gap-2 cursor-pointer shrink-0">
+          <span className="flex items-center gap-2 cursor-pointer shrink-0 transition-opacity duration-150 hover:opacity-85">
             <Wrench className="h-5 w-5 text-[#f5c518]" />
             <span className="font-black text-xl text-white tracking-tight">
               Fixit <span className="text-[#f5c518]">24/7</span>
@@ -60,36 +77,28 @@ export function Navbar() {
 
         {/* Centre nav */}
         {!isAuthenticated ? (
-          <nav className="hidden md:flex items-center gap-1 mx-auto">
+          <nav className="hidden md:flex items-center gap-0.5 mx-auto">
             {PUBLIC_NAV.map((item) => (
               <Link key={item.href} href={item.href}>
-                <span
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                    location === item.href
-                      ? "text-white"
-                      : "text-white/55 hover:text-white"
-                  }`}
-                >
-                  {item.label}
-                </span>
+                <span className={navLinkCls(item.href)}>{item.label}</span>
               </Link>
             ))}
           </nav>
         ) : (
-          <nav className="hidden md:flex items-center gap-1 mx-auto">
+          <nav className="hidden md:flex items-center gap-0.5 mx-auto">
             <Link href={dashboardHref}>
-              <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
+              <span className={navLinkWithIconCls(dashboardHref)}>
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </span>
             </Link>
             <Link href="/jobs">
-              <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
+              <span className={navLinkWithIconCls("/jobs")}>
                 <Briefcase className="h-4 w-4" />
                 {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
               </span>
             </Link>
             <Link href="/messages">
-              <span className="relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
+              <span className={`relative ${navLinkWithIconCls("/messages")}`}>
                 <MessageCircle className="h-4 w-4" /> Messages
                 {unreadMessages > 0 && (
                   <span className="absolute top-1 right-1 min-w-[14px] h-3.5 bg-[#f5c518] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
@@ -100,7 +109,7 @@ export function Navbar() {
             </Link>
             {user?.role === "admin" && (
               <Link href="/admin">
-                <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
+                <span className={navLinkWithIconCls("/admin")}>
                   <ShieldCheck className="h-4 w-4" /> Admin
                 </span>
               </Link>
@@ -118,7 +127,7 @@ export function Navbar() {
                 </span>
               </Link>
               <Link href="/signup">
-                <button className="h-9 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+                <button className="h-9 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all duration-150">
                   Create account
                 </button>
               </Link>
@@ -127,7 +136,7 @@ export function Navbar() {
             <>
               {/* Bell */}
               <Link href="/notifications">
-                <button className="relative h-9 w-9 rounded-lg text-white/60 hover:text-white hover:bg-white/8 flex items-center justify-center transition-colors">
+                <button className="relative h-9 w-9 rounded-lg text-white/60 hover:text-white hover:bg-white/8 active:scale-[0.95] flex items-center justify-center transition-all duration-150">
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#f5c518] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
@@ -140,7 +149,7 @@ export function Navbar() {
               {/* User menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 transition-colors">
+                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 active:bg-white/12 transition-all duration-150">
                     <Avatar className="h-7 w-7">
                       <AvatarFallback className="bg-[#f5c518] text-black text-xs font-black">
                         {user?.name?.charAt(0).toUpperCase() ?? "U"}
