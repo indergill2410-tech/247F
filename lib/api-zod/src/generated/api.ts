@@ -542,6 +542,27 @@ export const GetTradiedashboardResponse = zod.object({
   myReviewCount: zod.number(),
   memberSince: zod.coerce.date(),
   profileCompletion: zod.number(),
+  acceptedClaims: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.number(),
+      tradieId: zod.number(),
+      status: zod.enum([
+        "pending",
+        "accepted",
+        "rejected",
+        "withdrawn",
+        "completed",
+      ]),
+      message: zod.string().nullish(),
+      proposedPrice: zod.number().nullish(),
+      jobTitle: zod.string().nullish(),
+      jobSuburb: zod.string().nullish(),
+      jobUrgency: zod.string().nullish(),
+      conversationId: zod.number().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
   recentClaims: zod.array(
     zod.object({
       id: zod.number(),

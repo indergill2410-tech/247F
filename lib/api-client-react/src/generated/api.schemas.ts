@@ -340,6 +340,7 @@ export interface TradieDashboard {
   myReviewCount: number;
   memberSince: string;
   profileCompletion: number;
+  acceptedClaims: DashboardClaim[];
   recentClaims: DashboardClaim[];
   recentReviews: DashboardReview[];
   myCategories: DashboardCategory[];

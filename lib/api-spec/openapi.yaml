@@ -1330,6 +1330,10 @@ components:
           format: date-time
         profileCompletion:
           type: integer
+        acceptedClaims:
+          type: array
+          items:
+            $ref: "#/components/schemas/DashboardClaim"
         recentClaims:
           type: array
           items:
@@ -1356,6 +1360,7 @@ components:
         - myReviewCount
         - memberSince
         - profileCompletion
+        - acceptedClaims
         - recentClaims
         - recentReviews
         - myCategories

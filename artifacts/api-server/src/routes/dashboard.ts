@@ -98,6 +98,33 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
     .from(usersTable)
     .where(eq(usersTable.id, userId));
 
+  // All accepted (in-progress) claims — no limit, for the dedicated accepted jobs card
+  const acceptedClaims = await db
+    .select({
+      id: claimsTable.id,
+      jobId: claimsTable.jobId,
+      tradieId: claimsTable.tradieId,
+      status: claimsTable.status,
+      message: claimsTable.message,
+      proposedPrice: claimsTable.proposedPrice,
+      createdAt: claimsTable.createdAt,
+      jobTitle: jobsTable.title,
+      jobSuburb: jobsTable.suburb,
+      jobUrgency: jobsTable.urgency,
+      conversationId: conversationsTable.id,
+    })
+    .from(claimsTable)
+    .leftJoin(jobsTable, eq(jobsTable.id, claimsTable.jobId))
+    .leftJoin(
+      conversationsTable,
+      and(
+        eq(conversationsTable.jobId, claimsTable.jobId),
+        eq(conversationsTable.tradieId, claimsTable.tradieId)
+      )
+    )
+    .where(and(eq(claimsTable.tradieId, userId), eq(claimsTable.status, "accepted")))
+    .orderBy(desc(claimsTable.createdAt));
+
   // Recent claims joined with job details + conversation IDs
   const recentClaims = await db
     .select({
@@ -194,6 +221,19 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
     myReviewCount: me?.reviewCount ?? 0,
     memberSince: me?.createdAt ?? new Date(),
     profileCompletion,
+    acceptedClaims: acceptedClaims.map((c) => ({
+      id: c.id,
+      jobId: c.jobId,
+      tradieId: c.tradieId,
+      status: c.status,
+      message: c.message ?? null,
+      proposedPrice: c.proposedPrice ?? null,
+      createdAt: c.createdAt,
+      jobTitle: c.jobTitle ?? null,
+      jobSuburb: c.jobSuburb ?? null,
+      jobUrgency: c.jobUrgency ?? null,
+      conversationId: c.conversationId ?? null,
+    })),
     recentClaims: recentClaims.map((c) => ({
       id: c.id,
       jobId: c.jobId,

@@ -44,9 +44,25 @@ function StarRow({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }
   const cls = size === "md" ? "h-4 w-4" : "h-3.5 w-3.5";
   return (
     <div className="flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className={`${cls} ${i < rating ? "fill-[#ffc800] text-[#ffc800]" : "text-white/20"}`} />
-      ))}
+      {Array.from({ length: 5 }).map((_, i) => {
+        const filled = rating >= i + 1;
+        const half = !filled && rating > i && rating < i + 1;
+        return (
+          <span key={i} className="relative inline-block">
+            {/* empty base */}
+            <Star className={`${cls} text-white/20`} />
+            {/* filled overlay */}
+            {(filled || half) && (
+              <span
+                className="absolute inset-0 overflow-hidden"
+                style={{ width: filled ? "100%" : "50%" }}
+              >
+                <Star className={`${cls} fill-[#ffc800] text-[#ffc800]`} />
+              </span>
+            )}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -124,8 +140,8 @@ export default function TradieDashboard() {
     ? new Date(data.memberSince).toLocaleDateString("en-AU", { month: "long", year: "numeric" })
     : null;
 
-  // Accepted claims for the dedicated in-progress section
-  const acceptedClaims = data?.recentClaims?.filter((c) => c.status === "accepted") ?? [];
+  // Accepted claims sourced directly from dedicated API field (comprehensive, no limit)
+  const acceptedClaims = data?.acceptedClaims ?? [];
 
   const stats = [
     {
