@@ -7,6 +7,10 @@ import { Navbar } from "@/components/navbar";
 import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
+import HowItWorksPage from "@/pages/how-it-works";
+import CategoriesPublicPage from "@/pages/categories";
+import AboutPage from "@/pages/about";
+import CareersPage from "@/pages/careers";
 import HomeownerDashboard from "@/pages/dashboard-homeowner";
 import TradieDashboard from "@/pages/dashboard-tradie";
 import AdminDashboard from "@/pages/dashboard-admin";
@@ -33,7 +37,7 @@ function ProtectedRoute({ component: Component, roles }: { component: React.Comp
   return <Component />;
 }
 
-const HIDE_NAVBAR_PATHS = ["/login", "/register"];
+const HIDE_NAVBAR_PATHS = ["/login", "/register", "/signup"];
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -50,20 +54,40 @@ function Router() {
   return (
     <AppLayout>
       <Switch>
+        {/* Public */}
         <Route path="/" component={LandingPage} />
+        <Route path="/how-it-works" component={HowItWorksPage} />
+        <Route path="/categories" component={CategoriesPublicPage} />
+        <Route path="/about" component={AboutPage} />
+        <Route path="/careers" component={CareersPage} />
         <Route path="/login" component={LoginPage} />
         <Route path="/register" component={RegisterPage} />
+        <Route path="/signup" component={RegisterPage} />
+
+        {/* Protected */}
         <Route path="/dashboard">
+          {() => <ProtectedRoute component={HomeownerDashboard} roles={["homeowner", "admin"]} />}
+        </Route>
+        <Route path="/dashboard/homeowner">
           {() => <ProtectedRoute component={HomeownerDashboard} roles={["homeowner", "admin"]} />}
         </Route>
         <Route path="/dashboard/tradie">
           {() => <ProtectedRoute component={TradieDashboard} roles={["tradie", "admin"]} />}
+        </Route>
+        <Route path="/dashboard/admin">
+          {() => <ProtectedRoute component={AdminDashboard} roles={["admin"]} />}
         </Route>
         <Route path="/admin">
           {() => <ProtectedRoute component={AdminDashboard} roles={["admin"]} />}
         </Route>
         <Route path="/jobs/new">
           {() => <ProtectedRoute component={PostJobPage} roles={["homeowner", "admin"]} />}
+        </Route>
+        <Route path="/post-job">
+          {() => <ProtectedRoute component={PostJobPage} roles={["homeowner", "admin"]} />}
+        </Route>
+        <Route path="/my-jobs">
+          {() => <ProtectedRoute component={JobsPage} />}
         </Route>
         <Route path="/jobs/:id">
           {() => <ProtectedRoute component={JobDetailPage} />}

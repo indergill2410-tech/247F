@@ -1,7 +1,5 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -10,17 +8,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useGetUnreadNotificationCount } from "@workspace/api-client-react";
 import { Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase, ChevronDown, ShieldCheck } from "lucide-react";
 
+const PUBLIC_NAV = [
+  { label: "How it works", href: "/how-it-works" },
+  { label: "Categories", href: "/categories" },
+  { label: "About", href: "/about" },
+  { label: "We are hiring", href: "/careers" },
+];
+
 export function Navbar() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
 
   const { data: unreadData } = useGetUnreadNotificationCount({
     query: { enabled: isAuthenticated, refetchInterval: 30_000 },
   });
-
   const unreadCount = unreadData?.count ?? 0;
 
   const handleLogout = () => {
@@ -34,87 +39,104 @@ export function Navbar() {
     "/dashboard";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full border-b border-white/8 bg-[#0b0904]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0904]/80">
+      <div className="container flex h-16 items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/">
-          <span className="flex items-center gap-2 font-extrabold text-xl tracking-tight cursor-pointer">
-            <div className="w-8 h-8 bg-[hsl(222,47%,11%)] rounded-lg flex items-center justify-center">
-              <Wrench className="h-4 w-4 text-[hsl(38,92%,50%)]" />
-            </div>
-            <span className="text-[hsl(222,47%,11%)]">Fixit</span>
-            <span className="text-[hsl(38,92%,50%)]">24/7</span>
+          <span className="flex items-center gap-2 cursor-pointer shrink-0">
+            <Wrench className="h-5 w-5 text-[#f5c518]" />
+            <span className="font-black text-xl text-white tracking-tight">
+              Fixit <span className="text-[#f5c518]">24/7</span>
+            </span>
           </span>
         </Link>
 
-        {/* Nav links — authenticated */}
-        {isAuthenticated && (
-          <nav className="hidden md:flex items-center gap-1">
+        {/* Centre nav */}
+        {!isAuthenticated ? (
+          <nav className="hidden md:flex items-center gap-1 mx-auto">
+            {PUBLIC_NAV.map((item) => (
+              <Link key={item.href} href={item.href}>
+                <span
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                    location === item.href
+                      ? "text-white"
+                      : "text-white/55 hover:text-white"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            ))}
+          </nav>
+        ) : (
+          <nav className="hidden md:flex items-center gap-1 mx-auto">
             <Link href={dashboardHref}>
-              <Button variant="ghost" size="sm" className="gap-1.5">
+              <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
-              </Button>
+              </span>
             </Link>
             <Link href="/jobs">
-              <Button variant="ghost" size="sm" className="gap-1.5">
+              <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
                 <Briefcase className="h-4 w-4" />
                 {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
-              </Button>
+              </span>
             </Link>
             {user?.role === "admin" && (
               <Link href="/admin">
-                <Button variant="ghost" size="sm" className="gap-1.5">
+                <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
                   <ShieldCheck className="h-4 w-4" /> Admin
-                </Button>
+                </span>
               </Link>
             )}
           </nav>
         )}
 
-        {/* Right side */}
-        <div className="flex items-center gap-2">
+        {/* Right */}
+        <div className="flex items-center gap-3 shrink-0">
           {!isAuthenticated ? (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">Log in</Button>
+                <span className="text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer px-2 py-1">
+                  Sign in
+                </span>
               </Link>
-              <Link href="/register">
-                <Button size="sm" className="bg-[hsl(222,47%,11%)] text-white hover:bg-[hsl(222,47%,17%)]">
-                  Sign up
-                </Button>
+              <Link href="/signup">
+                <button className="h-9 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+                  Create account
+                </button>
               </Link>
             </>
           ) : (
             <>
-              {/* Notifications bell */}
+              {/* Bell */}
               <Link href="/notifications">
-                <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                <button className="relative h-9 w-9 rounded-lg text-white/60 hover:text-white hover:bg-white/8 flex items-center justify-center transition-colors">
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-[hsl(38,92%,50%)] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#f5c518] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
-                </Button>
+                </button>
               </Link>
 
               {/* User menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2 h-9 px-2">
+                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 transition-colors">
                     <Avatar className="h-7 w-7">
-                      <AvatarFallback className="bg-[hsl(222,47%,11%)] text-white text-xs font-bold">
+                      <AvatarFallback className="bg-[#f5c518] text-black text-xs font-black">
                         {user?.name?.charAt(0).toUpperCase() ?? "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden sm:block text-sm font-medium max-w-[120px] truncate">
+                    <span className="hidden sm:block text-sm font-medium text-white max-w-[100px] truncate">
                       {user?.name?.split(" ")[0]}
                     </span>
-                    <Badge className="hidden sm:flex bg-[hsl(222,47%,11%)]/10 text-[hsl(222,47%,11%)] border-none text-[10px] capitalize px-1.5">
+                    <Badge className="hidden sm:flex bg-white/10 text-white/60 border-none text-[10px] capitalize px-1.5">
                       {user?.role}
                     </Badge>
-                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                  </Button>
+                    <ChevronDown className="h-3.5 w-3.5 text-white/40" />
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => setLocation(dashboardHref)}>
@@ -127,7 +149,7 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => setLocation("/notifications")}>
                     <Bell className="h-4 w-4 mr-2" /> Notifications
                     {unreadCount > 0 && (
-                      <Badge className="ml-auto bg-[hsl(38,92%,50%)] text-white border-none text-[10px] px-1.5">
+                      <Badge className="ml-auto bg-[#f5c518] text-black border-none text-[10px] px-1.5">
                         {unreadCount}
                       </Badge>
                     )}
@@ -138,7 +160,7 @@ export function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                    <LogOut className="h-4 w-4 mr-2" /> Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
