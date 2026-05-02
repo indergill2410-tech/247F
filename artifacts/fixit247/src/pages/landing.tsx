@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
 import { Footer } from "@/components/footer";
 import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
   CheckCircle2, Clock, Users, BadgeCheck, MessageSquare,
+  ChevronDown, HardHat,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -40,24 +39,57 @@ const STATS = [
   { value: "4.8 ★", label: "Customer rating" },
 ];
 
-const HOW_IT_WORKS = [
+const HOW_IT_WORKS_HOMEOWNER = [
   {
     icon: Wrench,
     step: "01",
     title: "Post your job",
-    desc: "Describe what needs fixing, set your urgency, and upload photos. Takes under 2 minutes.",
+    desc: "Describe what needs fixing, set your urgency, and upload photos. Completely free and takes under 2 minutes.",
   },
   {
     icon: Users,
     step: "02",
     title: "Get matched",
-    desc: "Our engine finds the top 5 local tradies with the right skills, availability, and ratings.",
+    desc: "Verified local tradies with the right skills and availability see your job. You'll hear back fast.",
   },
   {
     icon: BadgeCheck,
     step: "03",
-    title: "Hire & done",
-    desc: "Review offers, accept the best one, track progress, and pay securely when it's done.",
+    title: "Choose who suits you",
+    desc: "Review profiles, ratings, and quotes. Message directly before committing. You stay in control.",
+  },
+  {
+    icon: MessageSquare,
+    step: "04",
+    title: "Get it sorted",
+    desc: "Chat in-app, agree on timing, and get the repair done. Pay only when you're satisfied.",
+  },
+];
+
+const HOW_IT_WORKS_TRADIE = [
+  {
+    icon: HardHat,
+    step: "01",
+    title: "Sign up free",
+    desc: "Create your profile in minutes. No credit card required. Completely free to join.",
+  },
+  {
+    icon: BadgeCheck,
+    step: "02",
+    title: "Build a verified profile",
+    desc: "Add your trade, licences, and service area. Verified profiles build trust and win more jobs.",
+  },
+  {
+    icon: Wrench,
+    step: "03",
+    title: "Receive local jobs",
+    desc: "Get notified of relevant jobs in your area that match your skills and location.",
+  },
+  {
+    icon: Clock,
+    step: "04",
+    title: "Choose your work",
+    desc: "Accept only the jobs that suit your schedule. You're in full control of your workload.",
   },
 ];
 
@@ -72,35 +104,97 @@ const CATEGORIES_DISPLAY = [
   { icon: Hammer, label: "Carpentry" },
 ];
 
+const FAQS_LANDING = [
+  {
+    q: "Is it free to post a job?",
+    a: "Yes. Posting a job is completely free for homeowners. You only pay the tradie directly for the repair itself.",
+  },
+  {
+    q: "Are the tradies verified?",
+    a: "Every tradie on Fixit 24/7 has a verified profile with identity checks, licence verification, and publicly visible ratings from past jobs.",
+  },
+  {
+    q: "How quickly will I hear back?",
+    a: "Most jobs receive their first tradie response within 30 minutes. Emergency jobs are automatically prioritised.",
+  },
+  {
+    q: "Can I choose which tradie I hire?",
+    a: "Absolutely. You stay in control. Review profiles, ratings, and quotes, then choose the tradie that suits you best. No obligation until you accept.",
+  },
+  {
+    q: "Is it free for tradies to join?",
+    a: "Yes. Joining and building a profile is completely free for tradies. No credit card, no subscription, no monthly fee.",
+  },
+  {
+    q: "What trades are covered?",
+    a: "We cover plumbing, electrical, locksmith, HVAC, roofing, carpentry, handyman, painting, and more — 12+ categories across Australia.",
+  },
+];
+
+function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boolean; onToggle: () => void }) {
+  return (
+    <div className="border border-white/8 rounded-2xl overflow-hidden bg-white/3 hover:bg-white/5 transition-colors">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+        aria-expanded={isOpen}
+      >
+        <span className="font-semibold text-white text-[15px] leading-snug">{q}</span>
+        <ChevronDown
+          className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <p className="px-5 pb-5 text-white/55 text-sm leading-relaxed">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [suburb, setSuburb] = useState("");
   const [, setLocation] = useLocation();
+  const [howRole, setHowRole] = useState<"homeowner" | "tradie">("homeowner");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { data: categories } = useListCategories();
 
   const handleFindTradies = () => {
     setLocation(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
   };
 
+  const steps = howRole === "homeowner" ? HOW_IT_WORKS_HOMEOWNER : HOW_IT_WORKS_TRADIE;
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904]">
+
       {/* ─── Hero ─── */}
       <section
         className="relative overflow-hidden text-white"
         style={{
-          background:
-            "radial-gradient(ellipse at 25% 55%, #251d08 0%, #120f06 45%, #070604 100%)",
+          background: "radial-gradient(ellipse at 25% 55%, #251d08 0%, #120f06 45%, #070604 100%)",
           minHeight: "calc(100vh - 64px)",
         }}
       >
-        {/* subtle texture */}
         <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/svg%3E")`,
           }}
+          aria-hidden="true"
         />
 
-        <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-20 lg:py-28">
+        <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-16 lg:py-28">
           {/* Left */}
           <motion.div
             className="w-full lg:flex-1 flex flex-col gap-7"
@@ -108,13 +202,11 @@ export default function LandingPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {/* Live badge */}
             <div className="inline-flex items-center gap-2 self-start bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-white/80 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#ffc800] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#ffc800] animate-pulse" aria-hidden="true" />
               Urgent Fix 24/7 — tradies online now
             </div>
 
-            {/* Headline */}
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
                 Emergency<br />repairs,<br />
@@ -122,46 +214,52 @@ export default function LandingPage() {
               </h1>
             </div>
 
-            {/* Subtext */}
             <p className="text-lg text-white/60 max-w-md leading-relaxed">
               Plumbing, electrical, locksmith and more — get matched with verified local tradies, day or night, anywhere in Australia.
             </p>
 
-            {/* Suburb search */}
             <div className="flex flex-col sm:flex-row gap-2 max-w-md">
               <div className="flex-1 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" aria-hidden="true" />
                 <input
                   type="text"
                   value={suburb}
                   onChange={(e) => setSuburb(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
                   placeholder="Your suburb   e.g. Bondi, 2026"
+                  aria-label="Enter your suburb to find tradies"
                   className="w-full bg-white/8 border border-white/12 rounded-lg pl-10 pr-4 h-11 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-[#ffc800]/60 focus:bg-white/12 transition-all"
                   style={{ background: "rgba(255,255,255,0.07)" }}
                 />
               </div>
               <button
                 onClick={handleFindTradies}
-                className="h-11 px-5 rounded-lg font-semibold text-sm text-black bg-[#ffc800] hover:bg-[#e6b800] transition-colors shrink-0"
+                className="h-11 px-5 rounded-lg font-semibold text-sm text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0"
               >
                 Find tradies
               </button>
             </div>
 
-            {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
               <Link href="/signup?role=homeowner">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-lg font-semibold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] transition-colors">
+                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-lg font-semibold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
                   Create account &amp; post a job
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </Link>
               <Link href="/signup?role=tradie">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-lg font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 transition-colors">
+                <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-lg font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 active:scale-[0.97] transition-all">
                   Tradies — join FREE
                 </button>
               </Link>
+            </div>
+
+            <div className="flex flex-wrap gap-3 max-w-md">
+              {["Free to post", "Verified tradies", "No credit card", "Direct messaging"].map((t) => (
+                <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/45 bg-white/5 rounded-full px-3 py-1">
+                  <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
+                </span>
+              ))}
             </div>
           </motion.div>
 
@@ -175,9 +273,9 @@ export default function LandingPage() {
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
               <div className="p-7">
                 <div className="flex items-start justify-between mb-1">
-                  <h3 className="text-[22px] font-bold text-gray-900 leading-tight">
+                  <h2 className="text-[22px] font-bold text-gray-900 leading-tight">
                     Tradies join free
-                  </h3>
+                  </h2>
                   <span className="bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-2.5 py-1 rounded-md shrink-0 ml-3">
                     100% FREE
                   </span>
@@ -186,19 +284,19 @@ export default function LandingPage() {
                   Real Aussie jobs in your suburb. No credit card needed.
                 </p>
 
-                <ul className="flex flex-col gap-3 mb-7">
+                <ul className="flex flex-col gap-3 mb-7" role="list">
                   {TRADIE_PERKS.map((perk) => (
                     <li key={perk} className="flex items-center gap-3 text-[15px] text-gray-700">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" aria-hidden="true" />
                       {perk}
                     </li>
                   ))}
                 </ul>
 
                 <Link href="/signup?role=tradie">
-                  <button className="w-full h-12 rounded-xl font-bold text-[15px] text-white bg-[#1a1a1a] hover:bg-[#2d2d2d] transition-colors inline-flex items-center justify-center gap-2">
+                  <button className="w-full h-12 rounded-xl font-bold text-[15px] text-white bg-[#1a1a1a] hover:bg-[#2d2d2d] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
                     Sign up free
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
 
@@ -212,7 +310,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Stats bar ─── */}
-      <section className="bg-[#ffc800] py-6">
+      <section className="bg-[#ffc800] py-6" aria-label="Platform statistics">
         <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
             <div key={s.label}>
@@ -226,33 +324,80 @@ export default function LandingPage() {
       {/* ─── How it works ─── */}
       <section id="how-it-works" className="py-20 bg-[#0b0904] text-white">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Simple process</span>
-            <h2 className="text-4xl font-black mt-3">How it works</h2>
-            <p className="text-white/50 mt-3 max-w-md mx-auto">
-              Three steps to get your home fixed by a verified local tradie.
+            <h2 className="text-3xl sm:text-4xl font-black mt-3">How it works</h2>
+            <p className="text-white/50 mt-3 max-w-md mx-auto text-[15px]">
+              Whether you need a repair sorted or you're a tradie looking for work — we make it simple.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {HOW_IT_WORKS.map((item, i) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.12 }}
-                viewport={{ once: true }}
-                className="relative bg-white/5 border border-white/8 rounded-2xl p-8 hover:bg-white/8 transition-colors"
-              >
-                <span className="absolute top-6 right-6 text-5xl font-black text-white/5 select-none">
-                  {item.step}
-                </span>
-                <div className="w-12 h-12 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/20 flex items-center justify-center mb-5">
-                  <item.icon className="h-6 w-6 text-[#ffc800]" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                <p className="text-white/50 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
+
+          {/* Role toggle */}
+          <div className="flex bg-white/5 border border-white/8 rounded-2xl p-1 mb-10 max-w-xs mx-auto" role="tablist" aria-label="Select your role">
+            <button
+              role="tab"
+              aria-selected={howRole === "homeowner"}
+              onClick={() => setHowRole("homeowner")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-bold transition-all ${
+                howRole === "homeowner"
+                  ? "bg-[#ffc800] text-black shadow-sm"
+                  : "text-white/45 hover:text-white/70"
+              }`}
+            >
+              <Home className="h-3.5 w-3.5" aria-hidden="true" /> Homeowners
+            </button>
+            <button
+              role="tab"
+              aria-selected={howRole === "tradie"}
+              onClick={() => setHowRole("tradie")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-bold transition-all ${
+                howRole === "tradie"
+                  ? "bg-[#ffc800] text-black shadow-sm"
+                  : "text-white/45 hover:text-white/70"
+              }`}
+            >
+              <HardHat className="h-3.5 w-3.5" aria-hidden="true" /> Tradies
+            </button>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={howRole}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
+              role="tabpanel"
+            >
+              {steps.map((item, i) => (
+                <motion.div
+                  key={item.step}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  viewport={{ once: true }}
+                  className="relative bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 transition-colors"
+                >
+                  <span className="absolute top-5 right-5 text-4xl font-black text-white/5 select-none" aria-hidden="true">
+                    {item.step}
+                  </span>
+                  <div className="w-11 h-11 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/20 flex items-center justify-center mb-4">
+                    <item.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-[15px] font-bold mb-2">{item.title}</h3>
+                  <p className="text-white/50 leading-relaxed text-sm">{item.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="text-center mt-10">
+            <Link href="/how-it-works">
+              <button className="h-11 px-6 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 text-sm font-medium transition-colors inline-flex items-center gap-2">
+                See the full process <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -262,8 +407,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Services</span>
-            <h2 className="text-4xl font-black mt-3">What do you need fixed?</h2>
-            <p className="text-white/50 mt-3">Choose from 12+ trade categories</p>
+            <h2 className="text-3xl sm:text-4xl font-black mt-3">What do you need fixed?</h2>
+            <p className="text-white/50 mt-3 text-[15px]">Choose from 12+ trade categories</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {(categories ?? CATEGORIES_DISPLAY).map((cat) => {
@@ -273,7 +418,7 @@ export default function LandingPage() {
                 <Link href="/signup?role=homeowner" key={label}>
                   <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-[#ffc800]/30 cursor-pointer transition-all">
                     <div className="w-14 h-14 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center group-hover:bg-[#ffc800]/20 transition-colors">
-                      <Icon className="h-7 w-7 text-[#ffc800]" />
+                      <Icon className="h-7 w-7 text-[#ffc800]" aria-hidden="true" />
                     </div>
                     <span className="text-sm font-semibold text-center text-white/80 group-hover:text-white transition-colors">
                       {label}
@@ -293,22 +438,62 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── FAQ ─── */}
+      <section className="py-20 bg-[#0b0904] text-white">
+        <div className="container max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Questions answered</span>
+            <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">Common questions</h2>
+            <p className="text-white/50 text-[15px]">
+              Everything you need to know before getting started.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 mb-10">
+            {FAQS_LANDING.map((faq, i) => (
+              <FaqItem
+                key={faq.q}
+                q={faq.q}
+                a={faq.a}
+                isOpen={openFaq === i}
+                onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+              />
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link href="/how-it-works">
+              <button className="h-11 px-6 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 text-sm font-medium transition-colors inline-flex items-center gap-2">
+                See all questions <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Emergency CTA ─── */}
       <section className="py-20 bg-[#ffc800]">
         <div className="container mx-auto max-w-2xl px-4 sm:px-6 text-center">
-          <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" />
-          <h2 className="text-4xl font-black text-black">Emergency repair?<br />We're ready now.</h2>
-          <p className="text-black/60 mt-5 text-lg">
+          <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" aria-hidden="true" />
+          <h2 className="text-3xl sm:text-4xl font-black text-black">Emergency repair?<br />We're ready now.</h2>
+          <p className="text-black/60 mt-5 text-lg max-w-md mx-auto">
             Burst pipe at 2am? Power outage on a Sunday? Our tradies are on call 24 hours a day, 7 days a week.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-6 mb-8">
+            {["Free to post", "No commitment needed", "Verified local tradies", "Direct messaging"].map((t) => (
+              <span key={t} className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/60 bg-black/8 rounded-full px-3 py-1">
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> {t}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup?role=homeowner">
-              <button className="h-12 px-8 rounded-lg bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] transition-colors">
+              <button className="h-12 px-8 rounded-lg bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
                 Post emergency job
               </button>
             </Link>
             <Link href="/login">
-              <button className="h-12 px-8 rounded-lg border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 transition-colors">
+              <button className="h-12 px-8 rounded-lg border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
                 Sign in
               </button>
             </Link>
