@@ -50,8 +50,8 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-2xl">
+      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
+        <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <button
             onClick={() => setLocation(backHref)}
             className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors"
@@ -78,7 +78,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="container max-w-2xl py-8 space-y-5">
+      <div className="container max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-5">
         {error && (
           <div className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
             <AlertCircle className="h-4 w-4 flex-shrink-0" />{error}

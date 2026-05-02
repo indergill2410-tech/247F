@@ -103,7 +103,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-20 lg:py-28">
           {/* Left */}
           <motion.div
-            className="flex-1 flex flex-col gap-7"
+            className="w-full lg:flex-1 flex flex-col gap-7"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}

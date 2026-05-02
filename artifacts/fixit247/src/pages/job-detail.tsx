@@ -109,7 +109,7 @@ export default function JobDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0b0904] container max-w-3xl py-8 space-y-4">
+      <div className="min-h-screen bg-[#0b0904] container max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-4">
         <Skeleton className="h-8 w-48 bg-white/8" />
         <Skeleton className="h-48 w-full rounded-2xl bg-white/5" />
         <Skeleton className="h-64 w-full rounded-2xl bg-white/5" />
@@ -153,8 +153,8 @@ export default function JobDetailPage() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-6">
-        <div className="container max-w-3xl">
+      <div className="border-b border-white/6 bg-[#0f0c06] py-6">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           <button onClick={() => setLocation("/jobs")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
             <ChevronLeft className="h-4 w-4" /> Back to Jobs
           </button>
@@ -173,7 +173,7 @@ export default function JobDetailPage() {
         </div>
       </div>
 
-      <div className="container max-w-3xl py-6 space-y-5">
+      <div className="container max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {/* Job details */}
         <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-5">
           <p className="text-white/80 leading-relaxed">{job.description}</p>

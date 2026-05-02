@@ -25,8 +25,8 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-2xl">
+      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
+        <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#f5c518]/15 flex items-center justify-center">
               <MessageCircle className="h-5 w-5 text-[#f5c518]" />
@@ -39,7 +39,7 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      <div className="container max-w-2xl py-6">
+      <div className="container max-w-2xl mx-auto px-4 sm:px-6 py-6">
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (

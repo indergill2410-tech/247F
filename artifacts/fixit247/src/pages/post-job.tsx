@@ -55,8 +55,8 @@ export default function PostJobPage() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-2xl">
+      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
+        <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <button onClick={() => setLocation("/dashboard")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
             <ChevronLeft className="h-4 w-4" /> Back to Dashboard
           </button>
@@ -65,7 +65,7 @@ export default function PostJobPage() {
         </div>
       </div>
 
-      <div className="container max-w-2xl py-8">
+      <div className="container max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (

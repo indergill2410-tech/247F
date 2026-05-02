@@ -33,8 +33,8 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-2xl">
+      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
+        <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <button
             onClick={() => setLocation(-1 as unknown as string)}
             className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-4 transition-colors"
@@ -62,7 +62,7 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div className="container max-w-2xl py-6">
+      <div className="container max-w-2xl mx-auto px-4 sm:px-6 py-6">
         <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden divide-y divide-white/5">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (

@@ -21,7 +21,7 @@ const PUBLIC_NAV = [
 
 function publicNavCls(href: string, location: string) {
   const isActive = location === href;
-  return `px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+  return `px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
     isActive
       ? "bg-white/8 text-white"
       : "text-white/55 hover:text-white/90 hover:bg-white/5"
@@ -30,7 +30,7 @@ function publicNavCls(href: string, location: string) {
 
 function authNavCls(basePath: string, location: string) {
   const isActive = location === basePath || location.startsWith(basePath + "/");
-  return `flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+  return `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
     isActive
       ? "bg-white/8 text-white"
       : "text-white/55 hover:text-white/90 hover:bg-white/5"
@@ -70,7 +70,7 @@ export function Navbar() {
         <Link href="/">
           <span className="flex items-center gap-2 cursor-pointer shrink-0">
             <Wrench className="h-5 w-5 text-[#f5c518]" />
-            <span className="font-black text-xl text-white tracking-tight">
+            <span className="font-black text-xl text-white tracking-tight whitespace-nowrap">
               Fixit <span className="text-[#f5c518]">24/7</span>
             </span>
           </span>
