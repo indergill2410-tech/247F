@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetHomeownerDashboard, useUpdateClaim } from "@workspace/api-client-react";
+import {
+  useGetHomeownerDashboard,
+  useUpdateClaim,
+  useListNotifications,
+  useMarkNotificationRead,
+} from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
   Star, MessageSquare, MapPin, User,
-  ThumbsUp, ThumbsDown, TrendingUp, Home,
+  ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -64,6 +69,14 @@ const URGENCY_MAP: Record<string, string> = {
   standard:  "bg-white/8 text-white/40",
 };
 
+const NOTIF_ICON: Record<string, React.ReactNode> = {
+  claim:    <Bell className="h-3.5 w-3.5 text-[#ffc800]" />,
+  message:  <MessageSquare className="h-3.5 w-3.5 text-blue-400" />,
+  match:    <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />,
+  job:      <Briefcase className="h-3.5 w-3.5 text-purple-400" />,
+  alert:    <AlertCircle className="h-3.5 w-3.5 text-red-400" />,
+};
+
 function TradieName({ name }: { name: string | null }) {
   const initials = (name ?? "?").split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
   return (
@@ -77,7 +90,12 @@ export default function HomeownerDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data, isLoading, refetch } = useGetHomeownerDashboard();
+  const { data: notifications, isLoading: notifLoading, refetch: refetchNotif } = useListNotifications(
+    { limit: 6 } as Parameters<typeof useListNotifications>[0],
+  );
   const [expandedClaim, setExpandedClaim] = useState<number | null>(null);
+
+  const markRead = useMarkNotificationRead({ mutation: { onSuccess: () => refetchNotif() } });
 
   const firstName = user?.name?.split(" ")[0] ?? "there";
   const memberSince = data?.memberSince
@@ -113,12 +131,20 @@ export default function HomeownerDashboard() {
       desc: "posted by you",
     },
     {
-      label: "Active Jobs",
+      label: "Open",
+      value: data?.openJobs ?? 0,
+      icon: Bell,
+      color: "text-sky-400",
+      bg: "bg-sky-500/10",
+      desc: "awaiting tradies",
+    },
+    {
+      label: "In Progress",
       value: data?.inProgressJobs ?? 0,
       icon: Clock,
       color: "text-orange-400",
       bg: "bg-orange-500/10",
-      desc: "in progress",
+      desc: "active now",
     },
     {
       label: "Completed",
@@ -127,14 +153,6 @@ export default function HomeownerDashboard() {
       color: "text-emerald-400",
       bg: "bg-emerald-500/10",
       desc: "jobs done",
-    },
-    {
-      label: "Responses",
-      value: data?.pendingClaims ?? 0,
-      icon: Bell,
-      color: "text-[#ffc800]",
-      bg: "bg-[#ffc800]/10",
-      desc: "need your reply",
     },
     {
       label: "Total Spent",
@@ -148,11 +166,12 @@ export default function HomeownerDashboard() {
 
   const recentClaims = data?.recentClaims ?? [];
   const recentJobs = data?.recentJobs ?? [];
+  const recentNotifs = (notifications ?? []).slice(0, 6);
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-2">
-        {/* Personalised inline header */}
+        {/* Hero header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -194,7 +213,7 @@ export default function HomeownerDashboard() {
 
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 pb-8 space-y-6">
 
-        {/* Stats grid */}
+        {/* Stats grid: Total Jobs | Open | In Progress | Completed | Total Spent */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -305,34 +324,32 @@ export default function HomeownerDashboard() {
                             <div className="pt-4 flex flex-col sm:flex-row gap-3">
                               <button
                                 onClick={() => {
-                                  setPendingAction({ claimId: claim.id, action: "accept" });
                                   updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "accepted" } });
                                 }}
                                 disabled={updateClaimMutation.isPending}
-                                className="flex-1 h-9 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-emerald-500/20"
+                                className="flex-1 h-9 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-emerald-500/20 disabled:opacity-50"
                               >
                                 <ThumbsUp className="h-4 w-4" /> Accept {claim.tradieName?.split(" ")[0]}
                               </button>
                               {claim.conversationId ? (
                                 <Link href={`/messages/${claim.conversationId}`}>
-                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8">
+                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
                                     <MessageSquare className="h-4 w-4" /> Message
                                   </button>
                                 </Link>
                               ) : (
                                 <Link href="/messages">
-                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8">
+                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
                                     <MessageSquare className="h-4 w-4" /> Message
                                   </button>
                                 </Link>
                               )}
                               <button
                                 onClick={() => {
-                                  setPendingAction({ claimId: claim.id, action: "reject" });
                                   updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "rejected" } });
                                 }}
                                 disabled={updateClaimMutation.isPending}
-                                className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-red-500/15"
+                                className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-red-500/15 disabled:opacity-50"
                               >
                                 <ThumbsDown className="h-4 w-4" /> Decline
                               </button>
@@ -461,11 +478,81 @@ export default function HomeownerDashboard() {
           </motion.div>
         )}
 
+        {/* Recent Activity strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+        >
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
+            <div className="flex items-center gap-2">
+              <Info className="h-4 w-4 text-white/40" />
+              <h2 className="font-bold text-white">Recent Activity</h2>
+            </div>
+            <Link href="/notifications">
+              <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+                View all <ChevronRight className="h-3.5 w-3.5" />
+              </span>
+            </Link>
+          </div>
+
+          <div className="divide-y divide-white/5">
+            {notifLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="px-6 py-3.5">
+                  <Skeleton className="h-9 w-full bg-white/6" />
+                </div>
+              ))
+            ) : recentNotifs.length === 0 ? (
+              <div className="px-6 py-8 text-center text-white/30">
+                <Bell className="h-7 w-7 mx-auto mb-2 opacity-20" />
+                <p className="text-sm">No recent activity yet</p>
+              </div>
+            ) : (
+              <motion.ul variants={container} initial="hidden" animate="show">
+                {recentNotifs.map((n) => {
+                  const iconNode = NOTIF_ICON[n.type] ?? <Info className="h-3.5 w-3.5 text-white/40" />;
+                  const href = n.jobId ? `/jobs/${n.jobId}` : "/notifications";
+                  return (
+                    <motion.li key={n.id} variants={cardItem}>
+                      <Link href={href}>
+                        <div
+                          className={`flex items-start gap-3 px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group ${!n.isRead ? "bg-[#ffc800]/2" : ""}`}
+                          onClick={() => {
+                            if (!n.isRead) markRead.mutate({ id: n.id });
+                          }}
+                        >
+                          <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center mt-0.5 ${!n.isRead ? "bg-[#ffc800]/10" : "bg-white/5"}`}>
+                            {iconNode}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold truncate ${!n.isRead ? "text-white" : "text-white/60"}`}>
+                              {n.title}
+                            </p>
+                            <p className="text-xs text-white/35 mt-0.5 line-clamp-1">{n.message}</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-[10px] text-white/25">{timeAgo(n.createdAt)}</span>
+                            {!n.isRead && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#ffc800] flex-shrink-0" />
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+              </motion.ul>
+            )}
+          </div>
+        </motion.div>
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.55 }}
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
