@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { Footer } from "@/components/footer";
 import { Wrench, ShieldCheck, Clock, Star, Users, ChevronRight } from "lucide-react";
 
 const VALUES = [
@@ -155,6 +156,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

@@ -55,7 +55,7 @@ export default function PostJobPage() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-6">
+      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
         <div className="container max-w-2xl">
           <button onClick={() => setLocation("/dashboard")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
             <ChevronLeft className="h-4 w-4" /> Back to Dashboard

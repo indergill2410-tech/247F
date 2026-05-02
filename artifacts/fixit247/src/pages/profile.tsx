@@ -50,7 +50,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-6">
+      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
         <div className="container max-w-2xl">
           <button
             onClick={() => setLocation(backHref)}

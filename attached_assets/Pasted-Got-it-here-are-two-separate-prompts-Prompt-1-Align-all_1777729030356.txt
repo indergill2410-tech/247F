@@ -1,0 +1,80 @@
+Got it — here are **two separate prompts**.
+
+## Prompt 1: Align all text, headers, footers, CTAs
+
+Refactor the entire Fixit 24/7 interface so all **text, headings, subheadings, navigation, cards, forms, CTAs, headers, and footers** align to one consistent visual grid across every page and screen. Use a clear column grid, baseline rhythm, and consistent spacing system so elements share the same left edges, container widths, gutters, and vertical rhythm instead of drifting across the interface. Alignment consistency improves readability, hierarchy, and perceived polish, and grid-based alignment is a standard way to prevent layout drift as products grow. [uxpin](https://www.uxpin.com/studio/blog/alignment-in-design-making-text-and-visuals-more-appealing/)
+
+Requirements:
+- Align all page titles, section headings, body text, cards, forms, and CTA buttons to consistent container boundaries.
+- Standardize header height, logo position, nav alignment, and CTA placement across all pages.
+- Standardize footer structure with clean columns or stacked sections on mobile, keeping spacing and text alignment consistent.
+- Use left alignment for most UI text and only center text where there is a clear reason, such as a hero block or a focused empty state.
+- Apply one repeatable spacing system, such as 4px or 8px increments, to margins, padding, gaps, and section rhythm.
+- Make sure labels, inputs, helper text, validation text, and submit buttons align in forms.
+- Ensure mobile responsiveness preserves alignment rather than breaking the layout into uneven blocks.
+- Fix inconsistent CTA widths, random button placement, uneven card padding, and misaligned footer links.
+Header and footer consistency helps navigation efficiency, predictability, and brand trust across the product. [skyhighdigital.com](https://www.skyhighdigital.com.au/how-text-alignment-is-affecting-user-experience-on-your-website/)
+
+Do not randomly nudge elements. Use a real alignment system:
+- shared max-width containers
+- consistent grid columns
+- consistent gutters
+- consistent heading offsets
+- consistent CTA alignment rules
+- consistent footer layout rules
+Make the final result feel geometrically clean, premium, and intentional. [nngroup](https://www.nngroup.com/articles/why-does-design-look-good/)
+
+## Prompt 2: Integrate SendGrid
+
+Integrate **SendGrid** into the Fixit 24/7 app as a production-ready transactional email system. Build a reusable email service for Node/Express that initializes SendGrid once, reads required email configuration from environment variables, and sends transactional emails through centralized service methods instead of scattered ad hoc calls. A dedicated SendGrid service layer is a common Node/Express integration pattern for transactional email flows. [dev](https://dev.to/grayman646/send-emails-with-nodejs-express-using-sendgrid-3afj)
+
+Use only the required email env variables:
+- `FROM_EMAIL`
+- `SENDGRID_API_KEY`
+- `SENDGRID_CUSTOMER_WELCOME_TEMPLATE_ID`
+- `SENDGRID_OTP_TEMPLATE_ID`
+- `SENDGRID_TRADIE_WELCOME_TEMPLATE_ID`
+
+Implementation requirements:
+- Create a config module that validates required email env variables at startup.
+- Create `services/emailService` or equivalent.
+- Initialize SendGrid once using the API key.
+- Add functions for:
+  - `sendOtpEmail`
+  - `sendCustomerWelcomeEmail`
+  - `sendTradieWelcomeEmail`
+- Use SendGrid dynamic template IDs from env, not hardcoded values.
+- Inject dynamic template data cleanly.
+- Add safe error handling, logging, and graceful failure behavior.
+- Do not expose secrets in logs, UI, commits, or generated files.
+SendGrid is typically wired into Express apps through service functions invoked from signup, auth, and onboarding flows. [suprsend](https://www.suprsend.com/post/how-to-send-transactional-emails-with-sendgrid-api-in-node-js-w-codes-and-examples)
+
+Trigger these emails in the app:
+- OTP email during login/signup verification
+- customer welcome email after homeowner registration
+- tradie welcome email after tradie registration
+
+Also ensure the email experience is brand-consistent:
+- same tone as the app
+- same logo and trust style
+- clear single CTA per email
+- mobile-friendly structure
+- simple, scannable layout
+Brand consistency across emails and app touchpoints helps trust and recognition. [zerodarkmspmarketing](https://www.zerodarkmspmarketing.com/post/brand-consistency-across-platforms)
+
+Technical output:
+- env validation
+- SendGrid config
+- reusable email service
+- trigger integration in auth and onboarding flows
+- scalable structure for future emails such as password reset, job alerts, and dispute updates
+
+## Short versions
+
+**Alignment prompt:**  
+Align all text, headers, footers, forms, cards, and CTA buttons in Fixit 24/7 to one consistent grid and spacing system. Standardize container widths, header/footer structure, button placement, text alignment, and vertical rhythm so the entire product feels geometrically clean, readable, and premium across desktop and mobile. [commonpeople](https://www.commonpeople.co/guide/clear-header-footer-design-enhancing-navigation-and-brand-consistency/)
+
+**SendGrid prompt:**  
+Integrate SendGrid as a reusable transactional email service in the app using required env variables only. Add OTP, customer welcome, and tradie welcome email flows, validate env config at startup, use centralized email service methods, and keep templates brand-consistent, mobile-friendly, and production-ready. [reviewmyemails](https://reviewmyemails.com/emailalmanac/content-and-creative/brand-visual-consistency/what-is-brand-consistency-email-marketing)
+
+Want me to make both prompts more aggressive and optimized specifically for Replit Agent wording?

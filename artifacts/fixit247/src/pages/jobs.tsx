@@ -60,7 +60,7 @@ export default function JobsPage() {
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
       <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-5xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="container max-w-6xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-black text-white">
               {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
@@ -79,7 +79,7 @@ export default function JobsPage() {
         </div>
       </div>
 
-      <div className="container max-w-5xl py-6 space-y-4">
+      <div className="container max-w-6xl py-6 space-y-4">
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">

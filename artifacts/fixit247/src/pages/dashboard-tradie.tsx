@@ -47,13 +47,13 @@ export default function TradieDashboard() {
   return (
     <div className="min-h-screen bg-[#0b0904]">
       <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-5xl">
+        <div className="container max-w-6xl">
           <h1 className="text-2xl font-black text-white">Welcome back, {user?.name?.split(" ")[0]}!</h1>
           <p className="text-white/45 mt-1 text-sm">Find jobs and manage your work.</p>
         </div>
       </div>
 
-      <div className="container max-w-5xl py-8 space-y-8">
+      <div className="container max-w-6xl py-8 space-y-8">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((s, i) => (

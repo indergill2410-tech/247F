@@ -25,7 +25,7 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-6">
+      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
         <div className="container max-w-2xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#f5c518]/15 flex items-center justify-center">

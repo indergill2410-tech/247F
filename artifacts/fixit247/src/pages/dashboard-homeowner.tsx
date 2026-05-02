@@ -43,7 +43,7 @@ export default function HomeownerDashboard() {
     <div className="min-h-screen bg-[#0b0904]">
       {/* Page header */}
       <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-5xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="container max-w-6xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-black text-white">
               Good {greeting}, {user?.name?.split(" ")[0]}!

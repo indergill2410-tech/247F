@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useListCategories } from "@workspace/api-client-react";
+import { Footer } from "@/components/footer";
 import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
@@ -315,21 +316,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Footer ─── */}
-      <footer className="bg-[#070604] text-white/40 py-10 border-t border-white/5">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
-          <div className="flex items-center gap-2 font-bold text-white/70">
-            <Wrench className="h-4 w-4 text-[#f5c518]" />
-            <span>Fixit <span className="text-[#f5c518]">24/7</span></span>
-          </div>
-          <p>© 2026 Fixit 24/7. Australia's on-demand repair marketplace.</p>
-          <div className="flex gap-6 text-white/40">
-            <Link href="/about"><span className="hover:text-white/70 cursor-pointer transition-colors">About</span></Link>
-            <Link href="/careers"><span className="hover:text-white/70 cursor-pointer transition-colors">Careers</span></Link>
-            <Link href="/how-it-works"><span className="hover:text-white/70 cursor-pointer transition-colors">How it works</span></Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

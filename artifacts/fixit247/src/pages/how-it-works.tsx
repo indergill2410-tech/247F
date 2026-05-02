@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { Footer } from "@/components/footer";
 import { Wrench, Users, BadgeCheck, Clock, Star, ShieldCheck, ChevronRight } from "lucide-react";
 
 const STEPS = [
@@ -142,6 +143,8 @@ export default function HowItWorksPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
+import { Footer } from "@/components/footer";
 import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, ChevronRight,
@@ -94,6 +95,8 @@ export default function CategoriesPage() {
           </Link>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

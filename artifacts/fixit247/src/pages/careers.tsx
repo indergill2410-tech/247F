@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { Footer } from "@/components/footer";
 import { MapPin, Clock, ChevronRight, Briefcase, Code, Megaphone, HeartHandshake } from "lucide-react";
 
 const ROLES = [
@@ -149,6 +150,8 @@ export default function CareersPage() {
           </a>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }
