@@ -249,9 +249,9 @@ export default function AboutPage() {
                 Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </Link>
-            <Link href="/careers">
+            <Link href="/partner">
               <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
-                We're hiring →
+                Partner with us →
               </button>
             </Link>
           </div>

@@ -100,33 +100,33 @@ export default function RegisterPage() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Full Name</label>
-              <input className={inputCls} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
+              <label htmlFor="reg-name" className="text-sm font-medium text-white/70">Full Name</label>
+              <input id="reg-name" className={inputCls} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Email</label>
-              <input className={inputCls} type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+              <label htmlFor="reg-email" className="text-sm font-medium text-white/70">Email</label>
+              <input id="reg-email" className={inputCls} type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Password</label>
-              <input className={inputCls} type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" minLength={8} />
+              <label htmlFor="reg-password" className="text-sm font-medium text-white/70">Password</label>
+              <input id="reg-password" className={inputCls} type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" minLength={8} />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Phone <span className="text-white/30">(optional)</span></label>
-              <input className={inputCls} type="tel" placeholder="04xx xxx xxx" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <label htmlFor="reg-phone" className="text-sm font-medium text-white/70">Phone <span className="text-white/30">(optional)</span></label>
+              <input id="reg-phone" className={inputCls} type="tel" placeholder="04xx xxx xxx" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Suburb</label>
-                <input className={inputCls} placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} />
+                <label htmlFor="reg-suburb" className="text-sm font-medium text-white/70">Suburb</label>
+                <input id="reg-suburb" className={inputCls} placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} autoComplete="address-level2" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-white/70">Postcode</label>
-                <input className={inputCls} placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
+                <label htmlFor="reg-postcode" className="text-sm font-medium text-white/70">Postcode</label>
+                <input id="reg-postcode" className={inputCls} placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} autoComplete="postal-code" />
               </div>
             </div>
 

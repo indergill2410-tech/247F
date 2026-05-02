@@ -226,15 +226,14 @@ export default function LandingPage() {
                   value={suburb}
                   onChange={(e) => setSuburb(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
-                  placeholder="Your suburb   e.g. Bondi, 2026"
+                  placeholder="Your suburb or postcode"
                   aria-label="Enter your suburb to find tradies"
-                  className="w-full bg-white/8 border border-white/12 rounded-lg pl-10 pr-4 h-11 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-[#ffc800]/60 focus:bg-white/12 transition-all"
-                  style={{ background: "rgba(255,255,255,0.07)" }}
+                  className="w-full bg-white/8 border border-white/12 rounded-xl pl-10 pr-4 h-11 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-[#ffc800]/60 focus:bg-white/12 transition-all"
                 />
               </div>
               <button
                 onClick={handleFindTradies}
-                className="h-11 px-5 rounded-lg font-semibold text-sm text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0"
+                className="h-11 px-5 rounded-xl font-semibold text-sm text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0"
               >
                 Find tradies
               </button>
@@ -242,14 +241,14 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
               <Link href="/signup?role=homeowner">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-lg font-semibold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
-                  Create account &amp; post a job
+                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-semibold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
+                  Post a job — it's free
                   <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </Link>
               <Link href="/signup?role=tradie">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-lg font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 active:scale-[0.97] transition-all">
-                  Tradies — join FREE
+                <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 active:scale-[0.97] transition-all">
+                  Tradies — join free
                 </button>
               </Link>
             </div>
@@ -488,12 +487,12 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup?role=homeowner">
-              <button className="h-12 px-8 rounded-lg bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
+              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
                 Post emergency job
               </button>
             </Link>
             <Link href="/login">
-              <button className="h-12 px-8 rounded-lg border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
+              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
                 Sign in
               </button>
             </Link>

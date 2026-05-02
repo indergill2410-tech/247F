@@ -24,6 +24,12 @@ const PUBLIC_NAV = [
   { label: "We are hiring", href: "/careers" },
 ];
 
+// Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
+const DESKTOP_NAV_LABELS: Record<string, string> = {
+  "/partner": "Partner",
+  "/careers": "Careers",
+};
+
 function publicNavCls(href: string, location: string) {
   const isActive = location === href;
   return `px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
@@ -89,7 +95,9 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-0.5 mx-auto" aria-label="Main navigation">
             {PUBLIC_NAV.map((item) => (
               <Link key={item.href} href={item.href}>
-                <span className={publicNavCls(item.href, location)}>{item.label}</span>
+                <span className={publicNavCls(item.href, location)}>
+                  {DESKTOP_NAV_LABELS[item.href] ?? item.label}
+                </span>
               </Link>
             ))}
           </nav>

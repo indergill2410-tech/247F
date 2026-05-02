@@ -40,7 +40,7 @@ function FooterLinks({ items }: { items: { label: string; href: string }[] }) {
 export function Footer() {
   return (
     <footer className="bg-[#070604] border-t border-white/5 text-white">
-      <div className="container py-14">
+      <div className="container mx-auto px-4 sm:px-6 py-14">
         {/* Top section — brand + link columns */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 pb-12 border-b border-white/5">
           {/* Brand */}

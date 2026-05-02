@@ -76,8 +76,9 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Email</label>
+              <label htmlFor="login-email" className="text-sm font-medium text-white/70">Email</label>
               <input
+                id="login-email"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
@@ -89,9 +90,10 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/70">Password</label>
+              <label htmlFor="login-password" className="text-sm font-medium text-white/70">Password</label>
               <div className="relative">
                 <input
+                  id="login-password"
                   type={showPw ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}

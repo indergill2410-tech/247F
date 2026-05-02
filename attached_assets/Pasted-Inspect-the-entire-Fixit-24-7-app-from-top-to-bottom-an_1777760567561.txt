@@ -1,0 +1,132 @@
+Inspect the entire Fixit 24/7 app from top to bottom and correct every visual alignment, spacing, layout, text, button, CTA, header, footer, navbar, section, form, card, and responsive issue.
+
+Act as a senior frontend engineer, UI/UX designer, responsive design specialist, and code quality reviewer.
+
+Main goal:
+Make the whole app feel extremely organised, polished, consistent, professional, and production-ready across desktop, tablet, and mobile.
+
+Audit the full app:
+- Header
+- Top navigation
+- Mobile navigation
+- Hero section
+- CTA buttons
+- Trust badges
+- How it works section
+- Homeowner section
+- Tradie section
+- Partner With Us section
+- Forms
+- FAQ accordions
+- Cards
+- Icons
+- Text blocks
+- Section dividers
+- Footer
+- Copyright bar
+- Login/signup pages if present
+- Dashboard or internal pages if present
+
+Fix all alignment issues:
+- Correct misaligned text
+- Correct uneven section spacing
+- Align all content to a consistent grid/container
+- Make header, hero, body sections, and footer use the same max-width system
+- Fix buttons that are not aligned with surrounding content
+- Fix cards with uneven heights or spacing
+- Fix icons that are off-center
+- Fix text that wraps badly
+- Fix inconsistent padding and margins
+- Fix navbar items that are not vertically centered
+- Fix footer columns that do not align with the hero layout
+- Fix CTA sections that feel disconnected from the page
+- Fix mobile stacking issues
+- Remove any horizontal scrolling
+
+Header/navbar requirements:
+- Header must look clean, balanced, and premium.
+- Logo must be correctly sized and aligned.
+- Navigation links must be vertically centered.
+- CTA button in header must align with nav links.
+- Mobile menu must be touch-friendly, smooth, and properly spaced.
+- Header must not overlap page content.
+- Sticky header, if used, must not cause layout jumping.
+
+Hero section requirements:
+- Hero content must align perfectly with the main container.
+- Heading, paragraph, CTA buttons, trust badges, and visuals must feel balanced.
+- CTAs must be grouped properly and not look scattered.
+- Hero must look strong on desktop and clean on mobile.
+- Text should not be too wide or too compressed.
+- Maintain clear visual hierarchy.
+
+CTA requirements:
+- All CTA buttons must use consistent sizing, radius, padding, font weight, hover states, and focus states.
+- Primary CTA should use Fixit 24/7 yellow/gold.
+- Secondary CTA should use dark charcoal, outline, or neutral style.
+- CTA groups must align consistently across sections.
+- On mobile, buttons should stack cleanly or fit naturally without crowding.
+- CTA labels must be clear and action-focused.
+
+Text and typography requirements:
+- Fix all inconsistent font sizes, line heights, text widths, and heading spacing.
+- Keep headings bold, readable, and consistent.
+- Paragraphs should be easy to scan.
+- Avoid awkward line breaks.
+- Keep text aligned consistently within each section.
+- Use consistent heading hierarchy: h1, h2, h3, body text, captions.
+- Make sure text does not overflow cards, buttons, or containers.
+
+Section organisation:
+- Every section should have consistent top and bottom padding.
+- Use a clear container system across the full app.
+- Sections should flow logically from top to bottom.
+- Avoid cramped areas and excessive empty gaps.
+- Keep cards, grids, and content blocks visually balanced.
+- Make the full page feel intentionally designed, not patched together.
+
+Footer requirements:
+- Footer must align with the hero and main page container.
+- Logo, links, contact info, CTA, and copyright row must be properly aligned.
+- Desktop footer should use clean columns with equal spacing.
+- Mobile footer should stack neatly with proper spacing.
+- Footer should not be too wide, off-center, or disconnected from the page.
+- Copyright bar must align with the same container as the rest of the footer.
+
+Mobile responsiveness:
+- Test and fix layouts for:
+  - 320px
+  - 375px
+  - 414px
+  - 768px
+  - 1024px
+  - 1440px
+- No horizontal scrolling.
+- No squeezed text.
+- No overflowing buttons.
+- No broken grids.
+- No misaligned mobile cards.
+- Forms must be easy to use on mobile.
+- Header and footer must look clean on all screen sizes.
+
+Code quality:
+- Keep the code clean, reusable, and production-ready.
+- Do not remove existing functionality.
+- Remove duplicate or conflicting styles.
+- Replace random spacing values with a consistent spacing system.
+- Use reusable layout/container classes or components.
+- Keep naming consistent.
+- Use semantic HTML.
+- Improve accessibility with proper labels, alt text, keyboard support, ARIA where needed, and visible focus states.
+- Preserve performance and avoid unnecessary layout shifts.
+
+Final output:
+1. Provide the updated complete code.
+2. List every file changed.
+3. Explain all major alignment and spacing fixes.
+4. Explain header/navbar improvements.
+5. Explain hero and CTA improvements.
+6. Explain footer alignment improvements.
+7. Explain mobile responsiveness fixes.
+8. Explain accessibility and code quality improvements.
+9. Do not skip code sections unless I specifically ask for partial code.

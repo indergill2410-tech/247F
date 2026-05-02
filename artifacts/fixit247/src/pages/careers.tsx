@@ -139,6 +139,26 @@ export default function CareersPage() {
         </div>
       </section>
 
+      {/* Partner crosslink */}
+      <section className="py-12 bg-[#0b0904] border-t border-white/5">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-1">For tradies</p>
+              <h3 className="text-xl font-black text-white mb-2">Running a trade business?</h3>
+              <p className="text-white/55 text-sm leading-relaxed">
+                If you're a tradie or trade business owner looking to scale — not just find a job — explore our Trade Partner Program.
+              </p>
+            </div>
+            <Link href="/partner">
+              <button className="shrink-0 h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all inline-flex items-center gap-2">
+                Partner with us <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 bg-[#ffc800] text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
