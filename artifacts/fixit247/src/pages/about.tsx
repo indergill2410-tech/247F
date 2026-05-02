@@ -47,7 +47,7 @@ export default function AboutPage() {
           transition={{ duration: 0.5 }}
           className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">Our story</span>
+          <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Our story</span>
           <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">Built for real Australians</h1>
           <p className="text-white/55 text-lg leading-relaxed">
             Fixit 24/7 was founded in 2022 with one mission: make it genuinely easy for Australians to find a trustworthy tradie whenever they need one — not tomorrow, not next week, but now.
@@ -56,7 +56,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats bar */}
-      <section className="bg-[#f5c518] py-8">
+      <section className="bg-[#ffc800] py-8">
         <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
             { value: "2022", label: "Founded" },
@@ -76,7 +76,7 @@ export default function AboutPage() {
       <section className="py-16 bg-[#0b0904]">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           <div className="bg-white/5 border border-white/8 rounded-3xl p-8 sm:p-10">
-            <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">Our mission</span>
+            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Our mission</span>
             <p className="text-xl sm:text-2xl font-bold mt-4 leading-relaxed text-white/90">
               "To connect every Australian homeowner with a skilled, verified local tradie — in minutes, not days — while giving tradies a fair, transparent marketplace to grow their business."
             </p>
@@ -98,8 +98,8 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 className="bg-white/5 border border-white/8 rounded-2xl p-6"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#f5c518]/10 border border-[#f5c518]/20 flex items-center justify-center mb-4">
-                  <v.icon className="h-5 w-5 text-[#f5c518]" />
+                <div className="w-10 h-10 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 flex items-center justify-center mb-4">
+                  <v.icon className="h-5 w-5 text-[#ffc800]" />
                 </div>
                 <h3 className="font-bold text-[15px] mb-2">{v.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{v.desc}</p>
@@ -123,7 +123,7 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 className="flex flex-col items-center gap-3 text-center"
               >
-                <div className="w-16 h-16 rounded-2xl bg-[#f5c518] flex items-center justify-center text-black font-black text-lg">
+                <div className="w-16 h-16 rounded-2xl bg-[#ffc800] flex items-center justify-center text-black font-black text-lg">
                   {member.initials}
                 </div>
                 <div>
@@ -137,7 +137,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#f5c518] text-center">
+      <section className="py-16 bg-[#ffc800] text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <Wrench className="h-10 w-10 text-black/30 mx-auto mb-5" />
           <h2 className="text-3xl font-black text-black mb-3">Join the Fixit community</h2>

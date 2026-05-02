@@ -12,7 +12,7 @@ const URGENCY: Record<string, { label: string; cls: string; Icon: React.ElementT
   standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",      Icon: Briefcase },
 };
 const CLAIM_STATUS: Record<string, string> = {
-  pending:   "bg-[#f5c518]/15 text-[#f5c518]",
+  pending:   "bg-[#ffc800]/15 text-[#ffc800]",
   accepted:  "bg-emerald-500/15 text-emerald-400",
   rejected:  "bg-red-500/15 text-red-400",
   withdrawn: "bg-white/8 text-white/40",
@@ -40,8 +40,8 @@ export default function TradieDashboard() {
   const stats = [
     { label: "Active Jobs",     value: data?.activeJobs ?? 0,                       icon: Briefcase,   color: "text-blue-400",    bg: "bg-blue-500/10" },
     { label: "Completed",       value: data?.completedJobs ?? 0,                    icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: "Available Leads", value: data?.availableLeads ?? 0,                   icon: DollarSign,  color: "text-[#f5c518]",   bg: "bg-[#f5c518]/10" },
-    { label: "My Rating",       value: data?.myRating ? `${data.myRating}★` : "–", icon: Star,        color: "text-[#f5c518]",   bg: "bg-[#f5c518]/10" },
+    { label: "Available Leads", value: data?.availableLeads ?? 0,                   icon: DollarSign,  color: "text-[#ffc800]",   bg: "bg-[#ffc800]/10" },
+    { label: "My Rating",       value: data?.myRating ? `${data.myRating}★` : "–", icon: Star,        color: "text-[#ffc800]",   bg: "bg-[#ffc800]/10" },
   ];
 
   return (
@@ -87,7 +87,7 @@ export default function TradieDashboard() {
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
             <h2 className="font-bold text-white">Available Jobs Near You</h2>
             <Link href="/jobs">
-              <span className="text-sm text-[#f5c518] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+              <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
                 Browse all <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
@@ -111,7 +111,7 @@ export default function TradieDashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <Link href={`/jobs/${job.id}`}>
-                            <span className="font-semibold text-white hover:text-[#f5c518] cursor-pointer transition-colors">{job.title}</span>
+                            <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors">{job.title}</span>
                           </Link>
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${u.cls}`}>
                             <Icon className="h-3 w-3" /> {u.label}
@@ -125,7 +125,7 @@ export default function TradieDashboard() {
                         </div>
                       </div>
                       <button
-                        className="h-8 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.96] text-black font-bold text-xs transition-all flex-shrink-0 disabled:opacity-50"
+                        className="h-8 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black font-bold text-xs transition-all flex-shrink-0 disabled:opacity-50"
                         disabled={claimMutation.isPending}
                         onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
                       >

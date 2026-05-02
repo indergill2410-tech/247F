@@ -28,8 +28,8 @@ export default function MessagesPage() {
       <div className="border-b border-white/6 bg-[#0f0c06] py-8">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#f5c518]/15 flex items-center justify-center">
-              <MessageCircle className="h-5 w-5 text-[#f5c518]" />
+            <div className="w-10 h-10 rounded-xl bg-[#ffc800]/15 flex items-center justify-center">
+              <MessageCircle className="h-5 w-5 text-[#ffc800]" />
             </div>
             <div>
               <h1 className="text-2xl font-black text-white">Messages</h1>
@@ -77,16 +77,16 @@ export default function MessagesPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
                   onClick={() => setLocation(`/messages/${convo.id}`)}
-                  className="bg-[#130f07] border border-white/6 rounded-2xl p-4 cursor-pointer hover:border-[#f5c518]/25 hover:bg-[#1a1508] transition-all group"
+                  className="bg-[#130f07] border border-white/6 rounded-2xl p-4 cursor-pointer hover:border-[#ffc800]/25 hover:bg-[#1a1508] transition-all group"
                 >
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
-                      <div className="w-12 h-12 rounded-xl bg-[#f5c518] text-black font-black text-lg flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-xl bg-[#ffc800] text-black font-black text-lg flex items-center justify-center">
                         {otherInitial}
                       </div>
                       {hasUnread && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#f5c518] rounded-full border-2 border-[#0b0904]" />
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#ffc800] rounded-full border-2 border-[#0b0904]" />
                       )}
                     </div>
 
@@ -115,7 +115,7 @@ export default function MessagesPage() {
                     {/* Arrow + unread badge */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {hasUnread && (
-                        <span className="min-w-[20px] h-5 bg-[#f5c518] text-black text-[10px] font-black rounded-full flex items-center justify-center px-1">
+                        <span className="min-w-[20px] h-5 bg-[#ffc800] text-black text-[10px] font-black rounded-full flex items-center justify-center px-1">
                           {(convo.unreadCount ?? 0) > 9 ? "9+" : convo.unreadCount}
                         </span>
                       )}

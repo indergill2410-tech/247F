@@ -14,7 +14,7 @@ const ROLE_COLORS: Record<string, string> = {
 };
 const JOB_STATUS: Record<string, string> = {
   open:        "bg-blue-500/15 text-blue-400",
-  matched:     "bg-[#f5c518]/15 text-[#f5c518]",
+  matched:     "bg-[#ffc800]/15 text-[#ffc800]",
   in_progress: "bg-orange-500/15 text-orange-400",
   completed:   "bg-emerald-500/15 text-emerald-400",
   cancelled:   "bg-white/8 text-white/40",
@@ -84,13 +84,13 @@ export default function AdminDashboard() {
           <TabsList className="bg-[#130f07] border border-white/8 p-1 rounded-xl h-auto gap-1">
             <TabsTrigger
               value="users"
-              className="rounded-lg text-white/50 data-[state=active]:bg-[#f5c518] data-[state=active]:text-black data-[state=active]:font-bold px-5 py-2 transition-all"
+              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-5 py-2 transition-all"
             >
               <Users className="h-4 w-4 mr-2" /> Users
             </TabsTrigger>
             <TabsTrigger
               value="jobs"
-              className="rounded-lg text-white/50 data-[state=active]:bg-[#f5c518] data-[state=active]:text-black data-[state=active]:font-bold px-5 py-2 transition-all"
+              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-5 py-2 transition-all"
             >
               <Briefcase className="h-4 w-4 mr-2" /> Jobs
             </TabsTrigger>
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
                   {(usersData?.users ?? []).map((user) => (
                     <div key={user.id} className="flex items-center justify-between px-6 py-3.5 hover:bg-white/2 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#f5c518] text-black flex items-center justify-center font-black text-xs flex-shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#ffc800] text-black flex items-center justify-center font-black text-xs flex-shrink-0">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -162,14 +162,14 @@ export default function AdminDashboard() {
                     <Link href={`/jobs/${job.id}`} key={job.id}>
                       <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-white truncate group-hover:text-[#f5c518] transition-colors">{job.title}</p>
+                          <p className="font-semibold text-sm text-white truncate group-hover:text-[#ffc800] transition-colors">{job.title}</p>
                           <p className="text-xs text-white/35 mt-0.5">{job.categoryName} · {job.suburb ?? "Remote"}</p>
                         </div>
                         <div className="flex items-center gap-2 ml-3">
                           <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${JOB_STATUS[job.status] ?? "bg-white/8 text-white/40"}`}>
                             {job.status.replace("_", " ")}
                           </span>
-                          <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#f5c518] transition-colors" />
+                          <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#ffc800] transition-colors" />
                         </div>
                       </div>
                     </Link>

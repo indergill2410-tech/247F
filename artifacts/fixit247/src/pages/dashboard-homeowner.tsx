@@ -7,7 +7,7 @@ import { Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench } from 
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   open:        { label: "Open",        cls: "bg-blue-500/15 text-blue-400" },
-  matched:     { label: "Matched",     cls: "bg-[#f5c518]/15 text-[#f5c518]" },
+  matched:     { label: "Matched",     cls: "bg-[#ffc800]/15 text-[#ffc800]" },
   in_progress: { label: "In Progress", cls: "bg-orange-500/15 text-orange-400" },
   completed:   { label: "Completed",   cls: "bg-emerald-500/15 text-emerald-400" },
   cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
@@ -36,7 +36,7 @@ export default function HomeownerDashboard() {
     { label: "Total Jobs",     value: data?.totalJobs ?? 0,      icon: Briefcase,   color: "text-blue-400",       bg: "bg-blue-500/10" },
     { label: "In Progress",    value: data?.inProgressJobs ?? 0, icon: Clock,       color: "text-orange-400",     bg: "bg-orange-500/10" },
     { label: "Completed",      value: data?.completedJobs ?? 0,  icon: CheckCircle, color: "text-emerald-400",    bg: "bg-emerald-500/10" },
-    { label: "Pending Claims", value: data?.pendingClaims ?? 0,  icon: Bell,        color: "text-[#f5c518]",      bg: "bg-[#f5c518]/10" },
+    { label: "Pending Claims", value: data?.pendingClaims ?? 0,  icon: Bell,        color: "text-[#ffc800]",      bg: "bg-[#ffc800]/10" },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function HomeownerDashboard() {
             <p className="text-white/45 mt-1 text-sm">Here's what's happening with your jobs.</p>
           </div>
           <Link href="/jobs/new">
-            <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
+            <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
               <Plus className="h-4 w-4" /> Post New Job
             </button>
           </Link>
@@ -92,7 +92,7 @@ export default function HomeownerDashboard() {
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
             <h2 className="font-bold text-white">Recent Jobs</h2>
             <Link href="/jobs">
-              <span className="text-sm text-[#f5c518] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+              <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
@@ -108,7 +108,7 @@ export default function HomeownerDashboard() {
                 <p className="font-semibold text-white/50">No jobs yet</p>
                 <p className="text-sm mt-1">Post your first job to get started</p>
                 <Link href="/jobs/new">
-                  <button className="mt-5 h-9 px-5 rounded-xl bg-[#f5c518] text-black font-bold text-sm hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center gap-1.5">
+                  <button className="mt-5 h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center gap-1.5">
                     <Plus className="h-4 w-4" /> Post a Job
                   </button>
                 </Link>
@@ -119,13 +119,13 @@ export default function HomeownerDashboard() {
                   <div className="flex items-center justify-between px-6 py-4 hover:bg-white/3 cursor-pointer transition-colors group">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-white truncate group-hover:text-[#f5c518] transition-colors">{job.title}</p>
+                        <p className="font-semibold text-white truncate group-hover:text-[#ffc800] transition-colors">{job.title}</p>
                         <StatusBadge status={job.status} />
                         <UrgencyBadge urgency={job.urgency} />
                       </div>
                       <p className="text-xs text-white/40 mt-0.5">{job.categoryName} · {job.suburb ?? "Remote"}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#f5c518] flex-shrink-0 ml-3 transition-colors" />
+                    <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#ffc800] flex-shrink-0 ml-3 transition-colors" />
                   </div>
                 </Link>
               ))
@@ -138,13 +138,13 @@ export default function HomeownerDashboard() {
           <Link href="/jobs/new">
             <motion.div
               whileHover={{ y: -2 }}
-              className="group bg-[#130f07] border border-white/6 hover:border-[#f5c518]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
+              className="group bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
             >
-              <div className="w-11 h-11 bg-[#f5c518] rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-11 h-11 bg-[#ffc800] rounded-xl flex items-center justify-center flex-shrink-0">
                 <Plus className="h-5 w-5 text-black" />
               </div>
               <div>
-                <p className="font-bold text-white group-hover:text-[#f5c518] transition-colors">Post a New Job</p>
+                <p className="font-bold text-white group-hover:text-[#ffc800] transition-colors">Post a New Job</p>
                 <p className="text-xs text-white/40 mt-0.5">Get matched with tradies in minutes</p>
               </div>
             </motion.div>
@@ -152,13 +152,13 @@ export default function HomeownerDashboard() {
           <Link href="/notifications">
             <motion.div
               whileHover={{ y: -2 }}
-              className="group bg-[#130f07] border border-white/6 hover:border-[#f5c518]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
+              className="group bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
             >
               <div className="w-11 h-11 bg-white/8 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Bell className="h-5 w-5 text-[#f5c518]" />
+                <Bell className="h-5 w-5 text-[#ffc800]" />
               </div>
               <div>
-                <p className="font-bold text-white group-hover:text-[#f5c518] transition-colors">Notifications</p>
+                <p className="font-bold text-white group-hover:text-[#ffc800] transition-colors">Notifications</p>
                 <p className="text-xs text-white/40 mt-0.5">See claims &amp; updates</p>
               </div>
             </motion.div>

@@ -110,7 +110,7 @@ export default function LandingPage() {
           >
             {/* Live badge */}
             <div className="inline-flex items-center gap-2 self-start bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-white/80 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#f5c518] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#ffc800] animate-pulse" />
               Urgent Fix 24/7 — tradies online now
             </div>
 
@@ -118,7 +118,7 @@ export default function LandingPage() {
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
                 Emergency<br />repairs,<br />
-                <span className="text-[#f5c518]">fixed fast.</span>
+                <span className="text-[#ffc800]">fixed fast.</span>
               </h1>
             </div>
 
@@ -137,13 +137,13 @@ export default function LandingPage() {
                   onChange={(e) => setSuburb(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
                   placeholder="Your suburb   e.g. Bondi, 2026"
-                  className="w-full bg-white/8 border border-white/12 rounded-lg pl-10 pr-4 h-11 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-[#f5c518]/60 focus:bg-white/12 transition-all"
+                  className="w-full bg-white/8 border border-white/12 rounded-lg pl-10 pr-4 h-11 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-[#ffc800]/60 focus:bg-white/12 transition-all"
                   style={{ background: "rgba(255,255,255,0.07)" }}
                 />
               </div>
               <button
                 onClick={handleFindTradies}
-                className="h-11 px-5 rounded-lg font-semibold text-sm text-black bg-[#f5c518] hover:bg-[#e6b800] transition-colors shrink-0"
+                className="h-11 px-5 rounded-lg font-semibold text-sm text-black bg-[#ffc800] hover:bg-[#e6b800] transition-colors shrink-0"
               >
                 Find tradies
               </button>
@@ -152,7 +152,7 @@ export default function LandingPage() {
             {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
               <Link href="/signup?role=homeowner">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-lg font-semibold text-[15px] text-black bg-[#f5c518] hover:bg-[#e6b800] transition-colors">
+                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-lg font-semibold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] transition-colors">
                   Create account &amp; post a job
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -178,7 +178,7 @@ export default function LandingPage() {
                   <h3 className="text-[22px] font-bold text-gray-900 leading-tight">
                     Tradies join free
                   </h3>
-                  <span className="bg-[#f5c518]/15 text-[#b8920a] border border-[#f5c518]/30 text-xs font-bold px-2.5 py-1 rounded-md shrink-0 ml-3">
+                  <span className="bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-2.5 py-1 rounded-md shrink-0 ml-3">
                     100% FREE
                   </span>
                 </div>
@@ -212,7 +212,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Stats bar ─── */}
-      <section className="bg-[#f5c518] py-6">
+      <section className="bg-[#ffc800] py-6">
         <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
             <div key={s.label}>
@@ -227,7 +227,7 @@ export default function LandingPage() {
       <section id="how-it-works" className="py-20 bg-[#0b0904] text-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
-            <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Simple process</span>
+            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Simple process</span>
             <h2 className="text-4xl font-black mt-3">How it works</h2>
             <p className="text-white/50 mt-3 max-w-md mx-auto">
               Three steps to get your home fixed by a verified local tradie.
@@ -246,8 +246,8 @@ export default function LandingPage() {
                 <span className="absolute top-6 right-6 text-5xl font-black text-white/5 select-none">
                   {item.step}
                 </span>
-                <div className="w-12 h-12 rounded-xl bg-[#f5c518]/15 border border-[#f5c518]/20 flex items-center justify-center mb-5">
-                  <item.icon className="h-6 w-6 text-[#f5c518]" />
+                <div className="w-12 h-12 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/20 flex items-center justify-center mb-5">
+                  <item.icon className="h-6 w-6 text-[#ffc800]" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">{item.title}</h3>
                 <p className="text-white/50 leading-relaxed">{item.desc}</p>
@@ -261,7 +261,7 @@ export default function LandingPage() {
       <section id="categories" className="py-20 bg-[#0e0c08] text-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
-            <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Services</span>
+            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Services</span>
             <h2 className="text-4xl font-black mt-3">What do you need fixed?</h2>
             <p className="text-white/50 mt-3">Choose from 12+ trade categories</p>
           </div>
@@ -271,9 +271,9 @@ export default function LandingPage() {
               const label = "name" in cat ? cat.name : (cat as typeof CATEGORIES_DISPLAY[0]).label;
               return (
                 <Link href="/signup?role=homeowner" key={label}>
-                  <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-[#f5c518]/30 cursor-pointer transition-all">
-                    <div className="w-14 h-14 rounded-xl bg-[#f5c518]/10 border border-[#f5c518]/15 flex items-center justify-center group-hover:bg-[#f5c518]/20 transition-colors">
-                      <Icon className="h-7 w-7 text-[#f5c518]" />
+                  <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-[#ffc800]/30 cursor-pointer transition-all">
+                    <div className="w-14 h-14 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center group-hover:bg-[#ffc800]/20 transition-colors">
+                      <Icon className="h-7 w-7 text-[#ffc800]" />
                     </div>
                     <span className="text-sm font-semibold text-center text-white/80 group-hover:text-white transition-colors">
                       {label}
@@ -294,7 +294,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Emergency CTA ─── */}
-      <section className="py-20 bg-[#f5c518]">
+      <section className="py-20 bg-[#ffc800]">
         <div className="container mx-auto max-w-2xl px-4 sm:px-6 text-center">
           <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" />
           <h2 className="text-4xl font-black text-black">Emergency repair?<br />We're ready now.</h2>

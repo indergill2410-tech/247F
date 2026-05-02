@@ -12,8 +12,8 @@ const URGENCIES = [
   { value: "emergency", label: "Emergency", desc: "Critical, needs immediate attention", Icon: Zap,       border: "border-red-500/15",       active: "border-red-500/40 bg-red-500/8" },
 ];
 
-const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
-const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all resize-none";
+const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
+const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none";
 const labelCls = "text-sm font-medium text-white/65";
 
 export default function PostJobPage() {
@@ -112,7 +112,7 @@ export default function PostJobPage() {
                     }`}
                   >
                     <input type="radio" name="urgency" value={u.value} checked={urgency === u.value} onChange={(e) => setUrgency(e.target.value)} className="sr-only" />
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${urgency === u.value ? "bg-[#f5c518]" : "bg-white/8"}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${urgency === u.value ? "bg-[#ffc800]" : "bg-white/8"}`}>
                       <u.Icon className={`h-5 w-5 ${urgency === u.value ? "text-black" : "text-white/40"}`} />
                     </div>
                     <div>
@@ -159,7 +159,7 @@ export default function PostJobPage() {
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="w-full h-12 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
+              className="w-full h-12 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
             >
               {createMutation.isPending ? "Posting job…" : "Post Job & Get Matched"}
             </button>

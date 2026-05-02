@@ -44,7 +44,7 @@ export default function ProfilePage() {
   const profile = me ?? user;
   const backHref = user?.role === "tradie" ? "/dashboard/tradie" : user?.role === "admin" ? "/admin" : "/dashboard";
 
-  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
+  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
   const labelCls = "text-sm font-medium text-white/65";
 
   return (
@@ -59,7 +59,7 @@ export default function ProfilePage() {
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#f5c518] text-black font-black text-2xl flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-[#ffc800] text-black font-black text-2xl flex items-center justify-center flex-shrink-0">
               {user?.name?.charAt(0).toUpperCase() ?? "U"}
             </div>
             <div>
@@ -68,7 +68,7 @@ export default function ProfilePage() {
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white/10 text-white/60 capitalize">{user?.role}</span>
                 {user?.rating && (
                   <span className="flex items-center gap-1 text-white/50 text-xs">
-                    <Star className="h-3 w-3 text-[#f5c518] fill-[#f5c518]" />
+                    <Star className="h-3 w-3 text-[#ffc800] fill-[#ffc800]" />
                     {user.rating} ({user.reviewCount ?? 0} reviews)
                   </span>
                 )}
@@ -128,7 +128,7 @@ export default function ProfilePage() {
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
                 placeholder="Tell homeowners about your experience, qualifications, and what makes you stand out…"
-                className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all resize-none"
+                className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none"
               />
             </div>
           )}
@@ -136,7 +136,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="w-full h-11 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
+            className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
           >
             {updateMutation.isPending ? "Saving…" : "Save Changes"}
           </button>

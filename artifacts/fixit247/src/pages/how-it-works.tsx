@@ -67,7 +67,7 @@ export default function HowItWorksPage() {
           transition={{ duration: 0.5 }}
           className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">Simple process</span>
+          <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Simple process</span>
           <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">How Fixit 24/7 works</h1>
           <p className="text-white/55 text-lg leading-relaxed">
             Getting your home repaired has never been easier. Post a job, get matched, and hire a verified local tradie — all in minutes.
@@ -89,15 +89,15 @@ export default function HowItWorksPage() {
                 className="flex gap-6 items-start"
               >
                 <div className="shrink-0 flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#f5c518]/10 border border-[#f5c518]/20 flex items-center justify-center">
-                    <step.icon className="h-6 w-6 text-[#f5c518]" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#ffc800]/10 border border-[#ffc800]/20 flex items-center justify-center">
+                    <step.icon className="h-6 w-6 text-[#ffc800]" />
                   </div>
                   {i < STEPS.length - 1 && (
                     <div className="w-px bg-white/8 h-10" />
                   )}
                 </div>
                 <div className="pb-2">
-                  <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">{step.number}</span>
+                  <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">{step.number}</span>
                   <h3 className="text-xl font-black mt-1 mb-2">{step.title}</h3>
                   <p className="text-white/60 leading-relaxed mb-1.5 text-[15px]">{step.desc}</p>
                   <p className="text-white/35 text-sm">{step.detail}</p>
@@ -124,7 +124,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#f5c518] text-center">
+      <section className="py-16 bg-[#ffc800] text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <Clock className="h-10 w-10 text-black/30 mx-auto mb-5" />
           <h2 className="text-3xl font-black text-black mb-3">Ready to get started?</h2>

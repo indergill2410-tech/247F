@@ -69,9 +69,9 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/">
           <span className="flex items-center gap-2 cursor-pointer shrink-0">
-            <Wrench className="h-5 w-5 text-[#f5c518]" />
+            <Wrench className="h-5 w-5 text-[#ffc800]" />
             <span className="font-black text-xl text-white tracking-tight whitespace-nowrap">
-              Fixit <span className="text-[#f5c518]">24/7</span>
+              Fixit <span className="text-[#ffc800]">24/7</span>
             </span>
           </span>
         </Link>
@@ -104,7 +104,7 @@ export function Navbar() {
               <span className={`${authNavCls("/messages", location)} relative`}>
                 <MessageCircle className="h-4 w-4" /> Messages
                 {unreadMessages > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-[#f5c518] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-[#ffc800] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
                     {unreadMessages > 9 ? "9+" : unreadMessages}
                   </span>
                 )}
@@ -130,7 +130,7 @@ export function Navbar() {
                 </span>
               </Link>
               <Link href="/signup">
-                <button className="h-9 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
+                <button className="h-9 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
                   Create account
                 </button>
               </Link>
@@ -142,7 +142,7 @@ export function Navbar() {
                 <button className="relative h-9 w-9 rounded-lg text-white/55 hover:text-white hover:bg-white/8 flex items-center justify-center transition-all">
                   <Bell className="h-4.5 w-4.5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#f5c518] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#ffc800] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
@@ -154,7 +154,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 transition-all">
                     <Avatar className="h-7 w-7">
-                      <AvatarFallback className="bg-[#f5c518] text-black text-xs font-black">
+                      <AvatarFallback className="bg-[#ffc800] text-black text-xs font-black">
                         {user?.name?.charAt(0).toUpperCase() ?? "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -178,7 +178,7 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => setLocation("/messages")}>
                     <MessageCircle className="h-4 w-4 mr-2" /> Messages
                     {unreadMessages > 0 && (
-                      <Badge className="ml-auto bg-[#f5c518] text-black border-none text-[10px] px-1.5">
+                      <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">
                         {unreadMessages}
                       </Badge>
                     )}
@@ -186,7 +186,7 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => setLocation("/notifications")}>
                     <Bell className="h-4 w-4 mr-2" /> Notifications
                     {unreadCount > 0 && (
-                      <Badge className="ml-auto bg-[#f5c518] text-black border-none text-[10px] px-1.5">
+                      <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">
                         {unreadCount}
                       </Badge>
                     )}

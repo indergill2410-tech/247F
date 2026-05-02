@@ -45,7 +45,7 @@ export default function RegisterPage() {
     });
   };
 
-  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
+  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
 
   return (
     <div
@@ -61,9 +61,9 @@ export default function RegisterPage() {
         {/* Logo */}
         <Link href="/">
           <div className="flex items-center justify-center gap-2 mb-10 cursor-pointer">
-            <Wrench className="h-6 w-6 text-[#f5c518]" />
+            <Wrench className="h-6 w-6 text-[#ffc800]" />
             <span className="text-2xl font-black text-white tracking-tight">
-              Fixit <span className="text-[#f5c518]">24/7</span>
+              Fixit <span className="text-[#ffc800]">24/7</span>
             </span>
           </div>
         </Link>
@@ -81,7 +81,7 @@ export default function RegisterPage() {
                 onClick={() => setRole(r)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${
                   role === r
-                    ? "bg-[#f5c518] text-black shadow-sm"
+                    ? "bg-[#ffc800] text-black shadow-sm"
                     : "text-white/45 hover:text-white/70"
                 }`}
               >
@@ -133,7 +133,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full h-11 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
+              className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
             >
               {registerMutation.isPending
                 ? "Creating account…"
@@ -144,7 +144,7 @@ export default function RegisterPage() {
           <p className="mt-6 text-center text-sm text-white/40">
             Already have an account?{" "}
             <Link href="/login">
-              <span className="text-[#f5c518] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
+              <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
             </Link>
           </p>
         </div>

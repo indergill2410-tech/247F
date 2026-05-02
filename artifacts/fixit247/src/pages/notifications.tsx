@@ -43,7 +43,7 @@ export default function NotificationsPage() {
           </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <BellRing className="h-5 w-5 text-[#f5c518]" />
+              <BellRing className="h-5 w-5 text-[#ffc800]" />
               <div>
                 <h1 className="text-2xl font-black text-white">Notifications</h1>
                 {unreadCount > 0 && <p className="text-white/40 text-xs mt-0.5">{unreadCount} unread</p>}
@@ -82,7 +82,7 @@ export default function NotificationsPage() {
               <div
                 key={n.id}
                 className={`px-6 py-4 flex items-start gap-4 cursor-pointer transition-colors hover:bg-white/2 ${
-                  !n.isRead ? "bg-[#f5c518]/3" : ""
+                  !n.isRead ? "bg-[#ffc800]/3" : ""
                 }`}
                 onClick={() => { if (!n.isRead) markRead.mutate({ id: n.id }); }}
               >
@@ -93,7 +93,7 @@ export default function NotificationsPage() {
                       {n.title}
                     </p>
                     {!n.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-[#f5c518] flex-shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-[#ffc800] flex-shrink-0" />
                     )}
                   </div>
                   <p className="text-sm text-white/40 mt-0.5">{n.message}</p>

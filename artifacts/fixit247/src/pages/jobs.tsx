@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const STATUS_MAP: Record<string, string> = {
   open:        "bg-blue-500/15 text-blue-400",
-  matched:     "bg-[#f5c518]/15 text-[#f5c518]",
+  matched:     "bg-[#ffc800]/15 text-[#ffc800]",
   in_progress: "bg-orange-500/15 text-orange-400",
   completed:   "bg-emerald-500/15 text-emerald-400",
   cancelled:   "bg-white/8 text-white/40",
@@ -71,7 +71,7 @@ export default function JobsPage() {
           </div>
           {user?.role === "homeowner" && (
             <Link href="/jobs/new">
-              <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+              <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
                 <Plus className="h-4 w-4" /> Post Job
               </button>
             </Link>
@@ -89,7 +89,7 @@ export default function JobsPage() {
               placeholder="Search jobs, suburb…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-10 bg-[#130f07] border border-white/8 rounded-xl pl-9 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/40 transition-all"
+              className="w-full h-10 bg-[#130f07] border border-white/8 rounded-xl pl-9 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/40 transition-all"
             />
           </div>
           <Select value={status} onValueChange={setStatus}>
@@ -129,7 +129,7 @@ export default function JobsPage() {
               <p className="font-semibold text-white/50">No jobs found</p>
               {user?.role === "homeowner" && (
                 <Link href="/jobs/new">
-                  <button className="mt-5 h-10 px-6 rounded-xl bg-[#f5c518] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors">
+                  <button className="mt-5 h-10 px-6 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors">
                     Post your first job
                   </button>
                 </Link>
@@ -137,13 +137,13 @@ export default function JobsPage() {
             </div>
           ) : (
             filteredJobs.map((job) => (
-              <div key={job.id} className="bg-[#130f07] border border-white/6 hover:border-[#f5c518]/25 rounded-2xl p-5 transition-all">
+              <div key={job.id} className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/25 rounded-2xl p-5 transition-all">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <UrgencyIcon urgency={job.urgency} />
                       <Link href={`/jobs/${job.id}`}>
-                        <span className="font-bold text-white hover:text-[#f5c518] cursor-pointer transition-colors">{job.title}</span>
+                        <span className="font-bold text-white hover:text-[#ffc800] cursor-pointer transition-colors">{job.title}</span>
                       </Link>
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-md capitalize ${STATUS_MAP[job.status] ?? "bg-white/8 text-white/40"}`}>
                         {job.status.replace("_", " ")}
@@ -174,7 +174,7 @@ export default function JobsPage() {
                     </Link>
                     {user?.role === "tradie" && ["open", "matched"].includes(job.status) && (
                       <button
-                        className="h-8 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors disabled:opacity-50"
+                        className="h-8 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors disabled:opacity-50"
                         disabled={claimMutation.isPending}
                         onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
                       >

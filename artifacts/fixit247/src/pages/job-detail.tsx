@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   open:        { label: "Open",        cls: "bg-blue-500/15 text-blue-400" },
-  matched:     { label: "Matched",     cls: "bg-[#f5c518]/15 text-[#f5c518]" },
+  matched:     { label: "Matched",     cls: "bg-[#ffc800]/15 text-[#ffc800]" },
   in_progress: { label: "In Progress", cls: "bg-orange-500/15 text-orange-400" },
   completed:   { label: "Completed",   cls: "bg-emerald-500/15 text-emerald-400" },
   cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
@@ -20,14 +20,14 @@ const URGENCY_MAP: Record<string, { label: string; cls: string; Icon: React.Elem
   standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",      Icon: Briefcase },
 };
 const CLAIM_STATUS: Record<string, string> = {
-  pending:   "bg-[#f5c518]/15 text-[#f5c518]",
+  pending:   "bg-[#ffc800]/15 text-[#ffc800]",
   accepted:  "bg-emerald-500/15 text-emerald-400",
   rejected:  "bg-red-500/15 text-red-400",
   withdrawn: "bg-white/8 text-white/40",
   completed: "bg-blue-500/15 text-blue-400",
 };
 
-const inputCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
+const inputCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [hovered, setHovered] = useState(0);
@@ -43,7 +43,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
           className="transition-transform hover:scale-110"
         >
           <Star
-            className={`h-7 w-7 transition-colors ${s <= (hovered || value) ? "text-[#f5c518] fill-[#f5c518]" : "text-white/20"}`}
+            className={`h-7 w-7 transition-colors ${s <= (hovered || value) ? "text-[#ffc800] fill-[#ffc800]" : "text-white/20"}`}
           />
         </button>
       ))}
@@ -123,7 +123,7 @@ export default function JobDetailPage() {
         <div className="text-white/35">
           <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-30" />
           <p className="text-lg font-bold text-white/50">Job not found</p>
-          <button onClick={() => setLocation("/jobs")} className="mt-4 text-[#f5c518] text-sm hover:underline">← Back to Jobs</button>
+          <button onClick={() => setLocation("/jobs")} className="mt-4 text-[#ffc800] text-sm hover:underline">← Back to Jobs</button>
         </div>
       </div>
     );
@@ -180,17 +180,17 @@ export default function JobDetailPage() {
           <div className="grid sm:grid-cols-2 gap-3 pt-2 border-t border-white/6">
             {(job.suburb || job.postcode) && (
               <div className="flex items-center gap-2 text-sm text-white/50">
-                <MapPin className="h-4 w-4 text-[#f5c518]" />
+                <MapPin className="h-4 w-4 text-[#ffc800]" />
                 {[job.suburb, job.postcode].filter(Boolean).join(", ")}
               </div>
             )}
             {job.budget && (
               <div className="flex items-center gap-2 text-sm text-white/50">
-                <DollarSign className="h-4 w-4 text-[#f5c518]" />Budget: ${job.budget}
+                <DollarSign className="h-4 w-4 text-[#ffc800]" />Budget: ${job.budget}
               </div>
             )}
             <div className="flex items-center gap-2 text-sm text-white/50">
-              <Calendar className="h-4 w-4 text-[#f5c518]" />
+              <Calendar className="h-4 w-4 text-[#ffc800]" />
               Posted: {new Date(job.createdAt).toLocaleDateString()}
             </div>
           </div>
@@ -219,11 +219,11 @@ export default function JobDetailPage() {
 
         {/* Tradie claim form */}
         {canClaim && (
-          <div className="bg-[#130f07] border border-[#f5c518]/20 rounded-2xl p-6">
-            <h2 className="font-bold text-[#f5c518] mb-4">Claim This Job</h2>
+          <div className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl p-6">
+            <h2 className="font-bold text-[#ffc800] mb-4">Claim This Job</h2>
             {!showClaimForm ? (
               <button
-                className="w-full h-11 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors"
+                className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors"
                 onClick={() => setShowClaimForm(true)}
               >
                 Submit a Claim
@@ -237,7 +237,7 @@ export default function JobDetailPage() {
                     value={claimMessage}
                     onChange={(e) => setClaimMessage(e.target.value)}
                     rows={3}
-                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 transition-all resize-none"
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -256,7 +256,7 @@ export default function JobDetailPage() {
                 </div>
                 <div className="flex gap-3">
                   <button
-                    className="h-10 px-6 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
+                    className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
                     disabled={claimMutation.isPending}
                     onClick={() => claimMutation.mutate({ jobId: job.id, data: { message: claimMessage || undefined, proposedPrice: proposedPrice ? Number(proposedPrice) : undefined } })}
                   >
@@ -295,7 +295,7 @@ export default function JobDetailPage() {
                   <motion.div key={claim.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-6 py-5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#f5c518] text-black font-black text-sm flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[#ffc800] text-black font-black text-sm flex items-center justify-center flex-shrink-0">
                           {claim.tradieName?.charAt(0) ?? "T"}
                         </div>
                         <div>
@@ -303,7 +303,7 @@ export default function JobDetailPage() {
                           <div className="flex items-center gap-3 text-xs text-white/40 mt-0.5">
                             {claim.tradieRating && (
                               <span className="flex items-center gap-1">
-                                <Star className="h-3 w-3 text-[#f5c518] fill-[#f5c518]" />
+                                <Star className="h-3 w-3 text-[#ffc800] fill-[#ffc800]" />
                                 {claim.tradieRating}
                                 {(claim.tradieReviewCount ?? 0) > 0 && ` (${claim.tradieReviewCount})`}
                               </span>
@@ -314,7 +314,7 @@ export default function JobDetailPage() {
                           </div>
                           {claim.message && <p className="text-sm mt-2 text-white/55">{claim.message}</p>}
                           {claim.proposedPrice && (
-                            <p className="text-sm font-semibold mt-1 text-[#f5c518] flex items-center gap-1">
+                            <p className="text-sm font-semibold mt-1 text-[#ffc800] flex items-center gap-1">
                               <DollarSign className="h-3.5 w-3.5" />Quoted: ${claim.proposedPrice}
                             </p>
                           )}
@@ -368,7 +368,7 @@ export default function JobDetailPage() {
               {canReview && !showReviewForm && (
                 <button
                   onClick={() => setShowReviewForm(true)}
-                  className="text-[#f5c518] text-xs font-semibold hover:underline"
+                  className="text-[#ffc800] text-xs font-semibold hover:underline"
                 >
                   + Leave a Review
                 </button>
@@ -385,11 +385,11 @@ export default function JobDetailPage() {
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
                   rows={3}
-                  className="w-full mt-4 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 transition-all resize-none"
+                  className="w-full mt-4 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
                 />
                 <div className="flex gap-3 mt-4">
                   <button
-                    className="h-9 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
+                    className="h-9 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
                     disabled={reviewRating === 0 || reviewMutation.isPending}
                     onClick={() =>
                       reviewMutation.mutate({
@@ -423,7 +423,7 @@ export default function JobDetailPage() {
                         <p className="font-semibold text-white text-sm">{review.reviewerName ?? "Anonymous"}</p>
                         <div className="flex gap-0.5">
                           {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className={`h-3.5 w-3.5 ${s <= review.rating ? "text-[#f5c518] fill-[#f5c518]" : "text-white/15"}`} />
+                            <Star key={s} className={`h-3.5 w-3.5 ${s <= review.rating ? "text-[#ffc800] fill-[#ffc800]" : "text-white/15"}`} />
                           ))}
                         </div>
                       </div>

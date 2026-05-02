@@ -116,7 +116,7 @@ export default function MessageThreadPage() {
           <button onClick={() => setLocation("/messages")} className="text-white/40 hover:text-white transition-colors p-1 -ml-1">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <div className="w-9 h-9 rounded-xl bg-[#f5c518] text-black font-black text-base flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#ffc800] text-black font-black text-base flex items-center justify-center flex-shrink-0">
             {(otherName ?? "?").charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -178,7 +178,7 @@ export default function MessageThreadPage() {
                       <div
                         className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                           isMine
-                            ? "bg-[#f5c518] text-black font-medium rounded-br-sm"
+                            ? "bg-[#ffc800] text-black font-medium rounded-br-sm"
                             : "bg-[#1d1a12] text-white/85 border border-white/6 rounded-bl-sm"
                         }`}
                       >
@@ -230,13 +230,13 @@ export default function MessageThreadPage() {
             onKeyDown={handleKeyDown}
             placeholder="Type a message… (Enter to send)"
             rows={1}
-            className="flex-1 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 transition-all resize-none max-h-32"
+            className="flex-1 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none max-h-32"
             style={{ scrollbarWidth: "none" }}
           />
           <button
             onClick={handleSend}
             disabled={!body.trim() || sendMutation.isPending}
-            className="h-11 w-11 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-11 w-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4" />
           </button>
