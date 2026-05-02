@@ -20,6 +20,7 @@ const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
   { label: "Categories", href: "/categories" },
   { label: "About", href: "/about" },
+  { label: "Partner with us", href: "/partner" },
   { label: "We are hiring", href: "/careers" },
 ];
 

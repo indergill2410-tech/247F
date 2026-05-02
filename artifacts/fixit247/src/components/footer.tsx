@@ -9,6 +9,7 @@ const NAV_HOMEOWNERS = [
 ];
 
 const NAV_TRADIES = [
+  { label: "Partner with us", href: "/partner" },
   { label: "Join free", href: "/signup?role=tradie" },
   { label: "How it works", href: "/how-it-works" },
   { label: "Sign in", href: "/login" },

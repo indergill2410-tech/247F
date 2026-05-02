@@ -11,6 +11,7 @@ import HowItWorksPage from "@/pages/how-it-works";
 import CategoriesPublicPage from "@/pages/categories";
 import AboutPage from "@/pages/about";
 import CareersPage from "@/pages/careers";
+import PartnerPage from "@/pages/partner";
 import HomeownerDashboard from "@/pages/dashboard-homeowner";
 import TradieDashboard from "@/pages/dashboard-tradie";
 import AdminDashboard from "@/pages/dashboard-admin";
@@ -62,6 +63,7 @@ function Router() {
         <Route path="/categories" component={CategoriesPublicPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/careers" component={CareersPage} />
+        <Route path="/partner" component={PartnerPage} />
         <Route path="/login" component={LoginPage} />
         <Route path="/register" component={RegisterPage} />
         <Route path="/signup" component={RegisterPage} />
