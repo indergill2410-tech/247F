@@ -24,9 +24,11 @@ import type {
   AuthResponse,
   Category,
   Claim,
+  Conversation,
   CreateCategoryBody,
   CreateClaimBody,
   CreateJobBody,
+  CreateReviewBody,
   ErrorResponse,
   HealthStatus,
   HomeownerDashboard,
@@ -36,8 +38,11 @@ import type {
   ListJobsParams,
   ListNotificationsParams,
   LoginBody,
+  Message,
   Notification,
   RegisterBody,
+  Review,
+  SendMessageBody,
   SuccessResponse,
   TradieDashboard,
   UnreadCountResponse,
@@ -2378,6 +2383,429 @@ export const useAdminDeleteUser = <
   TContext
 > => {
   return useMutation(getAdminDeleteUserMutationOptions(options));
+};
+
+/**
+ * @summary List conversations for the current user
+ */
+export const getListConversationsUrl = () => {
+  return `/api/conversations`;
+};
+
+export const listConversations = async (
+  options?: RequestInit,
+): Promise<Conversation[]> => {
+  return customFetch<Conversation[]>(getListConversationsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListConversationsQueryKey = () => {
+  return [`/api/conversations`] as const;
+};
+
+export const getListConversationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listConversations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listConversations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListConversationsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listConversations>>
+  > = ({ signal }) => listConversations({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listConversations>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListConversationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listConversations>>
+>;
+export type ListConversationsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List conversations for the current user
+ */
+
+export function useListConversations<
+  TData = Awaited<ReturnType<typeof listConversations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listConversations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListConversationsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get messages in a conversation
+ */
+export const getListMessagesUrl = (id: number) => {
+  return `/api/conversations/${id}/messages`;
+};
+
+export const listMessages = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Message[]> => {
+  return customFetch<Message[]>(getListMessagesUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMessagesQueryKey = (id: number) => {
+  return [`/api/conversations/${id}/messages`] as const;
+};
+
+export const getListMessagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMessages>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMessagesQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMessages>>> = ({
+    signal,
+  }) => listMessages(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMessages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMessagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMessages>>
+>;
+export type ListMessagesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get messages in a conversation
+ */
+
+export function useListMessages<
+  TData = Awaited<ReturnType<typeof listMessages>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMessagesQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Send a message in a conversation
+ */
+export const getSendMessageUrl = (id: number) => {
+  return `/api/conversations/${id}/messages`;
+};
+
+export const sendMessage = async (
+  id: number,
+  sendMessageBody: SendMessageBody,
+  options?: RequestInit,
+): Promise<Message> => {
+  return customFetch<Message>(getSendMessageUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendMessageBody),
+  });
+};
+
+export const getSendMessageMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { id: number; data: BodyType<SendMessageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { id: number; data: BodyType<SendMessageBody> },
+  TContext
+> => {
+  const mutationKey = ["sendMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendMessage>>,
+    { id: number; data: BodyType<SendMessageBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return sendMessage(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendMessage>>
+>;
+export type SendMessageMutationBody = BodyType<SendMessageBody>;
+export type SendMessageMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Send a message in a conversation
+ */
+export const useSendMessage = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { id: number; data: BodyType<SendMessageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { id: number; data: BodyType<SendMessageBody> },
+  TContext
+> => {
+  return useMutation(getSendMessageMutationOptions(options));
+};
+
+/**
+ * @summary Get reviews for a job
+ */
+export const getListJobReviewsUrl = (jobId: number) => {
+  return `/api/jobs/${jobId}/reviews`;
+};
+
+export const listJobReviews = async (
+  jobId: number,
+  options?: RequestInit,
+): Promise<Review[]> => {
+  return customFetch<Review[]>(getListJobReviewsUrl(jobId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListJobReviewsQueryKey = (jobId: number) => {
+  return [`/api/jobs/${jobId}/reviews`] as const;
+};
+
+export const getListJobReviewsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listJobReviews>>,
+  TError = ErrorType<unknown>,
+>(
+  jobId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listJobReviews>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListJobReviewsQueryKey(jobId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listJobReviews>>> = ({
+    signal,
+  }) => listJobReviews(jobId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!jobId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listJobReviews>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListJobReviewsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listJobReviews>>
+>;
+export type ListJobReviewsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get reviews for a job
+ */
+
+export function useListJobReviews<
+  TData = Awaited<ReturnType<typeof listJobReviews>>,
+  TError = ErrorType<unknown>,
+>(
+  jobId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listJobReviews>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListJobReviewsQueryOptions(jobId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Submit a review for a completed job
+ */
+export const getCreateReviewUrl = (jobId: number) => {
+  return `/api/jobs/${jobId}/reviews`;
+};
+
+export const createReview = async (
+  jobId: number,
+  createReviewBody: CreateReviewBody,
+  options?: RequestInit,
+): Promise<Review> => {
+  return customFetch<Review>(getCreateReviewUrl(jobId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createReviewBody),
+  });
+};
+
+export const getCreateReviewMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createReview>>,
+    TError,
+    { jobId: number; data: BodyType<CreateReviewBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createReview>>,
+  TError,
+  { jobId: number; data: BodyType<CreateReviewBody> },
+  TContext
+> => {
+  const mutationKey = ["createReview"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createReview>>,
+    { jobId: number; data: BodyType<CreateReviewBody> }
+  > = (props) => {
+    const { jobId, data } = props ?? {};
+
+    return createReview(jobId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateReviewMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createReview>>
+>;
+export type CreateReviewMutationBody = BodyType<CreateReviewBody>;
+export type CreateReviewMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Submit a review for a completed job
+ */
+export const useCreateReview = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createReview>>,
+    TError,
+    { jobId: number; data: BodyType<CreateReviewBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createReview>>,
+  TError,
+  { jobId: number; data: BodyType<CreateReviewBody> },
+  TContext
+> => {
+  return useMutation(getCreateReviewMutationOptions(options));
 };
 
 /**

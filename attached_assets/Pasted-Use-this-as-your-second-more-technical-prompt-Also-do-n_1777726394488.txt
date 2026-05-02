@@ -1,0 +1,331 @@
+Use this as your **second, more technical prompt**. Also, do **not** paste real secrets into the builder again — production secrets should stay in the platform’s environment settings, while the app should validate only the required variables and ignore extras. Using dotenv with explicit required-variable validation and a `.env.example` template is a standard safer pattern for Node apps. [dev](https://dev.to/saiful7778/managing-environment-variables-in-nodejs-with-dotenv-159e)
+
+## Technical prompt
+
+Convert Fixit 24/7 into a production-grade **multi-role marketplace app** with three role experiences: **Admin**, **Homeowner**, and **Tradie**. Build it as a real app, not a marketing site. Use a scalable architecture with PostgreSQL, role-based auth, modular routes, reusable components, mobile-first UX, and strong conversion-focused product flows. The codebase should validate only the required environment variables and disregard everything else, using a centralized config layer rather than scattering `process.env` checks across the app. Centralized env validation and modular Express routing improve maintainability and reduce configuration errors. [github](https://github.com/orgs/community/discussions/157077)
+
+### Required environment variables only
+
+Use only these required env variables:
+- `APP_URL`
+- `DATABASE_URL`
+- `FROM_EMAIL`
+- `NODE_ENV`
+- `PORT`
+- `SENDGRID_API_KEY`
+- `SENDGRID_CUSTOMER_WELCOME_TEMPLATE_ID`
+- `SENDGRID_OTP_TEMPLATE_ID`
+- `SENDGRID_TRADIE_WELCOME_TEMPLATE_ID`
+- `SESSION_SECRET`
+
+Ignore all other env variables if present. Build a config module that:
+- loads dotenv once at app startup
+- validates required variables
+- throws a startup error if any required variable is missing
+- exports a typed config object for the rest of the app
+- includes a `.env.example` with keys only, no real values
+- never hardcodes secrets in code
+This matches common dotenv best practices for secure and portable Node deployments. [coreui](https://coreui.io/answers/how-to-use-dotenv-in-nodejs/)
+
+### Core architecture
+
+Build a single application with one account per email, but allow a single user to hold multiple roles at the same time. Use one unified identity with an active-role context in session/app state. After login:
+- if user has one role, enter directly
+- if user has multiple roles, show a “Continue as…” role chooser
+- allow instant role switching from account menu without logout
+- change permissions, navigation, and dashboard by active role
+Modular route/controller structure in Express and a relational Postgres schema should be used for maintainability and role-aware access control. [itnext](https://itnext.io/building-restful-api-with-node-js-express-js-and-postgresql-the-right-way-b2e718ad1c66)
+
+### Database schema
+
+Create PostgreSQL schema and migrations for the following entities:
+
+**Auth and users**
+- `users`: id, full_name, email (unique), phone, password_hash or auth_provider fields, avatar_url, is_verified, created_at, updated_at
+- `roles`: id, key (`admin`, `homeowner`, `tradie`), label
+- `user_roles`: id, user_id, role_id, is_active, granted_by, granted_at, metadata_json
+- `sessions` or session store table if needed
+
+**Role profiles**
+- `homeowner_profiles`: id, user_id, default_address_id, property_preferences_json
+- `tradie_profiles`: id, user_id, business_name, abn, license_number, insured, verification_status, rating_avg, jobs_completed, service_radius_km
+- `admin_profiles`: id, user_id, admin_level, permissions_json
+
+**Addresses and service locations**
+- `addresses`: id, user_id, label, line1, line2, suburb, state, postcode, lat, lng, is_default
+
+**Jobs marketplace**
+- `job_categories`: id, name, slug, icon
+- `jobs`: id, homeowner_user_id, address_id, category_id, title, description, urgency, status, preferred_date, budget_min, budget_max, created_at, updated_at
+- `job_photos`: id, job_id, image_url, sort_order
+- `job_invites`: id, job_id, tradie_user_id, invited_at, status
+- `quotes`: id, job_id, tradie_user_id, amount, message, estimated_start_date, status, created_at
+- `job_assignments`: id, job_id, tradie_user_id, accepted_quote_id, assigned_at, status
+
+**Messaging and notifications**
+- `conversations`: id, job_id, homeowner_user_id, tradie_user_id, created_at
+- `messages`: id, conversation_id, sender_user_id, message_type, body, attachment_url, read_at, created_at
+- `notifications`: id, user_id, type, title, body, cta_url, is_read, created_at
+
+**Payments and earnings**
+- `payments`: id, job_id, payer_user_id, payee_user_id, amount, currency, status, provider_ref, paid_at
+- `payouts`: id, tradie_user_id, amount, status, requested_at, paid_at
+
+**Trust and moderation**
+- `reviews`: id, job_id, reviewer_user_id, reviewee_user_id, rating, comment, created_at
+- `documents`: id, tradie_user_id, type, file_url, verification_status, uploaded_at
+- `disputes`: id, job_id, opened_by_user_id, reason, status, resolution_notes, assigned_admin_user_id, created_at, resolved_at
+- `audit_logs`: id, actor_user_id, entity_type, entity_id, action, metadata_json, created_at
+
+Add indexes, foreign keys, cascading rules, status enums, and seed data for roles and base categories. The schema should support future expansion cleanly. Structured schemas and clearly defined responsibilities make marketplace apps easier to evolve. [docsbot](https://docsbot.ai/prompts/technical/ai-prompt-marketplace-architecture-plan)
+
+### Backend structure
+
+Use a clean modular backend structure such as:
+- `src/config`
+- `src/db`
+- `src/models` or `src/repositories`
+- `src/controllers`
+- `src/services`
+- `src/middleware`
+- `src/routes`
+- `src/lib`
+- `src/templates`
+- `src/types`
+
+Implement:
+- auth middleware
+- active-role middleware
+- role guard middleware
+- error handling middleware
+- request validation layer
+- email service wrapper for SendGrid
+- audit logging service
+- notification service
+Separating controllers, services, and routes is a standard way to keep Express APIs easier to test and maintain. [javascript.plainenglish](https://javascript.plainenglish.io/lets-build-apis-with-node-express-and-postgresql-3be160d50519)
+
+### API routes
+
+Create REST endpoints grouped by feature.
+
+**Auth**
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `POST /api/auth/request-otp`
+- `POST /api/auth/verify-otp`
+- `GET /api/auth/me`
+- `POST /api/auth/select-role`
+
+**Users and account**
+- `GET /api/account/profile`
+- `PATCH /api/account/profile`
+- `GET /api/account/roles`
+- `POST /api/account/roles/switch`
+- `POST /api/account/addresses`
+- `GET /api/account/addresses`
+- `PATCH /api/account/addresses/:id`
+
+**Homeowner**
+- `POST /api/jobs`
+- `GET /api/jobs/my`
+- `GET /api/jobs/:id`
+- `POST /api/jobs/:id/photos`
+- `GET /api/jobs/:id/quotes`
+- `POST /api/jobs/:id/accept-quote`
+- `POST /api/jobs/:id/dispute`
+
+**Tradie**
+- `GET /api/leads`
+- `POST /api/jobs/:id/quote`
+- `GET /api/tradie/jobs`
+- `GET /api/tradie/earnings`
+- `POST /api/tradie/documents`
+- `GET /api/tradie/performance`
+
+**Messaging**
+- `GET /api/conversations`
+- `GET /api/conversations/:id/messages`
+- `POST /api/conversations/:id/messages`
+
+**Notifications**
+- `GET /api/notifications`
+- `POST /api/notifications/:id/read`
+
+**Admin**
+- `GET /api/admin/overview`
+- `GET /api/admin/jobs`
+- `GET /api/admin/users`
+- `GET /api/admin/disputes`
+- `PATCH /api/admin/disputes/:id`
+- `GET /api/admin/payouts`
+- `PATCH /api/admin/payouts/:id`
+- `GET /api/admin/analytics`
+- `POST /api/admin/users/:id/roles`
+Use modular `express.Router()` files by domain and keep controllers thin, services responsible for business logic, and validation explicit. [itnext](https://itnext.io/building-restful-api-with-node-js-express-js-and-postgresql-the-right-way-b2e718ad1c66)
+
+### Frontend app structure
+
+Build a real app shell with:
+- auth flow
+- role selection flow
+- role-based navigation
+- protected routes
+- shared design system
+- reusable component library
+- mobile-first screen layouts
+Structured, predictable generation works best when the UI is organized into explicit components and route hierarchies. [linkedin](https://www.linkedin.com/pulse/top-12-prompt-to-app-builders-2025-flatlogic-ahkwf)
+
+Use reusable components such as:
+- AppShell
+- TopBar
+- BottomNav
+- RoleSwitcher
+- StatCard
+- JobCard
+- QuoteCard
+- ConversationList
+- MessageComposer
+- NotificationBell
+- EmptyState
+- SkeletonCard
+- TrustBadge
+- VerificationBadge
+- DisputePanel
+- EarningsCard
+- ActivityFeed
+- FilterSheet
+- AddressPicker
+- UploadBox
+- Timeline
+- KPIGrid
+
+### Screen hierarchy
+
+Create screen maps for each role.
+
+**Public**
+- Splash
+- Welcome
+- Login
+- Sign up
+- OTP verify
+- Role chooser
+- Forgot password or magic login flow if needed
+
+**Homeowner app**
+- Dashboard
+- Post Job step 1: category
+- Post Job step 2: job details
+- Post Job step 3: photos
+- Post Job step 4: budget and timing
+- Post Job step 5: review and submit
+- Job detail
+- Quote compare
+- Messages
+- Payments
+- Reviews
+- Profile
+- Saved addresses
+- Notifications
+
+**Tradie app**
+- Dashboard
+- Nearby leads
+- Lead detail
+- Submit quote
+- My jobs
+- Calendar
+- Earnings
+- Verification center
+- Messages
+- Profile
+- Notifications
+
+**Admin app**
+- Overview dashboard
+- Jobs queue
+- User management
+- Role management
+- Disputes queue
+- Payout approvals
+- Verification queue
+- Analytics
+- Audit logs
+- Settings
+
+### UX behavior by role
+
+Make each role meaningfully different:
+- Homeowner UI should be trust-first, low-stress, and quote comparison centered.
+- Tradie UI should be action-first, fast, and optimized for job response speed.
+- Admin UI should be dense, scannable, filterable, and resolution-oriented.
+Role-based marketplaces convert better when the product surfaces the user’s most important next action instead of showing everyone the same dashboard. [excited](https://excited.agency/blog/marketplace-ux-design)
+
+### Copy and conversion
+
+Rewrite the UX copy with high-conviction product language:
+- Homeowner: “Get trusted help fast.”
+- Tradie: “Win better jobs without wasting time.”
+- Admin: “See issues early. Resolve them fast.”
+Use trust signals, reassurance, urgency where appropriate, and one clear CTA per screen. Good marketplace UX reduces friction, increases clarity, and improves conversion when the user understands the next step immediately. [purrweb](https://www.purrweb.com/blog/marketplace-ux-ui-design/)
+
+### Email flows
+
+Implement SendGrid email flows using the required template IDs:
+- OTP email
+- customer welcome email
+- tradie welcome email
+
+Build a mail service that:
+- maps template IDs from config
+- injects dynamic data
+- logs send attempts
+- fails gracefully without crashing the app
+- supports future admin notifications
+
+### Security and production basics
+
+Implement:
+- hashed passwords or secure auth provider flow
+- secure session handling
+- CSRF and rate limiting where appropriate
+- input validation and sanitization
+- role-based authorization checks
+- server-side enforcement of active role
+- audit logging for sensitive admin actions
+Prompt-to-app systems are more reliable when architecture, permissions, and security expectations are described explicitly instead of left implicit. [linkedin](https://www.linkedin.com/pulse/top-12-prompt-to-app-builders-2025-flatlogic-ahkwf)
+
+### Deliverables
+
+Return:
+1. Full folder structure.
+2. Database schema and migrations.
+3. Required env config module and `.env.example`.
+4. Backend routes, controllers, services, and middleware.
+5. Frontend route map and screen hierarchy.
+6. Reusable component inventory.
+7. Role-permission matrix.
+8. Seed data.
+9. Conversion-focused UX copy.
+10. Setup instructions for local and production.
+
+## Required env block
+
+You can also append this exact instruction:
+
+Use only the required env variables below and disregard the rest:
+- APP_URL
+- DATABASE_URL
+- FROM_EMAIL
+- NODE_ENV
+- PORT
+- SENDGRID_API_KEY
+- SENDGRID_CUSTOMER_WELCOME_TEMPLATE_ID
+- SENDGRID_OTP_TEMPLATE_ID
+- SENDGRID_TRADIE_WELCOME_TEMPLATE_ID
+- SESSION_SECRET
+
+Do not echo secret values into code, logs, commits, or generated documentation. Generate a `.env.example` file with keys only. Validate these variables at startup and fail fast if any required one is missing. [pkglog](https://pkglog.com/en/blog/dotenv-complete-guide-en/)
+
+One more important note: the credentials you pasted should be treated as **compromised** now and rotated immediately, especially the database password, SendGrid API key, and session secret, because exposed secrets should not be reused in production. Keeping secrets out of prompts, code, and shared logs is a core environment-management best practice. [dev](https://dev.to/saiful7778/managing-environment-variables-in-nodejs-with-dotenv-159e)

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { claimsTable, jobsTable, usersTable, notificationsTable } from "@workspace/db";
+import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable } from "@workspace/db";
 import { eq, and, count, inArray, desc, sql } from "drizzle-orm";
 import {
   ClaimJobParams,
@@ -96,7 +96,6 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
   const jobId = paramParsed.data.jobId;
   const tradieId = req.user!.userId;
 
-  // Check job exists and is claimable
   const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
   if (!job) {
     res.status(404).json({ error: "not_found", message: "Job not found" });
@@ -107,7 +106,6 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
-  // Check already claimed by this tradie
   const [existing] = await db
     .select({ id: claimsTable.id })
     .from(claimsTable)
@@ -117,7 +115,6 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
-  // Check max claims per job
   const [jobClaimsCount] = await db
     .select({ count: count() })
     .from(claimsTable)
@@ -127,7 +124,6 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
-  // Check max active jobs per tradie
   const [tradieActiveCount] = await db
     .select({ count: count() })
     .from(claimsTable)
@@ -150,7 +146,6 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
-  // Notify homeowner
   await db.insert(notificationsTable).values({
     userId: job.homeownerId,
     type: "new_claim",
@@ -203,7 +198,6 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
   const user = req.user!;
   const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
 
-  // Role checks
   if (status === "accepted" || status === "rejected") {
     if (user.role !== "homeowner" || job?.homeownerId !== user.userId) {
       res.status(403).json({ error: "forbidden", message: "Only the homeowner can accept/reject" });
@@ -229,27 +223,46 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
     .where(eq(claimsTable.id, claimId))
     .returning();
 
-  // If accepted, update job status to in_progress
+  // If accepted: update job to in_progress + auto-create conversation
   if (status === "accepted" && job) {
     await db.update(jobsTable).set({ status: "in_progress", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
-    // Notify tradie
+
+    // Create a conversation between homeowner and tradie (idempotent)
+    const [existingConvo] = await db
+      .select({ id: conversationsTable.id })
+      .from(conversationsTable)
+      .where(
+        and(
+          eq(conversationsTable.jobId, jobId),
+          eq(conversationsTable.tradieId, claim.tradieId)
+        )
+      );
+
+    if (!existingConvo) {
+      await db.insert(conversationsTable).values({
+        jobId,
+        homeownerId: job.homeownerId,
+        tradieId: claim.tradieId,
+      }).catch((err) => logger.error({ err }, "Failed to create conversation"));
+    }
+
     await db.insert(notificationsTable).values({
       userId: claim.tradieId,
       type: "claim_accepted",
       title: "Your Claim Was Accepted",
-      message: `The homeowner has accepted your claim for "${job.title}". Get ready to start work!`,
+      message: `The homeowner has accepted your claim for "${job.title}". A conversation has been started — get in touch!`,
       jobId,
     }).catch(() => {});
   }
 
-  // If completed, update job to completed
+  // If completed: update job + notify
   if (status === "completed" && job) {
     await db.update(jobsTable).set({ status: "completed", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
     await db.insert(notificationsTable).values({
       userId: claim.tradieId,
       type: "job_completed",
       title: "Job Marked as Completed",
-      message: `The homeowner has marked "${job.title}" as completed. Well done!`,
+      message: `The homeowner has marked "${job.title}" as completed. You can now leave a review!`,
       jobId,
     }).catch(() => {});
   }

@@ -30,7 +30,7 @@ export default function JobsPage() {
 
   const { data: categories } = useListCategories();
   const { data, isLoading, refetch } = useListJobs({
-    status: status !== "all" ? (status as Parameters<typeof useListJobs>[0]["status"]) : undefined,
+    status: status !== "all" ? (status as string) : undefined,
     categoryId: categoryId !== "all" ? Number(categoryId) : undefined,
     page: 1,
     limit: 20,

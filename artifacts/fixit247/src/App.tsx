@@ -19,6 +19,8 @@ import JobDetailPage from "@/pages/job-detail";
 import PostJobPage from "@/pages/post-job";
 import NotificationsPage from "@/pages/notifications";
 import ProfilePage from "@/pages/profile";
+import MessagesPage from "@/pages/messages";
+import MessageThreadPage from "@/pages/message-thread";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -100,6 +102,12 @@ function Router() {
         </Route>
         <Route path="/profile">
           {() => <ProtectedRoute component={ProfilePage} />}
+        </Route>
+        <Route path="/messages/:id">
+          {() => <ProtectedRoute component={MessageThreadPage} />}
+        </Route>
+        <Route path="/messages">
+          {() => <ProtectedRoute component={MessagesPage} />}
         </Route>
         <Route component={NotFound} />
       </Switch>

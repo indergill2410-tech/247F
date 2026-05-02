@@ -9,8 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useGetUnreadNotificationCount } from "@workspace/api-client-react";
-import { Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase, ChevronDown, ShieldCheck } from "lucide-react";
+import { useGetUnreadNotificationCount, useListConversations } from "@workspace/api-client-react";
+import { Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase, ChevronDown, ShieldCheck, MessageCircle } from "lucide-react";
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
@@ -23,10 +23,17 @@ export function Navbar() {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: unreadData } = useGetUnreadNotificationCount({
-    query: { enabled: isAuthenticated, refetchInterval: 30_000 },
+    query: { enabled: isAuthenticated, refetchInterval: 30_000 } as any,
   });
   const unreadCount = unreadData?.count ?? 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: conversations } = useListConversations({
+    query: { enabled: isAuthenticated, refetchInterval: 15_000 } as any,
+  });
+  const unreadMessages = conversations?.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0) ?? 0;
 
   const handleLogout = () => {
     logout();
@@ -79,6 +86,16 @@ export function Navbar() {
               <span className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
                 <Briefcase className="h-4 w-4" />
                 {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
+              </span>
+            </Link>
+            <Link href="/messages">
+              <span className="relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
+                <MessageCircle className="h-4 w-4" /> Messages
+                {unreadMessages > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[14px] h-3.5 bg-[#f5c518] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
+                    {unreadMessages > 9 ? "9+" : unreadMessages}
+                  </span>
+                )}
               </span>
             </Link>
             {user?.role === "admin" && (
@@ -138,13 +155,21 @@ export function Navbar() {
                     <ChevronDown className="h-3.5 w-3.5 text-white/40" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem onClick={() => setLocation(dashboardHref)}>
                     <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocation("/jobs")}>
                     <Briefcase className="h-4 w-4 mr-2" />
                     {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/messages")}>
+                    <MessageCircle className="h-4 w-4 mr-2" /> Messages
+                    {unreadMessages > 0 && (
+                      <Badge className="ml-auto bg-[#f5c518] text-black border-none text-[10px] px-1.5">
+                        {unreadMessages}
+                      </Badge>
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocation("/notifications")}>
                     <Bell className="h-4 w-4 mr-2" /> Notifications

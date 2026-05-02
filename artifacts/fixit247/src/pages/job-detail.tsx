@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { useGetJob, useClaimJob, useUpdateClaim, useDeleteJob } from "@workspace/api-client-react";
+import { useGetJob, useClaimJob, useUpdateClaim, useDeleteJob, useListJobReviews, useCreateReview } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star, ChevronLeft, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star, ChevronLeft, CheckCircle, XCircle, AlertTriangle, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
@@ -29,6 +29,28 @@ const CLAIM_STATUS: Record<string, string> = {
 
 const inputCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
 
+function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => onChange(s)}
+          onMouseEnter={() => setHovered(s)}
+          onMouseLeave={() => setHovered(0)}
+          className="transition-transform hover:scale-110"
+        >
+          <Star
+            className={`h-7 w-7 transition-colors ${s <= (hovered || value) ? "text-[#f5c518] fill-[#f5c518]" : "text-white/20"}`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
@@ -37,8 +59,12 @@ export default function JobDetailPage() {
   const [claimMessage, setClaimMessage] = useState("");
   const [proposedPrice, setProposedPrice] = useState("");
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const { data: job, isLoading, refetch } = useGetJob(Number(id));
+  const { data: reviews, refetch: refetchReviews } = useListJobReviews(Number(id));
 
   const claimMutation = useClaimJob({
     mutation: {
@@ -66,6 +92,21 @@ export default function JobDetailPage() {
     mutation: { onSuccess: () => { toast({ title: "Cancelled" }); setLocation("/jobs"); } },
   });
 
+  const reviewMutation = useCreateReview({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Review submitted!", description: "Thank you for your feedback." });
+        setShowReviewForm(false);
+        setReviewRating(0);
+        setReviewComment("");
+        refetchReviews();
+      },
+      onError: (err) => {
+        toast({ title: "Error", description: (err as { data?: { message?: string } })?.data?.message ?? "Failed to submit review", variant: "destructive" });
+      },
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0b0904] container max-w-3xl py-8 space-y-4">
@@ -88,17 +129,26 @@ export default function JobDetailPage() {
     );
   }
 
-  const isOwner = user?.role === "homeowner" && job.homeownerId === user.userId;
+  const isOwner = user?.role === "homeowner" && job.homeownerId === user.id;
   const isTradie = user?.role === "tradie";
   const isAdmin = user?.role === "admin";
   type JobWithClaims = typeof job & { claims?: { id: number; tradieId: number; tradieName: string | null; tradieRating: number | null; tradieReviewCount: number; tradieSuburb: string | null; status: string; message: string | null; proposedPrice: number | null; createdAt: string }[] };
   const jobWithClaims = job as JobWithClaims;
-  const alreadyClaimed = jobWithClaims.claims?.some((c) => c.tradieId === user?.userId);
+  const alreadyClaimed = jobWithClaims.claims?.some((c) => c.tradieId === user?.id);
   const canClaim = isTradie && ["open", "matched"].includes(job.status) && !alreadyClaimed;
+  const myAcceptedClaim = jobWithClaims.claims?.find((c) => c.tradieId === user?.id && c.status === "accepted");
+  const alreadyReviewed = reviews?.some((r) => r.reviewerId === user?.id);
 
   const statusStyle = STATUS_MAP[job.status] ?? STATUS_MAP.cancelled;
   const urgencyStyle = URGENCY_MAP[job.urgency] ?? URGENCY_MAP.standard;
   const UrgencyIcon = urgencyStyle.Icon;
+
+  // For tradie: revieweeId is the homeowner; for homeowner: revieweeId is the accepted tradie
+  const revieweeId = isTradie
+    ? job.homeownerId
+    : myAcceptedClaim?.tradieId ?? jobWithClaims.claims?.find((c) => c.status === "accepted")?.tradieId;
+
+  const canReview = job.status === "completed" && !alreadyReviewed && (isOwner || (isTradie && myAcceptedClaim));
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
@@ -145,8 +195,8 @@ export default function JobDetailPage() {
             </div>
           </div>
 
-          {(isOwner || isAdmin) && job.status === "open" && (
-            <div className="flex gap-2 pt-3 border-t border-white/6">
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-white/6">
+            {(isOwner || isAdmin) && job.status === "open" && (
               <button
                 className="h-8 px-4 rounded-lg border border-red-500/25 text-red-400 hover:bg-red-500/10 text-xs font-medium transition-all disabled:opacity-50"
                 onClick={() => deleteMutation.mutate({ id: job.id })}
@@ -154,8 +204,17 @@ export default function JobDetailPage() {
               >
                 Cancel Job
               </button>
-            </div>
-          )}
+            )}
+            {/* Message button for participants */}
+            {(isOwner || (isTradie && alreadyClaimed)) && job.status !== "open" && (
+              <button
+                className="h-8 px-4 rounded-lg bg-white/6 border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-xs font-medium transition-all flex items-center gap-1.5"
+                onClick={() => setLocation("/messages")}
+              >
+                <MessageCircle className="h-3.5 w-3.5" /> Messages
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Tradie claim form */}
@@ -215,7 +274,7 @@ export default function JobDetailPage() {
           </div>
         )}
 
-        {alreadyClaimed && (
+        {alreadyClaimed && !canClaim && (
           <div className="bg-emerald-500/8 border border-emerald-500/20 rounded-2xl p-4 flex items-center gap-3 text-emerald-400">
             <CheckCircle className="h-5 w-5 flex-shrink-0" />
             <span className="font-medium text-sm">You've already claimed this job. Waiting for homeowner response.</span>
@@ -246,7 +305,7 @@ export default function JobDetailPage() {
                               <span className="flex items-center gap-1">
                                 <Star className="h-3 w-3 text-[#f5c518] fill-[#f5c518]" />
                                 {claim.tradieRating}
-                                {claim.tradieReviewCount > 0 && ` (${claim.tradieReviewCount})`}
+                                {(claim.tradieReviewCount ?? 0) > 0 && ` (${claim.tradieReviewCount})`}
                               </span>
                             )}
                             {claim.tradieSuburb && (
@@ -297,6 +356,83 @@ export default function JobDetailPage() {
                   </motion.div>
                 ))
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Reviews section */}
+        {(reviews && reviews.length > 0 || canReview) && (
+          <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/6 flex items-center justify-between">
+              <h2 className="font-bold text-white">Reviews {reviews?.length ? `(${reviews.length})` : ""}</h2>
+              {canReview && !showReviewForm && (
+                <button
+                  onClick={() => setShowReviewForm(true)}
+                  className="text-[#f5c518] text-xs font-semibold hover:underline"
+                >
+                  + Leave a Review
+                </button>
+              )}
+            </div>
+
+            {/* Review form */}
+            {showReviewForm && (
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="px-6 py-5 border-b border-white/5">
+                <p className="text-sm font-medium text-white/65 mb-3">Rate your experience</p>
+                <StarRating value={reviewRating} onChange={setReviewRating} />
+                <textarea
+                  placeholder="Share details about your experience (optional)"
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  rows={3}
+                  className="w-full mt-4 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 transition-all resize-none"
+                />
+                <div className="flex gap-3 mt-4">
+                  <button
+                    className="h-9 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
+                    disabled={reviewRating === 0 || reviewMutation.isPending}
+                    onClick={() =>
+                      reviewMutation.mutate({
+                        jobId: job.id,
+                        data: { revieweeId: revieweeId!, rating: reviewRating, comment: reviewComment || undefined },
+                      })
+                    }
+                  >
+                    {reviewMutation.isPending ? "Submitting…" : "Submit Review"}
+                  </button>
+                  <button
+                    className="h-9 px-5 rounded-xl border border-white/12 text-white/55 hover:text-white text-sm transition-all"
+                    onClick={() => setShowReviewForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Existing reviews */}
+            <div className="divide-y divide-white/5">
+              {reviews?.map((review) => (
+                <div key={review.id} className="px-6 py-5">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white/10 text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                      {(review.reviewerName ?? "?").charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-white text-sm">{review.reviewerName ?? "Anonymous"}</p>
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star key={s} className={`h-3.5 w-3.5 ${s <= review.rating ? "text-[#f5c518] fill-[#f5c518]" : "text-white/15"}`} />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment && <p className="text-sm text-white/55 mt-1.5 leading-relaxed">{review.comment}</p>}
+                      <p className="text-[10px] text-white/25 mt-2">{new Date(review.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

@@ -16,7 +16,7 @@ const TYPE_ICONS: Record<string, string> = {
 export default function NotificationsPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { data: notifications, isLoading, refetch } = useListNotifications({ limit: 50 });
+  const { data: notifications, isLoading, refetch } = useListNotifications();
 
   const markRead = useMarkNotificationRead({ mutation: { onSuccess: () => refetch() } });
   const markAllRead = useMarkAllNotificationsRead({
@@ -51,7 +51,7 @@ export default function NotificationsPage() {
             </div>
             {unreadCount > 0 && (
               <button
-                onClick={() => markAllRead.mutate({})}
+                onClick={() => markAllRead.mutate()}
                 disabled={markAllRead.isPending}
                 className="h-9 px-4 rounded-xl border border-white/12 text-white/60 hover:text-white hover:border-white/25 text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50"
               >

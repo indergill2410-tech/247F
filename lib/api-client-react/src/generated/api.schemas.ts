@@ -313,6 +313,63 @@ export interface AdminDashboard {
   recentUsers: User[];
 }
 
+export interface Conversation {
+  id: number;
+  jobId: number;
+  jobTitle?: string | null;
+  homeownerId: number;
+  homeownerName?: string | null;
+  tradieId: number;
+  tradieName?: string | null;
+  lastMessageAt?: string | null;
+  lastMessageBody?: string | null;
+  unreadCount: number;
+  createdAt: string;
+}
+
+export interface Message {
+  id: number;
+  conversationId: number;
+  senderId: number;
+  senderName?: string | null;
+  senderAvatarUrl?: string | null;
+  body: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface SendMessageBody {
+  /** @minLength 1 */
+  body: string;
+}
+
+export interface Review {
+  id: number;
+  jobId: number;
+  reviewerId: number;
+  reviewerName?: string | null;
+  reviewerAvatarUrl?: string | null;
+  revieweeId: number;
+  revieweeName?: string | null;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating: number;
+  comment?: string | null;
+  createdAt: string;
+}
+
+export interface CreateReviewBody {
+  revieweeId: number;
+  /**
+   * @minimum 1
+   * @maximum 5
+   */
+  rating: number;
+  comment?: string;
+}
+
 export type ListJobsParams = {
   status?: string;
   categoryId?: number;

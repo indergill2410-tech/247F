@@ -266,7 +266,7 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {(categories ?? CATEGORIES_DISPLAY).map((cat) => {
-              const Icon = "icon" in cat ? (ICON_MAP[cat.icon ?? ""] ?? Wrench) : (cat as typeof CATEGORIES_DISPLAY[0]).icon;
+              const Icon = "id" in cat ? (ICON_MAP[(cat as { icon: string }).icon ?? ""] ?? Wrench) : (cat as typeof CATEGORIES_DISPLAY[0]).icon;
               const label = "name" in cat ? cat.name : (cat as typeof CATEGORIES_DISPLAY[0]).label;
               return (
                 <Link href="/signup?role=homeowner" key={label}>

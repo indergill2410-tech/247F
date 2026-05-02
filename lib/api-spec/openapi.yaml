@@ -22,6 +22,10 @@ tags:
     description: In-app notifications
   - name: dashboard
     description: Dashboard statistics
+  - name: conversations
+    description: Messaging between homeowners and tradies
+  - name: reviews
+    description: Job reviews and ratings
 
 paths:
   /healthz:
@@ -587,6 +591,129 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
+
+  # Conversations / Messages
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [conversations]
+      summary: List conversations for the current user
+      responses:
+        "200":
+          description: Conversations list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+
+  /conversations/{id}/messages:
+    get:
+      operationId: listMessages
+      tags: [conversations]
+      summary: Get messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+        "403":
+          description: Not a participant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: sendMessage
+      tags: [conversations]
+      summary: Send a message in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageBody"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "403":
+          description: Not a participant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Reviews
+  /jobs/{jobId}/reviews:
+    get:
+      operationId: listJobReviews
+      tags: [reviews]
+      summary: Get reviews for a job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Reviews list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Submit a review for a completed job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewBody"
+      responses:
+        "201":
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "409":
+          description: Already reviewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/jobs:
     get:
@@ -1171,3 +1298,135 @@ components:
         - totalCategories
         - recentJobs
         - recentUsers
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        jobTitle:
+          type: string
+          nullable: true
+        homeownerId:
+          type: integer
+        homeownerName:
+          type: string
+          nullable: true
+        tradieId:
+          type: integer
+        tradieName:
+          type: string
+          nullable: true
+        lastMessageAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastMessageBody:
+          type: string
+          nullable: true
+        unreadCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - jobId
+        - homeownerId
+        - tradieId
+        - unreadCount
+        - createdAt
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        senderId:
+          type: integer
+        senderName:
+          type: string
+          nullable: true
+        senderAvatarUrl:
+          type: string
+          nullable: true
+        body:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - senderId
+        - body
+        - isRead
+        - createdAt
+
+    SendMessageBody:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+      required:
+        - body
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        reviewerId:
+          type: integer
+        reviewerName:
+          type: string
+          nullable: true
+        reviewerAvatarUrl:
+          type: string
+          nullable: true
+        revieweeId:
+          type: integer
+        revieweeName:
+          type: string
+          nullable: true
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - jobId
+        - reviewerId
+        - revieweeId
+        - rating
+        - createdAt
+
+    CreateReviewBody:
+      type: object
+      properties:
+        revieweeId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+      required:
+        - revieweeId
+        - rating

@@ -722,6 +722,94 @@ export const AdminDeleteUserResponse = zod.object({
 });
 
 /**
+ * @summary List conversations for the current user
+ */
+export const ListConversationsResponseItem = zod.object({
+  id: zod.number(),
+  jobId: zod.number(),
+  jobTitle: zod.string().nullish(),
+  homeownerId: zod.number(),
+  homeownerName: zod.string().nullish(),
+  tradieId: zod.number(),
+  tradieName: zod.string().nullish(),
+  lastMessageAt: zod.coerce.date().nullish(),
+  lastMessageBody: zod.string().nullish(),
+  unreadCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListConversationsResponse = zod.array(
+  ListConversationsResponseItem,
+);
+
+/**
+ * @summary Get messages in a conversation
+ */
+export const ListMessagesParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ListMessagesResponseItem = zod.object({
+  id: zod.number(),
+  conversationId: zod.number(),
+  senderId: zod.number(),
+  senderName: zod.string().nullish(),
+  senderAvatarUrl: zod.string().nullish(),
+  body: zod.string(),
+  isRead: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMessagesResponse = zod.array(ListMessagesResponseItem);
+
+/**
+ * @summary Send a message in a conversation
+ */
+export const SendMessageParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const SendMessageBody = zod.object({
+  body: zod.string().min(1),
+});
+
+/**
+ * @summary Get reviews for a job
+ */
+export const ListJobReviewsParams = zod.object({
+  jobId: zod.coerce.number(),
+});
+
+export const listJobReviewsResponseRatingMax = 5;
+
+export const ListJobReviewsResponseItem = zod.object({
+  id: zod.number(),
+  jobId: zod.number(),
+  reviewerId: zod.number(),
+  reviewerName: zod.string().nullish(),
+  reviewerAvatarUrl: zod.string().nullish(),
+  revieweeId: zod.number(),
+  revieweeName: zod.string().nullish(),
+  rating: zod.number().min(1).max(listJobReviewsResponseRatingMax),
+  comment: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListJobReviewsResponse = zod.array(ListJobReviewsResponseItem);
+
+/**
+ * @summary Submit a review for a completed job
+ */
+export const CreateReviewParams = zod.object({
+  jobId: zod.coerce.number(),
+});
+
+export const createReviewBodyRatingMax = 5;
+
+export const CreateReviewBody = zod.object({
+  revieweeId: zod.number(),
+  rating: zod.number().min(1).max(createReviewBodyRatingMax),
+  comment: zod.string().optional(),
+});
+
+/**
  * @summary Admin - list all jobs
  */
 export const adminListJobsQueryPageDefault = 1;

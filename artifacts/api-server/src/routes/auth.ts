@@ -5,6 +5,7 @@ import { eq, sql } from "drizzle-orm";
 import { RegisterUserBody, LoginUserBody, UpdateMeBody } from "@workspace/api-zod";
 import { hashPassword, verifyPassword, signToken } from "../lib/auth.js";
 import { requireAuth } from "../middlewares/require-auth.js";
+import { sendCustomerWelcome, sendTradieWelcome } from "../lib/email.js";
 
 const router = Router();
 
@@ -46,6 +47,13 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     await db.insert(tradieSkillsTable).values(
       skills.map((categoryId) => ({ tradieId: user.id, categoryId }))
     ).onConflictDoNothing();
+  }
+
+  // Send welcome email (fire-and-forget, never blocks registration)
+  if (role === "tradie") {
+    sendTradieWelcome({ name, email }).catch(() => {});
+  } else {
+    sendCustomerWelcome({ name, email }).catch(() => {});
   }
 
   const token = signToken({ userId: user.id, email: user.email, role: user.role });

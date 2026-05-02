@@ -7,6 +7,8 @@ import claimsRouter from "./claims.js";
 import notificationsRouter from "./notifications.js";
 import dashboardRouter from "./dashboard.js";
 import adminRouter from "./admin.js";
+import conversationsRouter from "./conversations.js";
+import reviewsRouter from "./reviews.js";
 
 const router: IRouter = Router();
 
@@ -18,5 +20,7 @@ router.use(claimsRouter);
 router.use(notificationsRouter);
 router.use(dashboardRouter);
 router.use(adminRouter);
+router.use(conversationsRouter);
+router.use(reviewsRouter);
 
 export default router;
