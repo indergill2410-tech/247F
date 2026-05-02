@@ -204,76 +204,51 @@ export default function TradieDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      {/* Hero header */}
-      <div className="border-b border-white/6 bg-[#0f0c06]">
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-            {/* Avatar + name */}
-            <div className="flex items-center gap-4">
-              <div className="relative flex-shrink-0">
-                <div className="w-16 h-16 rounded-2xl bg-[#ffc800] text-black font-black text-2xl flex items-center justify-center select-none">
-                  {initials}
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-2">
+        {/* Personalised page header — compact, no hero band */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6"
+        >
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl font-black text-white">
+                {firstName}'s Dashboard
+              </h1>
+              {data?.myRating != null && (
+                <div className="flex items-center gap-1.5">
+                  <StarRow rating={data.myRating} size="sm" />
+                  <span className="text-xs font-bold text-[#ffc800]">{data.myRating.toFixed(1)}</span>
                 </div>
-                {/* Online indicator */}
-                <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#0f0c06]" />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white">
-                  Welcome back, {firstName}!
-                </h1>
-                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                  {/* Rating stars */}
-                  {data?.myRating != null && (
-                    <div className="flex items-center gap-1.5">
-                      <StarRow rating={data.myRating} size="md" />
-                      <span className="text-sm font-bold text-[#ffc800]">{data.myRating.toFixed(1)}</span>
-                    </div>
-                  )}
-                  {memberSince && (
-                    <>
-                      {data?.myRating != null && <span className="text-white/20 text-xs">·</span>}
-                      <p className="text-white/35 text-xs">Member since {memberSince}</p>
-                    </>
-                  )}
-                  {data?.myCategories?.length ? (
-                    <>
-                      <span className="text-white/20 text-xs">·</span>
-                      <div className="flex gap-1 flex-wrap">
-                        {data.myCategories.slice(0, 3).map((cat) => (
-                          <span key={cat.id} className="text-[10px] font-semibold bg-[#ffc800]/10 text-[#ffc800] px-2 py-0.5 rounded-md">
-                            {cat.name}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-              </div>
+              )}
+              {data?.myCategories?.slice(0, 2).map((cat) => (
+                <span key={cat.id} className="text-[10px] font-semibold bg-[#ffc800]/10 text-[#ffc800] px-2 py-0.5 rounded-md">
+                  {cat.name}
+                </span>
+              ))}
             </div>
-
-            {/* Quick header actions */}
-            <div className="flex gap-2 flex-shrink-0">
-              <Link href="/jobs">
-                <button className="h-9 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex items-center gap-2">
-                  <Search className="h-4 w-4" /> Find Jobs
-                </button>
-              </Link>
-              <Link href="/messages">
-                <button className="h-9 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
-                  <MessageSquare className="h-4 w-4" /> Messages
-                </button>
-              </Link>
-              <Link href="/profile">
-                <button className="h-9 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
-                  <User className="h-4 w-4" /> Profile
-                </button>
-              </Link>
-            </div>
+            {memberSince && (
+              <p className="text-xs text-white/30 mt-0.5">Member since {memberSince}</p>
+            )}
           </div>
-        </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Link href="/jobs">
+              <button className="h-8 px-3.5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
+                <Search className="h-3.5 w-3.5" /> Find Jobs
+              </button>
+            </Link>
+            <Link href="/messages">
+              <button className="h-8 px-3.5 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
+                <MessageSquare className="h-3.5 w-3.5" /> Messages
+              </button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
 
-      <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pb-8 space-y-6">
         {/* 5-stat grid */}
         <motion.div
           variants={container}
