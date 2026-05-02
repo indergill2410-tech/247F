@@ -53,6 +53,7 @@ export const LoginUserResponse = zod.object({
     rating: zod.number().nullish(),
     reviewCount: zod.number(),
     isActive: zod.boolean(),
+    isVerified: zod.boolean(),
     createdAt: zod.coerce.date(),
   }),
   token: zod.string(),
@@ -82,6 +83,7 @@ export const GetMeResponse = zod.object({
   rating: zod.number().nullish(),
   reviewCount: zod.number(),
   isActive: zod.boolean(),
+  isVerified: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 
@@ -111,6 +113,7 @@ export const UpdateMeResponse = zod.object({
   rating: zod.number().nullish(),
   reviewCount: zod.number(),
   isActive: zod.boolean(),
+  isVerified: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 
@@ -284,6 +287,7 @@ export const GetJobResponse = zod
             rating: zod.number().nullish(),
             reviewCount: zod.number(),
             isActive: zod.boolean(),
+            isVerified: zod.boolean(),
             createdAt: zod.coerce.date(),
           }),
         )
@@ -660,6 +664,8 @@ export const GetAdminDashboardResponse = zod.object({
   totalUsers: zod.number(),
   totalHomeowners: zod.number(),
   totalTradies: zod.number(),
+  verifiedTradies: zod.number(),
+  pendingVerification: zod.number(),
   totalJobs: zod.number(),
   openJobs: zod.number(),
   completedJobs: zod.number(),
@@ -705,6 +711,25 @@ export const GetAdminDashboardResponse = zod.object({
       rating: zod.number().nullish(),
       reviewCount: zod.number(),
       isActive: zod.boolean(),
+      isVerified: zod.boolean(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  pendingTradies: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      email: zod.string(),
+      role: zod.enum(["homeowner", "tradie", "admin"]),
+      phone: zod.string().nullish(),
+      suburb: zod.string().nullish(),
+      postcode: zod.string().nullish(),
+      bio: zod.string().nullish(),
+      avatarUrl: zod.string().nullish(),
+      rating: zod.number().nullish(),
+      reviewCount: zod.number(),
+      isActive: zod.boolean(),
+      isVerified: zod.boolean(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -737,6 +762,7 @@ export const AdminListUsersResponse = zod.object({
       rating: zod.number().nullish(),
       reviewCount: zod.number(),
       isActive: zod.boolean(),
+      isVerified: zod.boolean(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -756,6 +782,7 @@ export const AdminUpdateUserBody = zod.object({
   name: zod.string().optional(),
   role: zod.enum(["homeowner", "tradie", "admin"]).optional(),
   isActive: zod.boolean().optional(),
+  isVerified: zod.boolean().optional(),
 });
 
 export const AdminUpdateUserResponse = zod.object({
@@ -771,6 +798,7 @@ export const AdminUpdateUserResponse = zod.object({
   rating: zod.number().nullish(),
   reviewCount: zod.number(),
   isActive: zod.boolean(),
+  isVerified: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 

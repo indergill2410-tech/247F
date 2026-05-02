@@ -356,4 +356,96 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
   });
 });
 
+// GET /api/dashboard/admin
+router.get("/dashboard/admin", requireRole("admin"), async (req, res): Promise<void> => {
+  const [[totalUsersRow], [totalHomeownersRow], [totalTradiesRow], [verifiedTradiesRow], [pendingVerificationRow], [totalJobsRow], [openJobsRow], [completedJobsRow], [totalCategoriesRow]] = await Promise.all([
+    db.select({ total: count() }).from(usersTable),
+    db.select({ total: count() }).from(usersTable).where(eq(usersTable.role, "homeowner")),
+    db.select({ total: count() }).from(usersTable).where(eq(usersTable.role, "tradie")),
+    db.select({ total: count() }).from(usersTable).where(and(eq(usersTable.role, "tradie"), eq(usersTable.isVerified, true))),
+    db.select({ total: count() }).from(usersTable).where(and(eq(usersTable.role, "tradie"), eq(usersTable.isVerified, false))),
+    db.select({ total: count() }).from(jobsTable),
+    db.select({ total: count() }).from(jobsTable).where(eq(jobsTable.status, "open")),
+    db.select({ total: count() }).from(jobsTable).where(eq(jobsTable.status, "completed")),
+    db.select({ total: count() }).from(categoriesTable),
+  ]);
+
+  const recentJobs = await db
+    .select({
+      id: jobsTable.id,
+      title: jobsTable.title,
+      status: jobsTable.status,
+      urgency: jobsTable.urgency,
+      categoryId: jobsTable.categoryId,
+      categoryName: categoriesTable.name,
+      suburb: jobsTable.suburb,
+      postcode: jobsTable.postcode,
+      budget: jobsTable.budget,
+      scheduledFor: jobsTable.scheduledFor,
+      createdAt: jobsTable.createdAt,
+    })
+    .from(jobsTable)
+    .leftJoin(categoriesTable, eq(categoriesTable.id, jobsTable.categoryId))
+    .orderBy(desc(jobsTable.createdAt))
+    .limit(5);
+
+  const recentUsers = await db
+    .select()
+    .from(usersTable)
+    .orderBy(desc(usersTable.createdAt))
+    .limit(5);
+
+  const pendingTradies = await db
+    .select()
+    .from(usersTable)
+    .where(and(eq(usersTable.role, "tradie"), eq(usersTable.isVerified, false), eq(usersTable.isActive, true)))
+    .orderBy(desc(usersTable.createdAt))
+    .limit(50);
+
+  const mapUser = (u: typeof usersTable.$inferSelect) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    phone: u.phone ?? null,
+    suburb: u.suburb ?? null,
+    postcode: u.postcode ?? null,
+    bio: u.bio ?? null,
+    avatarUrl: u.avatarUrl ?? null,
+    rating: u.rating ?? null,
+    reviewCount: u.reviewCount,
+    isActive: u.isActive,
+    isVerified: u.isVerified,
+    createdAt: u.createdAt,
+  });
+
+  res.status(200).json({
+    totalUsers: Number(totalUsersRow?.total ?? 0),
+    totalHomeowners: Number(totalHomeownersRow?.total ?? 0),
+    totalTradies: Number(totalTradiesRow?.total ?? 0),
+    verifiedTradies: Number(verifiedTradiesRow?.total ?? 0),
+    pendingVerification: Number(pendingVerificationRow?.total ?? 0),
+    totalJobs: Number(totalJobsRow?.total ?? 0),
+    openJobs: Number(openJobsRow?.total ?? 0),
+    completedJobs: Number(completedJobsRow?.total ?? 0),
+    totalCategories: Number(totalCategoriesRow?.total ?? 0),
+    recentJobs: recentJobs.map((j) => ({
+      id: j.id,
+      title: j.title,
+      status: j.status,
+      urgency: j.urgency,
+      categoryId: j.categoryId,
+      categoryName: j.categoryName ?? null,
+      suburb: j.suburb,
+      postcode: j.postcode,
+      budget: j.budget,
+      scheduledFor: j.scheduledFor,
+      createdAt: j.createdAt,
+    })),
+    recentUsers: recentUsers.map(mapUser),
+    pendingTradies: pendingTradies.map(mapUser),
+  });
+});
+
 export default router;
+

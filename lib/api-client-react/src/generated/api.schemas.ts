@@ -66,6 +66,7 @@ export interface User {
   rating?: number | null;
   reviewCount: number;
   isActive: boolean;
+  isVerified: boolean;
   createdAt: string;
 }
 
@@ -97,6 +98,7 @@ export interface AdminUpdateUserBody {
   name?: string;
   role?: AdminUpdateUserBodyRole;
   isActive?: boolean;
+  isVerified?: boolean;
 }
 
 export interface UserListResponse {
@@ -381,12 +383,15 @@ export interface AdminDashboard {
   totalUsers: number;
   totalHomeowners: number;
   totalTradies: number;
+  verifiedTradies: number;
+  pendingVerification: number;
   totalJobs: number;
   openJobs: number;
   completedJobs: number;
   totalCategories: number;
   recentJobs: Job[];
   recentUsers: User[];
+  pendingTradies: User[];
 }
 
 export interface Conversation {

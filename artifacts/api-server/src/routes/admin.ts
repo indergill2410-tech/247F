@@ -2,10 +2,35 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { usersTable, jobsTable, categoriesTable, claimsTable } from "@workspace/db";
 import { eq, count, desc, and, sql } from "drizzle-orm";
-import { AdminListUsersQueryParams, AdminUpdateUserBody, AdminUpdateUserParams, AdminDeleteUserParams, AdminListJobsQueryParams } from "@workspace/api-zod";
+import {
+  AdminListUsersQueryParams,
+  AdminUpdateUserBody,
+  AdminUpdateUserParams,
+  AdminDeleteUserParams,
+  AdminListJobsQueryParams,
+} from "@workspace/api-zod";
 import { requireRole } from "../middlewares/require-auth.js";
 
 const router = Router();
+
+function buildUserResponse(u: typeof usersTable.$inferSelect) {
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    phone: u.phone ?? null,
+    suburb: u.suburb ?? null,
+    postcode: u.postcode ?? null,
+    bio: u.bio ?? null,
+    avatarUrl: u.avatarUrl ?? null,
+    rating: u.rating ?? null,
+    reviewCount: u.reviewCount,
+    isActive: u.isActive,
+    isVerified: u.isVerified,
+    createdAt: u.createdAt,
+  };
+}
 
 // GET /api/admin/users
 router.get("/admin/users", requireRole("admin"), async (req, res): Promise<void> => {
@@ -22,21 +47,7 @@ router.get("/admin/users", requireRole("admin"), async (req, res): Promise<void>
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const users = await db
-    .select({
-      id: usersTable.id,
-      name: usersTable.name,
-      email: usersTable.email,
-      role: usersTable.role,
-      phone: usersTable.phone,
-      suburb: usersTable.suburb,
-      postcode: usersTable.postcode,
-      bio: usersTable.bio,
-      avatarUrl: usersTable.avatarUrl,
-      rating: usersTable.rating,
-      reviewCount: usersTable.reviewCount,
-      isActive: usersTable.isActive,
-      createdAt: usersTable.createdAt,
-    })
+    .select()
     .from(usersTable)
     .where(whereClause)
     .orderBy(desc(usersTable.createdAt))
@@ -46,7 +57,7 @@ router.get("/admin/users", requireRole("admin"), async (req, res): Promise<void>
   const [totalRow] = await db.select({ total: count() }).from(usersTable).where(whereClause);
 
   res.status(200).json({
-    users,
+    users: users.map(buildUserResponse),
     total: Number(totalRow?.total ?? 0),
     page,
     limit,
@@ -73,28 +84,14 @@ router.put("/admin/users/:id", requireRole("admin"), async (req, res): Promise<v
     .update(usersTable)
     .set(updates)
     .where(eq(usersTable.id, paramParsed.data.id))
-    .returning({
-      id: usersTable.id,
-      name: usersTable.name,
-      email: usersTable.email,
-      role: usersTable.role,
-      phone: usersTable.phone,
-      suburb: usersTable.suburb,
-      postcode: usersTable.postcode,
-      bio: usersTable.bio,
-      avatarUrl: usersTable.avatarUrl,
-      rating: usersTable.rating,
-      reviewCount: usersTable.reviewCount,
-      isActive: usersTable.isActive,
-      createdAt: usersTable.createdAt,
-    });
+    .returning();
 
   if (!updated) {
     res.status(404).json({ error: "not_found", message: "User not found" });
     return;
   }
 
-  res.status(200).json(updated);
+  res.status(200).json(buildUserResponse(updated));
 });
 
 // DELETE /api/admin/users/:id

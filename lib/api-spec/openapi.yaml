@@ -862,6 +862,8 @@ components:
           type: integer
         isActive:
           type: boolean
+        isVerified:
+          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -872,6 +874,7 @@ components:
         - role
         - reviewCount
         - isActive
+        - isVerified
         - createdAt
 
     UpdateProfileBody:
@@ -903,6 +906,8 @@ components:
           type: string
           enum: [homeowner, tradie, admin]
         isActive:
+          type: boolean
+        isVerified:
           type: boolean
 
     UserListResponse:
@@ -1440,6 +1445,10 @@ components:
           type: integer
         totalTradies:
           type: integer
+        verifiedTradies:
+          type: integer
+        pendingVerification:
+          type: integer
         totalJobs:
           type: integer
         openJobs:
@@ -1456,10 +1465,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/User"
+        pendingTradies:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
       required:
         - totalUsers
         - totalHomeowners
         - totalTradies
+        - verifiedTradies
+        - pendingVerification
+        - pendingTradies
         - totalJobs
         - openJobs
         - completedJobs
