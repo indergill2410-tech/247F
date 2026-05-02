@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useGetTradiedashboard, useClaimJob } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,12 +14,12 @@ import {
   Zap,
   MessageSquare,
   User,
-  TrendingUp,
-  Award,
   Search,
-  PlusCircle,
-  Settings,
+  Award,
   AlertCircle,
+  Settings,
+  X,
+  DollarSign,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -37,16 +38,14 @@ const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
 };
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const item = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
+const cardItem = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
 
-function StarRow({ rating }: { rating: number }) {
+function StarRow({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
+  const cls = size === "md" ? "h-4 w-4" : "h-3.5 w-3.5";
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          className={`h-3.5 w-3.5 ${i < rating ? "fill-[#ffc800] text-[#ffc800]" : "text-white/20"}`}
-        />
+        <Star key={i} className={`${cls} ${i < rating ? "fill-[#ffc800] text-[#ffc800]" : "text-white/20"}`} />
       ))}
     </div>
   );
@@ -71,10 +70,18 @@ export default function TradieDashboard() {
   const { data, isLoading, refetch } = useGetTradiedashboard();
   const { toast } = useToast();
 
+  // Inline claim expansion state: jobId → { message, proposedPrice }
+  const [expandedClaimJobId, setExpandedClaimJobId] = useState<number | null>(null);
+  const [claimMessage, setClaimMessage] = useState("");
+  const [claimPrice, setClaimPrice] = useState("");
+
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
         toast({ title: "Claimed!", description: "You've successfully claimed this job." });
+        setExpandedClaimJobId(null);
+        setClaimMessage("");
+        setClaimPrice("");
         refetch();
       },
       onError: (err) => {
@@ -84,15 +91,52 @@ export default function TradieDashboard() {
     },
   });
 
+  function handleClaimExpand(jobId: number) {
+    if (expandedClaimJobId === jobId) {
+      setExpandedClaimJobId(null);
+    } else {
+      setExpandedClaimJobId(jobId);
+      setClaimMessage("");
+      setClaimPrice("");
+    }
+  }
+
+  function submitClaim(jobId: number) {
+    claimMutation.mutate({
+      jobId,
+      data: {
+        message: claimMessage || undefined,
+        proposedPrice: claimPrice ? Number(claimPrice) : undefined,
+      },
+    });
+  }
+
   const firstName = user?.name?.split(" ")[0] ?? "Tradie";
+  const initials = (user?.name ?? "T")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
   const pct = data?.profileCompletion ?? 0;
   const memberSince = data?.memberSince
     ? new Date(data.memberSince).toLocaleDateString("en-AU", { month: "long", year: "numeric" })
     : null;
 
+  // Accepted claims for the dedicated in-progress section
+  const acceptedClaims = data?.recentClaims?.filter((c) => c.status === "accepted") ?? [];
+
   const stats = [
     {
-      label: "Pending",
+      label: "Active Jobs",
+      value: data?.activeJobs ?? 0,
+      icon: Briefcase,
+      color: "text-blue-400",
+      bg: "bg-blue-500/10",
+      desc: "pending + accepted",
+    },
+    {
+      label: "Pending Responses",
       value: data?.pendingCount ?? 0,
       icon: Clock,
       color: "text-[#ffc800]",
@@ -100,36 +144,28 @@ export default function TradieDashboard() {
       desc: "awaiting decision",
     },
     {
-      label: "Accepted",
-      value: data?.acceptedCount ?? 0,
-      icon: CheckCircle,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-      desc: "jobs in progress",
-    },
-    {
-      label: "Completed",
+      label: "Completed Jobs",
       value: data?.completedJobs ?? 0,
       icon: Award,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
       desc: "total finished",
     },
     {
-      label: "Rating",
+      label: "My Rating",
       value: data?.myRating != null ? data.myRating.toFixed(1) : "–",
       icon: Star,
       color: "text-[#ffc800]",
       bg: "bg-[#ffc800]/10",
-      desc: `${data?.myReviewCount ?? 0} review${(data?.myReviewCount ?? 0) !== 1 ? "s" : ""}`,
+      desc: "average score",
     },
     {
-      label: "New Leads",
-      value: data?.availableLeads ?? 0,
-      icon: TrendingUp,
+      label: "Reviews Count",
+      value: data?.myReviewCount ?? 0,
+      icon: CheckCircle,
       color: "text-purple-400",
       bg: "bg-purple-500/10",
-      desc: "open jobs today",
+      desc: "from homeowners",
     },
   ];
 
@@ -138,44 +174,58 @@ export default function TradieDashboard() {
       {/* Hero header */}
       <div className="border-b border-white/6 bg-[#0f0c06]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white">
-                Welcome back, {firstName}!
-              </h1>
-              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                <p className="text-white/45 text-sm">Tradie dashboard</p>
-                {memberSince && (
-                  <>
-                    <span className="text-white/20 text-xs">·</span>
-                    <p className="text-white/35 text-xs">Member since {memberSince}</p>
-                  </>
-                )}
-                {data?.myCategories?.length ? (
-                  <>
-                    <span className="text-white/20 text-xs">·</span>
-                    <div className="flex gap-1 flex-wrap">
-                      {data.myCategories.slice(0, 3).map((cat) => (
-                        <span
-                          key={cat.id}
-                          className="text-[10px] font-semibold bg-[#ffc800]/10 text-[#ffc800] px-2 py-0.5 rounded-md"
-                        >
-                          {cat.name}
-                        </span>
-                      ))}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+            {/* Avatar + name */}
+            <div className="flex items-center gap-4">
+              <div className="relative flex-shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-[#ffc800] text-black font-black text-2xl flex items-center justify-center select-none">
+                  {initials}
+                </div>
+                {/* Online indicator */}
+                <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#0f0c06]" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-white">
+                  Welcome back, {firstName}!
+                </h1>
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  {/* Rating stars */}
+                  {data?.myRating != null && (
+                    <div className="flex items-center gap-1.5">
+                      <StarRow rating={Math.round(data.myRating)} size="md" />
+                      <span className="text-sm font-bold text-[#ffc800]">{data.myRating.toFixed(1)}</span>
                     </div>
-                  </>
-                ) : null}
+                  )}
+                  {memberSince && (
+                    <>
+                      {data?.myRating != null && <span className="text-white/20 text-xs">·</span>}
+                      <p className="text-white/35 text-xs">Member since {memberSince}</p>
+                    </>
+                  )}
+                  {data?.myCategories?.length ? (
+                    <>
+                      <span className="text-white/20 text-xs">·</span>
+                      <div className="flex gap-1 flex-wrap">
+                        {data.myCategories.slice(0, 3).map((cat) => (
+                          <span key={cat.id} className="text-[10px] font-semibold bg-[#ffc800]/10 text-[#ffc800] px-2 py-0.5 rounded-md">
+                            {cat.name}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  ) : null}
+                </div>
               </div>
             </div>
-            {/* Quick actions */}
-            <div className="flex gap-2">
+
+            {/* Quick header actions */}
+            <div className="flex gap-2 flex-shrink-0">
               <Link href="/jobs">
                 <button className="h-9 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex items-center gap-2">
                   <Search className="h-4 w-4" /> Find Jobs
                 </button>
               </Link>
-              <Link href="/conversations">
+              <Link href="/messages">
                 <button className="h-9 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
                   <MessageSquare className="h-4 w-4" /> Messages
                 </button>
@@ -186,7 +236,7 @@ export default function TradieDashboard() {
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Stats grid */}
+        {/* 5-stat grid */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -194,7 +244,7 @@ export default function TradieDashboard() {
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
         >
           {stats.map((s) => (
-            <motion.div key={s.label} variants={item} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+            <motion.div key={s.label} variants={cardItem} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
               <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-4 transition-colors h-full">
                 <div className="flex items-start justify-between">
                   <div>
@@ -225,9 +275,9 @@ export default function TradieDashboard() {
           <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Job Pipeline</p>
           <div className="flex items-center gap-2">
             {[
-              { label: "Pending",   value: data?.pendingCount ?? 0,   color: "bg-[#ffc800]" },
-              { label: "Accepted",  value: data?.acceptedCount ?? 0,  color: "bg-emerald-400" },
-              { label: "Completed", value: data?.completedJobs ?? 0,  color: "bg-blue-400" },
+              { label: "Pending",   value: data?.pendingCount ?? 0,  color: "bg-[#ffc800]" },
+              { label: "Accepted",  value: data?.acceptedCount ?? 0, color: "bg-emerald-400" },
+              { label: "Completed", value: data?.completedJobs ?? 0, color: "bg-blue-400" },
             ].map((stage, idx) => {
               const total = (data?.pendingCount ?? 0) + (data?.acceptedCount ?? 0) + (data?.completedJobs ?? 0);
               const pctW = total > 0 ? Math.max((stage.value / total) * 100, 4) : 33.3;
@@ -255,86 +305,154 @@ export default function TradieDashboard() {
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Recent Claims — takes 2/3 width */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="lg:col-span-2 bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
-              <h2 className="font-bold text-white">My Recent Claims</h2>
-              <Link href="/jobs">
-                <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
-                  All jobs <ChevronRight className="h-3.5 w-3.5" />
-                </span>
-              </Link>
-            </div>
-            <div className="divide-y divide-white/5">
-              {isLoading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="px-6 py-4">
-                    <Skeleton className="h-12 w-full bg-white/6" />
+          {/* Left: Recent Claims (2/3 width) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Accepted / In-Progress Jobs */}
+            {(isLoading || acceptedClaims.length > 0) && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.42 }}
+                className="bg-[#130f07] border border-emerald-500/20 rounded-2xl overflow-hidden"
+              >
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                    <h2 className="font-bold text-white">Accepted Jobs</h2>
                   </div>
-                ))
-              ) : !data?.recentClaims?.length ? (
-                <div className="text-center py-12 text-white/35">
-                  <Briefcase className="h-8 w-8 mx-auto mb-3 text-white/15" />
-                  <p className="text-sm font-medium text-white/40">No claims yet</p>
-                  <p className="text-xs mt-1">Start claiming open jobs to grow your business.</p>
-                  <Link href="/jobs">
-                    <button className="mt-4 h-9 px-5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
-                      Browse Jobs
-                    </button>
-                  </Link>
+                  <span className="text-xs text-emerald-400 font-semibold bg-emerald-400/10 px-2 py-0.5 rounded-md">
+                    In Progress
+                  </span>
                 </div>
-              ) : (
-                data.recentClaims.map((claim) => {
-                  const st = CLAIM_STATUS[claim.status] ?? CLAIM_STATUS.pending;
-                  const urg = URGENCY[claim.jobUrgency ?? "standard"] ?? URGENCY.standard;
-                  const Icon = urg.Icon;
-                  return (
-                    <div key={claim.id} className="px-6 py-4 hover:bg-white/2 transition-colors">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Link href={`/jobs/${claim.jobId}`}>
-                              <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
-                                {claim.jobTitle ?? `Job #${claim.jobId}`}
-                              </span>
-                            </Link>
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${urg.cls}`}>
-                              <Icon className="h-2.5 w-2.5" /> {urg.label}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-white/35">
-                            {claim.jobSuburb && (
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" /> {claim.jobSuburb}
-                              </span>
+                <div className="divide-y divide-white/5">
+                  {isLoading ? (
+                    Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
+                    ))
+                  ) : (
+                    acceptedClaims.map((claim) => {
+                      const urg = URGENCY[claim.jobUrgency ?? "standard"] ?? URGENCY.standard;
+                      const Icon = urg.Icon;
+                      return (
+                        <div key={claim.id} className="px-6 py-4 hover:bg-white/2 transition-colors">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <Link href={`/jobs/${claim.jobId}`}>
+                                  <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                                    {claim.jobTitle ?? `Job #${claim.jobId}`}
+                                  </span>
+                                </Link>
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${urg.cls}`}>
+                                  <Icon className="h-2.5 w-2.5" /> {urg.label}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-white/35">
+                                {claim.jobSuburb && (
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" /> {claim.jobSuburb}
+                                  </span>
+                                )}
+                                {claim.proposedPrice && (
+                                  <span className="text-white/60 font-semibold">${claim.proposedPrice.toLocaleString()}</span>
+                                )}
+                              </div>
+                            </div>
+                            {claim.conversationId && (
+                              <Link href={`/messages/${claim.conversationId}`}>
+                                <button className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition-colors flex items-center gap-1.5 flex-shrink-0 border border-emerald-500/20">
+                                  <MessageSquare className="h-3.5 w-3.5" /> Message
+                                </button>
+                              </Link>
                             )}
-                            <span>{new Date(claim.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${st.cls}`}>
-                            {st.label}
-                          </span>
-                          {claim.conversationId && claim.status === "accepted" && (
-                            <Link href={`/conversations`}>
-                              <button className="h-7 w-7 rounded-lg bg-white/6 hover:bg-white/12 transition-colors flex items-center justify-center" title="Open conversation">
-                                <MessageSquare className="h-3.5 w-3.5 text-white/60" />
-                              </button>
-                            </Link>
-                          )}
+                      );
+                    })
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* All Recent Claims */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
+                <h2 className="font-bold text-white">My Recent Claims</h2>
+                <Link href="/jobs">
+                  <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+                    All jobs <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
+              </div>
+              <div className="divide-y divide-white/5">
+                {isLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
+                  ))
+                ) : !data?.recentClaims?.length ? (
+                  <div className="text-center py-12 text-white/35">
+                    <Briefcase className="h-8 w-8 mx-auto mb-3 text-white/15" />
+                    <p className="text-sm font-medium text-white/40">No claims yet</p>
+                    <p className="text-xs mt-1">Start claiming open jobs to grow your business.</p>
+                    <Link href="/jobs">
+                      <button className="mt-4 h-9 px-5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+                        Browse Jobs
+                      </button>
+                    </Link>
+                  </div>
+                ) : (
+                  data.recentClaims.map((claim) => {
+                    const st = CLAIM_STATUS[claim.status] ?? CLAIM_STATUS.pending;
+                    const urg = URGENCY[claim.jobUrgency ?? "standard"] ?? URGENCY.standard;
+                    const Icon = urg.Icon;
+                    return (
+                      <div key={claim.id} className="px-6 py-4 hover:bg-white/2 transition-colors">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Link href={`/jobs/${claim.jobId}`}>
+                                <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                                  {claim.jobTitle ?? `Job #${claim.jobId}`}
+                                </span>
+                              </Link>
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${urg.cls}`}>
+                                <Icon className="h-2.5 w-2.5" /> {urg.label}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-white/35">
+                              {claim.jobSuburb && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" /> {claim.jobSuburb}
+                                </span>
+                              )}
+                              <span>{new Date(claim.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${st.cls}`}>
+                              {st.label}
+                            </span>
+                            {claim.conversationId && claim.status === "accepted" && (
+                              <Link href={`/messages/${claim.conversationId}`}>
+                                <button className="h-7 w-7 rounded-lg bg-white/6 hover:bg-white/12 transition-colors flex items-center justify-center" title="Open conversation">
+                                  <MessageSquare className="h-3.5 w-3.5 text-white/60" />
+                                </button>
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </motion.div>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </div>
 
           {/* Right column: reviews + profile */}
           <div className="space-y-6">
@@ -345,8 +463,13 @@ export default function TradieDashboard() {
               transition={{ delay: 0.5 }}
               className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
             >
-              <div className="px-5 py-4 border-b border-white/6">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-white/6">
                 <h2 className="font-bold text-white">Recent Reviews</h2>
+                <Link href="/profile">
+                  <span className="text-xs text-[#ffc800] hover:text-[#e6b800] cursor-pointer transition-colors">
+                    See all
+                  </span>
+                </Link>
               </div>
               <div className="divide-y divide-white/5">
                 {isLoading ? (
@@ -377,27 +500,26 @@ export default function TradieDashboard() {
               </div>
             </motion.div>
 
-            {/* Profile Completion */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 }}
-              className="bg-[#130f07] border border-white/6 rounded-2xl p-5"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-bold text-white text-sm">Profile Strength</h2>
-                <span className={`text-sm font-black ${pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-[#ffc800]" : "text-orange-400"}`}>
-                  {isLoading ? "…" : `${pct}%`}
-                </span>
-              </div>
-              {!isLoading && <ProfileBar pct={pct} />}
-              {isLoading && <Skeleton className="h-2 w-full bg-white/8 rounded-full" />}
-              {!isLoading && pct < 100 && (
+            {/* Profile Completion — hidden at 100% */}
+            {!isLoading && pct < 100 && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="bg-[#130f07] border border-white/6 rounded-2xl p-5"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-bold text-white text-sm">Profile Strength</h2>
+                  <span className={`text-sm font-black ${pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-[#ffc800]" : "text-orange-400"}`}>
+                    {pct}%
+                  </span>
+                </div>
+                <ProfileBar pct={pct} />
                 <div className="mt-3 space-y-1.5">
                   {[
-                    { done: true, label: "Account created" },
-                    { done: !!user?.phone, label: "Add phone number" },
-                    { done: !!user?.bio, label: "Write a bio" },
+                    { done: true,           label: "Account created" },
+                    { done: !!user?.phone,  label: "Add phone number" },
+                    { done: !!user?.bio,    label: "Write a bio" },
                     { done: !!user?.suburb, label: "Set your suburb" },
                     { done: (data?.myCategories?.length ?? 0) > 0, label: "Add your skills" },
                   ]
@@ -410,18 +532,13 @@ export default function TradieDashboard() {
                       </div>
                     ))}
                 </div>
-              )}
-              {!isLoading && pct === 100 && (
-                <p className="mt-2 text-xs text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5" /> Profile complete!
-                </p>
-              )}
-              <Link href="/profile">
-                <button className="mt-4 w-full h-8 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 border border-white/8">
-                  <Settings className="h-3.5 w-3.5" /> Edit Profile
-                </button>
-              </Link>
-            </motion.div>
+                <Link href="/profile">
+                  <button className="mt-4 w-full h-8 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 border border-white/8">
+                    <Settings className="h-3.5 w-3.5" /> Edit Profile
+                  </button>
+                </Link>
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -455,53 +572,119 @@ export default function TradieDashboard() {
               data.availableJobs.map((job) => {
                 const u = URGENCY[job.urgency] ?? URGENCY.standard;
                 const Icon = u.Icon;
+                const isExpanded = expandedClaimJobId === job.id;
                 return (
-                  <div key={job.id} className="px-6 py-4 hover:bg-white/2 transition-colors group">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <div key={job.id} className="divide-y divide-white/4">
+                    <div className="px-6 py-4 hover:bg-white/2 transition-colors group">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <Link href={`/jobs/${job.id}`}>
+                              <span className="font-semibold text-white group-hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                                {job.title}
+                              </span>
+                            </Link>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${u.cls}`}>
+                              <Icon className="h-2.5 w-2.5" /> {u.label}
+                            </span>
+                            {job.categoryName && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/40">
+                                {job.categoryName}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-white/40 line-clamp-1">{job.description}</p>
+                          <div className="flex items-center gap-4 mt-1.5 text-xs text-white/30">
+                            {job.suburb && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" /> {job.suburb}
+                              </span>
+                            )}
+                            {job.budget && (
+                              <span className="text-white/60 font-semibold">${job.budget.toLocaleString()}</span>
+                            )}
+                            <span>{new Date(job.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <Link href={`/jobs/${job.id}`}>
-                            <span className="font-semibold text-white group-hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
-                              {job.title}
-                            </span>
+                            <button className="h-8 px-3 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors border border-white/8">
+                              View
+                            </button>
                           </Link>
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 ${u.cls}`}>
-                            <Icon className="h-2.5 w-2.5" /> {u.label}
-                          </span>
-                          {job.categoryName && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/40">
-                              {job.categoryName}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-white/40 line-clamp-1">{job.description}</p>
-                        <div className="flex items-center gap-4 mt-1.5 text-xs text-white/30">
-                          {job.suburb && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" /> {job.suburb}
-                            </span>
-                          )}
-                          {job.budget && (
-                            <span className="text-white/60 font-semibold">${job.budget.toLocaleString()}</span>
-                          )}
-                          <span>{new Date(job.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Link href={`/jobs/${job.id}`}>
-                          <button className="h-8 px-3 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors border border-white/8">
-                            View
+                          <button
+                            className={`h-8 px-4 rounded-lg font-bold text-xs transition-all ${
+                              isExpanded
+                                ? "bg-white/10 text-white/60 border border-white/10"
+                                : "bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black"
+                            }`}
+                            onClick={() => handleClaimExpand(job.id)}
+                          >
+                            {isExpanded ? <X className="h-3.5 w-3.5" /> : "Claim"}
                           </button>
-                        </Link>
-                        <button
-                          className="h-8 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black font-bold text-xs transition-all disabled:opacity-50"
-                          disabled={claimMutation.isPending}
-                          onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
-                        >
-                          Claim
-                        </button>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Inline claim expansion panel */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-6 py-4 bg-[#0f0c06]">
+                            <p className="text-xs font-semibold text-white/50 mb-3">Claim details (optional)</p>
+                            <div className="grid sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="text-xs text-white/40 block mb-1.5">Message to homeowner</label>
+                                <textarea
+                                  className="w-full bg-[#1d1a12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 resize-none h-20"
+                                  placeholder="Briefly describe your experience and approach..."
+                                  value={claimMessage}
+                                  onChange={(e) => setClaimMessage(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs text-white/40 block mb-1.5">
+                                  <DollarSign className="h-3 w-3 inline-block mr-0.5" />
+                                  Proposed price (AUD)
+                                </label>
+                                <input
+                                  type="number"
+                                  className="w-full bg-[#1d1a12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 h-10"
+                                  placeholder="e.g. 250"
+                                  value={claimPrice}
+                                  onChange={(e) => setClaimPrice(e.target.value)}
+                                  min="0"
+                                />
+                                {job.budget && (
+                                  <p className="text-[10px] text-white/30 mt-1">Budget: ${job.budget.toLocaleString()}</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-end gap-2 mt-3">
+                              <button
+                                className="h-8 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors border border-white/8"
+                                onClick={() => setExpandedClaimJobId(null)}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="h-8 px-5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-all active:scale-[0.97] disabled:opacity-50"
+                                disabled={claimMutation.isPending}
+                                onClick={() => submitClaim(job.id)}
+                              >
+                                {claimMutation.isPending ? "Submitting…" : "Submit Claim"}
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })
@@ -517,12 +700,12 @@ export default function TradieDashboard() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
-            { href: "/jobs",          Icon: Search,       label: "Find Jobs",       sub: "Browse open listings" },
-            { href: "/conversations", Icon: MessageSquare, label: "Messages",        sub: "Chat with homeowners" },
-            { href: "/profile",       Icon: User,          label: "My Profile",      sub: "Edit your details" },
-            { href: "/partner",       Icon: PlusCircle,    label: "Grow Business",   sub: "Become a partner" },
+            { href: "/jobs",     Icon: Search,        label: "Find Jobs",       sub: "Browse open listings" },
+            { href: "/messages", Icon: MessageSquare,  label: "Messages",        sub: "Chat with homeowners" },
+            { href: "/profile",  Icon: User,           label: "My Profile",      sub: "Edit your details" },
+            { href: "/profile",  Icon: Star,           label: "See All Reviews", sub: "Your star ratings" },
           ].map(({ href, Icon, label, sub }) => (
-            <Link key={href} href={href}>
+            <Link key={label} href={href}>
               <div className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-all group hover:bg-[#1a1508]">
                 <Icon className="h-5 w-5 text-[#ffc800] mb-2.5 group-hover:scale-110 transition-transform" />
                 <p className="text-sm font-bold text-white">{label}</p>
