@@ -358,13 +358,11 @@ export default function TradieDashboard() {
                                 )}
                               </div>
                             </div>
-                            {claim.conversationId && (
-                              <Link href={`/messages/${claim.conversationId}`}>
-                                <button className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition-colors flex items-center gap-1.5 flex-shrink-0 border border-emerald-500/20">
-                                  <MessageSquare className="h-3.5 w-3.5" /> Message
-                                </button>
-                              </Link>
-                            )}
+                            <Link href={claim.conversationId ? `/messages/${claim.conversationId}` : "/messages"}>
+                              <button className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition-colors flex items-center gap-1.5 flex-shrink-0 border border-emerald-500/20">
+                                <MessageSquare className="h-3.5 w-3.5" /> Message
+                              </button>
+                            </Link>
                           </div>
                         </div>
                       );
@@ -437,8 +435,8 @@ export default function TradieDashboard() {
                             <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${st.cls}`}>
                               {st.label}
                             </span>
-                            {claim.conversationId && claim.status === "accepted" && (
-                              <Link href={`/messages/${claim.conversationId}`}>
+                            {claim.status === "accepted" && (
+                              <Link href={claim.conversationId ? `/messages/${claim.conversationId}` : "/messages"}>
                                 <button className="h-7 w-7 rounded-lg bg-white/6 hover:bg-white/12 transition-colors flex items-center justify-center" title="Open conversation">
                                   <MessageSquare className="h-3.5 w-3.5 text-white/60" />
                                 </button>
@@ -515,23 +513,31 @@ export default function TradieDashboard() {
                   </span>
                 </div>
                 <ProfileBar pct={pct} />
-                <div className="mt-3 space-y-1.5">
+                <ul className="mt-3 space-y-2">
                   {[
                     { done: true,           label: "Account created" },
                     { done: !!user?.phone,  label: "Add phone number" },
                     { done: !!user?.bio,    label: "Write a bio" },
                     { done: !!user?.suburb, label: "Set your suburb" },
                     { done: (data?.myCategories?.length ?? 0) > 0, label: "Add your skills" },
-                  ]
-                    .filter((s) => !s.done)
-                    .slice(0, 2)
-                    .map((s) => (
-                      <div key={s.label} className="flex items-center gap-2 text-xs text-white/40">
-                        <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0" />
-                        {s.label}
-                      </div>
-                    ))}
-                </div>
+                  ].map((s) =>
+                    s.done ? (
+                      <li key={s.label} className="flex items-center gap-2 text-xs text-white/30">
+                        <CheckCircle className="h-3 w-3 text-emerald-400 flex-shrink-0" />
+                        <span className="line-through">{s.label}</span>
+                      </li>
+                    ) : (
+                      <li key={s.label}>
+                        <Link href="/profile">
+                          <div className="flex items-center gap-2 text-xs text-white/55 hover:text-[#ffc800] cursor-pointer transition-colors">
+                            <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0" />
+                            <span>{s.label}</span>
+                          </div>
+                        </Link>
+                      </li>
+                    )
+                  )}
+                </ul>
                 <Link href="/profile">
                   <button className="mt-4 w-full h-8 rounded-lg bg-white/6 hover:bg-white/10 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 border border-white/8">
                     <Settings className="h-3.5 w-3.5" /> Edit Profile
