@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/footer";
-import { Wrench, Users, BadgeCheck, Clock, Star, ShieldCheck, ChevronRight } from "lucide-react";
+import { Wrench, Users, BadgeCheck, Clock, ShieldCheck, ChevronRight } from "lucide-react";
 
 const STEPS = [
   {
@@ -56,19 +56,19 @@ const FAQS = [
 export default function HowItWorksPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
-      {/* Header */}
+      {/* Hero */}
       <section
-        className="py-24 text-center"
+        className="py-20 text-center"
         style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container max-w-2xl"
+          className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Simple process</span>
-          <h1 className="text-5xl font-black mt-4 mb-5">How Fixit 24/7 works</h1>
+          <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">Simple process</span>
+          <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">How Fixit 24/7 works</h1>
           <p className="text-white/55 text-lg leading-relaxed">
             Getting your home repaired has never been easier. Post a job, get matched, and hire a verified local tradie — all in minutes.
           </p>
@@ -76,31 +76,31 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Steps */}
-      <section className="py-20 bg-[#0b0904]">
-        <div className="container max-w-3xl">
-          <div className="flex flex-col gap-12">
+      <section className="py-16 bg-[#0b0904]">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col gap-10">
             {STEPS.map((step, i) => (
               <motion.div
                 key={step.number}
                 initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.45 }}
                 viewport={{ once: true }}
-                className="flex gap-8 items-start"
+                className="flex gap-6 items-start"
               >
                 <div className="shrink-0 flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-[#f5c518]/10 border border-[#f5c518]/20 flex items-center justify-center">
-                    <step.icon className="h-7 w-7 text-[#f5c518]" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#f5c518]/10 border border-[#f5c518]/20 flex items-center justify-center">
+                    <step.icon className="h-6 w-6 text-[#f5c518]" />
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className="w-px flex-1 bg-white/8 h-12" />
+                    <div className="w-px bg-white/8 h-10" />
                   )}
                 </div>
-                <div className="pb-4">
+                <div className="pb-2">
                   <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">{step.number}</span>
-                  <h3 className="text-2xl font-black mt-1 mb-3">{step.title}</h3>
-                  <p className="text-white/65 leading-relaxed mb-2">{step.desc}</p>
-                  <p className="text-white/40 text-sm">{step.detail}</p>
+                  <h3 className="text-xl font-black mt-1 mb-2">{step.title}</h3>
+                  <p className="text-white/60 leading-relaxed mb-1.5 text-[15px]">{step.desc}</p>
+                  <p className="text-white/35 text-sm">{step.detail}</p>
                 </div>
               </motion.div>
             ))}
@@ -109,14 +109,14 @@ export default function HowItWorksPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-[#0e0c08]">
-        <div className="container max-w-2xl">
-          <h2 className="text-3xl font-black mb-10 text-center">Common questions</h2>
-          <div className="flex flex-col gap-6">
+      <section className="py-16 bg-[#0e0c08]">
+        <div className="container max-w-2xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl font-black mb-8 text-center">Common questions</h2>
+          <div className="flex flex-col gap-4">
             {FAQS.map((faq) => (
-              <div key={faq.q} className="bg-white/5 border border-white/8 rounded-2xl p-6">
-                <h4 className="font-bold text-white mb-2">{faq.q}</h4>
-                <p className="text-white/55 text-sm leading-relaxed">{faq.a}</p>
+              <div key={faq.q} className="bg-white/5 border border-white/8 rounded-2xl p-5">
+                <h4 className="font-bold text-white mb-2 text-[15px]">{faq.q}</h4>
+                <p className="text-white/50 text-sm leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>
@@ -124,19 +124,19 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#f5c518] text-center">
-        <div className="container max-w-xl">
-          <Clock className="h-12 w-12 text-black/30 mx-auto mb-5" />
-          <h2 className="text-3xl font-black text-black mb-4">Ready to get started?</h2>
-          <p className="text-black/60 mb-8">Post your first job for free — tradies in your area are standing by.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <section className="py-16 bg-[#f5c518] text-center">
+        <div className="container max-w-xl mx-auto px-4 sm:px-6">
+          <Clock className="h-10 w-10 text-black/30 mx-auto mb-5" />
+          <h2 className="text-3xl font-black text-black mb-3">Ready to get started?</h2>
+          <p className="text-black/60 mb-7 text-[15px]">Post your first job for free — tradies in your area are standing by.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/signup?role=homeowner">
-              <button className="h-12 px-8 rounded-lg bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] transition-colors inline-flex items-center gap-2">
+              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center gap-2">
                 Post a job <ChevronRight className="h-4 w-4" />
               </button>
             </Link>
             <Link href="/signup?role=tradie">
-              <button className="h-12 px-8 rounded-lg border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 transition-colors">
+              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
                 Join as a tradie
               </button>
             </Link>

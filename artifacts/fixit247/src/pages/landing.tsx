@@ -100,7 +100,7 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="container relative flex flex-col lg:flex-row items-center gap-12 py-20 lg:py-28">
+        <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-20 lg:py-28">
           {/* Left */}
           <motion.div
             className="flex-1 flex flex-col gap-7"
@@ -213,7 +213,7 @@ export default function LandingPage() {
 
       {/* ─── Stats bar ─── */}
       <section className="bg-[#f5c518] py-6">
-        <div className="container grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
             <div key={s.label}>
               <p className="text-2xl md:text-3xl font-black text-black">{s.value}</p>
@@ -224,8 +224,8 @@ export default function LandingPage() {
       </section>
 
       {/* ─── How it works ─── */}
-      <section id="how-it-works" className="py-24 bg-[#0b0904] text-white">
-        <div className="container">
+      <section id="how-it-works" className="py-20 bg-[#0b0904] text-white">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Simple process</span>
             <h2 className="text-4xl font-black mt-3">How it works</h2>
@@ -258,8 +258,8 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Categories ─── */}
-      <section id="categories" className="py-24 bg-[#0e0c08] text-white">
-        <div className="container">
+      <section id="categories" className="py-20 bg-[#0e0c08] text-white">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Services</span>
             <h2 className="text-4xl font-black mt-3">What do you need fixed?</h2>
@@ -294,8 +294,8 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Emergency CTA ─── */}
-      <section className="py-24 bg-[#f5c518]">
-        <div className="container text-center max-w-2xl">
+      <section className="py-20 bg-[#f5c518]">
+        <div className="container mx-auto max-w-2xl px-4 sm:px-6 text-center">
           <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" />
           <h2 className="text-4xl font-black text-black">Emergency repair?<br />We're ready now.</h2>
           <p className="text-black/60 mt-5 text-lg">

@@ -36,28 +36,28 @@ const TEAM = [
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
-      {/* Header */}
+      {/* Hero */}
       <section
-        className="py-28 text-center"
+        className="py-20 text-center"
         style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container max-w-2xl"
+          className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Our story</span>
-          <h1 className="text-5xl font-black mt-4 mb-5">Built for real Australians</h1>
+          <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">Our story</span>
+          <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">Built for real Australians</h1>
           <p className="text-white/55 text-lg leading-relaxed">
             Fixit 24/7 was founded in 2022 with one mission: make it genuinely easy for Australians to find a trustworthy tradie whenever they need one — not tomorrow, not next week, but now.
           </p>
         </motion.div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-[#f5c518] py-10">
-        <div className="container grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      {/* Stats bar */}
+      <section className="bg-[#f5c518] py-8">
+        <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
             { value: "2022", label: "Founded" },
             { value: "12,400+", label: "Jobs completed" },
@@ -73,11 +73,11 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-20 bg-[#0b0904]">
-        <div className="container max-w-3xl">
-          <div className="bg-white/5 border border-white/8 rounded-3xl p-10">
-            <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">Our mission</span>
-            <p className="text-2xl font-bold mt-4 leading-relaxed text-white/90">
+      <section className="py-16 bg-[#0b0904]">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="bg-white/5 border border-white/8 rounded-3xl p-8 sm:p-10">
+            <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">Our mission</span>
+            <p className="text-xl sm:text-2xl font-bold mt-4 leading-relaxed text-white/90">
               "To connect every Australian homeowner with a skilled, verified local tradie — in minutes, not days — while giving tradies a fair, transparent marketplace to grow their business."
             </p>
           </div>
@@ -85,10 +85,10 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-20 bg-[#0e0c08]">
-        <div className="container max-w-3xl">
-          <h2 className="text-3xl font-black text-center mb-12">What we stand for</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+      <section className="py-16 bg-[#0e0c08]">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl font-black text-center mb-10">What we stand for</h2>
+          <div className="grid md:grid-cols-2 gap-5">
             {VALUES.map((v, i) => (
               <motion.div
                 key={v.title}
@@ -96,12 +96,12 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white/5 border border-white/8 rounded-2xl p-7"
+                className="bg-white/5 border border-white/8 rounded-2xl p-6"
               >
-                <div className="w-11 h-11 rounded-xl bg-[#f5c518]/10 border border-[#f5c518]/20 flex items-center justify-center mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#f5c518]/10 border border-[#f5c518]/20 flex items-center justify-center mb-4">
                   <v.icon className="h-5 w-5 text-[#f5c518]" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">{v.title}</h3>
+                <h3 className="font-bold text-[15px] mb-2">{v.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{v.desc}</p>
               </motion.div>
             ))}
@@ -110,9 +110,9 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="py-20 bg-[#0b0904]">
-        <div className="container max-w-3xl">
-          <h2 className="text-3xl font-black text-center mb-12">Meet the team</h2>
+      <section className="py-16 bg-[#0b0904]">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl font-black text-center mb-10">Meet the team</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {TEAM.map((member, i) => (
               <motion.div
@@ -137,19 +137,19 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#f5c518] text-center">
-        <div className="container max-w-xl">
-          <Wrench className="h-12 w-12 text-black/30 mx-auto mb-5" />
-          <h2 className="text-3xl font-black text-black mb-4">Join the Fixit community</h2>
-          <p className="text-black/60 mb-8">Whether you're a homeowner or a tradie, there's a place for you.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <section className="py-16 bg-[#f5c518] text-center">
+        <div className="container max-w-xl mx-auto px-4 sm:px-6">
+          <Wrench className="h-10 w-10 text-black/30 mx-auto mb-5" />
+          <h2 className="text-3xl font-black text-black mb-3">Join the Fixit community</h2>
+          <p className="text-black/60 mb-7 text-[15px]">Whether you're a homeowner or a tradie, there's a place for you.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/signup?role=homeowner">
-              <button className="h-12 px-8 rounded-lg bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] transition-colors inline-flex items-center gap-2">
+              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center gap-2">
                 Post a job <ChevronRight className="h-4 w-4" />
               </button>
             </Link>
             <Link href="/careers">
-              <button className="h-12 px-8 rounded-lg border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 transition-colors">
+              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
                 We're hiring →
               </button>
             </Link>

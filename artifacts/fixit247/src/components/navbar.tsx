@@ -19,6 +19,24 @@ const PUBLIC_NAV = [
   { label: "We are hiring", href: "/careers" },
 ];
 
+function publicNavCls(href: string, location: string) {
+  const isActive = location === href;
+  return `px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+    isActive
+      ? "bg-white/8 text-white"
+      : "text-white/55 hover:text-white/90 hover:bg-white/5"
+  }`;
+}
+
+function authNavCls(basePath: string, location: string) {
+  const isActive = location === basePath || location.startsWith(basePath + "/");
+  return `flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+    isActive
+      ? "bg-white/8 text-white"
+      : "text-white/55 hover:text-white/90 hover:bg-white/5"
+  }`;
+}
+
 export function Navbar() {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
@@ -45,29 +63,12 @@ export function Navbar() {
     user?.role === "tradie" ? "/dashboard/tradie" :
     "/dashboard";
 
-  const isActive = (href: string) =>
-    location === href || (href !== "/" && location.startsWith(href));
-
-  const navLinkCls = (href: string) =>
-    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
-      isActive(href)
-        ? "text-white bg-white/8"
-        : "text-white/55 hover:text-white hover:bg-white/5"
-    }`;
-
-  const navLinkWithIconCls = (href: string) =>
-    `flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
-      isActive(href)
-        ? "text-white bg-white/8"
-        : "text-white/55 hover:text-white hover:bg-white/5"
-    }`;
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/8 bg-[#0b0904]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0904]/80">
-      <div className="container flex h-16 items-center justify-between gap-6">
+    <header className="sticky top-0 z-50 w-full border-b border-white/6 bg-[#0b0904]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0904]/80">
+      <div className="container mx-auto px-4 sm:px-6 flex h-16 items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/">
-          <span className="flex items-center gap-2 cursor-pointer shrink-0 transition-opacity duration-150 hover:opacity-85">
+          <span className="flex items-center gap-2 cursor-pointer shrink-0">
             <Wrench className="h-5 w-5 text-[#f5c518]" />
             <span className="font-black text-xl text-white tracking-tight">
               Fixit <span className="text-[#f5c518]">24/7</span>
@@ -80,28 +81,30 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-0.5 mx-auto">
             {PUBLIC_NAV.map((item) => (
               <Link key={item.href} href={item.href}>
-                <span className={navLinkCls(item.href)}>{item.label}</span>
+                <span className={publicNavCls(item.href, location)}>
+                  {item.label}
+                </span>
               </Link>
             ))}
           </nav>
         ) : (
           <nav className="hidden md:flex items-center gap-0.5 mx-auto">
             <Link href={dashboardHref}>
-              <span className={navLinkWithIconCls(dashboardHref)}>
+              <span className={authNavCls(dashboardHref, location)}>
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </span>
             </Link>
             <Link href="/jobs">
-              <span className={navLinkWithIconCls("/jobs")}>
+              <span className={authNavCls("/jobs", location)}>
                 <Briefcase className="h-4 w-4" />
                 {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
               </span>
             </Link>
             <Link href="/messages">
-              <span className={`relative ${navLinkWithIconCls("/messages")}`}>
+              <span className={`${authNavCls("/messages", location)} relative`}>
                 <MessageCircle className="h-4 w-4" /> Messages
                 {unreadMessages > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[14px] h-3.5 bg-[#f5c518] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-[#f5c518] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
                     {unreadMessages > 9 ? "9+" : unreadMessages}
                   </span>
                 )}
@@ -109,7 +112,7 @@ export function Navbar() {
             </Link>
             {user?.role === "admin" && (
               <Link href="/admin">
-                <span className={navLinkWithIconCls("/admin")}>
+                <span className={authNavCls("/admin", location)}>
                   <ShieldCheck className="h-4 w-4" /> Admin
                 </span>
               </Link>
@@ -118,16 +121,16 @@ export function Navbar() {
         )}
 
         {/* Right */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {!isAuthenticated ? (
             <>
               <Link href="/login">
-                <span className="text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer px-2 py-1">
+                <span className="text-sm font-medium text-white/60 hover:text-white transition-colors cursor-pointer px-3 py-1.5 rounded-lg hover:bg-white/5">
                   Sign in
                 </span>
               </Link>
               <Link href="/signup">
-                <button className="h-9 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all duration-150">
+                <button className="h-9 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
                   Create account
                 </button>
               </Link>
@@ -136,8 +139,8 @@ export function Navbar() {
             <>
               {/* Bell */}
               <Link href="/notifications">
-                <button className="relative h-9 w-9 rounded-lg text-white/60 hover:text-white hover:bg-white/8 active:scale-[0.95] flex items-center justify-center transition-all duration-150">
-                  <Bell className="h-5 w-5" />
+                <button className="relative h-9 w-9 rounded-lg text-white/55 hover:text-white hover:bg-white/8 flex items-center justify-center transition-all">
+                  <Bell className="h-4.5 w-4.5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#f5c518] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
                       {unreadCount > 9 ? "9+" : unreadCount}
@@ -149,7 +152,7 @@ export function Navbar() {
               {/* User menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 active:bg-white/12 transition-all duration-150">
+                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 transition-all">
                     <Avatar className="h-7 w-7">
                       <AvatarFallback className="bg-[#f5c518] text-black text-xs font-black">
                         {user?.name?.charAt(0).toUpperCase() ?? "U"}
@@ -158,10 +161,10 @@ export function Navbar() {
                     <span className="hidden sm:block text-sm font-medium text-white max-w-[100px] truncate">
                       {user?.name?.split(" ")[0]}
                     </span>
-                    <Badge className="hidden sm:flex bg-white/10 text-white/60 border-none text-[10px] capitalize px-1.5">
+                    <Badge className="hidden sm:flex bg-white/8 text-white/55 border-none text-[10px] capitalize px-1.5">
                       {user?.role}
                     </Badge>
-                    <ChevronDown className="h-3.5 w-3.5 text-white/40" />
+                    <ChevronDown className="h-3.5 w-3.5 text-white/35" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">

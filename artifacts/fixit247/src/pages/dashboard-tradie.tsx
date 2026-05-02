@@ -46,22 +46,28 @@ export default function TradieDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
-        <div className="container max-w-6xl">
+      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
+        <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           <h1 className="text-2xl font-black text-white">Welcome back, {user?.name?.split(" ")[0]}!</h1>
           <p className="text-white/45 mt-1 text-sm">Find jobs and manage your work.</p>
         </div>
       </div>
 
-      <div className="container max-w-6xl py-8 space-y-8">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-              <div className="bg-[#130f07] border border-white/6 rounded-2xl p-5">
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07 }}
+              whileHover={{ y: -2 }}
+            >
+              <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-5 transition-colors h-full">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-white/45 font-medium">{s.label}</p>
+                    <p className="text-xs text-white/40 font-medium">{s.label}</p>
                     {isLoading
                       ? <Skeleton className="h-8 w-12 mt-1.5 bg-white/8" />
                       : <p className="text-3xl font-black text-white mt-1">{s.value}</p>
@@ -119,7 +125,7 @@ export default function TradieDashboard() {
                         </div>
                       </div>
                       <button
-                        className="h-8 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex-shrink-0 disabled:opacity-50"
+                        className="h-8 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] active:scale-[0.96] text-black font-bold text-xs transition-all flex-shrink-0 disabled:opacity-50"
                         disabled={claimMutation.isPending}
                         onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
                       >

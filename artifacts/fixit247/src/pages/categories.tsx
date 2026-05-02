@@ -27,19 +27,19 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
-      {/* Header */}
+      {/* Hero */}
       <section
-        className="py-24 text-center"
+        className="py-20 text-center"
         style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container max-w-2xl"
+          className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">All services</span>
-          <h1 className="text-5xl font-black mt-4 mb-5">Trade categories</h1>
+          <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">All services</span>
+          <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">Trade categories</h1>
           <p className="text-white/55 text-lg">
             Whatever needs fixing, we have a verified tradie for it. Browse all 12+ categories below.
           </p>
@@ -47,9 +47,9 @@ export default function CategoriesPage() {
       </section>
 
       {/* Grid */}
-      <section className="py-16 bg-[#0b0904]">
-        <div className="container">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+      <section className="py-14 bg-[#0b0904]">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {(categories ?? []).map((cat, i) => {
               const Icon = ICON_MAP[cat.icon ?? ""] ?? Wrench;
               return (
@@ -59,19 +59,20 @@ export default function CategoriesPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
                   viewport={{ once: true }}
+                  whileHover={{ y: -3 }}
                 >
                   <Link href={`/signup?role=homeowner&category=${cat.id}`}>
-                    <div className="group bg-white/5 border border-white/8 rounded-2xl p-7 flex flex-col items-center gap-4 hover:bg-white/10 hover:border-[#f5c518]/30 cursor-pointer transition-all">
-                      <div className="w-16 h-16 rounded-2xl bg-[#f5c518]/10 border border-[#f5c518]/15 flex items-center justify-center group-hover:bg-[#f5c518]/20 transition-colors">
-                        <Icon className="h-8 w-8 text-[#f5c518]" />
+                    <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-[#f5c518]/30 cursor-pointer transition-all h-full">
+                      <div className="w-14 h-14 rounded-2xl bg-[#f5c518]/10 border border-[#f5c518]/15 flex items-center justify-center group-hover:bg-[#f5c518]/20 transition-colors">
+                        <Icon className="h-7 w-7 text-[#f5c518]" />
                       </div>
                       <div className="text-center">
-                        <h3 className="font-bold text-white group-hover:text-[#f5c518] transition-colors">{cat.name}</h3>
+                        <h3 className="font-bold text-sm text-white group-hover:text-[#f5c518] transition-colors">{cat.name}</h3>
                         {cat.description && (
-                          <p className="text-white/40 text-xs mt-1 leading-snug line-clamp-2">{cat.description}</p>
+                          <p className="text-white/35 text-xs mt-1 leading-snug line-clamp-2">{cat.description}</p>
                         )}
                       </div>
-                      <span className="text-[#f5c518]/60 text-xs font-medium group-hover:text-[#f5c518] transition-colors flex items-center gap-1">
+                      <span className="text-[#f5c518]/55 text-xs font-medium group-hover:text-[#f5c518] transition-colors flex items-center gap-1 mt-auto">
                         Post a job <ChevronRight className="h-3 w-3" />
                       </span>
                     </div>
@@ -84,12 +85,12 @@ export default function CategoriesPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#0e0c08] text-center border-t border-white/5">
-        <div className="container max-w-xl">
+      <section className="py-14 bg-[#0e0c08] text-center border-t border-white/5">
+        <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl font-black mb-3">Don't see your category?</h2>
-          <p className="text-white/50 mb-7">Post a general handyman job and describe what you need — our tradies cover almost everything.</p>
+          <p className="text-white/50 mb-7 text-[15px]">Post a general handyman job and describe what you need — our tradies cover almost everything.</p>
           <Link href="/signup?role=homeowner">
-            <button className="h-12 px-8 rounded-lg bg-[#f5c518] text-black font-bold text-[15px] hover:bg-[#e6b800] transition-colors">
+            <button className="h-12 px-8 rounded-xl bg-[#f5c518] text-black font-bold text-[15px] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
               Post a job anyway →
             </button>
           </Link>

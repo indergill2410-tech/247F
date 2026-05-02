@@ -50,19 +50,21 @@ const PERKS = [
 export default function CareersPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
-      {/* Header */}
+      {/* Hero */}
       <section
-        className="py-28 text-center"
+        className="py-20 text-center"
         style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container max-w-2xl"
+          className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#f5c518] text-sm font-bold uppercase tracking-widest">We are hiring</span>
-          <h1 className="text-5xl font-black mt-4 mb-5">Build something Australians rely on</h1>
+          <span className="text-[#f5c518] text-xs font-bold uppercase tracking-widest">We are hiring</span>
+          <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">
+            Build something<br />Australians rely on
+          </h1>
           <p className="text-white/55 text-lg leading-relaxed">
             Join a small, high-output team making home repairs fast, fair, and stress-free for every Australian. Remote-first, mission-driven.
           </p>
@@ -70,10 +72,10 @@ export default function CareersPage() {
       </section>
 
       {/* Open roles */}
-      <section className="py-20 bg-[#0b0904]">
-        <div className="container max-w-3xl">
-          <h2 className="text-3xl font-black mb-10">Open roles</h2>
-          <div className="flex flex-col gap-5">
+      <section className="py-16 bg-[#0b0904]">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl font-black mb-8">Open roles</h2>
+          <div className="flex flex-col gap-4">
             {ROLES.map((role, i) => (
               <motion.div
                 key={role.title}
@@ -81,29 +83,30 @@ export default function CareersPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
                 viewport={{ once: true }}
-                className="group bg-white/5 border border-white/8 rounded-2xl p-7 hover:bg-white/8 hover:border-[#f5c518]/20 transition-all cursor-pointer"
+                whileHover={{ y: -2 }}
+                className="group bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-[#f5c518]/20 transition-all cursor-pointer"
               >
-                <div className="flex items-start gap-5">
-                  <div className="w-12 h-12 rounded-xl bg-[#f5c518]/10 border border-[#f5c518]/15 flex items-center justify-center shrink-0 group-hover:bg-[#f5c518]/20 transition-colors">
-                    <role.icon className="h-6 w-6 text-[#f5c518]" />
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-[#f5c518]/10 border border-[#f5c518]/15 flex items-center justify-center shrink-0 group-hover:bg-[#f5c518]/20 transition-colors">
+                    <role.icon className="h-5 w-5 text-[#f5c518]" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <h3 className="font-bold text-lg group-hover:text-[#f5c518] transition-colors">{role.title}</h3>
-                        <p className="text-[#f5c518]/70 text-sm font-medium">{role.team}</p>
+                        <h3 className="font-bold text-[15px] group-hover:text-[#f5c518] transition-colors">{role.title}</h3>
+                        <p className="text-[#f5c518]/70 text-xs font-semibold mt-0.5">{role.team}</p>
                       </div>
-                      <div className="flex gap-2 shrink-0">
-                        <span className="bg-white/8 text-white/60 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
+                      <div className="flex flex-wrap gap-2 shrink-0">
+                        <span className="bg-white/8 text-white/55 text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
                           <MapPin className="h-3 w-3" /> {role.location}
                         </span>
-                        <span className="bg-white/8 text-white/60 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
+                        <span className="bg-white/8 text-white/55 text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
                           <Clock className="h-3 w-3" /> {role.type}
                         </span>
                       </div>
                     </div>
-                    <p className="text-white/50 text-sm mt-3 leading-relaxed">{role.desc}</p>
-                    <p className="text-[#f5c518] text-sm font-medium mt-4 flex items-center gap-1 group-hover:gap-2 transition-all">
+                    <p className="text-white/45 text-sm mt-2 leading-relaxed">{role.desc}</p>
+                    <p className="text-[#f5c518] text-sm font-medium mt-3 flex items-center gap-1 group-hover:gap-2 transition-all">
                       Apply for this role <ChevronRight className="h-4 w-4" />
                     </p>
                   </div>
@@ -115,10 +118,10 @@ export default function CareersPage() {
       </section>
 
       {/* Perks */}
-      <section className="py-20 bg-[#0e0c08]">
-        <div className="container max-w-3xl">
-          <h2 className="text-3xl font-black text-center mb-12">Why Fixit 24/7?</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <section className="py-16 bg-[#0e0c08]">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl font-black text-center mb-10">Why Fixit 24/7?</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {PERKS.map((perk, i) => (
               <motion.div
                 key={perk}
@@ -126,9 +129,9 @@ export default function CareersPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.06 }}
                 viewport={{ once: true }}
-                className="bg-white/5 border border-white/8 rounded-xl p-5 text-sm font-medium text-white/70 text-center"
+                className="bg-white/5 border border-white/8 rounded-xl px-4 py-4 text-sm font-medium text-white/65 text-center leading-snug"
               >
-                <span className="text-[#f5c518] mr-2">✦</span>
+                <span className="text-[#f5c518] mr-1.5">✦</span>
                 {perk}
               </motion.div>
             ))}
@@ -136,15 +139,15 @@ export default function CareersPage() {
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="py-20 bg-[#f5c518] text-center">
-        <div className="container max-w-xl">
-          <h2 className="text-3xl font-black text-black mb-4">Don't see your role?</h2>
-          <p className="text-black/60 mb-8">
+      {/* CTA */}
+      <section className="py-16 bg-[#f5c518] text-center">
+        <div className="container max-w-xl mx-auto px-4 sm:px-6">
+          <h2 className="text-3xl font-black text-black mb-3">Don't see your role?</h2>
+          <p className="text-black/60 mb-7 text-[15px]">
             We're always open to hearing from exceptional people. Send us your details and we'll keep you in mind.
           </p>
           <a href="mailto:careers@fixit247.com.au">
-            <button className="h-12 px-8 rounded-lg bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] transition-colors">
+            <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
               careers@fixit247.com.au
             </button>
           </a>
