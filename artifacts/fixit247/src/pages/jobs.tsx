@@ -2,34 +2,23 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useListJobs, useListCategories, useClaimJob } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, MapPin, DollarSign, Clock, Zap, Briefcase, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-function UrgencyIcon({ urgency }: { urgency: string }) {
-  if (urgency === "emergency") return <Zap className="h-3.5 w-3.5 text-red-500" />;
-  if (urgency === "urgent") return <Clock className="h-3.5 w-3.5 text-orange-500" />;
-  return <Briefcase className="h-3.5 w-3.5 text-gray-400" />;
-}
+const STATUS_MAP: Record<string, string> = {
+  open:        "bg-blue-500/15 text-blue-400",
+  matched:     "bg-[#f5c518]/15 text-[#f5c518]",
+  in_progress: "bg-orange-500/15 text-orange-400",
+  completed:   "bg-emerald-500/15 text-emerald-400",
+  cancelled:   "bg-white/8 text-white/40",
+};
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    open: "bg-blue-100 text-blue-800",
-    matched: "bg-yellow-100 text-yellow-800",
-    in_progress: "bg-orange-100 text-orange-800",
-    completed: "bg-green-100 text-green-800",
-    cancelled: "bg-gray-100 text-gray-600",
-  };
-  return (
-    <Badge className={`${map[status] ?? "bg-gray-100"} border-none text-xs capitalize`}>
-      {status.replace("_", " ")}
-    </Badge>
-  );
+function UrgencyIcon({ urgency }: { urgency: string }) {
+  if (urgency === "emergency") return <Zap className="h-3.5 w-3.5 text-red-400" />;
+  if (urgency === "urgent") return <Clock className="h-3.5 w-3.5 text-orange-400" />;
+  return <Briefcase className="h-3.5 w-3.5 text-white/30" />;
 }
 
 export default function JobsPage() {
@@ -38,13 +27,12 @@ export default function JobsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [categoryId, setCategoryId] = useState("all");
-  const [page] = useState(1);
 
   const { data: categories } = useListCategories();
   const { data, isLoading, refetch } = useListJobs({
     status: status !== "all" ? (status as Parameters<typeof useListJobs>[0]["status"]) : undefined,
     categoryId: categoryId !== "all" ? Number(categoryId) : undefined,
-    page,
+    page: 1,
     limit: 20,
   });
 
@@ -62,28 +50,30 @@ export default function JobsPage() {
   });
 
   const filteredJobs = (data?.jobs ?? []).filter(
-    (j) =>
-      !search ||
+    (j) => !search ||
       j.title.toLowerCase().includes(search.toLowerCase()) ||
       j.description.toLowerCase().includes(search.toLowerCase()) ||
       (j.suburb ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="bg-[hsl(222,47%,11%)] text-white px-6 py-8">
+    <div className="min-h-screen bg-[#0b0904]">
+      {/* Header */}
+      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-8">
         <div className="container max-w-5xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}</h1>
-            <p className="text-white/70 mt-1">
+            <h1 className="text-2xl font-black text-white">
+              {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
+            </h1>
+            <p className="text-white/45 mt-1 text-sm">
               {data?.total ?? 0} job{(data?.total ?? 0) !== 1 ? "s" : ""} found
             </p>
           </div>
           {user?.role === "homeowner" && (
             <Link href="/jobs/new">
-              <Button className="bg-[hsl(38,92%,50%)] hover:bg-[hsl(38,92%,44%)] text-white font-semibold">
-                <Plus className="h-4 w-4 mr-2" /> Post Job
-              </Button>
+              <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+                <Plus className="h-4 w-4" /> Post Job
+              </button>
             </Link>
           )}
         </div>
@@ -93,19 +83,20 @@ export default function JobsPage() {
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+            <input
+              type="text"
               placeholder="Search jobs, suburb…"
-              className="pl-9"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-10 bg-[#130f07] border border-white/8 rounded-xl pl-9 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/40 transition-all"
             />
           </div>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-full sm:w-40">
+            <SelectTrigger className="w-full sm:w-40 h-10 bg-[#130f07] border-white/8 text-white/70 rounded-xl">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-[#1a1509] border-white/10 text-white">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="open">Open</SelectItem>
               <SelectItem value="matched">Matched</SelectItem>
@@ -114,10 +105,10 @@ export default function JobsPage() {
             </SelectContent>
           </Select>
           <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger className="w-full sm:w-44">
+            <SelectTrigger className="w-full sm:w-44 h-10 bg-[#130f07] border-white/8 text-white/70 rounded-xl">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-[#1a1509] border-white/10 text-white">
               <SelectItem value="all">All Categories</SelectItem>
               {(categories ?? []).map((c) => (
                 <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
@@ -129,69 +120,70 @@ export default function JobsPage() {
         {/* Job list */}
         <div className="space-y-3">
           {isLoading ? (
-            Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-28 w-full" />)
+            Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 w-full rounded-2xl bg-white/5" />
+            ))
           ) : !filteredJobs.length ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-30" />
-              <p className="font-medium">No jobs found</p>
+            <div className="text-center py-16 text-white/35">
+              <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-20" />
+              <p className="font-semibold text-white/50">No jobs found</p>
               {user?.role === "homeowner" && (
                 <Link href="/jobs/new">
-                  <Button className="mt-4 bg-[hsl(38,92%,50%)] text-white hover:bg-[hsl(38,92%,44%)]">
+                  <button className="mt-5 h-10 px-6 rounded-xl bg-[#f5c518] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors">
                     Post your first job
-                  </Button>
+                  </button>
                 </Link>
               )}
             </div>
           ) : (
             filteredJobs.map((job) => (
-              <Card key={job.id} className="hover:border-[hsl(38,92%,50%)] transition-colors">
-                <CardContent className="pt-5 pb-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <UrgencyIcon urgency={job.urgency} />
-                        <Link href={`/jobs/${job.id}`}>
-                          <p className="font-semibold text-lg hover:text-[hsl(38,92%,50%)] cursor-pointer">{job.title}</p>
-                        </Link>
-                        <StatusBadge status={job.status} />
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{job.description}</p>
-                      <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
-                        {(job.suburb || job.postcode) && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3.5 w-3.5" />
-                            {[job.suburb, job.postcode].filter(Boolean).join(" ")}
-                          </span>
-                        )}
-                        {job.categoryName && <span>{job.categoryName}</span>}
-                        {job.budget && (
-                          <span className="flex items-center gap-1 font-medium text-foreground">
-                            <DollarSign className="h-3.5 w-3.5" />${job.budget}
-                          </span>
-                        )}
-                        <span className="text-xs">{new Date(job.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2 flex-shrink-0">
+              <div key={job.id} className="bg-[#130f07] border border-white/6 hover:border-[#f5c518]/25 rounded-2xl p-5 transition-all">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <UrgencyIcon urgency={job.urgency} />
                       <Link href={`/jobs/${job.id}`}>
-                        <Button variant="outline" size="sm">
-                          View <ChevronRight className="h-3.5 w-3.5 ml-1" />
-                        </Button>
+                        <span className="font-bold text-white hover:text-[#f5c518] cursor-pointer transition-colors">{job.title}</span>
                       </Link>
-                      {user?.role === "tradie" && ["open", "matched"].includes(job.status) && (
-                        <Button
-                          size="sm"
-                          className="bg-[hsl(38,92%,50%)] text-white hover:bg-[hsl(38,92%,44%)]"
-                          disabled={claimMutation.isPending}
-                          onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
-                        >
-                          Claim
-                        </Button>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-md capitalize ${STATUS_MAP[job.status] ?? "bg-white/8 text-white/40"}`}>
+                        {job.status.replace("_", " ")}
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/45 line-clamp-2">{job.description}</p>
+                    <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-white/35">
+                      {(job.suburb || job.postcode) && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {[job.suburb, job.postcode].filter(Boolean).join(" ")}
+                        </span>
                       )}
+                      {job.categoryName && <span>{job.categoryName}</span>}
+                      {job.budget && (
+                        <span className="flex items-center gap-1 text-white/60 font-semibold">
+                          <DollarSign className="h-3 w-3" />${job.budget}
+                        </span>
+                      )}
+                      <span>{new Date(job.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex flex-col gap-2 flex-shrink-0">
+                    <Link href={`/jobs/${job.id}`}>
+                      <button className="h-8 px-4 rounded-lg border border-white/12 text-white/60 hover:text-white hover:border-white/25 text-xs font-medium transition-all flex items-center gap-1">
+                        View <ChevronRight className="h-3 w-3" />
+                      </button>
+                    </Link>
+                    {user?.role === "tradie" && ["open", "matched"].includes(job.status) && (
+                      <button
+                        className="h-8 px-4 rounded-lg bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors disabled:opacity-50"
+                        disabled={claimMutation.isPending}
+                        onClick={() => claimMutation.mutate({ jobId: job.id, data: {} })}
+                      >
+                        Claim
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))
           )}
         </div>

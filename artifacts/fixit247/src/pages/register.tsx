@@ -3,10 +3,6 @@ import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wrench, AlertCircle, Home, HardHat } from "lucide-react";
 
 type Role = "homeowner" | "tradie";
@@ -23,7 +19,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [suburb, setSuburb] = useState("");
+  const [suburb, setSuburb] = useState(params.get("suburb") ?? "");
   const [postcode, setPostcode] = useState("");
   const [error, setError] = useState("");
 
@@ -49,96 +45,109 @@ export default function RegisterPage() {
     });
   };
 
+  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-16"
+      style={{ background: "radial-gradient(ellipse at 30% 60%, #1f1808 0%, #0b0904 60%)" }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-        <div className="flex justify-center mb-8">
-          <Link href="/">
-            <span className="flex items-center gap-2 text-2xl font-extrabold text-[hsl(222,47%,11%)]">
-              <Wrench className="h-7 w-7 text-[hsl(38,92%,50%)]" />
-              Fixit <span className="text-[hsl(38,92%,50%)]">24/7</span>
+        {/* Logo */}
+        <Link href="/">
+          <div className="flex items-center justify-center gap-2 mb-10 cursor-pointer">
+            <Wrench className="h-6 w-6 text-[#f5c518]" />
+            <span className="text-2xl font-black text-white tracking-tight">
+              Fixit <span className="text-[#f5c518]">24/7</span>
             </span>
-          </Link>
-        </div>
+          </div>
+        </Link>
 
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Create Account</CardTitle>
-            <CardDescription>Join Australia's fastest-growing repair marketplace</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Role toggle */}
-            <div className="flex rounded-lg border p-1 mb-6 bg-muted/40">
-              {(["homeowner", "tradie"] as Role[]).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRole(r)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
-                    role === r
-                      ? "bg-[hsl(222,47%,11%)] text-white shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {r === "homeowner" ? <Home className="h-4 w-4" /> : <HardHat className="h-4 w-4" />}
-                  {r === "homeowner" ? "Homeowner" : "Tradie"}
-                </button>
-              ))}
+        <div className="bg-[#130f07] border border-white/8 rounded-2xl p-8 shadow-2xl">
+          <h1 className="text-2xl font-black text-white text-center mb-1">Create account</h1>
+          <p className="text-white/45 text-sm text-center mb-7">Join Australia's fastest-growing repair marketplace</p>
+
+          {/* Role toggle */}
+          <div className="flex bg-white/5 border border-white/8 rounded-xl p-1 mb-6">
+            {(["homeowner", "tradie"] as Role[]).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  role === r
+                    ? "bg-[#f5c518] text-black shadow-sm"
+                    : "text-white/45 hover:text-white/70"
+                }`}
+              >
+                {r === "homeowner" ? <Home className="h-4 w-4" /> : <HardHat className="h-4 w-4" />}
+                {r === "homeowner" ? "Homeowner" : "Tradie"}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-white/70">Full Name</label>
+              <input className={inputCls} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  {error}
-                </div>
-              )}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-white/70">Email</label>
+              <input className={inputCls} type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-white/70">Password</label>
+              <input className={inputCls} type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" minLength={8} />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-white/70">Phone <span className="text-white/30">(optional)</span></label>
+              <input className={inputCls} type="tel" placeholder="04xx xxx xxx" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
+                <label className="text-sm font-medium text-white/70">Suburb</label>
+                <input className={inputCls} placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+                <label className="text-sm font-medium text-white/70">Postcode</label>
+                <input className={inputCls} placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" minLength={8} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="phone">Phone (optional)</Label>
-                <Input id="phone" type="tel" placeholder="04xx xxx xxx" value={phone} onChange={(e) => setPhone(e.target.value)} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="suburb">Suburb</Label>
-                  <Input id="suburb" placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="postcode">Postcode</Label>
-                  <Input id="postcode" placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-[hsl(38,92%,50%)] hover:bg-[hsl(38,92%,44%)] text-white font-semibold"
-                disabled={registerMutation.isPending}
-              >
-                {registerMutation.isPending ? "Creating account…" : `Create ${role === "homeowner" ? "Homeowner" : "Tradie"} Account`}
-              </Button>
-            </form>
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="text-[hsl(38,92%,50%)] font-medium hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
+            </div>
+
+            <button
+              type="submit"
+              disabled={registerMutation.isPending}
+              className="w-full h-11 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
+            >
+              {registerMutation.isPending
+                ? "Creating account…"
+                : `Create ${role === "homeowner" ? "Homeowner" : "Tradie"} Account`}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-white/40">
+            Already have an account?{" "}
+            <Link href="/login">
+              <span className="text-[#f5c518] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

@@ -2,20 +2,19 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useCreateJob, useListCategories } from "@workspace/api-client-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, ChevronLeft, Zap, Clock, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const URGENCIES = [
-  { value: "standard", label: "Standard", desc: "Non-urgent, flexible timing", icon: Briefcase, color: "border-gray-200 hover:border-gray-400" },
-  { value: "urgent", label: "Urgent", desc: "Needed within 24 hours", icon: Clock, color: "border-orange-200 hover:border-orange-400" },
-  { value: "emergency", label: "Emergency", desc: "Critical, needs immediate attention", icon: Zap, color: "border-red-200 hover:border-red-400" },
+  { value: "standard",  label: "Standard",  desc: "Non-urgent, flexible timing",        Icon: Briefcase, border: "border-white/10",         active: "border-white/30 bg-white/5" },
+  { value: "urgent",    label: "Urgent",    desc: "Needed within 24 hours",             Icon: Clock,     border: "border-orange-500/15",    active: "border-orange-500/40 bg-orange-500/8" },
+  { value: "emergency", label: "Emergency", desc: "Critical, needs immediate attention", Icon: Zap,       border: "border-red-500/15",       active: "border-red-500/40 bg-red-500/8" },
 ];
+
+const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all";
+const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#f5c518]/50 focus:bg-white/8 transition-all resize-none";
+const labelCls = "text-sm font-medium text-white/65";
 
 export default function PostJobPage() {
   const [, setLocation] = useLocation();
@@ -39,8 +38,7 @@ export default function PostJobPage() {
         setLocation(`/jobs/${job.id}`);
       },
       onError: (err) => {
-        const msg = (err as { data?: { message?: string } })?.data?.message ?? "Failed to post job";
-        setError(msg);
+        setError((err as { data?: { message?: string } })?.data?.message ?? "Failed to post job");
       },
     },
   });
@@ -50,137 +48,121 @@ export default function PostJobPage() {
     setError("");
     if (!categoryId) { setError("Please select a category"); return; }
     createMutation.mutate({
-      data: {
-        title,
-        description,
-        categoryId: Number(categoryId),
-        urgency: urgency as "standard" | "urgent" | "emergency",
-        suburb: suburb || undefined,
-        postcode: postcode || undefined,
-        address: address || undefined,
-        budget: budget ? Number(budget) : undefined,
-      },
+      data: { title, description, categoryId: Number(categoryId), urgency: urgency as "standard" | "urgent" | "emergency", suburb: suburb || undefined, postcode: postcode || undefined, address: address || undefined, budget: budget ? Number(budget) : undefined },
     });
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="bg-[hsl(222,47%,11%)] text-white px-6 py-6">
+    <div className="min-h-screen bg-[#0b0904]">
+      {/* Header */}
+      <div className="border-b border-white/6 bg-[#0f0c06] px-6 py-6">
         <div className="container max-w-2xl">
-          <button onClick={() => setLocation("/dashboard")} className="flex items-center gap-1 text-white/70 hover:text-white text-sm mb-4 transition-colors">
+          <button onClick={() => setLocation("/dashboard")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
             <ChevronLeft className="h-4 w-4" /> Back to Dashboard
           </button>
-          <h1 className="text-2xl font-bold">Post a Job</h1>
-          <p className="text-white/70 mt-1">Tell us what needs fixing and we'll match you with the right tradie.</p>
+          <h1 className="text-2xl font-black text-white">Post a Job</h1>
+          <p className="text-white/40 mt-1 text-sm">Tell us what needs fixing and we'll match you with the right tradie.</p>
         </div>
       </div>
 
       <div className="container max-w-2xl py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
-                <AlertCircle className="h-4 w-4" />{error}
+              <div className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />{error}
               </div>
             )}
 
-            <Card>
-              <CardHeader><CardTitle>Job Details</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="title">Job Title *</Label>
-                  <Input id="title" placeholder="e.g. Leaking kitchen tap needs fixing" value={title} onChange={(e) => setTitle(e.target.value)} required />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea id="description" placeholder="Describe the problem in detail. What needs to be done? Any special requirements?" value={description} onChange={(e) => setDescription(e.target.value)} required rows={4} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Category *</Label>
-                  <Select value={categoryId} onValueChange={setCategoryId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a trade category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(categories ?? []).map((c) => (
-                        <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Job Details */}
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-5">
+              <h2 className="font-bold text-white">Job Details</h2>
+              <div className="space-y-1.5">
+                <label className={labelCls}>Job Title *</label>
+                <input className={inputCls} placeholder="e.g. Leaking kitchen tap needs fixing" value={title} onChange={(e) => setTitle(e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelCls}>Description *</label>
+                <textarea className={textareaCls} rows={4} placeholder="Describe the problem in detail. What needs to be done? Any special requirements?" value={description} onChange={(e) => setDescription(e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelCls}>Category *</label>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger className="h-11 bg-white/6 border-white/10 text-white rounded-xl">
+                    <SelectValue placeholder="Select a trade category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1509] border-white/10 text-white">
+                    {(categories ?? []).map((c) => (
+                      <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader><CardTitle>Urgency Level</CardTitle></CardHeader>
-              <CardContent>
-                <div className="grid gap-3">
-                  {URGENCIES.map((u) => (
-                    <label
-                      key={u.value}
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                        urgency === u.value
-                          ? "border-[hsl(38,92%,50%)] bg-[hsl(38,92%,50%)]/5"
-                          : `${u.color} bg-background`
-                      }`}
-                    >
-                      <input type="radio" name="urgency" value={u.value} checked={urgency === u.value} onChange={(e) => setUrgency(e.target.value)} className="sr-only" />
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        urgency === u.value ? "bg-[hsl(38,92%,50%)]" : "bg-muted"
-                      }`}>
-                        <u.icon className={`h-5 w-5 ${urgency === u.value ? "text-white" : "text-muted-foreground"}`} />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{u.label}</p>
-                        <p className="text-sm text-muted-foreground">{u.desc}</p>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Urgency */}
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+              <h2 className="font-bold text-white">Urgency Level</h2>
+              <div className="space-y-3">
+                {URGENCIES.map((u) => (
+                  <label
+                    key={u.value}
+                    className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      urgency === u.value ? u.active : `${u.border} hover:border-white/20`
+                    }`}
+                  >
+                    <input type="radio" name="urgency" value={u.value} checked={urgency === u.value} onChange={(e) => setUrgency(e.target.value)} className="sr-only" />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${urgency === u.value ? "bg-[#f5c518]" : "bg-white/8"}`}>
+                      <u.Icon className={`h-5 w-5 ${urgency === u.value ? "text-black" : "text-white/40"}`} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-sm">{u.label}</p>
+                      <p className="text-xs text-white/40 mt-0.5">{u.desc}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader><CardTitle>Location</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
+            {/* Location */}
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+              <h2 className="font-bold text-white">Location</h2>
+              <div className="space-y-1.5">
+                <label className={labelCls}>Street Address <span className="text-white/30">(optional)</span></label>
+                <input className={inputCls} placeholder="123 Main St" value={address} onChange={(e) => setAddress(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="address">Street Address (optional)</Label>
-                  <Input id="address" placeholder="123 Main St" value={address} onChange={(e) => setAddress(e.target.value)} />
+                  <label className={labelCls}>Suburb</label>
+                  <input className={inputCls} placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="suburb">Suburb</Label>
-                    <Input id="suburb" placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="postcode">Postcode</Label>
-                    <Input id="postcode" placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle>Budget (optional)</CardTitle></CardHeader>
-              <CardContent>
                 <div className="space-y-1.5">
-                  <Label htmlFor="budget">Estimated Budget (AUD)</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                    <Input id="budget" type="number" className="pl-7" placeholder="0" value={budget} onChange={(e) => setBudget(e.target.value)} min="0" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Tradies will use this as a guide for their quotes.</p>
+                  <label className={labelCls}>Postcode</label>
+                  <input className={inputCls} placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Button
+            {/* Budget */}
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-3">
+              <h2 className="font-bold text-white">Budget <span className="text-white/35 font-normal text-sm">(optional)</span></h2>
+              <div className="space-y-1.5">
+                <label className={labelCls}>Estimated Budget (AUD)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium text-sm">$</span>
+                  <input className={`${inputCls} pl-8`} type="number" placeholder="0" value={budget} onChange={(e) => setBudget(e.target.value)} min="0" />
+                </div>
+                <p className="text-xs text-white/30">Tradies will use this as a guide for their quotes.</p>
+              </div>
+            </div>
+
+            <button
               type="submit"
-              className="w-full bg-[hsl(38,92%,50%)] hover:bg-[hsl(38,92%,44%)] text-white font-semibold h-12 text-base"
               disabled={createMutation.isPending}
+              className="w-full h-12 rounded-xl bg-[#f5c518] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
             >
               {createMutation.isPending ? "Posting job…" : "Post Job & Get Matched"}
-            </Button>
+            </button>
           </form>
         </motion.div>
       </div>
