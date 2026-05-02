@@ -209,7 +209,7 @@ export default function TradieDashboard() {
                   {/* Rating stars */}
                   {data?.myRating != null && (
                     <div className="flex items-center gap-1.5">
-                      <StarRow rating={Math.round(data.myRating)} size="md" />
+                      <StarRow rating={data.myRating} size="md" />
                       <span className="text-sm font-bold text-[#ffc800]">{data.myRating.toFixed(1)}</span>
                     </div>
                   )}
@@ -245,6 +245,11 @@ export default function TradieDashboard() {
               <Link href="/messages">
                 <button className="h-9 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
                   <MessageSquare className="h-4 w-4" /> Messages
+                </button>
+              </Link>
+              <Link href="/profile">
+                <button className="h-9 px-4 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
+                  <User className="h-4 w-4" /> Profile
                 </button>
               </Link>
             </div>
