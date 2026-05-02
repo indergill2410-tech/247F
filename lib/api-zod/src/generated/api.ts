@@ -497,7 +497,10 @@ export const GetHomeownerDashboardResponse = zod.object({
   openJobs: zod.number(),
   inProgressJobs: zod.number(),
   completedJobs: zod.number(),
+  cancelledJobs: zod.number(),
   totalSpent: zod.number(),
+  pendingClaims: zod.number(),
+  memberSince: zod.coerce.date(),
   recentJobs: zod.array(
     zod.object({
       id: zod.number(),
@@ -525,7 +528,29 @@ export const GetHomeownerDashboardResponse = zod.object({
       scheduledFor: zod.coerce.date().nullish(),
     }),
   ),
-  pendingClaims: zod.number(),
+  recentClaims: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.number(),
+      tradieId: zod.number(),
+      status: zod.enum([
+        "pending",
+        "accepted",
+        "rejected",
+        "withdrawn",
+        "completed",
+      ]),
+      message: zod.string().nullable(),
+      proposedPrice: zod.number().nullable(),
+      createdAt: zod.coerce.date(),
+      tradieName: zod.string().nullable(),
+      tradieRating: zod.number().nullable(),
+      tradieReviewCount: zod.number(),
+      tradieAvatarUrl: zod.string().nullable(),
+      jobTitle: zod.string().nullable(),
+      conversationId: zod.number().nullable(),
+    }),
+  ),
 });
 
 /**

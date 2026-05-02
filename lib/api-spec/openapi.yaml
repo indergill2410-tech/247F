@@ -1205,6 +1205,59 @@ components:
       required:
         - count
 
+    HomeownerClaim:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        tradieId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, accepted, rejected, withdrawn, completed]
+        message:
+          type: string
+          nullable: true
+        proposedPrice:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        tradieName:
+          type: string
+          nullable: true
+        tradieRating:
+          type: number
+          nullable: true
+        tradieReviewCount:
+          type: integer
+        tradieAvatarUrl:
+          type: string
+          nullable: true
+        jobTitle:
+          type: string
+          nullable: true
+        conversationId:
+          type: integer
+          nullable: true
+      required:
+        - id
+        - jobId
+        - tradieId
+        - status
+        - message
+        - proposedPrice
+        - createdAt
+        - tradieName
+        - tradieRating
+        - tradieReviewCount
+        - tradieAvatarUrl
+        - jobTitle
+        - conversationId
+
     HomeownerDashboard:
       type: object
       properties:
@@ -1216,22 +1269,34 @@ components:
           type: integer
         completedJobs:
           type: integer
+        cancelledJobs:
+          type: integer
         totalSpent:
           type: number
+        pendingClaims:
+          type: integer
+        memberSince:
+          type: string
+          format: date-time
         recentJobs:
           type: array
           items:
             $ref: "#/components/schemas/Job"
-        pendingClaims:
-          type: integer
+        recentClaims:
+          type: array
+          items:
+            $ref: "#/components/schemas/HomeownerClaim"
       required:
         - totalJobs
         - openJobs
         - inProgressJobs
         - completedJobs
+        - cancelledJobs
         - totalSpent
-        - recentJobs
         - pendingClaims
+        - memberSince
+        - recentJobs
+        - recentClaims
 
     DashboardClaim:
       type: object

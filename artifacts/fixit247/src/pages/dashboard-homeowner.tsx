@@ -1,9 +1,55 @@
+import { useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { useGetHomeownerDashboard } from "@workspace/api-client-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useGetHomeownerDashboard, useUpdateClaim } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench } from "lucide-react";
+import {
+  Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
+  Star, MessageSquare, MapPin, User,
+  ThumbsUp, ThumbsDown, TrendingUp, Home,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const cardItem = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
+
+function timeAgo(date: string | Date): string {
+  const secs = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (secs < 60) return "just now";
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  const wks = Math.floor(days / 7);
+  if (wks < 5) return `${wks}w ago`;
+  const mths = Math.floor(days / 30);
+  if (mths < 12) return `${mths}mo ago`;
+  return `${Math.floor(mths / 12)}y ago`;
+}
+
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const filled = rating >= i + 1;
+        const half = !filled && rating > i;
+        return (
+          <span key={i} className="relative inline-block">
+            <Star className="h-3 w-3 text-white/20" />
+            {(filled || half) && (
+              <span className="absolute inset-0 overflow-hidden" style={{ width: filled ? "100%" : "50%" }}>
+                <Star className="h-3 w-3 fill-[#ffc800] text-[#ffc800]" />
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   open:        { label: "Open",        cls: "bg-blue-500/15 text-blue-400" },
@@ -18,152 +64,429 @@ const URGENCY_MAP: Record<string, string> = {
   standard:  "bg-white/8 text-white/40",
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const s = STATUS_MAP[status] ?? STATUS_MAP.cancelled;
-  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${s.cls}`}>{s.label}</span>;
-}
-function UrgencyBadge({ urgency }: { urgency: string }) {
-  return <span className={`text-xs font-semibold px-2 py-0.5 rounded-md capitalize ${URGENCY_MAP[urgency] ?? "bg-white/8 text-white/40"}`}>{urgency}</span>;
+function TradieName({ name }: { name: string | null }) {
+  const initials = (name ?? "?").split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  return (
+    <div className="w-9 h-9 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
+      {initials}
+    </div>
+  );
 }
 
 export default function HomeownerDashboard() {
   const { user } = useAuth();
-  const { data, isLoading } = useGetHomeownerDashboard();
+  const { toast } = useToast();
+  const { data, isLoading, refetch } = useGetHomeownerDashboard();
+  const [expandedClaim, setExpandedClaim] = useState<number | null>(null);
 
-  const greeting = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening";
+  const firstName = user?.name?.split(" ")[0] ?? "there";
+  const memberSince = data?.memberSince
+    ? new Date(data.memberSince).toLocaleDateString("en-AU", { month: "long", year: "numeric" })
+    : null;
+
+  const updateClaimMutation = useUpdateClaim({
+    mutation: {
+      onSuccess: (_, vars) => {
+        const isAccept = (vars.data as { status?: string })?.status === "accepted";
+        toast({
+          title: isAccept ? "Tradie accepted!" : "Claim declined",
+          description: isAccept
+            ? "They've been notified and will be in touch."
+            : "The tradie has been notified.",
+        });
+        refetch();
+        setExpandedClaim(null);
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Could not update claim.", variant: "destructive" });
+      },
+    },
+  });
 
   const stats = [
-    { label: "Total Jobs",     value: data?.totalJobs ?? 0,      icon: Briefcase,   color: "text-blue-400",       bg: "bg-blue-500/10" },
-    { label: "In Progress",    value: data?.inProgressJobs ?? 0, icon: Clock,       color: "text-orange-400",     bg: "bg-orange-500/10" },
-    { label: "Completed",      value: data?.completedJobs ?? 0,  icon: CheckCircle, color: "text-emerald-400",    bg: "bg-emerald-500/10" },
-    { label: "Pending Claims", value: data?.pendingClaims ?? 0,  icon: Bell,        color: "text-[#ffc800]",      bg: "bg-[#ffc800]/10" },
+    {
+      label: "Total Jobs",
+      value: data?.totalJobs ?? 0,
+      icon: Briefcase,
+      color: "text-blue-400",
+      bg: "bg-blue-500/10",
+      desc: "posted by you",
+    },
+    {
+      label: "Active Jobs",
+      value: data?.inProgressJobs ?? 0,
+      icon: Clock,
+      color: "text-orange-400",
+      bg: "bg-orange-500/10",
+      desc: "in progress",
+    },
+    {
+      label: "Completed",
+      value: data?.completedJobs ?? 0,
+      icon: CheckCircle,
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      desc: "jobs done",
+    },
+    {
+      label: "Responses",
+      value: data?.pendingClaims ?? 0,
+      icon: Bell,
+      color: "text-[#ffc800]",
+      bg: "bg-[#ffc800]/10",
+      desc: "need your reply",
+    },
+    {
+      label: "Total Spent",
+      value: data?.totalSpent ? `$${data.totalSpent.toLocaleString()}` : "$0",
+      icon: TrendingUp,
+      color: "text-purple-400",
+      bg: "bg-purple-500/10",
+      desc: "on completed jobs",
+    },
   ];
+
+  const recentClaims = data?.recentClaims ?? [];
+  const recentJobs = data?.recentJobs ?? [];
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      {/* Page header */}
-      <div className="border-b border-white/6 bg-[#0f0c06] py-8">
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-2">
+        {/* Personalised inline header */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6"
+        >
           <div>
-            <h1 className="text-2xl font-black text-white">
-              Good {greeting}, {user?.name?.split(" ")[0]}!
-            </h1>
-            <p className="text-white/45 mt-1 text-sm">Here's what's happening with your jobs.</p>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl font-black text-white">{firstName}'s Dashboard</h1>
+              {(data?.openJobs ?? 0) > 0 && (
+                <span className="text-[10px] font-semibold bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded-md">
+                  {data!.openJobs} open
+                </span>
+              )}
+              {(data?.pendingClaims ?? 0) > 0 && (
+                <span className="text-[10px] font-semibold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md animate-pulse">
+                  {data!.pendingClaims} response{data!.pendingClaims !== 1 ? "s" : ""} waiting
+                </span>
+              )}
+            </div>
+            {memberSince && (
+              <p className="text-xs text-white/30 mt-0.5">Member since {memberSince}</p>
+            )}
           </div>
-          <Link href="/jobs/new">
-            <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
-              <Plus className="h-4 w-4" /> Post New Job
-            </button>
-          </Link>
-        </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Link href="/jobs/new">
+              <button className="h-8 px-3.5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
+                <Plus className="h-3.5 w-3.5" /> Post a Job
+              </button>
+            </Link>
+            <Link href="/messages">
+              <button className="h-8 px-3.5 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
+                <MessageSquare className="h-3.5 w-3.5" /> Messages
+              </button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
 
-      <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.07 }}
-              whileHover={{ y: -2 }}
-            >
-              <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-5 transition-colors h-full">
-                <div className="flex items-center justify-between">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pb-8 space-y-6">
+
+        {/* Stats grid */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+        >
+          {stats.map((s) => (
+            <motion.div key={s.label} variants={cardItem} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+              <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-4 transition-colors h-full">
+                <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs text-white/40 font-medium">{s.label}</p>
-                    {isLoading
-                      ? <Skeleton className="h-8 w-12 mt-1.5 bg-white/8" />
-                      : <p className="text-3xl font-black text-white mt-1">{s.value}</p>
-                    }
+                    {isLoading ? (
+                      <Skeleton className="h-8 w-10 mt-1.5 bg-white/8" />
+                    ) : (
+                      <p className="text-2xl font-black text-white mt-1">{s.value}</p>
+                    )}
+                    <p className="text-[10px] text-white/25 mt-0.5">{s.desc}</p>
                   </div>
-                  <div className={`${s.bg} ${s.color} p-2.5 rounded-xl`}>
-                    <s.icon className="h-5 w-5" />
+                  <div className={`${s.bg} ${s.color} p-2 rounded-xl flex-shrink-0`}>
+                    <s.icon className="h-4 w-4" />
                   </div>
                 </div>
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* Recent Jobs */}
-        <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+        {/* Tradie Responses — the most action-driving section */}
+        {(isLoading || recentClaims.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
+              <div className="flex items-center gap-2">
+                <Bell className="h-4 w-4 text-[#ffc800]" />
+                <h2 className="font-bold text-white">Tradies Responding to Your Jobs</h2>
+                {recentClaims.length > 0 && (
+                  <span className="text-[10px] font-bold bg-[#ffc800] text-black px-2 py-0.5 rounded-full">
+                    {recentClaims.length}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="divide-y divide-white/5">
+              {isLoading ? (
+                Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="px-6 py-4"><Skeleton className="h-16 w-full bg-white/6" /></div>
+                ))
+              ) : (
+                recentClaims.map((claim) => (
+                  <div key={claim.id}>
+                    <div
+                      className="px-6 py-4 hover:bg-white/2 transition-colors cursor-pointer"
+                      onClick={() => setExpandedClaim(expandedClaim === claim.id ? null : claim.id)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <TradieName name={claim.tradieName} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-white text-sm">
+                              {claim.tradieName ?? "Tradie"}
+                            </span>
+                            {claim.tradieRating != null && (
+                              <div className="flex items-center gap-1">
+                                <StarRow rating={claim.tradieRating} />
+                                <span className="text-[10px] text-[#ffc800] font-bold">{claim.tradieRating.toFixed(1)}</span>
+                              </div>
+                            )}
+                            {claim.tradieReviewCount > 0 && (
+                              <span className="text-[10px] text-white/30">{claim.tradieReviewCount} review{claim.tradieReviewCount !== 1 ? "s" : ""}</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-white/40 mt-0.5">
+                            For: <span className="text-white/60">{claim.jobTitle ?? `Job #${claim.jobId}`}</span>
+                            <span className="mx-1.5 text-white/15">·</span>
+                            {timeAgo(claim.createdAt)}
+                          </p>
+                          {claim.message && (
+                            <p className="text-sm text-white/55 mt-1.5 line-clamp-2 italic">"{claim.message}"</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {claim.proposedPrice != null && (
+                            <span className="text-sm font-black text-[#ffc800]">
+                              ${claim.proposedPrice.toLocaleString()}
+                            </span>
+                          )}
+                          <ChevronRight className={`h-4 w-4 text-white/25 transition-transform duration-200 ${expandedClaim === claim.id ? "rotate-90" : ""}`} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <AnimatePresence>
+                      {expandedClaim === claim.id && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-6 pb-5 bg-[#0f0c06] border-t border-white/5">
+                            <div className="pt-4 flex flex-col sm:flex-row gap-3">
+                              <button
+                                onClick={() => {
+                                  setPendingAction({ claimId: claim.id, action: "accept" });
+                                  updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "accepted" } });
+                                }}
+                                disabled={updateClaimMutation.isPending}
+                                className="flex-1 h-9 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-emerald-500/20"
+                              >
+                                <ThumbsUp className="h-4 w-4" /> Accept {claim.tradieName?.split(" ")[0]}
+                              </button>
+                              {claim.conversationId ? (
+                                <Link href={`/messages/${claim.conversationId}`}>
+                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8">
+                                    <MessageSquare className="h-4 w-4" /> Message
+                                  </button>
+                                </Link>
+                              ) : (
+                                <Link href="/messages">
+                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8">
+                                    <MessageSquare className="h-4 w-4" /> Message
+                                  </button>
+                                </Link>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setPendingAction({ claimId: claim.id, action: "reject" });
+                                  updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "rejected" } });
+                                }}
+                                disabled={updateClaimMutation.isPending}
+                                className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-red-500/15"
+                              >
+                                <ThumbsDown className="h-4 w-4" /> Decline
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* No pending claims but jobs exist — motivational empty state */}
+        {!isLoading && recentClaims.length === 0 && (data?.totalJobs ?? 0) > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="bg-[#130f07] border border-white/6 rounded-2xl px-6 py-8 text-center"
+          >
+            <Bell className="h-8 w-8 mx-auto mb-3 text-white/15" />
+            <p className="font-semibold text-white/60">No new tradie responses yet</p>
+            <p className="text-sm text-white/35 mt-1">
+              Tradies will respond to your open jobs — check back soon.
+            </p>
+          </motion.div>
+        )}
+
+        {/* My Jobs */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
+        >
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
-            <h2 className="font-bold text-white">Recent Jobs</h2>
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-white/40" />
+              <h2 className="font-bold text-white">My Jobs</h2>
+            </div>
             <Link href="/jobs">
               <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
           </div>
+
           <div className="divide-y divide-white/5">
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
               ))
-            ) : !data?.recentJobs?.length ? (
+            ) : !recentJobs.length ? (
               <div className="text-center py-14 text-white/35">
-                <Wrench className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <Wrench className="h-10 w-10 mx-auto mb-3 opacity-20" />
                 <p className="font-semibold text-white/50">No jobs yet</p>
-                <p className="text-sm mt-1">Post your first job to get started</p>
+                <p className="text-sm mt-1">Post your first job to get matched with a tradie</p>
                 <Link href="/jobs/new">
-                  <button className="mt-5 h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center gap-1.5">
+                  <button className="mt-5 h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-all inline-flex items-center gap-1.5">
                     <Plus className="h-4 w-4" /> Post a Job
                   </button>
                 </Link>
               </div>
             ) : (
-              data.recentJobs.map((job) => (
-                <Link href={`/jobs/${job.id}`} key={job.id}>
-                  <div className="flex items-center justify-between px-6 py-4 hover:bg-white/3 cursor-pointer transition-colors group">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-white truncate group-hover:text-[#ffc800] transition-colors">{job.title}</p>
-                        <StatusBadge status={job.status} />
-                        <UrgencyBadge urgency={job.urgency} />
+              recentJobs.map((job) => {
+                const st = STATUS_MAP[job.status] ?? STATUS_MAP.cancelled;
+                const urg = URGENCY_MAP[job.urgency] ?? "bg-white/8 text-white/40";
+                return (
+                  <Link href={`/jobs/${job.id}`} key={job.id}>
+                    <div className="flex items-center justify-between px-6 py-4 hover:bg-white/2 cursor-pointer transition-colors group">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-white truncate group-hover:text-[#ffc800] transition-colors text-sm">
+                            {job.title}
+                          </p>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${st.cls}`}>{st.label}</span>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md capitalize ${urg}`}>{job.urgency}</span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-0.5 text-[10px] text-white/30 flex-wrap">
+                          {job.categoryName && <span>{job.categoryName}</span>}
+                          {job.suburb && (
+                            <span className="flex items-center gap-0.5">
+                              <MapPin className="h-2.5 w-2.5" /> {job.suburb}
+                            </span>
+                          )}
+                          {(job.claimCount ?? 0) > 0 && (
+                            <span className="text-[#ffc800]/70 font-semibold">
+                              {job.claimCount} tradie{job.claimCount !== 1 ? "s" : ""} responded
+                            </span>
+                          )}
+                          <span>{timeAgo(job.createdAt)}</span>
+                        </div>
                       </div>
-                      <p className="text-xs text-white/40 mt-0.5">{job.categoryName} · {job.suburb ?? "Remote"}</p>
+                      <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-[#ffc800] flex-shrink-0 ml-3 transition-colors" />
                     </div>
-                    <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#ffc800] flex-shrink-0 ml-3 transition-colors" />
-                  </div>
-                </Link>
-              ))
+                  </Link>
+                );
+              })
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Quick actions */}
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Link href="/jobs/new">
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="group bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
-            >
-              <div className="w-11 h-11 bg-[#ffc800] rounded-xl flex items-center justify-center flex-shrink-0">
-                <Plus className="h-5 w-5 text-black" />
-              </div>
-              <div>
-                <p className="font-bold text-white group-hover:text-[#ffc800] transition-colors">Post a New Job</p>
-                <p className="text-xs text-white/40 mt-0.5">Get matched with tradies in minutes</p>
-              </div>
-            </motion.div>
-          </Link>
-          <Link href="/notifications">
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="group bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all"
-            >
-              <div className="w-11 h-11 bg-white/8 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Bell className="h-5 w-5 text-[#ffc800]" />
-              </div>
-              <div>
-                <p className="font-bold text-white group-hover:text-[#ffc800] transition-colors">Notifications</p>
-                <p className="text-xs text-white/40 mt-0.5">See claims &amp; updates</p>
-              </div>
-            </motion.div>
-          </Link>
-        </div>
+        {/* First-time empty state — no jobs at all */}
+        {!isLoading && (data?.totalJobs ?? 0) === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="bg-gradient-to-br from-[#ffc800]/8 to-[#130f07] border border-[#ffc800]/20 rounded-2xl p-8 text-center"
+          >
+            <div className="w-14 h-14 bg-[#ffc800]/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Home className="h-7 w-7 text-[#ffc800]" />
+            </div>
+            <h3 className="text-lg font-black text-white mb-2">Welcome, {firstName}!</h3>
+            <p className="text-white/50 text-sm max-w-xs mx-auto mb-6">
+              Get your first home repair sorted in minutes. Post a job and verified local tradies will respond fast.
+            </p>
+            <Link href="/jobs/new">
+              <button className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-all inline-flex items-center gap-2">
+                <Plus className="h-4 w-4" /> Post Your First Job
+              </button>
+            </Link>
+          </motion.div>
+        )}
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        >
+          {[
+            { href: "/jobs/new",    Icon: Plus,          label: "Post a Job",     sub: "Get matched fast" },
+            { href: "/messages",    Icon: MessageSquare, label: "Messages",       sub: "Chat with tradies" },
+            { href: "/jobs",        Icon: Briefcase,     label: "My Jobs",        sub: "Track all your jobs" },
+            { href: "/profile",     Icon: User,          label: "My Profile",     sub: "Edit your details" },
+          ].map(({ href, Icon, label, sub }) => (
+            <Link key={label} href={href}>
+              <motion.div
+                whileHover={{ y: -4, transition: { duration: 0.15 } }}
+                className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-colors group hover:bg-[#1a1508]"
+              >
+                <Icon className="h-5 w-5 text-[#ffc800] mb-2.5 group-hover:scale-110 transition-transform" />
+                <p className="text-sm font-bold text-white">{label}</p>
+                <p className="text-xs text-white/35 mt-0.5">{sub}</p>
+              </motion.div>
+            </Link>
+          ))}
+        </motion.div>
+
       </div>
     </div>
   );

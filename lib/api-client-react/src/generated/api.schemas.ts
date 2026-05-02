@@ -281,14 +281,44 @@ export interface UnreadCountResponse {
   count: number;
 }
 
+export type HomeownerClaimStatus =
+  (typeof HomeownerClaimStatus)[keyof typeof HomeownerClaimStatus];
+
+export const HomeownerClaimStatus = {
+  pending: "pending",
+  accepted: "accepted",
+  rejected: "rejected",
+  withdrawn: "withdrawn",
+  completed: "completed",
+} as const;
+
+export interface HomeownerClaim {
+  id: number;
+  jobId: number;
+  tradieId: number;
+  status: HomeownerClaimStatus;
+  message: string | null;
+  proposedPrice: number | null;
+  createdAt: string;
+  tradieName: string | null;
+  tradieRating: number | null;
+  tradieReviewCount: number;
+  tradieAvatarUrl: string | null;
+  jobTitle: string | null;
+  conversationId: number | null;
+}
+
 export interface HomeownerDashboard {
   totalJobs: number;
   openJobs: number;
   inProgressJobs: number;
   completedJobs: number;
+  cancelledJobs: number;
   totalSpent: number;
-  recentJobs: Job[];
   pendingClaims: number;
+  memberSince: string;
+  recentJobs: Job[];
+  recentClaims: HomeownerClaim[];
 }
 
 export type DashboardClaimStatus =
