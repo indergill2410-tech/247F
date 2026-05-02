@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetTradiedashboard, useClaimJob } from "@workspace/api-client-react";
+import { useGetTradiedashboard, useClaimJob, useGetMe } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -68,6 +68,7 @@ function ProfileBar({ pct }: { pct: number }) {
 export default function TradieDashboard() {
   const { user } = useAuth();
   const { data, isLoading, refetch } = useGetTradiedashboard();
+  const { data: meData } = useGetMe();
   const { toast } = useToast();
 
   // Inline claim expansion state: jobId → { message, proposedPrice }
@@ -515,10 +516,10 @@ export default function TradieDashboard() {
                 <ProfileBar pct={pct} />
                 <ul className="mt-3 space-y-2">
                   {[
-                    { done: true,           label: "Account created" },
-                    { done: !!user?.phone,  label: "Add phone number" },
-                    { done: !!user?.bio,    label: "Write a bio" },
-                    { done: !!user?.suburb, label: "Set your suburb" },
+                    { done: true,                            label: "Account created" },
+                    { done: !!(meData?.phone ?? user?.phone), label: "Add phone number" },
+                    { done: !!(meData?.bio ?? user?.bio),     label: "Write a bio" },
+                    { done: !!(meData?.suburb ?? user?.suburb), label: "Set your suburb" },
                     { done: (data?.myCategories?.length ?? 0) > 0, label: "Add your skills" },
                   ].map((s) =>
                     s.done ? (
