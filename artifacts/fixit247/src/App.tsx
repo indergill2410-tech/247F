@@ -40,6 +40,14 @@ function ProtectedRoute({ component: Component, roles }: { component: React.Comp
   return <Component />;
 }
 
+function RootRoute() {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <LandingPage />;
+  if (user?.role === "tradie") return <Redirect to="/dashboard/tradie" />;
+  if (user?.role === "admin") return <Redirect to="/dashboard/admin" />;
+  return <Redirect to="/dashboard/homeowner" />;
+}
+
 const HIDE_NAVBAR_PATHS = ["/login", "/register", "/signup"];
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -58,7 +66,7 @@ function Router() {
     <AppLayout>
       <Switch>
         {/* Public */}
-        <Route path="/" component={LandingPage} />
+        <Route path="/" component={RootRoute} />
         <Route path="/how-it-works" component={HowItWorksPage} />
         <Route path="/categories" component={CategoriesPublicPage} />
         <Route path="/about" component={AboutPage} />
