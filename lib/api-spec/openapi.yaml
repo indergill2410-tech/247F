@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Fixit 24/7 API - On-demand home repair marketplace
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication and user management
+  - name: jobs
+    description: Job posting and management
+  - name: claims
+    description: Job claims by tradies
+  - name: categories
+    description: Service categories
+  - name: notifications
+    description: In-app notifications
+  - name: dashboard
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,586 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth / User
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateMe
+      tags: [auth]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # Categories
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all service categories
+      responses:
+        "200":
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a service category (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryBody"
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /categories/{id}:
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a category (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Jobs
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List jobs (role-filtered)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: urgency
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Job list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobListResponse"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Post a new job (homeowner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateJobBody"
+      responses:
+        "201":
+          description: Job created and matching triggered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get job details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateJobBody"
+      responses:
+        "200":
+          description: Updated job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete/cancel a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Job Claims
+  /jobs/{jobId}/claims:
+    get:
+      operationId: listJobClaims
+      tags: [claims]
+      summary: List claims for a job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claims list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Claim"
+    post:
+      operationId: claimJob
+      tags: [claims]
+      summary: Claim a job (tradie)
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClaimBody"
+      responses:
+        "201":
+          description: Job claimed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+        "409":
+          description: Claim limit reached or already claimed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /jobs/{jobId}/claims/{claimId}:
+    put:
+      operationId: updateClaim
+      tags: [claims]
+      summary: Update claim status (homeowner accepts/rejects, tradie withdraws)
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: claimId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClaimBody"
+      responses:
+        "200":
+          description: Updated claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+    delete:
+      operationId: withdrawClaim
+      tags: [claims]
+      summary: Withdraw a claim (tradie)
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: claimId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Withdrawn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Notifications
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: Get user notifications
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Notifications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    put:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    post:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: All marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /notifications/unread-count:
+    get:
+      operationId: getUnreadNotificationCount
+      tags: [notifications]
+      summary: Get unread notification count
+      responses:
+        "200":
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnreadCountResponse"
+
+  # Dashboard
+  /dashboard/homeowner:
+    get:
+      operationId: getHomeownerDashboard
+      tags: [dashboard]
+      summary: Homeowner dashboard stats
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HomeownerDashboard"
+
+  /dashboard/tradie:
+    get:
+      operationId: getTradiedashboard
+      tags: [dashboard]
+      summary: Tradie dashboard stats
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradieDashboard"
+
+  /dashboard/admin:
+    get:
+      operationId: getAdminDashboard
+      tags: [dashboard]
+      summary: Admin dashboard stats
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+
+  # Admin Users
+  /admin/users:
+    get:
+      operationId: adminListUsers
+      tags: [auth]
+      summary: Admin - list all users
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /admin/users/{id}:
+    put:
+      operationId: adminUpdateUser
+      tags: [auth]
+      summary: Admin - update a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: adminDeleteUser
+      tags: [auth]
+      summary: Admin - delete a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/jobs:
+    get:
+      operationId: adminListJobs
+      tags: [jobs]
+      summary: Admin - list all jobs
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: All jobs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobListResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +626,548 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          type: string
+          enum: [homeowner, tradie]
+        phone:
+          type: string
+        suburb:
+          type: string
+        postcode:
+          type: string
+        bio:
+          type: string
+        skills:
+          type: array
+          items:
+            type: integer
+      required:
+        - name
+        - email
+        - password
+        - role
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [homeowner, tradie, admin]
+        phone:
+          type: string
+          nullable: true
+        suburb:
+          type: string
+          nullable: true
+        postcode:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        rating:
+          type: number
+          nullable: true
+        reviewCount:
+          type: integer
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - reviewCount
+        - isActive
+        - createdAt
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        suburb:
+          type: string
+        postcode:
+          type: string
+        bio:
+          type: string
+        avatarUrl:
+          type: string
+        skills:
+          type: array
+          items:
+            type: integer
+
+    AdminUpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+          enum: [homeowner, tradie, admin]
+        isActive:
+          type: boolean
+
+    UserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - users
+        - total
+        - page
+        - limit
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+        description:
+          type: string
+          nullable: true
+        jobCount:
+          type: integer
+      required:
+        - id
+        - name
+        - icon
+        - jobCount
+
+    CreateCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        icon:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - icon
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [open, matched, in_progress, completed, cancelled]
+        urgency:
+          type: string
+          enum: [standard, urgent, emergency]
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+          nullable: true
+        homeownerId:
+          type: integer
+        homeownerName:
+          type: string
+          nullable: true
+        suburb:
+          type: string
+          nullable: true
+        postcode:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        imageUrls:
+          type: array
+          items:
+            type: string
+        budget:
+          type: number
+          nullable: true
+        claimCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        scheduledFor:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - title
+        - description
+        - status
+        - urgency
+        - categoryId
+        - homeownerId
+        - imageUrls
+        - claimCount
+        - createdAt
+
+    JobDetail:
+      allOf:
+        - $ref: "#/components/schemas/Job"
+        - type: object
+          properties:
+            claims:
+              type: array
+              items:
+                $ref: "#/components/schemas/Claim"
+            matchedTradies:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+
+    JobListResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - jobs
+        - total
+        - page
+        - limit
+
+    CreateJobBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: integer
+        urgency:
+          type: string
+          enum: [standard, urgent, emergency]
+        suburb:
+          type: string
+        postcode:
+          type: string
+        address:
+          type: string
+        imageUrls:
+          type: array
+          items:
+            type: string
+        budget:
+          type: number
+        scheduledFor:
+          type: string
+          format: date-time
+      required:
+        - title
+        - description
+        - categoryId
+        - urgency
+
+    UpdateJobBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [open, matched, in_progress, completed, cancelled]
+        urgency:
+          type: string
+          enum: [standard, urgent, emergency]
+        address:
+          type: string
+        budget:
+          type: number
+        scheduledFor:
+          type: string
+          format: date-time
+
+    Claim:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        tradieId:
+          type: integer
+        tradieName:
+          type: string
+          nullable: true
+        tradieRating:
+          type: number
+          nullable: true
+        tradieReviewCount:
+          type: integer
+          nullable: true
+        tradieSuburb:
+          type: string
+          nullable: true
+        tradieAvatarUrl:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, accepted, rejected, withdrawn, completed]
+        message:
+          type: string
+          nullable: true
+        proposedPrice:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - jobId
+        - tradieId
+        - status
+        - createdAt
+        - tradieReviewCount
+
+    CreateClaimBody:
+      type: object
+      properties:
+        message:
+          type: string
+        proposedPrice:
+          type: number
+
+    UpdateClaimBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected, withdrawn, completed]
+      required:
+        - status
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        jobId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - type
+        - title
+        - message
+        - isRead
+        - createdAt
+
+    UnreadCountResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+      required:
+        - count
+
+    HomeownerDashboard:
+      type: object
+      properties:
+        totalJobs:
+          type: integer
+        openJobs:
+          type: integer
+        inProgressJobs:
+          type: integer
+        completedJobs:
+          type: integer
+        totalSpent:
+          type: number
+        recentJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+        pendingClaims:
+          type: integer
+      required:
+        - totalJobs
+        - openJobs
+        - inProgressJobs
+        - completedJobs
+        - totalSpent
+        - recentJobs
+        - pendingClaims
+
+    TradieDashboard:
+      type: object
+      properties:
+        activeJobs:
+          type: integer
+        completedJobs:
+          type: integer
+        totalEarnings:
+          type: number
+        availableLeads:
+          type: integer
+        myRating:
+          type: number
+          nullable: true
+        recentClaims:
+          type: array
+          items:
+            $ref: "#/components/schemas/Claim"
+        availableJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+      required:
+        - activeJobs
+        - completedJobs
+        - totalEarnings
+        - availableLeads
+        - recentClaims
+        - availableJobs
+
+    AdminDashboard:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalHomeowners:
+          type: integer
+        totalTradies:
+          type: integer
+        totalJobs:
+          type: integer
+        openJobs:
+          type: integer
+        completedJobs:
+          type: integer
+        totalCategories:
+          type: integer
+        recentJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+        recentUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+      required:
+        - totalUsers
+        - totalHomeowners
+        - totalTradies
+        - totalJobs
+        - openJobs
+        - completedJobs
+        - totalCategories
+        - recentJobs
+        - recentUsers

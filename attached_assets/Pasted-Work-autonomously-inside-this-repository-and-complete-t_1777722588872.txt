@@ -1,0 +1,124 @@
+Work autonomously inside this repository and complete the product end-to-end.
+
+Repository:
+https://github.com/indergill2410-tech/Fixit247C
+
+Build Fixit 24/7 as a production-ready full-stack marketplace for on-demand home repair and handyman services. The final result must run locally, build successfully, and be deployable on Render with PostgreSQL and Prisma migrations configured correctly.
+
+Product vision:
+Fixit 24/7 is a premium, high-trust, conversion-focused platform with three core differentiators:
+- Free job leads for tradies
+- Fast emergency repair booking
+- Smart matching between homeowners and nearby qualified tradies
+
+Users and dashboards:
+- Homeowner: post jobs, upload images, get matched, track repair progress
+- Tradie: receive leads, claim jobs, manage active work, view job status
+- Admin: manage users, jobs, claims, categories, and platform settings
+
+Each role must have a polished, role-specific dashboard with coherent navigation, responsive layouts, and working end-to-end flows.
+
+Required stack:
+- Next.js 15 with App Router and TypeScript
+- Tailwind CSS and shadcn/ui
+- PostgreSQL with Prisma ORM
+- Auth.js / NextAuth with role-based auth and middleware
+- Real-time updates using WebSockets, Server-Sent Events, or a well-integrated hosted solution if needed
+- Stripe for payments and tradie payouts if payment flows are implemented
+- UploadThing for file uploads if uploads are implemented
+
+Design requirements:
+- Use the provided screenshot as the hero section visual on the landing page.
+- Use the screenshot as a real product hero, not a decorative placeholder.
+- Take design inspiration from the screenshot and any provided reference theme, but keep the implementation original.
+- The interface should feel premium, charismatic, urgent, trustworthy, and mobile-first.
+- Maintain strong CTA hierarchy, clean typography, smooth motion, and clear visual trust signals.
+
+Core features:
+- Authentication and role-based access
+- Job posting flow with service category, description, urgency, address/location, optional images
+- Matching engine that selects up to 5 nearby qualified tradies based on location, category, rating, and availability
+- Notify matched tradies in app in real time
+- A single job can be claimed by at most 5 tradies
+- A tradie can hold at most 11 active jobs
+- Job tracking workflow across statuses
+- Role-specific dashboards
+- Admin panel
+- Responsive mobile experience
+
+Matching engine requirements:
+- When a homeowner posts a job, automatically evaluate tradies using:
+  - location proximity using postcode/city and lat/long where available
+  - service category fit
+  - tradie rating
+  - current availability / active workload
+- Notify up to 5 matching tradies
+- Enforce:
+  - max 5 tradies can claim one job
+  - max 11 active claimed jobs per tradie
+- Implement real in-app notifications
+- Simulate push notifications if full push setup is not practical, but keep the architecture clean for future real push support
+
+Render deployment requirements:
+- Make the project deployable on Render
+- Include Render-ready build/start commands
+- Configure Prisma for production deployment with migrations
+- Document Render PostgreSQL setup
+- Include a render.yaml if appropriate, or provide exact Render service settings in the README
+- Ensure environment variables are clearly documented
+- Ensure the app can boot in production mode without missing runtime configuration [web:96][web:99]
+
+Project requirements:
+- Create or repair a clean, scalable folder structure
+- Include a complete .env.example
+- Include a detailed README.md covering:
+  - local setup
+  - development commands
+  - database setup
+  - migration commands
+  - seed commands if used
+  - Render deployment steps
+  - required environment variables
+- Enforce ESLint, Prettier, and strict TypeScript where practical
+
+Implementation constraints:
+- Inspect the repository first and determine what already exists before rewriting anything
+- Reuse and repair existing code where practical instead of unnecessary rewrites
+- Fix missing code, broken imports, invalid routes, dead buttons, placeholder handlers, and deploy blockers
+- Do not leave fake CTA buttons, dead links, TODO placeholders, or incomplete pages
+- Do not hardcode secrets
+- Prefer production-safe implementations over shortcuts
+- Follow repo conventions unless they are broken or block delivery
+- Add loading, empty, success, and error states for key flows
+- Add targeted validation and targeted tests where appropriate
+- Fix your own introduced errors before finishing
+
+Required workflow:
+1. Inspect the codebase and identify the real stack, current structure, broken areas, and deployment blockers
+2. Implement the missing architecture needed for a coherent production app
+3. Build the landing page and all required dashboards
+4. Implement the matching engine and claim-limit logic
+5. Verify auth, routing, forms, uploads, notifications, and dashboards
+6. Validate with install, lint, typecheck, build, and tests where available
+7. Finish only when the repo is genuinely deployable and core flows work end to end
+
+Done when:
+- The app installs and runs locally
+- The app builds successfully for production
+- The hero section uses the provided screenshot properly
+- Homeowner, Tradie, and Admin dashboards all work
+- The matching engine works with the required limits enforced
+- Main CTAs, routes, forms, and buttons all work
+- Prisma migrations are ready for Render deployment
+- .env.example and README are complete
+- Render deployment steps are accurate and specific
+- No major placeholder logic or dead-end UI remains
+
+Before finishing, provide:
+1. Brief architecture summary
+2. Exact local run commands
+3. Exact Render deployment instructions
+4. Required environment variables
+5. How to test the matching engine and claim limits
+6. Key files changed or created
+7. Remaining assumptions or future improvements

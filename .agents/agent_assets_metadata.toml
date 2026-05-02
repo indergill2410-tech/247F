@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "DZs9QRjyHWETYhmdOe86m"
+uri = "file://artifacts/fixit247/public/hero-repair.png"
+type = "image"
+title = "Heroic home repair professional"
