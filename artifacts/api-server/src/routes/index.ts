@@ -11,6 +11,7 @@ import conversationsRouter from "./conversations.js";
 import reviewsRouter from "./reviews.js";
 import stripeRouter from "./stripe.js";
 import tradiesRouter from "./tradies.js";
+import partnerEnquiryRouter from "./partner-enquiry.js";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(conversationsRouter);
 router.use(reviewsRouter);
 router.use(stripeRouter);
 router.use(tradiesRouter);
+router.use(partnerEnquiryRouter);
 
 export default router;

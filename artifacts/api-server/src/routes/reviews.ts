@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { reviewsTable, usersTable, jobsTable } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/require-auth.js";
+import { sendReviewReceivedNotification } from "../lib/email.js";
 
 const router = Router();
 
@@ -101,9 +102,21 @@ router.post("/jobs/:jobId/reviews", requireAuth, async (req, res): Promise<void>
     .from(usersTable)
     .where(eq(usersTable.id, reviewerId));
   const [reviewee] = await db
-    .select({ name: usersTable.name })
+    .select({ name: usersTable.name, email: usersTable.email })
     .from(usersTable)
     .where(eq(usersTable.id, Number(revieweeId)));
+
+  // Fire-and-forget: email the reviewee (tradie) that they received a review
+  if (reviewee?.email) {
+    sendReviewReceivedNotification({
+      tradieEmail: reviewee.email,
+      tradieName: reviewee.name,
+      reviewerName: reviewer?.name ?? "Anonymous",
+      rating,
+      comment: comment ?? null,
+      jobTitle: job.title,
+    }).catch(() => {});
+  }
 
   res.status(201).json({
     ...review,

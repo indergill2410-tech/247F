@@ -5,6 +5,7 @@ import { eq, and, or, desc, count, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
 import { broadcastToRoom } from "../lib/ws-manager.js";
+import { sendNewMessageNotification } from "../lib/email.js";
 
 const router = Router();
 
@@ -161,6 +162,7 @@ router.post("/conversations/:id/messages", requireAuth, async (req, res): Promis
   const recipientId = userId === convo.homeownerId ? convo.tradieId : convo.homeownerId;
   const [sender] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, userId));
   const [job] = await db.select({ title: jobsTable.title }).from(jobsTable).where(eq(jobsTable.id, convo.jobId));
+  const [recipient] = await db.select({ email: usersTable.email, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, recipientId));
 
   await db
     .insert(notificationsTable)
@@ -172,6 +174,17 @@ router.post("/conversations/:id/messages", requireAuth, async (req, res): Promis
       jobId: convo.jobId,
     })
     .catch((err) => logger.error({ err }, "Failed to send message notification"));
+
+  // Fire-and-forget: email the recipient
+  if (recipient?.email) {
+    sendNewMessageNotification({
+      recipientEmail: recipient.email,
+      recipientName: recipient.name,
+      senderName: sender?.name ?? "Someone",
+      jobTitle: job?.title ?? "a job",
+      conversationId: convoId,
+    }).catch(() => {});
+  }
 
   const [senderFull] = await db
     .select({ name: usersTable.name, avatarUrl: usersTable.avatarUrl })

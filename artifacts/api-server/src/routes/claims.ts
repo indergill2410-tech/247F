@@ -13,6 +13,7 @@ import {
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
 import { deductCredits, getCreditBalance, CREDITS_PER_CLAIM } from "../stripeStorage.js";
+import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/email.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
 const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
@@ -178,6 +179,26 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
   }).catch((err) => logger.error({ err }, "Failed to notify homeowner of claim"));
 
   const [tradie] = await db.select().from(usersTable).where(eq(usersTable.id, tradieId));
+
+  // Fire-and-forget: email the homeowner about the new claim
+  db.select({ email: usersTable.email, name: usersTable.name })
+    .from(usersTable)
+    .where(eq(usersTable.id, job.homeownerId))
+    .then(([homeowner]) => {
+      if (homeowner) {
+        sendNewClaimNotification({
+          homeownerEmail: homeowner.email,
+          homeownerName: homeowner.name,
+          tradieName: tradie?.name ?? "A tradie",
+          jobTitle: job.title,
+          jobId,
+          proposedPrice: bodyParsed.data.proposedPrice ?? null,
+          message: bodyParsed.data.message ?? null,
+        }).catch(() => {});
+      }
+    })
+    .catch(() => {});
+
   res.status(201).json(buildClaimResponse({
     ...claim,
     tradieName: tradie?.name ?? null,
@@ -276,6 +297,23 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
       message: `The homeowner has accepted your claim for "${job.title}". A conversation has been started — get in touch!`,
       jobId,
     }).catch(() => {});
+
+    // Fire-and-forget: email tradie that their claim was accepted
+    db.select({ email: usersTable.email, name: usersTable.name })
+      .from(usersTable)
+      .where(eq(usersTable.id, claim.tradieId))
+      .then(async ([tradie]) => {
+        if (!tradie) return;
+        const [homeowner] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, user.userId));
+        await sendClaimAcceptedNotification({
+          tradieEmail: tradie.email,
+          tradieName: tradie.name,
+          homeownerName: homeowner?.name ?? "The homeowner",
+          jobTitle: job.title,
+          jobId,
+        });
+      })
+      .catch(() => {});
   }
 
   // If completed: update job + notify

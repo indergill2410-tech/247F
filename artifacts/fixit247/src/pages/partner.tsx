@@ -408,9 +408,16 @@ export default function PartnerPage() {
     }
     setStatus("loading");
     try {
-      // TODO: Replace with real API call when partner-enquiry endpoint is ready:
-      // await fetch("/api/partner-enquiry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-      await new Promise((res) => setTimeout(res, 1500));
+      const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const resp = await fetch(`${BASE}/api/partner-enquiry`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({})) as { message?: string };
+        throw new Error(data?.message ?? "Server error");
+      }
       setStatus("success");
     } catch {
       setStatus("error");
