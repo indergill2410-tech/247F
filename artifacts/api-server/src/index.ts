@@ -1,9 +1,15 @@
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
+import { runMigrations } from "stripe-replit-sync";
 import app from "./app.js";
 import { logger } from "./lib/logger.js";
 import { verifyToken } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
+import { getStripeSync } from "./stripeClient.js";
+import { ensureCreditBalance, grantCredits, getCreditBalance, SIGNUP_GRANT } from "./stripeStorage.js";
+import { db } from "@workspace/db";
+import { usersTable } from "@workspace/db";
+import { eq, isNull, sql } from "drizzle-orm";
 
 const rawPort = process.env["PORT"];
 
@@ -15,6 +21,59 @@ const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+async function initStripe() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    logger.warn("DATABASE_URL not set — skipping Stripe init");
+    return;
+  }
+
+  try {
+    logger.info("Initializing Stripe schema...");
+    await runMigrations({ databaseUrl });
+    logger.info("Stripe schema ready");
+
+    const stripeSync = await getStripeSync();
+
+    const domains = process.env.REPLIT_DOMAINS?.split(",") ?? [];
+    const webhookBaseUrl = domains[0] ? `https://${domains[0]}` : `http://localhost:${port}`;
+    const webhookResult = await stripeSync.findOrCreateManagedWebhook(`${webhookBaseUrl}/api/stripe/webhook`);
+    logger.info({ url: webhookResult?.webhook?.url ?? "setup complete" }, "Stripe webhook configured");
+
+    // Backfill in background — don't block startup
+    stripeSync.syncBackfill().then(() => logger.info("Stripe data synced")).catch((err: any) => logger.error({ err }, "Stripe backfill error"));
+
+    // Grant signup credits to any tradies who don't have a credit balance row yet
+    await grantSignupCreditsToExistingTradies();
+  } catch (error) {
+    logger.error({ err: error }, "Failed to initialize Stripe — payments will be unavailable");
+    // Don't throw — let the server start without Stripe
+  }
+}
+
+async function grantSignupCreditsToExistingTradies() {
+  try {
+    const { creditBalancesTable } = await import("@workspace/db");
+    // Find tradies who have no credit balance row
+    const tradiesWithNoCredits = await db
+      .select({ id: usersTable.id, name: usersTable.name })
+      .from(usersTable)
+      .leftJoin(creditBalancesTable, eq(creditBalancesTable.userId, usersTable.id))
+      .where(sql`${usersTable.role} = 'tradie' AND ${creditBalancesTable.userId} IS NULL`);
+
+    for (const tradie of tradiesWithNoCredits) {
+      await grantCredits(tradie.id, SIGNUP_GRANT, "signup_grant", "Welcome bonus — 1,111 free credits to get started");
+      logger.info({ tradieId: tradie.id, name: tradie.name }, "Granted signup credits");
+    }
+
+    if (tradiesWithNoCredits.length > 0) {
+      logger.info({ count: tradiesWithNoCredits.length }, "Granted signup credits to existing tradies");
+    }
+  } catch (err) {
+    logger.error({ err }, "Failed to grant signup credits to existing tradies");
+  }
 }
 
 const httpServer = createServer(app);
@@ -94,10 +153,16 @@ wss.on("connection", (ws, payload: ReturnType<typeof verifyToken>) => {
   ws.send(JSON.stringify({ type: "connected", userId: payload.userId }));
 });
 
-httpServer.listen(port, (err?: Error) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
-  logger.info({ port }, "Server listening");
+// Init Stripe then start listening
+initStripe().then(() => {
+  httpServer.listen(port, (err?: Error) => {
+    if (err) {
+      logger.error({ err }, "Error listening on port");
+      process.exit(1);
+    }
+    logger.info({ port }, "Server listening");
+  });
+}).catch((err) => {
+  logger.error({ err }, "Fatal startup error");
+  process.exit(1);
 });

@@ -12,6 +12,7 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
+import { deductCredits, getCreditBalance, CREDITS_PER_CLAIM } from "../stripeStorage.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
 const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
@@ -138,6 +139,18 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
+  // Check credit balance before claiming
+  const creditBalance = await getCreditBalance(tradieId);
+  if (creditBalance < CREDITS_PER_CLAIM) {
+    res.status(402).json({
+      error: "insufficient_credits",
+      message: `You need ${CREDITS_PER_CLAIM} credits to claim a job. Your balance: ${creditBalance}. Top up at /credits.`,
+      balance: creditBalance,
+      required: CREDITS_PER_CLAIM,
+    });
+    return;
+  }
+
   const [claim] = await db.insert(claimsTable).values({
     jobId,
     tradieId,
@@ -150,6 +163,11 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     res.status(500).json({ error: "server_error", message: "Failed to create claim" });
     return;
   }
+
+  // Deduct credits for the claim
+  await deductCredits(tradieId, CREDITS_PER_CLAIM, `Claimed job #${jobId}: ${job.title ?? "Job"}`).catch((err) =>
+    logger.error({ err }, "Failed to deduct credits for claim")
+  );
 
   await db.insert(notificationsTable).values({
     userId: job.homeownerId,

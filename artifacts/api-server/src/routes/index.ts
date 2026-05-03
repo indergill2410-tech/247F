@@ -9,6 +9,7 @@ import dashboardRouter from "./dashboard.js";
 import adminRouter from "./admin.js";
 import conversationsRouter from "./conversations.js";
 import reviewsRouter from "./reviews.js";
+import stripeRouter from "./stripe.js";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(dashboardRouter);
 router.use(adminRouter);
 router.use(conversationsRouter);
 router.use(reviewsRouter);
+router.use(stripeRouter);
 
 export default router;

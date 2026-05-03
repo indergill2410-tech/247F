@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useGetUnreadNotificationCount, useListConversations } from "@workspace/api-client-react";
 import {
   Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase,
-  ChevronDown, ShieldCheck, MessageCircle, Menu, X,
+  ChevronDown, ShieldCheck, MessageCircle, Menu, X, Zap,
 } from "lucide-react";
 
 const PUBLIC_NAV = [
@@ -124,6 +124,13 @@ export function Navbar() {
                 )}
               </span>
             </Link>
+            {user?.role === "tradie" && (
+              <Link href="/credits">
+                <span className={authNavCls("/credits", location)}>
+                  <Zap className="h-4 w-4" aria-hidden="true" /> Credits
+                </span>
+              </Link>
+            )}
             {user?.role === "admin" && (
               <Link href="/admin">
                 <span className={authNavCls("/admin", location)}>
@@ -205,6 +212,11 @@ export function Navbar() {
                       </Badge>
                     )}
                   </DropdownMenuItem>
+                  {user?.role === "tradie" && (
+                    <DropdownMenuItem onClick={() => setLocation("/credits")}>
+                      <Zap className="h-4 w-4 mr-2" /> Credits
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setLocation("/profile")}>
                     <User className="h-4 w-4 mr-2" /> Profile
@@ -302,6 +314,13 @@ export function Navbar() {
                     )}
                   </span>
                 </Link>
+                {user?.role === "tradie" && (
+                  <Link href="/credits">
+                    <span className={mobileLinkCls("/credits", location)}>
+                      <Zap className="h-4 w-4" aria-hidden="true" /> Credits
+                    </span>
+                  </Link>
+                )}
                 {user?.role === "admin" && (
                   <Link href="/admin">
                     <span className={mobileLinkCls("/admin", location)}>

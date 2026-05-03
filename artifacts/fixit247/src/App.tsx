@@ -22,6 +22,7 @@ import NotificationsPage from "@/pages/notifications";
 import ProfilePage from "@/pages/profile";
 import MessagesPage from "@/pages/messages";
 import MessageThreadPage from "@/pages/message-thread";
+import CreditsPage from "@/pages/credits";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -124,6 +125,9 @@ function Router() {
         </Route>
         <Route path="/conversations">
           {() => <ProtectedRoute component={MessagesPage} />}
+        </Route>
+        <Route path="/credits">
+          {() => <ProtectedRoute component={CreditsPage} roles={["tradie"]} />}
         </Route>
         <Route component={NotFound} />
       </Switch>

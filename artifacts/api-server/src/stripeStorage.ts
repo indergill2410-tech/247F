@@ -1,0 +1,117 @@
+import { db } from "@workspace/db";
+import { usersTable, creditBalancesTable, creditTransactionsTable } from "@workspace/db";
+import { eq, sql } from "drizzle-orm";
+
+export const CREDITS_PER_CLAIM = 222;
+export const SIGNUP_GRANT = 1111;
+
+export const CREDIT_PACKS = [
+  { name: "Starter Pack", credits: 300, priceAud: 4900, stripeLookup: "credits_300" },
+  { name: "Pro Pack", credits: 600, priceAud: 9900, stripeLookup: "credits_600" },
+  { name: "Max Pack", credits: 1111, priceAud: 14900, stripeLookup: "credits_1111" },
+] as const;
+
+export async function getUserById(id: number) {
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  return user ?? null;
+}
+
+export async function updateUserStripeCustomerId(userId: number, stripeCustomerId: string) {
+  await db.update(usersTable).set({ stripeCustomerId }).where(eq(usersTable.id, userId));
+}
+
+export async function getCreditBalance(userId: number): Promise<number> {
+  const [row] = await db.select().from(creditBalancesTable).where(eq(creditBalancesTable.userId, userId));
+  return row?.balance ?? 0;
+}
+
+export async function ensureCreditBalance(userId: number): Promise<void> {
+  await db
+    .insert(creditBalancesTable)
+    .values({ userId, balance: 0 })
+    .onConflictDoNothing();
+}
+
+export async function grantCredits(
+  userId: number,
+  amount: number,
+  type: "signup_grant" | "monthly_renewal" | "purchase" | "refund",
+  description: string,
+  stripeSessionId?: string,
+): Promise<void> {
+  await ensureCreditBalance(userId);
+  await db
+    .update(creditBalancesTable)
+    .set({ balance: sql`${creditBalancesTable.balance} + ${amount}`, updatedAt: sql`NOW()` })
+    .where(eq(creditBalancesTable.userId, userId));
+
+  await db.insert(creditTransactionsTable).values({
+    userId,
+    type,
+    amount,
+    description,
+    stripeSessionId: stripeSessionId ?? null,
+  });
+}
+
+export async function deductCredits(
+  userId: number,
+  amount: number,
+  description: string,
+): Promise<{ success: boolean; balance: number }> {
+  await ensureCreditBalance(userId);
+  const current = await getCreditBalance(userId);
+  if (current < amount) {
+    return { success: false, balance: current };
+  }
+
+  await db
+    .update(creditBalancesTable)
+    .set({ balance: sql`${creditBalancesTable.balance} - ${amount}`, updatedAt: sql`NOW()` })
+    .where(eq(creditBalancesTable.userId, userId));
+
+  await db.insert(creditTransactionsTable).values({
+    userId,
+    type: "claim_deduct",
+    amount: -amount,
+    description,
+  });
+
+  return { success: true, balance: current - amount };
+}
+
+export async function getCreditTransactions(userId: number, limit = 20) {
+  return db
+    .select()
+    .from(creditTransactionsTable)
+    .where(eq(creditTransactionsTable.userId, userId))
+    .orderBy(sql`${creditTransactionsTable.createdAt} DESC`)
+    .limit(limit);
+}
+
+export async function getSubscription(subscriptionId: string) {
+  const result = await db.execute(sql`SELECT * FROM stripe.subscriptions WHERE id = ${subscriptionId}`);
+  return result.rows[0] ?? null;
+}
+
+export async function getProductsWithPrices() {
+  const result = await db.execute(sql`
+    SELECT
+      p.id as product_id,
+      p.name as product_name,
+      p.description as product_description,
+      p.active as product_active,
+      p.metadata as product_metadata,
+      pr.id as price_id,
+      pr.unit_amount,
+      pr.currency,
+      pr.recurring,
+      pr.active as price_active,
+      pr.metadata as price_metadata
+    FROM stripe.products p
+    LEFT JOIN stripe.prices pr ON pr.product = p.id AND pr.active = true
+    WHERE p.active = true
+    ORDER BY pr.unit_amount ASC
+  `);
+  return result.rows;
+}

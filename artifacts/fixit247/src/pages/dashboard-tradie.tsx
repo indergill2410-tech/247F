@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetTradiedashboard, useClaimJob, useGetMe } from "@workspace/api-client-react";
@@ -20,8 +20,11 @@ import {
   Settings,
   X,
   DollarSign,
+  CreditCard,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const URGENCY: Record<string, { label: string; cls: string; Icon: React.ElementType }> = {
   emergency: { label: "Emergency", cls: "bg-red-500/15 text-red-400",      Icon: Zap },
@@ -98,10 +101,25 @@ function ProfileBar({ pct }: { pct: number }) {
 }
 
 export default function TradieDashboard() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { data, isLoading, refetch } = useGetTradiedashboard();
   const { data: meData } = useGetMe();
   const { toast } = useToast();
+
+  // Credit balance
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const [creditsPerClaim, setCreditsPerClaim] = useState(222);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_BASE}/api/stripe/credits`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d.balance === "number") setCreditBalance(d.balance);
+        if (typeof d.creditsPerClaim === "number") setCreditsPerClaim(d.creditsPerClaim);
+      })
+      .catch(() => {});
+  }, [token]);
 
   // Inline claim expansion state: jobId → { message, proposedPrice }
   const [expandedClaimJobId, setExpandedClaimJobId] = useState<number | null>(null);
@@ -111,15 +129,32 @@ export default function TradieDashboard() {
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Claimed!", description: "You've successfully claimed this job." });
+        toast({ title: "Claimed!", description: `You've successfully claimed this job. ${creditsPerClaim} credits deducted.` });
         setExpandedClaimJobId(null);
         setClaimMessage("");
         setClaimPrice("");
         refetch();
+        // Refresh credit balance
+        if (token) {
+          fetch(`${API_BASE}/api/stripe/credits`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => r.json())
+            .then((d) => { if (typeof d.balance === "number") setCreditBalance(d.balance); })
+            .catch(() => {});
+        }
       },
       onError: (err) => {
-        const msg = (err as { data?: { message?: string } })?.data?.message ?? "Failed to claim job";
-        toast({ title: "Error", description: msg, variant: "destructive" });
+        const errData = err as { data?: { message?: string; error?: string; balance?: number; required?: number } };
+        if (errData?.data?.error === "insufficient_credits") {
+          toast({
+            title: "Not enough credits",
+            description: `You need ${errData.data.required ?? creditsPerClaim} credits to claim. Your balance: ${errData.data.balance ?? 0}. Top up at Credits.`,
+            variant: "destructive",
+          });
+          setCreditBalance(errData.data.balance ?? 0);
+        } else {
+          const msg = errData?.data?.message ?? "Failed to claim job";
+          toast({ title: "Error", description: msg, variant: "destructive" });
+        }
       },
     },
   });
@@ -159,7 +194,18 @@ export default function TradieDashboard() {
   // Accepted claims sourced directly from dedicated API field (comprehensive, no limit)
   const acceptedClaims = data?.acceptedClaims ?? [];
 
+  const jobsLeft = creditBalance !== null ? Math.floor(creditBalance / creditsPerClaim) : null;
+
   const stats = [
+    {
+      label: "Credits",
+      value: creditBalance !== null ? creditBalance.toLocaleString() : "–",
+      icon: Zap,
+      color: creditBalance !== null && creditBalance < creditsPerClaim ? "text-orange-400" : "text-[#ffc800]",
+      bg: creditBalance !== null && creditBalance < creditsPerClaim ? "bg-orange-500/10" : "bg-[#ffc800]/10",
+      desc: jobsLeft !== null ? `≈ ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""} left` : "loading…",
+      href: "/credits",
+    },
     {
       label: "Active Jobs",
       value: data?.activeJobs ?? 0,
@@ -193,7 +239,7 @@ export default function TradieDashboard() {
       desc: "average score",
     },
     {
-      label: "Reviews Count",
+      label: "Reviews",
       value: data?.myReviewCount ?? 0,
       icon: CheckCircle,
       color: "text-purple-400",
@@ -249,20 +295,20 @@ export default function TradieDashboard() {
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 pb-8 space-y-6">
-        {/* 5-stat grid */}
+        {/* 6-stat grid */}
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
         >
-          {stats.map((s) => (
-            <motion.div key={s.label} variants={cardItem} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
-              <div className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-4 transition-colors h-full">
+          {stats.map((s) => {
+            const card = (
+              <div className={`bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-4 transition-colors h-full ${'href' in s ? "cursor-pointer" : ""}`}>
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs text-white/40 font-medium">{s.label}</p>
-                    {isLoading ? (
+                    {isLoading || ('href' in s && creditBalance === null) ? (
                       <Skeleton className="h-8 w-10 mt-1.5 bg-white/8" />
                     ) : (
                       <p className="text-3xl font-black text-white mt-1">{s.value}</p>
@@ -274,8 +320,13 @@ export default function TradieDashboard() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            );
+            return (
+              <motion.div key={s.label} variants={cardItem} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+                {'href' in s ? <Link href={s.href!}>{card}</Link> : card}
+              </motion.div>
+            );
+          })}
         </motion.div>
 
         {/* Pipeline strip */}
