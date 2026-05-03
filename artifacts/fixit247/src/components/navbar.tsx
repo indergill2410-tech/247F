@@ -13,12 +13,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useGetUnreadNotificationCount, useListConversations } from "@workspace/api-client-react";
 import {
   Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase,
-  ChevronDown, ShieldCheck, MessageCircle, Menu, X, Zap,
+  ChevronDown, ShieldCheck, MessageCircle, Menu, X, Zap, Users,
 } from "lucide-react";
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
   { label: "Categories", href: "/categories" },
+  { label: "Find a Tradie", href: "/tradies" },
   { label: "About", href: "/about" },
   { label: "Partner with us", href: "/partner" },
   { label: "We are hiring", href: "/careers" },
@@ -26,6 +27,7 @@ const PUBLIC_NAV = [
 
 // Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
 const DESKTOP_NAV_LABELS: Record<string, string> = {
+  "/tradies": "Find Tradie",
   "/partner": "Partner",
   "/careers": "Careers",
 };
@@ -114,6 +116,13 @@ export function Navbar() {
                 {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
               </span>
             </Link>
+            {user?.role === "homeowner" && (
+              <Link href="/tradies">
+                <span className={authNavCls("/tradies", location)}>
+                  <Users className="h-4 w-4" aria-hidden="true" /> Find Tradie
+                </span>
+              </Link>
+            )}
             <Link href="/conversations">
               <span className={`${authNavCls("/conversations", location)} relative`}>
                 <MessageCircle className="h-4 w-4" aria-hidden="true" /> Messages
@@ -304,6 +313,13 @@ export function Navbar() {
                     {user?.role === "homeowner" ? "My Jobs" : "Browse Jobs"}
                   </span>
                 </Link>
+                {user?.role === "homeowner" && (
+                  <Link href="/tradies">
+                    <span className={mobileLinkCls("/tradies", location)}>
+                      <Users className="h-4 w-4" aria-hidden="true" /> Find a Tradie
+                    </span>
+                  </Link>
+                )}
                 <Link href="/conversations">
                   <span className={`${mobileLinkCls("/conversations", location)} relative`}>
                     <MessageCircle className="h-4 w-4" aria-hidden="true" /> Messages

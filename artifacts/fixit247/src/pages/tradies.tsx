@@ -5,7 +5,20 @@ import { useListTradies, useListCategories } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Search, MapPin, Star, ShieldCheck, Users, ChevronRight, X, SlidersHorizontal,
+  Droplets, Zap, Hammer, Paintbrush, Home, TreePine, Wind, Grid2X2,
+  Layers, Sparkles, Bug, Lock, Wrench,
 } from "lucide-react";
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  droplets: Droplets, zap: Zap, hammer: Hammer, paintbrush: Paintbrush,
+  home: Home, "tree-pine": TreePine, wind: Wind, "grid-2x2": Grid2X2,
+  layers: Layers, sparkles: Sparkles, bug: Bug, lock: Lock,
+};
+
+function CatIcon({ icon, className }: { icon: string; className?: string }) {
+  const Icon = ICON_MAP[icon] ?? Wrench;
+  return <Icon className={className ?? "h-3 w-3"} aria-hidden="true" />;
+}
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.25 } } };
@@ -121,7 +134,7 @@ export default function TradiesPage() {
                       : "bg-white/4 border-white/8 text-white/50 hover:bg-white/8"
                   }`}
                 >
-                  <span>{cat.icon}</span>
+                  <CatIcon icon={cat.icon ?? ""} />
                   {cat.name}
                 </button>
               ))}
@@ -220,7 +233,7 @@ export default function TradiesPage() {
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {tradie.categories.slice(0, 4).map((cat) => (
                           <span key={cat.id} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/6 border border-white/8 text-white/50 flex items-center gap-1">
-                            <span>{cat.icon}</span> {cat.name}
+                            <CatIcon icon={cat.icon ?? ""} /> {cat.name}
                           </span>
                         ))}
                         {tradie.categories.length > 4 && (

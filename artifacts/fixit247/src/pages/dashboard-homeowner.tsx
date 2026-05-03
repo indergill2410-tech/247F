@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
-  Star, MessageSquare, MapPin, User,
+  Star, MessageSquare, MapPin, User, Users,
   ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info, Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -228,10 +228,15 @@ export default function HomeownerDashboard() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex gap-2 flex-shrink-0 flex-wrap">
               <Link href="/jobs/new">
                 <button className="h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
                   <Plus className="h-3.5 w-3.5" /> Post a Job
+                </button>
+              </Link>
+              <Link href="/tradies">
+                <button className="h-9 px-4 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
+                  <Users className="h-3.5 w-3.5" /> Find a Tradie
                 </button>
               </Link>
               <Link href="/profile">

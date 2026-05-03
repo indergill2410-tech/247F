@@ -4,8 +4,21 @@ import { useGetTradieProfile } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChevronLeft, MapPin, Star, ShieldCheck, MessageSquare, Briefcase, Calendar,
+  Droplets, Zap, Hammer, Paintbrush, Home, TreePine, Wind, Grid2X2,
+  Layers, Sparkles, Bug, Lock, Wrench,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  droplets: Droplets, zap: Zap, hammer: Hammer, paintbrush: Paintbrush,
+  home: Home, "tree-pine": TreePine, wind: Wind, "grid-2x2": Grid2X2,
+  layers: Layers, sparkles: Sparkles, bug: Bug, lock: Lock,
+};
+
+function CatIcon({ icon, className }: { icon: string; className?: string }) {
+  const Icon = ICON_MAP[icon] ?? Wrench;
+  return <Icon className={className ?? "h-3.5 w-3.5"} aria-hidden="true" />;
+}
 
 function initials(name: string) {
   return name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
@@ -145,7 +158,7 @@ export default function TradieProfilePage() {
                       key={cat.id}
                       className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800]"
                     >
-                      <span>{cat.icon}</span> {cat.name}
+                      <CatIcon icon={cat.icon ?? ""} /> {cat.name}
                     </span>
                   ))}
                 </div>
