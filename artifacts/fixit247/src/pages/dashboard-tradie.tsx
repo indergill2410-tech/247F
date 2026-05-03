@@ -250,46 +250,74 @@ export default function TradieDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-2">
-        {/* Personalised page header — compact, no hero band */}
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-0">
+        {/* Hero header card */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6"
+          transition={{ duration: 0.35 }}
+          className="bg-[#130f07] border border-white/6 rounded-2xl p-5 sm:p-6 mb-6"
         >
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl font-black text-white">
-                {firstName}'s Dashboard
-              </h1>
-              {data?.myRating != null && (
-                <div className="flex items-center gap-1.5">
-                  <StarRow rating={data.myRating} size="sm" />
-                  <span className="text-xs font-bold text-[#ffc800]">{data.myRating.toFixed(1)}</span>
-                </div>
-              )}
-              {data?.myCategories?.slice(0, 2).map((cat) => (
-                <span key={cat.id} className="text-[10px] font-semibold bg-[#ffc800]/10 text-[#ffc800] px-2 py-0.5 rounded-md">
-                  {cat.name}
-                </span>
-              ))}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Avatar + status dot */}
+            <div className="relative flex-shrink-0 self-start sm:self-center">
+              <div className="h-16 w-16 rounded-2xl bg-[#ffc800] flex items-center justify-center shadow-lg shadow-[#ffc800]/20">
+                <span className="text-2xl font-black text-black tracking-tight">{initials}</span>
+              </div>
+              {/* Online dot */}
+              <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-400 border-2 border-[#130f07] shadow" title="Online" />
             </div>
-            {memberSince && (
-              <p className="text-xs text-white/30 mt-0.5">Member since {memberSince}</p>
-            )}
-          </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Link href="/jobs">
-              <button className="h-8 px-3.5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
-                <Search className="h-3.5 w-3.5" /> Find Jobs
-              </button>
-            </Link>
-            <Link href="/conversations">
-              <button className="h-8 px-3.5 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
-                <MessageSquare className="h-3.5 w-3.5" /> Messages
-              </button>
-            </Link>
+
+            {/* Name / rating / meta */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h1 className="text-xl font-black text-white leading-none">{user?.name ?? firstName}</h1>
+                {data?.myCategories?.map((cat) => (
+                  <span key={cat.id} className="text-[10px] font-bold bg-[#ffc800]/12 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/15">
+                    {cat.name}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                {data?.myRating != null ? (
+                  <div className="flex items-center gap-1.5">
+                    <StarRow rating={data.myRating} size="md" />
+                    <span className="text-sm font-black text-[#ffc800]">{data.myRating.toFixed(1)}</span>
+                    {(data.myReviewCount ?? 0) > 0 && (
+                      <span className="text-xs text-white/35">({data.myReviewCount} review{data.myReviewCount !== 1 ? "s" : ""})</span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-white/30 italic">No reviews yet</span>
+                )}
+                {memberSince && (
+                  <span className="text-xs text-white/30 flex items-center gap-1">
+                    <User className="h-3 w-3" /> Member since {memberSince}
+                  </span>
+                )}
+              </div>
+
+              {user?.suburb && (
+                <p className="text-xs text-white/30 mt-1 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> {user.suburb}
+                </p>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 flex-shrink-0">
+              <Link href="/jobs">
+                <button className="h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
+                  <Search className="h-3.5 w-3.5" /> Find Jobs
+                </button>
+              </Link>
+              <Link href="/profile">
+                <button className="h-9 px-4 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
+                  <Settings className="h-3.5 w-3.5" /> Edit Profile
+                </button>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>

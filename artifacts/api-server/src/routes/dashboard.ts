@@ -295,9 +295,13 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
   ];
   const profileCompletion = Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100);
 
+  const pendingCount = statusMap["pending"] ?? 0;
+  const acceptedCount = statusMap["accepted"] ?? 0;
+
   res.status(200).json({
-    pendingCount: statusMap["pending"] ?? 0,
-    acceptedCount: statusMap["accepted"] ?? 0,
+    pendingCount,
+    acceptedCount,
+    activeJobs: pendingCount + acceptedCount,
     completedJobs: statusMap["completed"] ?? 0,
     myRating: me?.rating ?? null,
     myReviewCount: me?.reviewCount ?? 0,
