@@ -41,7 +41,7 @@ async function initStripe() {
     const domains = process.env.REPLIT_DOMAINS?.split(",") ?? [];
     const webhookBaseUrl = domains[0] ? `https://${domains[0]}` : `http://localhost:${port}`;
     const webhookResult = await stripeSync.findOrCreateManagedWebhook(`${webhookBaseUrl}/api/stripe/webhook`);
-    logger.info({ url: webhookResult?.webhook?.url ?? "setup complete" }, "Stripe webhook configured");
+    logger.info({ url: (webhookResult as any)?.webhook?.url ?? "setup complete" }, "Stripe webhook configured");
 
     // Backfill in background — don't block startup
     stripeSync.syncBackfill().then(() => logger.info("Stripe data synced")).catch((err: any) => logger.error({ err }, "Stripe backfill error"));

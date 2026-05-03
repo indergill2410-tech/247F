@@ -24,7 +24,7 @@ async function getCredentials(): Promise<{ secretKey: string }> {
 
   if (!resp.ok) throw new Error(`Failed to fetch Stripe credentials: ${resp.status}`);
 
-  const data = await resp.json();
+  const data = await resp.json() as { items?: Array<{ settings?: { secret?: string } }> };
   const settings = data.items?.[0]?.settings;
   if (!settings?.secret) throw new Error('Stripe not connected. Connect via Integrations tab.');
 

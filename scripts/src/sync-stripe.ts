@@ -16,7 +16,7 @@ async function getSecretKey(): Promise<string> {
   const resp = await fetch(url.toString(), {
     headers: { Accept: 'application/json', 'X-Replit-Token': xReplitToken },
   });
-  const data = await resp.json();
+  const data = await resp.json() as { items?: Array<{ settings?: { secret?: string } }> };
   const key = data.items?.[0]?.settings?.secret;
   if (!key) throw new Error('No Stripe secret key found');
   return key;

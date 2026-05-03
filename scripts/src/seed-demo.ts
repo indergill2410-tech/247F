@@ -36,6 +36,8 @@ const users = pgTable("users", {
   avatarUrl: text("avatar_url"),
   rating: real("rating"),
   reviewCount: integer("review_count").default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  isVerified: boolean("is_verified").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
