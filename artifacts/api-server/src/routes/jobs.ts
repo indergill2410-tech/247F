@@ -6,7 +6,7 @@ import {
   categoriesTable,
   claimsTable,
 } from "@workspace/db";
-import { eq, and, sql, count, desc } from "drizzle-orm";
+import { eq, and, sql, count, desc, asc } from "drizzle-orm";
 import {
   CreateJobBody,
   ListJobsQueryParams,
@@ -111,16 +111,30 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
     conditions.push(eq(jobsTable.categoryId, Number(query.categoryId)));
   }
 
+  const validUrgencies = ["standard", "urgent", "emergency"];
+  if (query.urgency && validUrgencies.includes(query.urgency as string)) {
+    conditions.push(eq(jobsTable.urgency, query.urgency as typeof jobsTable.$inferSelect["urgency"]));
+  }
+
   const page = Math.max(1, Number(query.page ?? 1));
   const limit = Math.min(50, Math.max(1, Number(query.limit ?? 20)));
   const offset = (page - 1) * limit;
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
+  // Sort order
+  const sortBy = query.sortBy as string | undefined;
+  const orderClause =
+    sortBy === "oldest"          ? asc(jobsTable.createdAt) :
+    sortBy === "budget_high"     ? desc(sql`${jobsTable.budget} NULLS LAST`) :
+    sortBy === "budget_low"      ? asc(sql`${jobsTable.budget} NULLS LAST`) :
+    sortBy === "urgency"         ? desc(sql`CASE ${jobsTable.urgency} WHEN 'emergency' THEN 3 WHEN 'urgent' THEN 2 ELSE 1 END`) :
+    desc(jobsTable.createdAt); // default: newest
+
   const rows = await baseQuery
     .where(whereClause)
     .groupBy(jobsTable.id, categoriesTable.name, usersTable.name)
-    .orderBy(desc(jobsTable.createdAt))
+    .orderBy(orderClause)
     .limit(limit)
     .offset(offset);
 

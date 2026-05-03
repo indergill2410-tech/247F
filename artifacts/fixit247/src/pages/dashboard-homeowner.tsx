@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
   Star, MessageSquare, MapPin, User,
-  ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info,
+  ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info, Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -168,45 +168,78 @@ export default function HomeownerDashboard() {
   const recentJobs = data?.recentJobs ?? [];
   const recentNotifs = (notifications ?? []).slice(0, 6);
 
+  const initials = (user?.name ?? "H")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-2">
-        {/* Hero header */}
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-0">
+        {/* Hero card */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6"
+          transition={{ duration: 0.35 }}
+          className="bg-[#130f07] border border-white/6 rounded-2xl p-5 sm:p-6 mb-6"
         >
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl font-black text-white">{firstName}'s Dashboard</h1>
-              {(data?.openJobs ?? 0) > 0 && (
-                <span className="text-[10px] font-semibold bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded-md">
-                  {data!.openJobs} open
-                </span>
-              )}
-              {(data?.pendingClaims ?? 0) > 0 && (
-                <span className="text-[10px] font-semibold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md animate-pulse">
-                  {data!.pendingClaims} response{data!.pendingClaims !== 1 ? "s" : ""} waiting
-                </span>
-              )}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Avatar */}
+            <div className="relative flex-shrink-0 self-start sm:self-center">
+              <div className="h-16 w-16 rounded-2xl bg-blue-500/20 border border-blue-500/20 flex items-center justify-center">
+                <span className="text-2xl font-black text-blue-300 tracking-tight">{initials}</span>
+              </div>
+              {/* Green online dot */}
+              <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-400 border-2 border-[#130f07]" />
             </div>
-            {memberSince && (
-              <p className="text-xs text-white/30 mt-0.5">Member since {memberSince}</p>
-            )}
-          </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Link href="/jobs/new">
-              <button className="h-8 px-3.5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
-                <Plus className="h-3.5 w-3.5" /> Post a Job
-              </button>
-            </Link>
-            <Link href="/conversations">
-              <button className="h-8 px-3.5 rounded-lg bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
-                <MessageSquare className="h-3.5 w-3.5" /> Messages
-              </button>
-            </Link>
+
+            {/* Name / meta */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <h1 className="text-xl font-black text-white leading-none">{user?.name ?? firstName}</h1>
+                <span className="text-[10px] font-bold bg-blue-500/12 text-blue-400 px-2 py-0.5 rounded-md border border-blue-500/15">
+                  Homeowner
+                </span>
+                {(data?.pendingClaims ?? 0) > 0 && (
+                  <span className="text-[10px] font-bold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/20 animate-pulse">
+                    {data!.pendingClaims} response{data!.pendingClaims !== 1 ? "s" : ""} waiting
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-white/35">
+                {memberSince && (
+                  <span className="flex items-center gap-1">
+                    <User className="h-3 w-3" /> Member since {memberSince}
+                  </span>
+                )}
+                {user?.suburb && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> {user.suburb}
+                  </span>
+                )}
+                {(data?.totalJobs ?? 0) > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Briefcase className="h-3 w-3" /> {data!.totalJobs} job{data!.totalJobs !== 1 ? "s" : ""} posted
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 flex-shrink-0">
+              <Link href="/jobs/new">
+                <button className="h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
+                  <Plus className="h-3.5 w-3.5" /> Post a Job
+                </button>
+              </Link>
+              <Link href="/profile">
+                <button className="h-9 px-4 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
+                  <Settings className="h-3.5 w-3.5" /> Profile
+                </button>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -241,6 +274,31 @@ export default function HomeownerDashboard() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Job Pipeline strip */}
+        {!isLoading && (data?.totalJobs ?? 0) > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-3 gap-3"
+          >
+            {[
+              { label: "Open",        value: data?.openJobs ?? 0,        color: "text-sky-400",      bg: "bg-sky-500/8 border-sky-500/15",      dot: "bg-sky-400" },
+              { label: "In Progress", value: data?.inProgressJobs ?? 0,  color: "text-orange-400",   bg: "bg-orange-500/8 border-orange-500/15", dot: "bg-orange-400" },
+              { label: "Completed",   value: data?.completedJobs ?? 0,   color: "text-emerald-400",  bg: "bg-emerald-500/8 border-emerald-500/15", dot: "bg-emerald-400" },
+            ].map((step, i) => (
+              <div key={step.label} className={`rounded-2xl border px-4 py-3.5 flex items-center gap-3 ${step.bg}`}>
+                <span className={`h-2 w-2 rounded-full flex-shrink-0 ${step.dot}`} />
+                <div className="min-w-0">
+                  <p className={`text-2xl font-black leading-none ${step.color}`}>{step.value}</p>
+                  <p className="text-[10px] text-white/35 mt-0.5">{step.label}</p>
+                </div>
+                {i < 2 && <ChevronRight className="h-3.5 w-3.5 text-white/10 ml-auto flex-shrink-0 hidden sm:block" />}
+              </div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Tradie Responses — the most action-driving section */}
         {(isLoading || recentClaims.length > 0) && (
