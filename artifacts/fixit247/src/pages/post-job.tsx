@@ -5,6 +5,7 @@ import { useCreateJob, useListCategories } from "@workspace/api-client-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, ChevronLeft, Zap, Clock, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SuburbInput } from "@/components/suburb-input";
 
 const URGENCIES = [
   { value: "standard",  label: "Standard",  desc: "Non-urgent, flexible timing",        Icon: Briefcase, border: "border-white/10",         active: "border-white/30 bg-white/5" },
@@ -131,16 +132,17 @@ export default function PostJobPage() {
                 <label className={labelCls}>Street Address <span className="text-white/30">(optional)</span></label>
                 <input className={inputCls} placeholder="123 Main St" value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className={labelCls}>Suburb</label>
-                  <input className={inputCls} placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <label className={labelCls}>Postcode</label>
-                  <input className={inputCls} placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-                </div>
-              </div>
+              <SuburbInput
+                suburb={suburb}
+                postcode={postcode}
+                onSuburbChange={setSuburb}
+                onPostcodeChange={setPostcode}
+                suburbLabel="Suburb"
+                postcodeLabel="Postcode"
+                inputCls={inputCls}
+                labelCls={labelCls}
+                layout="grid"
+              />
             </div>
 
             {/* Budget */}

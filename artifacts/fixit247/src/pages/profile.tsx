@@ -12,6 +12,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { AlertCircle, ChevronLeft, Star, LogOut, Camera, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SuburbInput } from "@/components/suburb-input";
 
 export default function ProfilePage() {
   const [, setLocation] = useLocation();
@@ -200,16 +201,17 @@ export default function ProfilePage() {
           {/* Location */}
           <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
             <h2 className="font-bold text-white">Location</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className={labelCls}>Suburb</label>
-                <input className={inputCls} value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="Bondi" />
-              </div>
-              <div className="space-y-1.5">
-                <label className={labelCls}>Postcode</label>
-                <input className={inputCls} value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="2026" />
-              </div>
-            </div>
+            <SuburbInput
+              suburb={suburb}
+              postcode={postcode}
+              onSuburbChange={setSuburb}
+              onPostcodeChange={setPostcode}
+              suburbLabel="Suburb"
+              postcodeLabel="Postcode"
+              inputCls={inputCls}
+              labelCls={labelCls}
+              layout="grid"
+            />
           </div>
 
           {/* Bio */}

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Wrench, AlertCircle, Home, HardHat } from "lucide-react";
+import { SuburbInput } from "@/components/suburb-input";
 
 type Role = "homeowner" | "tradie";
 
@@ -119,16 +120,17 @@ export default function RegisterPage() {
               <input id="reg-phone" className={inputCls} type="tel" placeholder="04xx xxx xxx" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label htmlFor="reg-suburb" className="text-sm font-medium text-white/70">Suburb</label>
-                <input id="reg-suburb" className={inputCls} placeholder="Bondi" value={suburb} onChange={(e) => setSuburb(e.target.value)} autoComplete="address-level2" />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="reg-postcode" className="text-sm font-medium text-white/70">Postcode</label>
-                <input id="reg-postcode" className={inputCls} placeholder="2026" value={postcode} onChange={(e) => setPostcode(e.target.value)} autoComplete="postal-code" />
-              </div>
-            </div>
+            <SuburbInput
+              suburb={suburb}
+              postcode={postcode}
+              onSuburbChange={setSuburb}
+              onPostcodeChange={setPostcode}
+              suburbLabel="Suburb"
+              postcodeLabel="Postcode"
+              inputCls={inputCls}
+              labelCls="text-sm font-medium text-white/70"
+              layout="grid"
+            />
 
             <button
               type="submit"

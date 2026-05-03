@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useListTradies, useListCategories } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -8,6 +8,60 @@ import {
   Droplets, Zap, Hammer, Paintbrush, Home, TreePine, Wind, Grid2X2,
   Layers, Sparkles, Bug, Lock, Wrench,
 } from "lucide-react";
+import { searchSuburbs } from "@/data/au-suburbs";
+
+function SuburbFilter({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const suggestions = searchSuburbs(value, 6);
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+  return (
+    <div ref={ref} className="relative min-w-[160px]">
+      <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+      <input
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
+        placeholder="Suburb…"
+        autoComplete="off"
+        className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+      />
+      <AnimatePresence>
+        {open && suggestions.length > 0 && (
+          <motion.ul
+            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.12 }}
+            className="absolute z-50 top-full mt-1 w-56 bg-[#1a1510] border border-white/15 rounded-xl shadow-xl overflow-hidden"
+            role="listbox"
+          >
+            {suggestions.map((s) => (
+              <li key={`${s.suburb}-${s.postcode}`}>
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-[#ffc800]/10 hover:text-white transition-colors flex items-center justify-between gap-2"
+                  onMouseDown={(e) => { e.preventDefault(); onChange(s.suburb); setOpen(false); }}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-3 w-3 text-[#ffc800] shrink-0" />
+                    {s.suburb}
+                    <span className="text-white/35 text-xs">{s.state}</span>
+                  </span>
+                  <span className="text-white/35 text-xs tabular-nums">{s.postcode}</span>
+                </button>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 const ICON_MAP: Record<string, React.ElementType> = {
   droplets: Droplets, zap: Zap, hammer: Hammer, paintbrush: Paintbrush,
@@ -101,16 +155,8 @@ export default function TradiesPage() {
               )}
             </div>
 
-            {/* Suburb */}
-            <div className="relative min-w-[150px]">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-              <input
-                value={suburb}
-                onChange={(e) => setSuburb(e.target.value)}
-                placeholder="Suburb…"
-                className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
-              />
-            </div>
+            {/* Suburb autocomplete */}
+            <SuburbFilter value={suburb} onChange={setSuburb} />
           </div>
 
           {/* Category pills */}
