@@ -1,12 +1,13 @@
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { runMigrations } from "stripe-replit-sync";
+import cron from "node-cron";
 import app from "./app.js";
 import { logger } from "./lib/logger.js";
 import { verifyToken } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
 import { getStripeSync } from "./stripeClient.js";
-import { ensureCreditBalance, grantCredits, getCreditBalance, SIGNUP_GRANT } from "./stripeStorage.js";
+import { ensureCreditBalance, grantCredits, getCreditBalance, SIGNUP_GRANT, runMonthlyRenewal } from "./stripeStorage.js";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
 import { eq, isNull, sql } from "drizzle-orm";
@@ -153,8 +154,23 @@ wss.on("connection", (ws, payload: ReturnType<typeof verifyToken>) => {
   ws.send(JSON.stringify({ type: "connected", userId: payload.userId }));
 });
 
+function startMonthlyRenewalCron() {
+  // Run at midnight AEST on the 1st of each month (UTC 14:00 = midnight AEST+10)
+  cron.schedule("0 14 1 * *", async () => {
+    logger.info("Running monthly credit renewal...");
+    try {
+      const result = await runMonthlyRenewal();
+      logger.info(result, "Monthly credit renewal complete");
+    } catch (err) {
+      logger.error({ err }, "Monthly credit renewal failed");
+    }
+  });
+  logger.info("Monthly credit renewal cron scheduled (1st of each month, midnight AEST)");
+}
+
 // Init Stripe then start listening
 initStripe().then(() => {
+  startMonthlyRenewalCron();
   httpServer.listen(port, (err?: Error) => {
     if (err) {
       logger.error({ err }, "Error listening on port");

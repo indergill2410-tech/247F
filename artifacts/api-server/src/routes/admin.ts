@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, jobsTable, categoriesTable, claimsTable } from "@workspace/db";
+import { usersTable, jobsTable, categoriesTable, claimsTable, creditBalancesTable, creditTransactionsTable } from "@workspace/db";
 import { eq, count, desc, and, sql } from "drizzle-orm";
 import {
   AdminListUsersQueryParams,
@@ -10,6 +10,8 @@ import {
   AdminListJobsQueryParams,
 } from "@workspace/api-zod";
 import { requireRole } from "../middlewares/require-auth.js";
+import { runMonthlyRenewal } from "../stripeStorage.js";
+import { logger } from "../lib/logger.js";
 
 const router = Router();
 
@@ -161,6 +163,73 @@ router.get("/admin/jobs", requireRole("admin"), async (req, res): Promise<void> 
     page,
     limit,
   });
+});
+
+// GET /api/admin/credits — list all tradie credit balances
+router.get("/admin/credits", requireRole("admin"), async (_req, res): Promise<void> => {
+  try {
+    const rows = await db
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        balance: creditBalancesTable.balance,
+        updatedAt: creditBalancesTable.updatedAt,
+      })
+      .from(usersTable)
+      .leftJoin(creditBalancesTable, eq(creditBalancesTable.userId, usersTable.id))
+      .where(sql`${usersTable.role} = 'tradie'`)
+      .orderBy(desc(creditBalancesTable.balance));
+
+    res.json({ tradies: rows });
+  } catch (err) {
+    logger.error({ err }, "Failed to fetch admin credits");
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
+// POST /api/admin/credits/renew — manually trigger monthly renewal
+router.post("/admin/credits/renew", requireRole("admin"), async (_req, res): Promise<void> => {
+  try {
+    logger.info("Admin triggered monthly credit renewal");
+    const result = await runMonthlyRenewal();
+    logger.info(result, "Admin monthly renewal complete");
+    res.json({ success: true, ...result });
+  } catch (err) {
+    logger.error({ err }, "Admin monthly renewal failed");
+    res.status(500).json({ error: "server_error", message: "Renewal failed" });
+  }
+});
+
+// POST /api/admin/credits/grant — manually grant credits to a tradie
+router.post("/admin/credits/grant", requireRole("admin"), async (req, res): Promise<void> => {
+  const { userId, amount, reason } = req.body as { userId?: number; amount?: number; reason?: string };
+  if (!userId || !amount || amount <= 0) {
+    res.status(400).json({ error: "validation_error", message: "userId and positive amount are required" });
+    return;
+  }
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+    if (!user || user.role !== "tradie") {
+      res.status(404).json({ error: "not_found", message: "Tradie not found" });
+      return;
+    }
+    await db.insert(creditBalancesTable).values({ userId, balance: 0 }).onConflictDoNothing();
+    await db.update(creditBalancesTable)
+      .set({ balance: sql`${creditBalancesTable.balance} + ${amount}`, updatedAt: sql`NOW()` })
+      .where(eq(creditBalancesTable.userId, userId));
+    await db.insert(creditTransactionsTable).values({
+      userId,
+      type: "refund",
+      amount,
+      description: reason ?? `Admin credit grant: ${amount} credits`,
+    });
+    const [bal] = await db.select({ balance: creditBalancesTable.balance }).from(creditBalancesTable).where(eq(creditBalancesTable.userId, userId));
+    res.json({ success: true, newBalance: bal?.balance ?? 0 });
+  } catch (err) {
+    logger.error({ err }, "Admin credit grant failed");
+    res.status(500).json({ error: "server_error" });
+  }
 });
 
 export default router;

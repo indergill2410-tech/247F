@@ -61,7 +61,29 @@ All routes prefixed `/api/`. Source: `artifacts/api-server/src/routes/`
 - `GET /api/dashboard/homeowner|tradie|admin` — dashboard stats
 - `GET/PUT/DELETE /api/admin/users/:id` — admin user management
 - `GET /api/admin/jobs` — admin job list
+- `GET /api/admin/credits` — list all tradie credit balances (admin only)
+- `POST /api/admin/credits/renew` — manually trigger monthly credit renewal (admin only)
+- `POST /api/admin/credits/grant` — grant credits to a specific tradie (admin only)
 - `GET /api/categories` — list categories
+
+## Credits System
+- **Signup grant**: 1,111 credits on tradie registration
+- **Monthly renewal**: cron job fires at midnight AEST on the 1st of each month, resets all tradies to 1,111 credits (idempotent — skips if already renewed this calendar month)
+- **Claim cost**: 222 credits per claim
+- **Packages**: Starter 300cr/$49 · Pro 600cr/$99 · Max 1,111cr/$149 (via Stripe Checkout)
+- **Admin manual trigger**: `POST /api/admin/credits/renew` or `POST /api/admin/credits/grant`
+- **Cron**: `node-cron` in `artifacts/api-server/src/index.ts`, calls `runMonthlyRenewal()` from `stripeStorage.ts`
+
+## Demo Seed
+Run `pnpm --filter @workspace/scripts run seed-demo` to populate realistic data. Safe to re-run (skips existing emails).
+
+Seeded data includes:
+- 4 homeowners, 5 tradies with skills + ratings
+- 15 jobs across all categories (8 open, 3 in-progress, 4 completed)
+- Claims on all jobs (pending/accepted/completed)
+- Conversations + realistic multi-message threads for active/completed jobs
+- Reviews for all completed jobs + auto-updated tradie ratings
+- Credit grants and claim deductions per tradie
 
 ## Frontend Pages
 - `/` — Landing page
@@ -107,9 +129,25 @@ When OpenAPI spec changes:
 4. Rebuild libs: already done by codegen script via `pnpm run typecheck:libs`
 
 ## Demo Users
-- `homeowner@fixit247.com` / `password123`
-- `tradie@fixit247.com` / `password123`
-- `admin@fixit247.com` / `admin123`
+All accounts use `password123` (admin uses `admin123`).
+
+| Role | Email |
+|---|---|
+| Homeowner | homeowner@fixit247.com |
+| Homeowner | james.wilson@example.com |
+| Homeowner | priya.sharma@example.com |
+| Homeowner | tom.fletcher@example.com |
+| Tradie | tradie@fixit247.com (Mike Roberts — Plumbing) |
+| Tradie | dave.chen@example.com (Dave Chen — Electrical) |
+| Tradie | luke.patterson@example.com (Luke Patterson — Carpentry) |
+| Tradie | sam.nguyen@example.com (Sam Nguyen — Painting) |
+| Tradie | raj.patel@example.com (Raj Patel — HVAC) |
+| Admin | admin@fixit247.com |
+
+## SendGrid Email Setup
+- Secrets configured: `SENDGRID_API_KEY`, `FROM_EMAIL`, `SENDGRID_CUSTOMER_WELCOME_TEMPLATE_ID`, `SENDGRID_TRADIE_WELCOME_TEMPLATE_ID`, `SENDGRID_OTP_TEMPLATE_ID`
+- **Sender verification required**: The sender `FROM_EMAIL` address must be verified in the SendGrid dashboard (Settings → Sender Authentication) before emails will send.
+- Emails gracefully degrade — registration still works if SendGrid is unconfigured.
 
 ## Migrations
 Run `pnpm --filter @workspace/db run push` to apply schema changes to the database.

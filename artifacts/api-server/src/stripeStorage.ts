@@ -94,6 +94,64 @@ export async function getSubscription(subscriptionId: string) {
   return result.rows[0] ?? null;
 }
 
+export async function runMonthlyRenewal(): Promise<{ renewed: number; skipped: number }> {
+  // Get all active tradies
+  const tradies = await db
+    .select({ id: usersTable.id, name: usersTable.name })
+    .from(usersTable)
+    .where(eq(usersTable.role, "tradie"));
+
+  let renewed = 0;
+  let skipped = 0;
+
+  for (const tradie of tradies) {
+    try {
+      await ensureCreditBalance(tradie.id);
+
+      // Check if a renewal was already granted this calendar month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const recentRenewal = await db
+        .select({ id: creditTransactionsTable.id })
+        .from(creditTransactionsTable)
+        .where(
+          sql`${creditTransactionsTable.userId} = ${tradie.id}
+            AND ${creditTransactionsTable.type} = 'monthly_renewal'
+            AND ${creditTransactionsTable.createdAt} >= ${startOfMonth.toISOString()}`,
+        )
+        .limit(1);
+
+      if (recentRenewal.length > 0) {
+        skipped++;
+        continue;
+      }
+
+      // Reset balance to SIGNUP_GRANT (full monthly allocation)
+      await db
+        .update(creditBalancesTable)
+        .set({ balance: SIGNUP_GRANT, updatedAt: sql`NOW()` })
+        .where(eq(creditBalancesTable.userId, tradie.id));
+
+      const month = new Date().toLocaleString("en-AU", { month: "long", year: "numeric" });
+      await db.insert(creditTransactionsTable).values({
+        userId: tradie.id,
+        type: "monthly_renewal",
+        amount: SIGNUP_GRANT,
+        description: `Monthly credit renewal — ${SIGNUP_GRANT.toLocaleString()} credits for ${month}`,
+        stripeSessionId: null,
+      });
+
+      renewed++;
+    } catch {
+      skipped++;
+    }
+  }
+
+  return { renewed, skipped };
+}
+
 export async function getProductsWithPrices() {
   const result = await db.execute(sql`
     SELECT

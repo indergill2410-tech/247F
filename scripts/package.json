@@ -6,11 +6,17 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed-products": "tsx ./src/seed-products.ts",
+    "seed-demo": "tsx ./src/seed-demo.ts",
     "sync-stripe": "tsx ./src/sync-stripe.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "catalog:",
+    "@types/pg": "^8.18.0",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "catalog:",
+    "pg": "^8.20.0",
     "tsx": "catalog:"
   }
 }
