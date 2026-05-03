@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -192,6 +193,7 @@ function AccordionItem({
 }
 
 export default function HowItWorksPage() {
+  usePageTitle("How It Works");
   const [role, setRole] = useState<"homeowner" | "tradie">("homeowner");
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 

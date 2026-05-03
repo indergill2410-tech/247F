@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -93,6 +94,7 @@ function StarRow({ rating, count }: { rating?: number | null; count: number }) {
 }
 
 export default function TradiesPage() {
+  usePageTitle("Find a Tradie");
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<number | undefined>();
   const [suburb, setSuburb] = useState("");

@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -12,6 +13,7 @@ const DEMOS = [
 ];
 
 export default function LoginPage() {
+  usePageTitle("Sign In");
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const [email, setEmail] = useState("");

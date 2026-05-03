@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -101,6 +102,7 @@ function ProfileBar({ pct }: { pct: number }) {
 }
 
 export default function TradieDashboard() {
+  usePageTitle("Tradie Dashboard");
   const { user, token } = useAuth();
   const { data, isLoading, refetch } = useGetTradiedashboard();
   const { data: meData } = useGetMe();

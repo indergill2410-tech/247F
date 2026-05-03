@@ -12,6 +12,7 @@ import {
 import { requireRole } from "../middlewares/require-auth.js";
 import { runMonthlyRenewal } from "../stripeStorage.js";
 import { logger } from "../lib/logger.js";
+import { sendTradieVerifiedEmail, sendTradieSuspendedEmail } from "../lib/email.js";
 
 const router = Router();
 
@@ -91,6 +92,14 @@ router.put("/admin/users/:id", requireRole("admin"), async (req, res): Promise<v
   if (!updated) {
     res.status(404).json({ error: "not_found", message: "User not found" });
     return;
+  }
+
+  if (updated.role === "tradie") {
+    if (bodyParsed.data.isVerified === true) {
+      void sendTradieVerifiedEmail({ email: updated.email, name: updated.name });
+    } else if (bodyParsed.data.isActive === false) {
+      void sendTradieSuspendedEmail({ email: updated.email, name: updated.name });
+    }
   }
 
   res.status(200).json(buildUserResponse(updated));

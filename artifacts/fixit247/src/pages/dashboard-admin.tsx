@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -171,6 +172,7 @@ function TradieCard({
 }
 
 export default function AdminDashboard() {
+  usePageTitle("Admin Dashboard");
   const { toast } = useToast();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetAdminDashboard();
   const { data: usersData, refetch: refetchUsers } = useAdminListUsers({});

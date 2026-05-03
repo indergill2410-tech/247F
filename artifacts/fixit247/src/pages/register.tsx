@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
@@ -9,6 +10,7 @@ import { SuburbInput } from "@/components/suburb-input";
 type Role = "homeowner" | "tradie";
 
 export default function RegisterPage() {
+  usePageTitle("Create Account");
   const [, setLocation] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);

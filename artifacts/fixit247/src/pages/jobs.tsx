@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useListJobs, useListCategories, useClaimJob } from "@workspace/api-client-react";
@@ -38,6 +39,7 @@ function timeAgo(date: string | Date): string {
 }
 
 export default function JobsPage() {
+  usePageTitle("Browse Jobs");
   const { user } = useAuth();
   const { toast } = useToast();
 

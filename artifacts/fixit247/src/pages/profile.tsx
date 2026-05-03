@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SuburbInput } from "@/components/suburb-input";
 
 export default function ProfilePage() {
+  usePageTitle("My Profile");
   const [, setLocation] = useLocation();
   const { user, logout, updateUser } = useAuth();
   const { toast } = useToast();

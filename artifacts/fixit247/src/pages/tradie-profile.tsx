@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useRoute, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useGetTradieProfile } from "@workspace/api-client-react";
@@ -50,6 +51,7 @@ const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } 
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.22 } } };
 
 export default function TradieProfilePage() {
+  usePageTitle("Tradie Profile");
   const [, params] = useRoute("/tradies/:id");
   const [, setLocation] = useLocation();
   const { user } = useAuth();

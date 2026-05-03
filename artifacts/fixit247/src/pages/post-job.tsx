@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -18,6 +19,7 @@ const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py
 const labelCls = "text-sm font-medium text-white/65";
 
 export default function PostJobPage() {
+  usePageTitle("Post a Job");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { data: categories } = useListCategories();

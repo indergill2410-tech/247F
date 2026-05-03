@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -47,6 +48,7 @@ function fmtAud(cents: number) {
 }
 
 export default function CreditsPage() {
+  usePageTitle("Buy Credits");
   const { token } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();

@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /jobs/new
+Disallow: /post-job
+Disallow: /profile
+Disallow: /notifications
+Disallow: /messages
+Disallow: /conversations
+Disallow: /credits
+
+Sitemap: https://www.fixit247.com.au/sitemap.xml

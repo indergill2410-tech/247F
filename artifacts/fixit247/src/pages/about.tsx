@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/footer";
@@ -51,6 +52,7 @@ const TRADIE_IMPACTS = [
 ];
 
 export default function AboutPage() {
+  usePageTitle("About Us");
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
 

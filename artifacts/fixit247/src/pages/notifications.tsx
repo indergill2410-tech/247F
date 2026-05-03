@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useListNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -28,6 +29,7 @@ const TYPE_CONFIG: Record<string, { Icon: React.ElementType; bg: string; color: 
 const FALLBACK = { Icon: AlertCircle, bg: "bg-white/8", color: "text-white/50" };
 
 export default function NotificationsPage() {
+  usePageTitle("Notifications");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { data: notifications, isLoading, refetch } = useListNotifications();

@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -87,6 +88,7 @@ function TradieName({ name }: { name: string | null }) {
 }
 
 export default function HomeownerDashboard() {
+  usePageTitle("My Dashboard");
   const { user } = useAuth();
   const { toast } = useToast();
   const { data, isLoading, refetch } = useGetHomeownerDashboard();

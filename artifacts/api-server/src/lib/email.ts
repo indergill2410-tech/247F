@@ -311,3 +311,45 @@ export async function sendPartnerEnquiryConfirmation(opts: {
     logger.error({ err }, "Failed to send partner enquiry confirmation");
   }
 }
+
+export async function sendTradieVerifiedEmail(opts: {
+  email: string;
+  name: string;
+}): Promise<void> {
+  try {
+    const html = brandedHtml(
+      "You're Verified! 🎉",
+      `<p style="margin:0 0 16px;color:#ccc;font-size:15px">Hi ${opts.name},</p>
+       <p style="margin:0 0 12px;color:#ccc;font-size:15px">Great news — your Fixit 24/7 account has been <strong style="color:#fff">verified by our team</strong>. You're now fully approved and can claim jobs across the platform.</p>
+       <p style="margin:0 0 20px;color:#ccc;font-size:15px">Your verified badge will appear on your profile, giving homeowners more confidence to choose you. Start browsing open jobs now.</p>
+       <p style="margin:0">
+         <a href="${config.appUrl}/jobs" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Browse Open Jobs →</a>
+       </p>`,
+    );
+    await sendViaHtml(opts.email, opts.name, "You're verified on Fixit 24/7 — start claiming jobs!", html);
+    logger.info({ email: opts.email }, "Tradie verified email sent");
+  } catch (err) {
+    logger.error({ err }, "Failed to send tradie verified email");
+  }
+}
+
+export async function sendTradieSuspendedEmail(opts: {
+  email: string;
+  name: string;
+}): Promise<void> {
+  try {
+    const html = brandedHtml(
+      "Account Status Update",
+      `<p style="margin:0 0 16px;color:#ccc;font-size:15px">Hi ${opts.name},</p>
+       <p style="margin:0 0 12px;color:#ccc;font-size:15px">Your Fixit 24/7 account has been <strong style="color:#fff">temporarily suspended</strong> by our moderation team.</p>
+       <p style="margin:0 0 20px;color:#ccc;font-size:15px">If you believe this is an error, please contact us and we'll review your account as soon as possible.</p>
+       <p style="margin:0">
+         <a href="mailto:${config.sendgrid.fromEmail}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Contact Support</a>
+       </p>`,
+    );
+    await sendViaHtml(opts.email, opts.name, "Your Fixit 24/7 account status has changed", html);
+    logger.info({ email: opts.email }, "Tradie suspended email sent");
+  } catch (err) {
+    logger.error({ err }, "Failed to send tradie suspended email");
+  }
+}

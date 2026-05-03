@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -163,6 +164,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
 }
 
 export default function LandingPage() {
+  usePageTitle("Fixit 24/7 — Find Trusted Local Tradies, Fast");
   const [suburb, setSuburb] = useState("");
   const [, setLocation] = useLocation();
   const [howRole, setHowRole] = useState<"homeowner" | "tradie">("homeowner");

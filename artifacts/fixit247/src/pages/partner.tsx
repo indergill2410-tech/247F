@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
@@ -367,6 +368,7 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function PartnerPage() {
+  usePageTitle("Partner With Us");
   const formRef = useRef<HTMLElement>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
