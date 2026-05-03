@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useGetJob, useClaimJob, useUpdateClaim, useDeleteJob, useListJobReviews, useCreateReview } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star, ChevronLeft, CheckCircle, XCircle, AlertTriangle, MessageCircle } from "lucide-react";
+import {
+  MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star,
+  ChevronLeft, CheckCircle, XCircle, AlertTriangle, MessageCircle,
+  ThumbsUp, Award, User,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
@@ -15,24 +19,68 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
 };
 const URGENCY_MAP: Record<string, { label: string; cls: string; Icon: React.ElementType }> = {
-  emergency: { label: "Emergency", cls: "bg-red-500/15 text-red-400",    Icon: Zap },
+  emergency: { label: "Emergency", cls: "bg-red-500/15 text-red-400",      Icon: Zap },
   urgent:    { label: "Urgent",    cls: "bg-orange-500/15 text-orange-400", Icon: Clock },
-  standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",      Icon: Briefcase },
+  standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",         Icon: Briefcase },
 };
-const CLAIM_STATUS: Record<string, string> = {
-  pending:   "bg-[#ffc800]/15 text-[#ffc800]",
-  accepted:  "bg-emerald-500/15 text-emerald-400",
-  rejected:  "bg-red-500/15 text-red-400",
-  withdrawn: "bg-white/8 text-white/40",
-  completed: "bg-blue-500/15 text-blue-400",
+const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
+  pending:   { label: "Pending",   cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  accepted:  { label: "Accepted",  cls: "bg-emerald-500/15 text-emerald-400" },
+  rejected:  { label: "Rejected",  cls: "bg-red-500/15 text-red-400" },
+  withdrawn: { label: "Withdrawn", cls: "bg-white/8 text-white/40" },
+  completed: { label: "Done",      cls: "bg-blue-500/15 text-blue-400" },
 };
 
-const inputCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
+function timeAgo(date: string | Date): string {
+  const secs = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (secs < 60) return "just now";
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  const wks = Math.floor(days / 7);
+  if (wks < 5) return `${wks}w ago`;
+  return new Date(date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function initials(name: string | null | undefined): string {
+  return (name ?? "?")
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function StarDisplay({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
+  const cls = size === "md" ? "h-4 w-4" : "h-3 w-3";
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => {
+        const filled = rating >= s;
+        const half = !filled && rating > s - 1;
+        return (
+          <span key={s} className="relative inline-block">
+            <Star className={`${cls} text-white/15`} />
+            {(filled || half) && (
+              <span className="absolute inset-0 overflow-hidden" style={{ width: filled ? "100%" : "50%" }}>
+                <Star className={`${cls} fill-[#ffc800] text-[#ffc800]`} />
+              </span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [hovered, setHovered] = useState(0);
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1.5">
       {[1, 2, 3, 4, 5].map((s) => (
         <button
           key={s}
@@ -40,11 +88,9 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
           onClick={() => onChange(s)}
           onMouseEnter={() => setHovered(s)}
           onMouseLeave={() => setHovered(0)}
-          className="transition-transform hover:scale-110"
+          className="transition-transform hover:scale-110 active:scale-95"
         >
-          <Star
-            className={`h-7 w-7 transition-colors ${s <= (hovered || value) ? "text-[#ffc800] fill-[#ffc800]" : "text-white/20"}`}
-          />
+          <Star className={`h-8 w-8 transition-colors ${s <= (hovered || value) ? "text-[#ffc800] fill-[#ffc800]" : "text-white/15"}`} />
         </button>
       ))}
     </div>
@@ -74,14 +120,23 @@ export default function JobDetailPage() {
         refetch();
       },
       onError: (err) => {
-        toast({ title: "Error", description: (err as { data?: { message?: string } })?.data?.message ?? "Failed to claim", variant: "destructive" });
+        const errData = err as { data?: { message?: string; error?: string } };
+        const msg = errData?.data?.error === "insufficient_credits"
+          ? "Not enough credits — top up at Credits page."
+          : (errData?.data?.message ?? "Failed to claim");
+        toast({ title: "Error", description: msg, variant: "destructive" });
       },
     },
   });
 
   const updateClaimMutation = useUpdateClaim({
     mutation: {
-      onSuccess: () => { toast({ title: "Updated!" }); refetch(); },
+      onSuccess: (_, vars) => {
+        const status = (vars.data as { status?: string })?.status;
+        const msg = status === "accepted" ? "Tradie accepted!" : status === "completed" ? "Job marked complete!" : "Updated!";
+        toast({ title: msg });
+        refetch();
+      },
       onError: (err) => {
         toast({ title: "Error", description: (err as { data?: { message?: string } })?.data?.message ?? "Failed to update", variant: "destructive" });
       },
@@ -89,7 +144,9 @@ export default function JobDetailPage() {
   });
 
   const deleteMutation = useDeleteJob({
-    mutation: { onSuccess: () => { toast({ title: "Cancelled" }); setLocation("/jobs"); } },
+    mutation: {
+      onSuccess: () => { toast({ title: "Job cancelled" }); setLocation("/jobs"); },
+    },
   });
 
   const reviewMutation = useCreateReview({
@@ -100,6 +157,7 @@ export default function JobDetailPage() {
         setReviewRating(0);
         setReviewComment("");
         refetchReviews();
+        refetch();
       },
       onError: (err) => {
         toast({ title: "Error", description: (err as { data?: { message?: string } })?.data?.message ?? "Failed to submit review", variant: "destructive" });
@@ -132,36 +190,63 @@ export default function JobDetailPage() {
   const isOwner = user?.role === "homeowner" && job.homeownerId === user.id;
   const isTradie = user?.role === "tradie";
   const isAdmin = user?.role === "admin";
-  type JobWithClaims = typeof job & { claims?: { id: number; tradieId: number; tradieName: string | null; tradieRating: number | null; tradieReviewCount: number; tradieSuburb: string | null; status: string; message: string | null; proposedPrice: number | null; createdAt: string }[] };
+
+  type Claim = {
+    id: number; tradieId: number; tradieName: string | null;
+    tradieRating: number | null; tradieReviewCount: number;
+    tradieSuburb: string | null; status: string;
+    message: string | null; proposedPrice: number | null; createdAt: string;
+  };
+  type JobWithClaims = typeof job & { claims?: Claim[] };
   const jobWithClaims = job as JobWithClaims;
-  const alreadyClaimed = jobWithClaims.claims?.some((c) => c.tradieId === user?.id);
+  const claims = jobWithClaims.claims ?? [];
+
+  const alreadyClaimed = claims.some((c) => c.tradieId === user?.id);
   const canClaim = isTradie && ["open", "matched"].includes(job.status) && !alreadyClaimed;
-  const myAcceptedClaim = jobWithClaims.claims?.find((c) => c.tradieId === user?.id && c.status === "accepted");
+  const myAcceptedClaim = claims.find((c) => c.tradieId === user?.id && c.status === "accepted");
+  const acceptedClaim = claims.find((c) => c.status === "accepted");
   const alreadyReviewed = reviews?.some((r) => r.reviewerId === user?.id);
+  const canReview = job.status === "completed" && !alreadyReviewed && (isOwner || (isTradie && !!myAcceptedClaim));
+  const canMarkComplete = isOwner && job.status === "in_progress" && !!acceptedClaim;
 
-  const statusStyle = STATUS_MAP[job.status] ?? STATUS_MAP.cancelled;
-  const urgencyStyle = URGENCY_MAP[job.urgency] ?? URGENCY_MAP.standard;
-  const UrgencyIcon = urgencyStyle.Icon;
-
-  // For tradie: revieweeId is the homeowner; for homeowner: revieweeId is the accepted tradie
+  // Who is being reviewed
   const revieweeId = isTradie
     ? job.homeownerId
-    : myAcceptedClaim?.tradieId ?? jobWithClaims.claims?.find((c) => c.status === "accepted")?.tradieId;
+    : acceptedClaim?.tradieId;
+  const revieweeName = isTradie
+    ? (job.homeownerName ?? "Homeowner")
+    : (acceptedClaim?.tradieName ?? "Tradie");
 
-  const canReview = job.status === "completed" && !alreadyReviewed && (isOwner || (isTradie && myAcceptedClaim));
+  const statusStyle  = STATUS_MAP[job.status]   ?? STATUS_MAP.cancelled;
+  const urgencyStyle = URGENCY_MAP[job.urgency] ?? URGENCY_MAP.standard;
+  const UrgencyIcon  = urgencyStyle.Icon;
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
-      {/* Header */}
+      {/* Page header */}
       <div className="border-b border-white/6 bg-[#0f0c06] py-6">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
-          <button onClick={() => setLocation("/jobs")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
-            <ChevronLeft className="h-4 w-4" /> Back to Jobs
+          <button
+            onClick={() => setLocation(isTradie ? "/jobs" : "/dashboard/homeowner")}
+            className="flex items-center gap-1.5 text-white/40 hover:text-white text-sm mb-5 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            {isTradie ? "Browse Jobs" : "My Dashboard"}
           </button>
           <div className="flex flex-wrap items-start gap-3">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-black text-white leading-tight">{job.title}</h1>
-              <p className="text-white/45 mt-1 text-sm">{job.categoryName}</p>
+              <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-white/40">
+                {job.categoryName && <span>{job.categoryName}</span>}
+                <span>·</span>
+                <span>Posted {timeAgo(job.createdAt)}</span>
+                {claims.length > 0 && (
+                  <>
+                    <span>·</span>
+                    <span className="text-[#ffc800]/70 font-semibold">{claims.length} tradie{claims.length !== 1 ? "s" : ""} responded</span>
+                  </>
+                )}
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <span className={`text-xs font-bold px-3 py-1.5 rounded-lg ${statusStyle.cls}`}>{statusStyle.label}</span>
@@ -174,222 +259,96 @@ export default function JobDetailPage() {
       </div>
 
       <div className="container max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
-        {/* Job details */}
-        <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-5">
-          <p className="text-white/80 leading-relaxed">{job.description}</p>
-          <div className="grid sm:grid-cols-2 gap-3 pt-2 border-t border-white/6">
-            {(job.suburb || job.postcode) && (
-              <div className="flex items-center gap-2 text-sm text-white/50">
-                <MapPin className="h-4 w-4 text-[#ffc800]" />
-                {[job.suburb, job.postcode].filter(Boolean).join(", ")}
+
+        {/* ── MARK JOB COMPLETE BANNER (in_progress + owner) ── */}
+        {canMarkComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-emerald-500/8 border border-emerald-500/25 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+          >
+            <div className="flex items-center gap-3 flex-1">
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="h-5 w-5 text-emerald-400" />
               </div>
-            )}
-            {job.budget && (
-              <div className="flex items-center gap-2 text-sm text-white/50">
-                <DollarSign className="h-4 w-4 text-[#ffc800]" />Budget: ${job.budget}
+              <div>
+                <p className="font-bold text-white text-sm">Has {acceptedClaim?.tradieName?.split(" ")[0] ?? "your tradie"} finished the work?</p>
+                <p className="text-xs text-white/40 mt-0.5">Marking it complete releases the job and lets you leave a review.</p>
               </div>
-            )}
-            <div className="flex items-center gap-2 text-sm text-white/50">
-              <Calendar className="h-4 w-4 text-[#ffc800]" />
-              Posted: {new Date(job.createdAt).toLocaleDateString()}
             </div>
-          </div>
+            <button
+              className="h-10 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors disabled:opacity-50 flex-shrink-0 flex items-center gap-2"
+              disabled={updateClaimMutation.isPending}
+              onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: acceptedClaim!.id, data: { status: "completed" } })}
+            >
+              <ThumbsUp className="h-4 w-4" /> Mark Complete
+            </button>
+          </motion.div>
+        )}
 
-          <div className="flex flex-wrap gap-2 pt-3 border-t border-white/6">
-            {(isOwner || isAdmin) && job.status === "open" && (
-              <button
-                className="h-8 px-4 rounded-lg border border-red-500/25 text-red-400 hover:bg-red-500/10 text-xs font-medium transition-all disabled:opacity-50"
-                onClick={() => deleteMutation.mutate({ id: job.id })}
-                disabled={deleteMutation.isPending}
-              >
-                Cancel Job
-              </button>
-            )}
-            {/* Message button for participants */}
-            {(isOwner || (isTradie && alreadyClaimed)) && job.status !== "open" && (
-              <button
-                className="h-8 px-4 rounded-lg bg-white/6 border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-xs font-medium transition-all flex items-center gap-1.5"
-                onClick={() => setLocation("/conversations")}
-              >
-                <MessageCircle className="h-3.5 w-3.5" /> Messages
-              </button>
-            )}
-          </div>
-        </div>
+        {/* ── REVIEW PROMPT BANNER (completed + unreviewed) ── */}
+        {canReview && !showReviewForm && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#ffc800]/6 border border-[#ffc800]/25 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+          >
+            <div className="flex items-center gap-3 flex-1">
+              <div className="h-10 w-10 rounded-xl bg-[#ffc800]/12 flex items-center justify-center flex-shrink-0">
+                <Award className="h-5 w-5 text-[#ffc800]" />
+              </div>
+              <div>
+                <p className="font-bold text-white text-sm">
+                  How was {revieweeName?.split(" ")[0] ?? (isTradie ? "the homeowner" : "the tradie")}?
+                </p>
+                <p className="text-xs text-white/40 mt-0.5">Leave a rating — it helps the community.</p>
+              </div>
+            </div>
+            <button
+              className="h-10 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex-shrink-0 flex items-center gap-2 active:scale-[0.97]"
+              onClick={() => setShowReviewForm(true)}
+            >
+              <Star className="h-4 w-4" /> Rate {revieweeName?.split(" ")[0] ?? "them"}
+            </button>
+          </motion.div>
+        )}
 
-        {/* Tradie claim form */}
-        {canClaim && (
-          <div className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl p-6">
-            <h2 className="font-bold text-[#ffc800] mb-4">Claim This Job</h2>
-            {!showClaimForm ? (
-              <button
-                className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors"
-                onClick={() => setShowClaimForm(true)}
-              >
-                Submit a Claim
-              </button>
-            ) : (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-white/65">Message to homeowner (optional)</label>
-                  <textarea
-                    placeholder="Tell the homeowner about your experience, availability…"
-                    value={claimMessage}
-                    onChange={(e) => setClaimMessage(e.target.value)}
-                    rows={3}
-                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
-                  />
+        {/* ── REVIEW FORM (expanded) ── */}
+        <AnimatePresence>
+          {showReviewForm && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-[#130f07] border border-[#ffc800]/25 rounded-2xl overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
+                <Award className="h-4 w-4 text-[#ffc800]" />
+                <h2 className="font-bold text-white">Rate your experience with {revieweeName}</h2>
+              </div>
+              <div className="px-6 py-5 space-y-5">
+                <div>
+                  <p className="text-sm text-white/50 mb-3">Select a rating</p>
+                  <StarRating value={reviewRating} onChange={setReviewRating} />
+                  {reviewRating > 0 && (
+                    <p className="text-xs text-[#ffc800] mt-2">
+                      {["", "Poor", "Fair", "Good", "Very Good", "Excellent!"][reviewRating]}
+                    </p>
+                  )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-white/65">Your price estimate (optional)</label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm">$</span>
-                    <input
-                      type="number"
-                      className={`${inputCls} h-11 pl-7`}
-                      placeholder="0"
-                      value={proposedPrice}
-                      onChange={(e) => setProposedPrice(e.target.value)}
-                      min="0"
-                    />
-                  </div>
+                <div>
+                  <label className="text-sm text-white/50 block mb-2">Comments <span className="text-white/25">(optional)</span></label>
+                  <textarea
+                    placeholder={`Share details about your experience with ${revieweeName?.split(" ")[0]}…`}
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    rows={3}
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
+                  />
                 </div>
                 <div className="flex gap-3">
                   <button
-                    className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
-                    disabled={claimMutation.isPending}
-                    onClick={() => claimMutation.mutate({ jobId: job.id, data: { message: claimMessage || undefined, proposedPrice: proposedPrice ? Number(proposedPrice) : undefined } })}
-                  >
-                    {claimMutation.isPending ? "Submitting…" : "Submit Claim"}
-                  </button>
-                  <button
-                    className="h-10 px-6 rounded-xl border border-white/12 text-white/60 hover:text-white hover:border-white/25 text-sm transition-all"
-                    onClick={() => setShowClaimForm(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </div>
-        )}
-
-        {alreadyClaimed && !canClaim && (
-          <div className="bg-emerald-500/8 border border-emerald-500/20 rounded-2xl p-4 flex items-center gap-3 text-emerald-400">
-            <CheckCircle className="h-5 w-5 flex-shrink-0" />
-            <span className="font-medium text-sm">You've already claimed this job. Waiting for homeowner response.</span>
-          </div>
-        )}
-
-        {/* Claims list */}
-        {(isOwner || isAdmin) && jobWithClaims.claims && (
-          <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/6">
-              <h2 className="font-bold text-white">Claims ({jobWithClaims.claims.length})</h2>
-            </div>
-            <div className="divide-y divide-white/5">
-              {!jobWithClaims.claims.length ? (
-                <p className="text-white/35 text-center py-8 text-sm">No claims yet. Your job is being matched.</p>
-              ) : (
-                jobWithClaims.claims.map((claim) => (
-                  <motion.div key={claim.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-6 py-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#ffc800] text-black font-black text-sm flex items-center justify-center flex-shrink-0">
-                          {claim.tradieName?.charAt(0) ?? "T"}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-white">{claim.tradieName ?? "Tradie"}</p>
-                          <div className="flex items-center gap-3 text-xs text-white/40 mt-0.5">
-                            {claim.tradieRating && (
-                              <span className="flex items-center gap-1">
-                                <Star className="h-3 w-3 text-[#ffc800] fill-[#ffc800]" />
-                                {claim.tradieRating}
-                                {(claim.tradieReviewCount ?? 0) > 0 && ` (${claim.tradieReviewCount})`}
-                              </span>
-                            )}
-                            {claim.tradieSuburb && (
-                              <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{claim.tradieSuburb}</span>
-                            )}
-                          </div>
-                          {claim.message && <p className="text-sm mt-2 text-white/55">{claim.message}</p>}
-                          {claim.proposedPrice && (
-                            <p className="text-sm font-semibold mt-1 text-[#ffc800] flex items-center gap-1">
-                              <DollarSign className="h-3.5 w-3.5" />Quoted: ${claim.proposedPrice}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${CLAIM_STATUS[claim.status] ?? "bg-white/8 text-white/40"}`}>
-                          {claim.status}
-                        </span>
-                        {claim.status === "pending" && isOwner && (
-                          <div className="flex gap-2">
-                            <button
-                              className="h-7 px-3 rounded-lg bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
-                              onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "accepted" } })}
-                              disabled={updateClaimMutation.isPending}
-                            >
-                              <CheckCircle className="h-3 w-3" /> Accept
-                            </button>
-                            <button
-                              className="h-7 px-3 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
-                              onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "rejected" } })}
-                              disabled={updateClaimMutation.isPending}
-                            >
-                              <XCircle className="h-3 w-3" /> Reject
-                            </button>
-                          </div>
-                        )}
-                        {claim.status === "accepted" && isOwner && job.status === "in_progress" && (
-                          <button
-                            className="h-7 px-3 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
-                            onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "completed" } })}
-                            disabled={updateClaimMutation.isPending}
-                          >
-                            <CheckCircle className="h-3 w-3" /> Mark Done
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Reviews section */}
-        {(reviews && reviews.length > 0 || canReview) && (
-          <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/6 flex items-center justify-between">
-              <h2 className="font-bold text-white">Reviews {reviews?.length ? `(${reviews.length})` : ""}</h2>
-              {canReview && !showReviewForm && (
-                <button
-                  onClick={() => setShowReviewForm(true)}
-                  className="text-[#ffc800] text-xs font-semibold hover:underline"
-                >
-                  + Leave a Review
-                </button>
-              )}
-            </div>
-
-            {/* Review form */}
-            {showReviewForm && (
-              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="px-6 py-5 border-b border-white/5">
-                <p className="text-sm font-medium text-white/65 mb-3">Rate your experience</p>
-                <StarRating value={reviewRating} onChange={setReviewRating} />
-                <textarea
-                  placeholder="Share details about your experience (optional)"
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  rows={3}
-                  className="w-full mt-4 bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
-                />
-                <div className="flex gap-3 mt-4">
-                  <button
-                    className="h-9 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50"
+                    className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50 active:scale-[0.97]"
                     disabled={reviewRating === 0 || reviewMutation.isPending}
                     onClick={() =>
                       reviewMutation.mutate({
@@ -401,34 +360,258 @@ export default function JobDetailPage() {
                     {reviewMutation.isPending ? "Submitting…" : "Submit Review"}
                   </button>
                   <button
-                    className="h-9 px-5 rounded-xl border border-white/12 text-white/55 hover:text-white text-sm transition-all"
-                    onClick={() => setShowReviewForm(false)}
+                    className="h-10 px-6 rounded-xl border border-white/12 text-white/55 hover:text-white text-sm transition-all"
+                    onClick={() => { setShowReviewForm(false); setReviewRating(0); setReviewComment(""); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── JOB DETAILS CARD ── */}
+        <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-5">
+          <p className="text-white/80 leading-relaxed">{job.description}</p>
+
+          <div className="grid sm:grid-cols-2 gap-3 pt-4 border-t border-white/6">
+            {(job.suburb || job.postcode) && (
+              <div className="flex items-center gap-2 text-sm text-white/50">
+                <MapPin className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                {[job.suburb, job.postcode].filter(Boolean).join(", ")}
+              </div>
+            )}
+            {job.budget && (
+              <div className="flex items-center gap-2 text-sm text-white/50">
+                <DollarSign className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                Budget: <span className="text-white/70 font-semibold">${job.budget.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2 text-sm text-white/50">
+              <Calendar className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+              Posted {timeAgo(job.createdAt)}
+            </div>
+            {job.scheduledFor && (
+              <div className="flex items-center gap-2 text-sm text-white/50">
+                <Clock className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                Scheduled: {new Date(job.scheduledFor).toLocaleDateString("en-AU")}
+              </div>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-white/6">
+            {(isOwner || isAdmin) && job.status === "open" && (
+              <button
+                className="h-8 px-4 rounded-lg border border-red-500/25 text-red-400 hover:bg-red-500/10 text-xs font-medium transition-all disabled:opacity-50"
+                onClick={() => deleteMutation.mutate({ id: job.id })}
+                disabled={deleteMutation.isPending}
+              >
+                Cancel Job
+              </button>
+            )}
+            {(isOwner || (isTradie && alreadyClaimed)) && job.status !== "open" && (
+              <button
+                className="h-8 px-4 rounded-lg bg-white/6 border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-xs font-medium transition-all flex items-center gap-1.5"
+                onClick={() => setLocation("/conversations")}
+              >
+                <MessageCircle className="h-3.5 w-3.5" /> Messages
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── TRADIE: CLAIM FORM ── */}
+        {canClaim && (
+          <div className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-[#ffc800]" />
+              <h2 className="font-bold text-[#ffc800]">Claim This Job</h2>
+            </div>
+            {!showClaimForm ? (
+              <div className="p-6">
+                <p className="text-sm text-white/45 mb-4">Submit a claim to let the homeowner know you're available and interested.</p>
+                <button
+                  className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors active:scale-[0.98]"
+                  onClick={() => setShowClaimForm(true)}
+                >
+                  Submit a Claim
+                </button>
+              </div>
+            ) : (
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="p-6 space-y-4">
+                {job.urgency === "emergency" && (
+                  <div className="flex items-center gap-2 bg-red-500/8 border border-red-500/15 rounded-xl px-4 py-3">
+                    <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                    <p className="text-sm text-red-400/80">Emergency job — respond fast, homeowner needs urgent help.</p>
+                  </div>
+                )}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-white/60">Message to homeowner <span className="text-white/30">(optional)</span></label>
+                  <textarea
+                    placeholder="Describe your experience, availability, and approach…"
+                    value={claimMessage}
+                    onChange={(e) => setClaimMessage(e.target.value)}
+                    rows={3}
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-white/60">Price estimate <span className="text-white/30">(optional)</span></label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm">$</span>
+                    <input
+                      type="number"
+                      className="w-full bg-white/6 border border-white/10 rounded-xl px-4 pl-7 h-11 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-all"
+                      placeholder={job.budget ? `Homeowner budget: $${job.budget.toLocaleString()}` : "0"}
+                      value={proposedPrice}
+                      onChange={(e) => setProposedPrice(e.target.value)}
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50 active:scale-[0.97]"
+                    disabled={claimMutation.isPending}
+                    onClick={() => claimMutation.mutate({ jobId: job.id, data: { message: claimMessage || undefined, proposedPrice: proposedPrice ? Number(proposedPrice) : undefined } })}
+                  >
+                    {claimMutation.isPending ? "Submitting…" : "Submit Claim"}
+                  </button>
+                  <button
+                    className="h-10 px-6 rounded-xl border border-white/12 text-white/55 hover:text-white text-sm transition-all"
+                    onClick={() => setShowClaimForm(false)}
                   >
                     Cancel
                   </button>
                 </div>
               </motion.div>
             )}
+          </div>
+        )}
 
-            {/* Existing reviews */}
+        {alreadyClaimed && !canClaim && (
+          <div className={`rounded-2xl p-4 flex items-center gap-3 ${myAcceptedClaim ? "bg-emerald-500/8 border border-emerald-500/20 text-emerald-400" : "bg-white/4 border border-white/8 text-white/50"}`}>
+            {myAcceptedClaim
+              ? <><CheckCircle className="h-5 w-5 flex-shrink-0" /><span className="font-semibold text-sm">Your claim was accepted! Get in touch with the homeowner.</span></>
+              : <><User className="h-5 w-5 flex-shrink-0" /><span className="text-sm">You've claimed this job. Waiting for the homeowner's response.</span></>
+            }
+          </div>
+        )}
+
+        {/* ── CLAIMS LIST (homeowner + admin view) ── */}
+        {(isOwner || isAdmin) && (
+          <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
+              <User className="h-4 w-4 text-white/40" />
+              <h2 className="font-bold text-white">Tradie Responses</h2>
+              {claims.length > 0 && (
+                <span className="text-[10px] font-bold bg-[#ffc800] text-black px-2 py-0.5 rounded-full ml-1">
+                  {claims.length}
+                </span>
+              )}
+            </div>
             <div className="divide-y divide-white/5">
-              {reviews?.map((review) => (
+              {!claims.length ? (
+                <div className="px-6 py-10 text-center">
+                  <p className="text-white/35 text-sm">No tradies have claimed this job yet.</p>
+                  <p className="text-white/20 text-xs mt-1">Our matching engine will notify relevant tradies.</p>
+                </div>
+              ) : (
+                claims.map((claim) => {
+                  const cs = CLAIM_STATUS[claim.status] ?? { label: claim.status, cls: "bg-white/8 text-white/40" };
+                  return (
+                    <motion.div key={claim.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-6 py-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
+                            {initials(claim.tradieName)}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-white">{claim.tradieName ?? "Tradie"}</p>
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/40 mt-0.5">
+                              {claim.tradieRating != null && (
+                                <span className="flex items-center gap-1.5">
+                                  <StarDisplay rating={claim.tradieRating} />
+                                  <span className="text-[#ffc800] font-semibold">{claim.tradieRating.toFixed(1)}</span>
+                                  {(claim.tradieReviewCount ?? 0) > 0 && (
+                                    <span>({claim.tradieReviewCount})</span>
+                                  )}
+                                </span>
+                              )}
+                              {claim.tradieSuburb && (
+                                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{claim.tradieSuburb}</span>
+                              )}
+                              <span>{timeAgo(claim.createdAt)}</span>
+                            </div>
+                            {claim.message && (
+                              <p className="text-sm mt-2 text-white/55 italic leading-relaxed">"{claim.message}"</p>
+                            )}
+                            {claim.proposedPrice != null && (
+                              <p className="text-sm font-bold mt-1.5 text-[#ffc800] flex items-center gap-1">
+                                <DollarSign className="h-3.5 w-3.5" /> Quoted: ${claim.proposedPrice.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2.5 flex-shrink-0">
+                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${cs.cls}`}>{cs.label}</span>
+                          {claim.status === "pending" && isOwner && (
+                            <div className="flex gap-2">
+                              <button
+                                className="h-7 px-3 rounded-lg bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                                onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "accepted" } })}
+                                disabled={updateClaimMutation.isPending}
+                              >
+                                <CheckCircle className="h-3 w-3" /> Accept
+                              </button>
+                              <button
+                                className="h-7 px-3 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                                onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "rejected" } })}
+                                disabled={updateClaimMutation.isPending}
+                              >
+                                <XCircle className="h-3 w-3" /> Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── REVIEWS ── */}
+        {(reviews && reviews.length > 0) && (
+          <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/6">
+              <h2 className="font-bold text-white">Reviews ({reviews.length})</h2>
+            </div>
+            <div className="divide-y divide-white/5">
+              {reviews.map((review) => (
                 <div key={review.id} className="px-6 py-5">
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-white/10 text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
-                      {(review.reviewerName ?? "?").charAt(0).toUpperCase()}
+                      {initials(review.reviewerName)}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold text-white text-sm">{review.reviewerName ?? "Anonymous"}</p>
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className={`h-3.5 w-3.5 ${s <= review.rating ? "text-[#ffc800] fill-[#ffc800]" : "text-white/15"}`} />
-                          ))}
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div>
+                          <p className="font-semibold text-white text-sm">{review.reviewerName ?? "Anonymous"}</p>
+                          {review.revieweeName && (
+                            <p className="text-[10px] text-white/30 mt-0.5">reviewing {review.revieweeName}</p>
+                          )}
                         </div>
+                        <StarDisplay rating={review.rating} size="md" />
                       </div>
-                      {review.comment && <p className="text-sm text-white/55 mt-1.5 leading-relaxed">{review.comment}</p>}
-                      <p className="text-[10px] text-white/25 mt-2">{new Date(review.createdAt).toLocaleDateString()}</p>
+                      {review.comment && (
+                        <p className="text-sm text-white/55 mt-2 leading-relaxed">{review.comment}</p>
+                      )}
+                      <p className="text-[10px] text-white/25 mt-2">{timeAgo(review.createdAt)}</p>
                     </div>
                   </div>
                 </div>
@@ -436,6 +619,7 @@ export default function JobDetailPage() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
