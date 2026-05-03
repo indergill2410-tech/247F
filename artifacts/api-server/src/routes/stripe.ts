@@ -133,8 +133,8 @@ router.post("/stripe/checkout", requireAuth, async (req, res): Promise<void> => 
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "payment",
-      success_url: `${host}/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${host}/dashboard?payment=cancelled`,
+      success_url: `${host}/credits?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${host}/credits?payment=cancelled`,
       metadata: { userId: String(dbUser.id) },
     });
 
