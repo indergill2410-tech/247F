@@ -6,6 +6,9 @@ import {
   useAdminListUsers,
   useAdminListJobs,
   useAdminUpdateUser,
+  useAdminListCredits,
+  useAdminGrantCredits,
+  useAdminRenewCredits,
 } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +30,10 @@ import {
   Search,
   AlertCircle,
   UserCheck,
+  Coins,
+  RefreshCw,
+  Gift,
+  X,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -174,6 +181,40 @@ export default function AdminDashboard() {
   const [roleFilter, setRoleFilter] = useState<"all" | "homeowner" | "tradie" | "admin">("all");
   const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
 
+  // Credits tab state
+  const { data: creditsData, refetch: refetchCredits } = useAdminListCredits({ query: { enabled: activeTab === "credits", queryKey: ["admin-credits"] } });
+  const [creditSearch, setCreditSearch] = useState("");
+  const [showGrantForm, setShowGrantForm] = useState(false);
+  const [grantUserId, setGrantUserId] = useState("");
+  const [grantAmount, setGrantAmount] = useState("");
+  const [grantReason, setGrantReason] = useState("");
+
+  const grantCredits = useAdminGrantCredits({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Credits granted!", description: `${grantAmount} credits added.` });
+        setGrantUserId(""); setGrantAmount(""); setGrantReason(""); setShowGrantForm(false);
+        refetchCredits();
+      },
+      onError: () => toast({ title: "Error", description: "Failed to grant credits.", variant: "destructive" }),
+    },
+  });
+
+  const renewCredits = useAdminRenewCredits({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Renewal triggered", description: "Monthly credits have been renewed." });
+        refetchCredits();
+      },
+      onError: () => toast({ title: "Error", description: "Renewal failed.", variant: "destructive" }),
+    },
+  });
+
+  const filteredCreditTradies = (creditsData?.tradies ?? []).filter((t) => {
+    const q = creditSearch.toLowerCase();
+    return !q || t.name.toLowerCase().includes(q) || t.email.toLowerCase().includes(q);
+  });
+
   const updateUser = useAdminUpdateUser({
     mutation: {
       onSuccess: () => {
@@ -297,6 +338,12 @@ export default function AdminDashboard() {
               className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-4 py-2 transition-all"
             >
               <Briefcase className="h-4 w-4 mr-1.5" /> Jobs
+            </TabsTrigger>
+            <TabsTrigger
+              value="credits"
+              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-4 py-2 transition-all"
+            >
+              <Coins className="h-4 w-4 mr-1.5" /> Credits
             </TabsTrigger>
           </TabsList>
 
@@ -495,6 +542,168 @@ export default function AdminDashboard() {
               </div>
             </motion.div>
           </TabsContent>
+
+          {/* ── CREDITS TAB ── */}
+          <TabsContent value="credits" className="mt-4">
+            <motion.div key="credits" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }} className="space-y-4">
+
+              {/* Actions bar */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="relative flex-1 min-w-[200px] max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                  <input
+                    value={creditSearch}
+                    onChange={(e) => setCreditSearch(e.target.value)}
+                    placeholder="Search tradies…"
+                    className="w-full pl-9 pr-4 py-2.5 bg-[#130f07] border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowGrantForm((v) => !v)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/25 text-[#ffc800] text-sm font-semibold hover:bg-[#ffc800]/25 transition-all"
+                  >
+                    <Gift className="h-4 w-4" /> Grant Credits
+                  </button>
+                  <button
+                    onClick={() => renewCredits.mutate()}
+                    disabled={renewCredits.isPending}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/6 border border-white/10 text-white/70 hover:text-white hover:border-white/20 text-sm font-semibold transition-all disabled:opacity-50"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${renewCredits.isPending ? "animate-spin" : ""}`} />
+                    {renewCredits.isPending ? "Renewing…" : "Monthly Renewal"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Grant form */}
+              <AnimatePresence>
+                {showGrantForm && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-bold text-white flex items-center gap-2">
+                          <Gift className="h-4 w-4 text-[#ffc800]" /> Grant Credits to a Tradie
+                        </h3>
+                        <button onClick={() => setShowGrantForm(false)}>
+                          <X className="h-4 w-4 text-white/40 hover:text-white transition-colors" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-white/60">Tradie (User ID)</label>
+                          <select
+                            value={grantUserId}
+                            onChange={(e) => setGrantUserId(e.target.value)}
+                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                          >
+                            <option value="">Select a tradie…</option>
+                            {(creditsData?.tradies ?? []).map((t) => (
+                              <option key={t.id} value={String(t.id)}>
+                                {t.name} ({t.balance ?? 0} cr)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-white/60">Amount</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={grantAmount}
+                            onChange={(e) => setGrantAmount(e.target.value)}
+                            placeholder="e.g. 100"
+                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-white/60">Reason (optional)</label>
+                          <input
+                            value={grantReason}
+                            onChange={(e) => setGrantReason(e.target.value)}
+                            placeholder="e.g. Compensation"
+                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          disabled={!grantUserId || !grantAmount || grantCredits.isPending}
+                          onClick={() => {
+                            grantCredits.mutate({ data: { userId: parseInt(grantUserId), amount: parseInt(grantAmount), reason: grantReason || undefined } });
+                          }}
+                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-all disabled:opacity-50"
+                        >
+                          <Gift className="h-4 w-4" />
+                          {grantCredits.isPending ? "Granting…" : "Grant Credits"}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Balances table */}
+              <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
+                <div className="px-6 py-4 border-b border-white/6 flex items-center justify-between">
+                  <h2 className="font-bold text-white">Tradie Credit Balances</h2>
+                  <span className="text-xs text-white/35 font-medium">{filteredCreditTradies.length} tradies</span>
+                </div>
+                <div className="divide-y divide-white/5">
+                  {filteredCreditTradies.length === 0 ? (
+                    <div className="px-6 py-10 text-center text-white/35 text-sm">No tradies found.</div>
+                  ) : (
+                    filteredCreditTradies.map((t) => (
+                      <motion.div
+                        key={t.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center justify-between px-6 py-3.5 hover:bg-white/2 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-[#ffc800] text-black flex items-center justify-center font-black text-xs flex-shrink-0">
+                            {t.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm text-white truncate">{t.name}</p>
+                            <p className="text-xs text-white/35 truncate">{t.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 flex-shrink-0 ml-3">
+                          {t.updatedAt && (
+                            <span className="text-xs text-white/30 hidden sm:block">{timeAgo(t.updatedAt)}</span>
+                          )}
+                          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-sm ${
+                            (t.balance ?? 0) > 100
+                              ? "bg-emerald-500/15 text-emerald-400"
+                              : (t.balance ?? 0) > 0
+                              ? "bg-amber-500/15 text-amber-400"
+                              : "bg-red-500/10 text-red-400"
+                          }`}>
+                            <Coins className="h-3.5 w-3.5" />
+                            {t.balance ?? 0}
+                          </div>
+                          <button
+                            onClick={() => { setGrantUserId(String(t.id)); setShowGrantForm(true); }}
+                            title="Grant credits"
+                            className="text-white/30 hover:text-[#ffc800] transition-colors"
+                          >
+                            <Gift className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </TabsContent>
+
         </Tabs>
       </div>
     </div>

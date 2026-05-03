@@ -17,7 +17,9 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AdminCreditListResponse,
   AdminDashboard,
+  AdminGrantCreditsBody,
   AdminListJobsParams,
   AdminListUsersParams,
   AdminUpdateUserBody,
@@ -37,6 +39,7 @@ import type {
   JobListResponse,
   ListJobsParams,
   ListNotificationsParams,
+  ListTradiesParams,
   LoginBody,
   Message,
   Notification,
@@ -45,6 +48,8 @@ import type {
   SendMessageBody,
   SuccessResponse,
   TradieDashboard,
+  TradieListResponse,
+  TradiePublicProfile,
   UnreadCountResponse,
   UpdateClaimBody,
   UpdateJobBody,
@@ -2806,6 +2811,429 @@ export const useCreateReview = <
   TContext
 > => {
   return useMutation(getCreateReviewMutationOptions(options));
+};
+
+/**
+ * @summary Browse public tradie directory
+ */
+export const getListTradiesUrl = (params?: ListTradiesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/tradies?${stringifiedParams}`
+    : `/api/tradies`;
+};
+
+export const listTradies = async (
+  params?: ListTradiesParams,
+  options?: RequestInit,
+): Promise<TradieListResponse> => {
+  return customFetch<TradieListResponse>(getListTradiesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTradiesQueryKey = (params?: ListTradiesParams) => {
+  return [`/api/tradies`, ...(params ? [params] : [])] as const;
+};
+
+export const getListTradiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTradies>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListTradiesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTradies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListTradiesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listTradies>>> = ({
+    signal,
+  }) => listTradies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTradies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTradiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTradies>>
+>;
+export type ListTradiesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Browse public tradie directory
+ */
+
+export function useListTradies<
+  TData = Awaited<ReturnType<typeof listTradies>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListTradiesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTradies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTradiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get public tradie profile
+ */
+export const getGetTradieProfileUrl = (id: number) => {
+  return `/api/tradies/${id}`;
+};
+
+export const getTradieProfile = async (
+  id: number,
+  options?: RequestInit,
+): Promise<TradiePublicProfile> => {
+  return customFetch<TradiePublicProfile>(getGetTradieProfileUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTradieProfileQueryKey = (id: number) => {
+  return [`/api/tradies/${id}`] as const;
+};
+
+export const getGetTradieProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTradieProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTradieProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetTradieProfileQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getTradieProfile>>
+  > = ({ signal }) => getTradieProfile(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTradieProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetTradieProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTradieProfile>>
+>;
+export type GetTradieProfileQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get public tradie profile
+ */
+
+export function useGetTradieProfile<
+  TData = Awaited<ReturnType<typeof getTradieProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTradieProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTradieProfileQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all tradie credit balances
+ */
+export const getAdminListCreditsUrl = () => {
+  return `/api/admin/credits`;
+};
+
+export const adminListCredits = async (
+  options?: RequestInit,
+): Promise<AdminCreditListResponse> => {
+  return customFetch<AdminCreditListResponse>(getAdminListCreditsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getAdminListCreditsQueryKey = () => {
+  return [`/api/admin/credits`] as const;
+};
+
+export const getAdminListCreditsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListCredits>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminListCredits>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListCreditsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof adminListCredits>>
+  > = ({ signal }) => adminListCredits({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListCredits>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type AdminListCreditsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListCredits>>
+>;
+export type AdminListCreditsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all tradie credit balances
+ */
+
+export function useAdminListCredits<
+  TData = Awaited<ReturnType<typeof adminListCredits>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminListCredits>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminListCreditsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Grant credits to a tradie
+ */
+export const getAdminGrantCreditsUrl = () => {
+  return `/api/admin/credits/grant`;
+};
+
+export const adminGrantCredits = async (
+  adminGrantCreditsBody: AdminGrantCreditsBody,
+  options?: RequestInit,
+): Promise<SuccessResponse> => {
+  return customFetch<SuccessResponse>(getAdminGrantCreditsUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(adminGrantCreditsBody),
+  });
+};
+
+export const getAdminGrantCreditsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminGrantCredits>>,
+    TError,
+    { data: BodyType<AdminGrantCreditsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminGrantCredits>>,
+  TError,
+  { data: BodyType<AdminGrantCreditsBody> },
+  TContext
+> => {
+  const mutationKey = ["adminGrantCredits"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminGrantCredits>>,
+    { data: BodyType<AdminGrantCreditsBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return adminGrantCredits(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminGrantCreditsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminGrantCredits>>
+>;
+export type AdminGrantCreditsMutationBody = BodyType<AdminGrantCreditsBody>;
+export type AdminGrantCreditsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Grant credits to a tradie
+ */
+export const useAdminGrantCredits = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminGrantCredits>>,
+    TError,
+    { data: BodyType<AdminGrantCreditsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminGrantCredits>>,
+  TError,
+  { data: BodyType<AdminGrantCreditsBody> },
+  TContext
+> => {
+  return useMutation(getAdminGrantCreditsMutationOptions(options));
+};
+
+/**
+ * @summary Trigger monthly credit renewal manually
+ */
+export const getAdminRenewCreditsUrl = () => {
+  return `/api/admin/credits/renew`;
+};
+
+export const adminRenewCredits = async (
+  options?: RequestInit,
+): Promise<SuccessResponse> => {
+  return customFetch<SuccessResponse>(getAdminRenewCreditsUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getAdminRenewCreditsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRenewCredits>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRenewCredits>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["adminRenewCredits"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRenewCredits>>,
+    void
+  > = () => {
+    return adminRenewCredits(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminRenewCreditsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRenewCredits>>
+>;
+
+export type AdminRenewCreditsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Trigger monthly credit renewal manually
+ */
+export const useAdminRenewCredits = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRenewCredits>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminRenewCredits>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getAdminRenewCreditsMutationOptions(options));
 };
 
 /**

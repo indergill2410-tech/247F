@@ -1,17 +1,31 @@
 import { useListNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, CheckCheck, BellRing, ChevronLeft } from "lucide-react";
+import {
+  Bell, CheckCheck, BellRing, ChevronLeft,
+  Hammer, CheckCircle2, XCircle, PartyPopper, Link2, Info, AlertCircle,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
-const TYPE_ICONS: Record<string, string> = {
-  new_claim:      "🔔",
-  claim_accepted: "✅",
-  claim_rejected: "❌",
-  job_completed:  "🎉",
-  job_matched:    "🔗",
-  system:         "ℹ️",
+function timeAgo(date: string | Date) {
+  const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  if (s < 2592000) return `${Math.floor(s / 86400)}d ago`;
+  return new Date(date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+}
+
+const TYPE_CONFIG: Record<string, { Icon: React.ElementType; bg: string; color: string }> = {
+  new_claim:      { Icon: Hammer,       bg: "bg-blue-500/15",    color: "text-blue-400" },
+  claim_accepted: { Icon: CheckCircle2, bg: "bg-emerald-500/15", color: "text-emerald-400" },
+  claim_rejected: { Icon: XCircle,      bg: "bg-red-500/15",     color: "text-red-400" },
+  job_completed:  { Icon: PartyPopper,  bg: "bg-[#ffc800]/15",   color: "text-[#ffc800]" },
+  job_matched:    { Icon: Link2,        bg: "bg-purple-500/15",  color: "text-purple-400" },
+  system:         { Icon: Info,         bg: "bg-white/8",        color: "text-white/50" },
 };
+
+const FALLBACK = { Icon: AlertCircle, bg: "bg-white/8", color: "text-white/50" };
 
 export default function NotificationsPage() {
   const [, setLocation] = useLocation();
@@ -30,6 +44,11 @@ export default function NotificationsPage() {
 
   const unreadCount = (notifications ?? []).filter((n) => !n.isRead).length;
 
+  function handleClick(n: { id: number; isRead: boolean; jobId?: number | null }) {
+    if (!n.isRead) markRead.mutate({ id: n.id });
+    if (n.jobId) setLocation(`/jobs/${n.jobId}`);
+  }
+
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
@@ -43,10 +62,14 @@ export default function NotificationsPage() {
           </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <BellRing className="h-5 w-5 text-[#ffc800]" />
+              <div className="w-9 h-9 rounded-xl bg-[#ffc800]/15 flex items-center justify-center">
+                <BellRing className="h-4.5 w-4.5 text-[#ffc800]" />
+              </div>
               <div>
                 <h1 className="text-2xl font-black text-white">Notifications</h1>
-                {unreadCount > 0 && <p className="text-white/40 text-xs mt-0.5">{unreadCount} unread</p>}
+                {unreadCount > 0 && (
+                  <p className="text-white/40 text-xs mt-0.5">{unreadCount} unread</p>
+                )}
               </div>
             </div>
             {unreadCount > 0 && (
@@ -66,9 +89,13 @@ export default function NotificationsPage() {
         <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden divide-y divide-white/5">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="px-6 py-5">
-                <Skeleton className="h-4 w-2/3 mb-2 bg-white/8" />
-                <Skeleton className="h-3 w-full bg-white/5" />
+              <div key={i} className="px-6 py-5 flex items-start gap-4">
+                <Skeleton className="w-9 h-9 rounded-xl bg-white/8 flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-2/3 bg-white/8" />
+                  <Skeleton className="h-3 w-full bg-white/5" />
+                  <Skeleton className="h-3 w-1/4 bg-white/4" />
+                </div>
               </div>
             ))
           ) : !(notifications ?? []).length ? (
@@ -78,32 +105,43 @@ export default function NotificationsPage() {
               <p className="text-sm mt-1">We'll notify you when something happens</p>
             </div>
           ) : (
-            (notifications ?? []).map((n) => (
-              <div
-                key={n.id}
-                className={`px-6 py-4 flex items-start gap-4 cursor-pointer transition-colors hover:bg-white/2 ${
-                  !n.isRead ? "bg-[#ffc800]/3" : ""
-                }`}
-                onClick={() => { if (!n.isRead) markRead.mutate({ id: n.id }); }}
-              >
-                <span className="text-xl flex-shrink-0 mt-0.5">{TYPE_ICONS[n.type] ?? "🔔"}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className={`text-sm font-semibold ${!n.isRead ? "text-white" : "text-white/55"}`}>
-                      {n.title}
-                    </p>
-                    {!n.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-[#ffc800] flex-shrink-0" />
+            (notifications ?? []).map((n) => {
+              const cfg = TYPE_CONFIG[n.type] ?? FALLBACK;
+              const { Icon } = cfg;
+              const clickable = !n.isRead || !!n.jobId;
+              return (
+                <div
+                  key={n.id}
+                  onClick={() => handleClick(n)}
+                  className={`px-6 py-4 flex items-start gap-4 transition-colors ${
+                    !n.isRead ? "bg-[#ffc800]/3" : ""
+                  } ${clickable ? "cursor-pointer hover:bg-white/2" : ""}`}
+                >
+                  {/* Icon badge */}
+                  <div className={`w-9 h-9 rounded-xl ${cfg.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                    <Icon className={`h-4 w-4 ${cfg.color}`} />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-sm font-semibold leading-snug ${!n.isRead ? "text-white" : "text-white/55"}`}>
+                        {n.title}
+                      </p>
+                      <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <span className="text-xs text-white/25 whitespace-nowrap">{timeAgo(n.createdAt)}</span>
+                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-[#ffc800] flex-shrink-0" />}
+                      </div>
+                    </div>
+                    <p className="text-sm text-white/40 mt-0.5 leading-relaxed">{n.message}</p>
+                    {n.jobId && (
+                      <span className="text-xs text-[#ffc800]/60 mt-1.5 inline-block hover:text-[#ffc800] transition-colors">
+                        View job →
+                      </span>
                     )}
                   </div>
-                  <p className="text-sm text-white/40 mt-0.5">{n.message}</p>
-                  <p className="text-xs text-white/25 mt-1.5">
-                    {new Date(n.createdAt).toLocaleDateString()} at{" "}
-                    {new Date(n.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </p>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

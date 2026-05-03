@@ -903,6 +903,150 @@ export const CreateReviewBody = zod.object({
 });
 
 /**
+ * @summary Browse public tradie directory
+ */
+export const listTradiesQueryPageDefault = 1;
+export const listTradiesQueryLimitDefault = 20;
+
+export const ListTradiesQueryParams = zod.object({
+  search: zod.coerce.string().optional(),
+  categoryId: zod.coerce.number().optional(),
+  suburb: zod.coerce.string().optional(),
+  page: zod.coerce.number().default(listTradiesQueryPageDefault),
+  limit: zod.coerce.number().default(listTradiesQueryLimitDefault),
+});
+
+export const listTradiesResponseTradiesItemReviewsItemRatingMax = 5;
+
+export const ListTradiesResponse = zod.object({
+  tradies: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      suburb: zod.string().nullish(),
+      postcode: zod.string().nullish(),
+      bio: zod.string().nullish(),
+      avatarUrl: zod.string().nullish(),
+      rating: zod.number().nullish(),
+      reviewCount: zod.number(),
+      isVerified: zod.boolean(),
+      createdAt: zod.coerce.date(),
+      categories: zod.array(
+        zod.object({
+          id: zod.number(),
+          name: zod.string(),
+          icon: zod.string(),
+        }),
+      ),
+      reviews: zod.array(
+        zod.object({
+          id: zod.number(),
+          jobId: zod.number(),
+          reviewerId: zod.number(),
+          reviewerName: zod.string().nullish(),
+          reviewerAvatarUrl: zod.string().nullish(),
+          revieweeId: zod.number(),
+          revieweeName: zod.string().nullish(),
+          rating: zod
+            .number()
+            .min(1)
+            .max(listTradiesResponseTradiesItemReviewsItemRatingMax),
+          comment: zod.string().nullish(),
+          createdAt: zod.coerce.date(),
+        }),
+      ),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  limit: zod.number(),
+});
+
+/**
+ * @summary Get public tradie profile
+ */
+export const GetTradieProfileParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const getTradieProfileResponseReviewsItemRatingMax = 5;
+
+export const GetTradieProfileResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  suburb: zod.string().nullish(),
+  postcode: zod.string().nullish(),
+  bio: zod.string().nullish(),
+  avatarUrl: zod.string().nullish(),
+  rating: zod.number().nullish(),
+  reviewCount: zod.number(),
+  isVerified: zod.boolean(),
+  createdAt: zod.coerce.date(),
+  categories: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      icon: zod.string(),
+    }),
+  ),
+  reviews: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.number(),
+      reviewerId: zod.number(),
+      reviewerName: zod.string().nullish(),
+      reviewerAvatarUrl: zod.string().nullish(),
+      revieweeId: zod.number(),
+      revieweeName: zod.string().nullish(),
+      rating: zod
+        .number()
+        .min(1)
+        .max(getTradieProfileResponseReviewsItemRatingMax),
+      comment: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary List all tradie credit balances
+ */
+export const AdminListCreditsResponse = zod.object({
+  tradies: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      email: zod.string(),
+      balance: zod.number().nullish(),
+      updatedAt: zod.coerce.date().nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary Grant credits to a tradie
+ */
+
+export const AdminGrantCreditsBody = zod.object({
+  userId: zod.number(),
+  amount: zod.number().min(1),
+  reason: zod.string().optional(),
+});
+
+export const AdminGrantCreditsResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string().optional(),
+});
+
+/**
+ * @summary Trigger monthly credit renewal manually
+ */
+export const AdminRenewCreditsResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string().optional(),
+});
+
+/**
  * @summary Admin - list all jobs
  */
 export const adminListJobsQueryPageDefault = 1;

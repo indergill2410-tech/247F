@@ -424,6 +424,12 @@ export interface SendMessageBody {
   body: string;
 }
 
+export type TradiePublicProfileCategoriesItem = {
+  id: number;
+  name: string;
+  icon: string;
+};
+
 export interface Review {
   id: number;
   jobId: number;
@@ -439,6 +445,47 @@ export interface Review {
   rating: number;
   comment?: string | null;
   createdAt: string;
+}
+
+export interface TradiePublicProfile {
+  id: number;
+  name: string;
+  suburb?: string | null;
+  postcode?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  rating?: number | null;
+  reviewCount: number;
+  isVerified: boolean;
+  createdAt: string;
+  categories: TradiePublicProfileCategoriesItem[];
+  reviews: Review[];
+}
+
+export interface TradieListResponse {
+  tradies: TradiePublicProfile[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminCreditEntry {
+  id: number;
+  name: string;
+  email: string;
+  balance?: number | null;
+  updatedAt?: string | null;
+}
+
+export interface AdminCreditListResponse {
+  tradies: AdminCreditEntry[];
+}
+
+export interface AdminGrantCreditsBody {
+  userId: number;
+  /** @minimum 1 */
+  amount: number;
+  reason?: string;
 }
 
 export interface CreateReviewBody {
@@ -465,6 +512,14 @@ export type ListNotificationsParams = {
 
 export type AdminListUsersParams = {
   role?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type ListTradiesParams = {
+  search?: string;
+  categoryId?: number;
+  suburb?: string;
   page?: number;
   limit?: number;
 };

@@ -23,6 +23,8 @@ import ProfilePage from "@/pages/profile";
 import MessagesPage from "@/pages/messages";
 import MessageThreadPage from "@/pages/message-thread";
 import CreditsPage from "@/pages/credits";
+import TradiesPage from "@/pages/tradies";
+import TradieProfilePage from "@/pages/tradie-profile";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -128,6 +130,12 @@ function Router() {
         </Route>
         <Route path="/credits">
           {() => <ProtectedRoute component={CreditsPage} roles={["tradie"]} />}
+        </Route>
+        <Route path="/tradies/:id">
+          {() => <TradieProfilePage />}
+        </Route>
+        <Route path="/tradies">
+          {() => <TradiesPage />}
         </Route>
         <Route component={NotFound} />
       </Switch>

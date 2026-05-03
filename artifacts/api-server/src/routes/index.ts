@@ -10,6 +10,7 @@ import adminRouter from "./admin.js";
 import conversationsRouter from "./conversations.js";
 import reviewsRouter from "./reviews.js";
 import stripeRouter from "./stripe.js";
+import tradiesRouter from "./tradies.js";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(adminRouter);
 router.use(conversationsRouter);
 router.use(reviewsRouter);
 router.use(stripeRouter);
+router.use(tradiesRouter);
 
 export default router;

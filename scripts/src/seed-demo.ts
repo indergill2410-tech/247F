@@ -127,6 +127,7 @@ async function hashPassword(pw: string) {
 async function upsertUser(data: {
   name: string; email: string; password: string; role: "homeowner" | "tradie" | "admin";
   bio?: string; suburb?: string; postcode?: string; phone?: string; rating?: number; reviewCount?: number;
+  isVerified?: boolean;
 }): Promise<number> {
   const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, data.email));
   if (existing.length > 0) {
@@ -138,6 +139,7 @@ async function upsertUser(data: {
     name: data.name, email: data.email, passwordHash, role: data.role,
     bio: data.bio, suburb: data.suburb, postcode: data.postcode, phone: data.phone,
     rating: data.rating, reviewCount: data.reviewCount ?? 0,
+    isVerified: data.isVerified ?? false,
   }).returning({ id: users.id });
   console.log(`  ✓ Created ${data.role}: ${data.name} (${data.email})`);
   return u!.id;
@@ -178,11 +180,11 @@ async function seed() {
   const h4 = await upsertUser({ name: "Tom Fletcher", email: "tom.fletcher@example.com", password: "password123", role: "homeowner", suburb: "Manly", postcode: "2095", phone: "0445 678 901" });
 
   // Tradies
-  const t1 = await upsertUser({ name: "Mike Roberts", email: "tradie@fixit247.com", password: "password123", role: "tradie", bio: "Master plumber with 15 years experience. Licensed & insured. Available 24/7 for emergencies.", suburb: "Newtown", postcode: "2042", phone: "0456 789 012", rating: 4.8, reviewCount: 23 });
-  const t2 = await upsertUser({ name: "Dave Chen", email: "dave.chen@example.com", password: "password123", role: "tradie", bio: "Licensed electrician specialising in residential and commercial work. Safety-first approach.", suburb: "Chatswood", postcode: "2067", phone: "0467 890 123", rating: 4.9, reviewCount: 41 });
-  const t3 = await upsertUser({ name: "Luke Patterson", email: "luke.patterson@example.com", password: "password123", role: "tradie", bio: "Expert carpenter and joiner. Custom furniture, decks, renovations. 20 years in the trade.", suburb: "Leichhardt", postcode: "2040", phone: "0478 901 234", rating: 4.7, reviewCount: 18 });
-  const t4 = await upsertUser({ name: "Sam Nguyen", email: "sam.nguyen@example.com", password: "password123", role: "tradie", bio: "Professional painter. Residential and commercial. Interior & exterior. Clean and precise work.", suburb: "Burwood", postcode: "2134", phone: "0489 012 345", rating: 4.6, reviewCount: 29 });
-  const t5 = await upsertUser({ name: "Raj Patel", email: "raj.patel@example.com", password: "password123", role: "tradie", bio: "HVAC specialist. Installation, servicing and repairs for all major brands. Fully licensed.", suburb: "Ryde", postcode: "2112", phone: "0490 123 456", rating: 4.8, reviewCount: 35 });
+  const t1 = await upsertUser({ name: "Mike Roberts", email: "tradie@fixit247.com", password: "password123", role: "tradie", isVerified: true, bio: "Master plumber with 15 years experience. Licensed & insured. Available 24/7 for emergencies.", suburb: "Newtown", postcode: "2042", phone: "0456 789 012", rating: 4.8, reviewCount: 23 });
+  const t2 = await upsertUser({ name: "Dave Chen", email: "dave.chen@example.com", password: "password123", role: "tradie", isVerified: true, bio: "Licensed electrician specialising in residential and commercial work. Safety-first approach.", suburb: "Chatswood", postcode: "2067", phone: "0467 890 123", rating: 4.9, reviewCount: 41 });
+  const t3 = await upsertUser({ name: "Luke Patterson", email: "luke.patterson@example.com", password: "password123", role: "tradie", isVerified: true, bio: "Expert carpenter and joiner. Custom furniture, decks, renovations. 20 years in the trade.", suburb: "Leichhardt", postcode: "2040", phone: "0478 901 234", rating: 4.7, reviewCount: 18 });
+  const t4 = await upsertUser({ name: "Sam Nguyen", email: "sam.nguyen@example.com", password: "password123", role: "tradie", isVerified: true, bio: "Professional painter. Residential and commercial. Interior & exterior. Clean and precise work.", suburb: "Burwood", postcode: "2134", phone: "0489 012 345", rating: 4.6, reviewCount: 29 });
+  const t5 = await upsertUser({ name: "Raj Patel", email: "raj.patel@example.com", password: "password123", role: "tradie", isVerified: true, bio: "HVAC specialist. Installation, servicing and repairs for all major brands. Fully licensed.", suburb: "Ryde", postcode: "2112", phone: "0490 123 456", rating: 4.8, reviewCount: 35 });
 
   // Grant credits to all tradies
   console.log("\n💳 Granting starter credits to tradies...");

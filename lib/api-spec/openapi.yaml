@@ -715,6 +715,112 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /tradies:
+    get:
+      operationId: listTradies
+      tags: [users]
+      summary: Browse public tradie directory
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: suburb
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Tradie list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradieListResponse"
+
+  /tradies/{id}:
+    get:
+      operationId: getTradieProfile
+      tags: [users]
+      summary: Get public tradie profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tradie profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradiePublicProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/credits:
+    get:
+      operationId: adminListCredits
+      tags: [admin]
+      summary: List all tradie credit balances
+      responses:
+        "200":
+          description: Credit balances
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCreditListResponse"
+
+  /admin/credits/grant:
+    post:
+      operationId: adminGrantCredits
+      tags: [admin]
+      summary: Grant credits to a tradie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminGrantCreditsBody"
+      responses:
+        "200":
+          description: Credits granted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/credits/renew:
+    post:
+      operationId: adminRenewCredits
+      tags: [admin]
+      summary: Trigger monthly credit renewal manually
+      responses:
+        "200":
+          description: Renewal complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
   /admin/jobs:
     get:
       operationId: adminListJobs
@@ -1561,6 +1667,107 @@ components:
           minLength: 1
       required:
         - body
+
+    TradiePublicProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        suburb:
+          type: string
+          nullable: true
+        postcode:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        rating:
+          type: number
+          nullable: true
+        reviewCount:
+          type: integer
+        isVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+            required: [id, name, icon]
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+      required: [id, name, reviewCount, isVerified, createdAt, categories, reviews]
+
+    TradieListResponse:
+      type: object
+      properties:
+        tradies:
+          type: array
+          items:
+            $ref: "#/components/schemas/TradiePublicProfile"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [tradies, total, page, limit]
+
+    AdminCreditEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        balance:
+          type: integer
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id, name, email]
+
+    AdminCreditListResponse:
+      type: object
+      properties:
+        tradies:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminCreditEntry"
+      required: [tradies]
+
+    AdminGrantCreditsBody:
+      type: object
+      properties:
+        userId:
+          type: integer
+        amount:
+          type: integer
+          minimum: 1
+        reason:
+          type: string
+      required: [userId, amount]
 
     Review:
       type: object
