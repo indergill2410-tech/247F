@@ -4,6 +4,7 @@ interface AppConfig {
   appUrl: string;
   sessionSecret: string;
   databaseUrl: string;
+  adminEmails: string[];
   sendgrid: {
     enabled: boolean;
     apiKey: string;
@@ -37,6 +38,10 @@ function buildConfig(): AppConfig {
   // Optional with safe defaults
   const nodeEnv = optionalEnv("NODE_ENV", "development");
   const appUrl = optionalEnv("APP_URL", "http://localhost:" + rawPort);
+  const adminEmails = optionalEnv("ADMIN_EMAILS", "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
 
   // SendGrid — optional; email features disabled if not configured
   const sendgridApiKey = optionalEnv("SENDGRID_API_KEY");
@@ -49,6 +54,7 @@ function buildConfig(): AppConfig {
     appUrl,
     sessionSecret,
     databaseUrl,
+    adminEmails,
     sendgrid: {
       enabled: emailEnabled,
       apiKey: sendgridApiKey,
