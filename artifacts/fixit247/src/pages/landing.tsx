@@ -28,10 +28,10 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const TRADIE_PERKS = [
-  "Free to join — sign up in minutes",
-  "Pick the jobs that suit you",
-  "Direct messaging with homeowners",
-  "Verified profiles build trust",
+  "1111 credits renewed every month, automatically",
+  "Use credits to unlock and pick up local jobs",
+  "Grow revenue without heavy ad spend",
+  "Get in front of homeowners already searching",
 ];
 
 
@@ -302,22 +302,25 @@ export default function LandingPage() {
           >
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
               <div className="p-7">
-                <div className="flex items-start justify-between mb-1">
-                  <h2 className="text-[22px] font-bold text-gray-900 leading-tight">
-                    Tradies join free
-                  </h2>
-                  <span className="bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-2.5 py-1 rounded-md shrink-0 ml-3">
-                    100% FREE
+                {/* Credits callout badge */}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="inline-flex items-center gap-1.5 bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-3 py-1.5 rounded-full">
+                    <Star className="h-3.5 w-3.5" aria-hidden="true" />
+                    1111 credits / month — free
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mb-6">
-                  Real Aussie jobs in your suburb. No credit card needed.
+
+                <h2 className="text-[21px] font-bold text-gray-900 leading-snug mb-2">
+                  Start picking up jobs and grow your business revenue — join free
+                </h2>
+                <p className="text-sm text-gray-500 mb-5">
+                  Get 1111 free credits every month to unlock jobs and start winning new work.
                 </p>
 
-                <ul className="flex flex-col gap-3 mb-7" role="list">
+                <ul className="flex flex-col gap-3 mb-6" role="list">
                   {TRADIE_PERKS.map((perk) => (
-                    <li key={perk} className="flex items-center gap-3 text-[15px] text-gray-700">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" aria-hidden="true" />
+                    <li key={perk} className="flex items-center gap-3 text-[14px] text-gray-700">
+                      <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" aria-hidden="true" />
                       {perk}
                     </li>
                   ))}
@@ -325,14 +328,14 @@ export default function LandingPage() {
 
                 <Link href="/signup?role=tradie">
                   <button className="w-full h-12 rounded-xl font-bold text-[15px] text-white bg-[#1a1a1a] hover:bg-[#2d2d2d] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
-                    Sign up free
+                    Join free and start picking up jobs
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
 
-                <Link href="/for-tradies">
+                <Link href="#how-it-works">
                   <span className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">
-                    Why join Fixit 24/7?
+                    See how tradie credits work
                     <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </span>
                 </Link>
