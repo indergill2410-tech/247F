@@ -439,6 +439,116 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── Emergency 24/7 Membership ─── */}
+      <section className="py-20 bg-[#0b0904] text-white">
+        <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+          <div className="text-center mb-12">
+            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Priority Membership</span>
+            <h2 className="text-3xl sm:text-4xl font-black mt-3">Fixit Emergency 24/7</h2>
+            <p className="text-white/50 mt-3 text-[15px] max-w-md mx-auto">
+              Skip the queue. Guaranteed priority dispatch — day or night, any emergency.
+            </p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center gap-10">
+            {/* Pricing card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="relative w-full max-w-sm mx-auto lg:mx-0 flex-shrink-0"
+            >
+              <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/40 to-[#ffc800]/10" aria-hidden="true" />
+              <div className="relative bg-[#130f07] rounded-3xl p-8 border border-[#ffc800]/20">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span className="bg-[#ffc800] text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                    Homeowners Only
+                  </span>
+                </div>
+
+                <div className="text-center mb-6 pt-2">
+                  <p className="text-white/40 text-sm font-medium mb-1">Priority membership</p>
+                  <div className="flex items-end justify-center gap-1">
+                    <span className="text-white/50 text-xl font-bold self-start mt-2">A$</span>
+                    <span className="text-6xl font-black text-white">49</span>
+                    <span className="text-white/50 text-base font-medium self-end mb-2">/mo</span>
+                  </div>
+                  <p className="text-white/35 text-xs mt-1">Cancel anytime. No lock-in.</p>
+                </div>
+
+                <ul className="flex flex-col gap-3 mb-7" role="list">
+                  {[
+                    "Guaranteed 30-min response",
+                    "24/7 emergency priority dispatch",
+                    "Jump the queue — your jobs go first",
+                    "Dedicated emergency phone line",
+                    "Unlimited emergency callouts",
+                    "SMS & email instant alerts",
+                  ].map((perk) => (
+                    <li key={perk} className="flex items-center gap-3 text-[14px] text-white/75">
+                      <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link href="/signup?role=homeowner&membership=emergency">
+                  <button className="w-full h-12 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
+                    Get Emergency 24/7 — $49/mo
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </Link>
+                <p className="text-center text-xs text-white/25 mt-4">
+                  Available to verified homeowners only. Secure payment via Stripe.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Feature highlights */}
+            <div className="flex-1 grid sm:grid-cols-2 gap-4">
+              {[
+                {
+                  icon: Clock,
+                  title: "30-min guaranteed response",
+                  desc: "Emergency? A verified tradie will be matched and on their way to you within 30 minutes, or your next month is on us.",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Always-on priority queue",
+                  desc: "Your emergency jobs skip the standard queue and go straight to our pool of on-call tradies — day, night, weekends.",
+                },
+                {
+                  icon: MapPin,
+                  title: "Local verified tradies",
+                  desc: "Every tradie dispatched through Emergency 24/7 has verified identity, trade licences, and real reviews from your area.",
+                },
+                {
+                  icon: BadgeCheck,
+                  title: "Cancel anytime",
+                  desc: "No contracts, no lock-in. Manage or cancel your membership at any time through your homeowner dashboard.",
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="bg-white/4 border border-white/8 rounded-2xl p-5 hover:bg-white/6 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#ffc800]/12 border border-[#ffc800]/15 flex items-center justify-center mb-3">
+                    <item.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white mb-1.5">{item.title}</h3>
+                  <p className="text-white/45 text-sm leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── FAQ ─── */}
       <section className="py-20 bg-[#0b0904] text-white">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">

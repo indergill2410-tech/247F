@@ -26,6 +26,8 @@ tags:
     description: Messaging between homeowners and tradies
   - name: reviews
     description: Job reviews and ratings
+  - name: emergency
+    description: Emergency 24/7 homeowner membership
 
 paths:
   /healthz:
@@ -848,6 +850,94 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/JobListResponse"
+
+  /emergency/status:
+    get:
+      operationId: getEmergencyMembershipStatus
+      tags: [emergency]
+      summary: Get emergency membership status for the authenticated homeowner
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Membership status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyMembershipStatus"
+        "403":
+          description: Not a homeowner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /emergency/checkout:
+    post:
+      operationId: createEmergencyCheckout
+      tags: [emergency]
+      summary: Create a Stripe Checkout session for emergency membership subscription
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Checkout session URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyCheckoutResponse"
+        "403":
+          description: Not a homeowner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Already subscribed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /emergency/verify-session:
+    post:
+      operationId: verifyEmergencySession
+      tags: [emergency]
+      summary: Verify checkout session and activate emergency membership
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+              required: [sessionId]
+      responses:
+        "200":
+          description: Membership activated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyVerifyResponse"
+
+  /emergency/cancel:
+    post:
+      operationId: cancelEmergencyMembership
+      tags: [emergency]
+      summary: Cancel emergency membership at end of current billing period
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Cancellation scheduled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyCancelResponse"
 
 components:
   schemas:
@@ -1821,3 +1911,58 @@ components:
       required:
         - revieweeId
         - rating
+
+    EmergencyMembershipStatus:
+      type: object
+      properties:
+        active:
+          type: boolean
+        subId:
+          type: string
+          nullable: true
+        subEnd:
+          type: string
+          format: date-time
+          nullable: true
+        cancelAtPeriodEnd:
+          type: boolean
+      required: [active, cancelAtPeriodEnd]
+
+    EmergencyCheckoutResponse:
+      type: object
+      properties:
+        url:
+          type: string
+        sessionId:
+          type: string
+      required: [url, sessionId]
+
+    EmergencyVerifyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        active:
+          type: boolean
+        subId:
+          type: string
+          nullable: true
+        subEnd:
+          type: string
+          format: date-time
+          nullable: true
+        cancelAtPeriodEnd:
+          type: boolean
+      required: [success, active, cancelAtPeriodEnd]
+
+    EmergencyCancelResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        subEnd:
+          type: string
+          format: date-time
+      required: [success, message]

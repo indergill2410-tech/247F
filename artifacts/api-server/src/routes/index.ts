@@ -12,6 +12,7 @@ import reviewsRouter from "./reviews.js";
 import stripeRouter from "./stripe.js";
 import tradiesRouter from "./tradies.js";
 import partnerEnquiryRouter from "./partner-enquiry.js";
+import emergencyRouter from "./emergency.js";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(reviewsRouter);
 router.use(stripeRouter);
 router.use(tradiesRouter);
 router.use(partnerEnquiryRouter);
+router.use(emergencyRouter);
 
 export default router;

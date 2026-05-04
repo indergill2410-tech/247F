@@ -498,6 +498,32 @@ export interface CreateReviewBody {
   comment?: string;
 }
 
+export interface EmergencyMembershipStatus {
+  active: boolean;
+  subId?: string | null;
+  subEnd?: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface EmergencyCheckoutResponse {
+  url: string;
+  sessionId: string;
+}
+
+export interface EmergencyVerifyResponse {
+  success: boolean;
+  active: boolean;
+  subId?: string | null;
+  subEnd?: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface EmergencyCancelResponse {
+  success: boolean;
+  message: string;
+  subEnd?: string;
+}
+
 export type ListJobsParams = {
   status?: string;
   categoryId?: number;
@@ -528,4 +554,8 @@ export type AdminListJobsParams = {
   status?: string;
   page?: number;
   limit?: number;
+};
+
+export type VerifyEmergencySessionBody = {
+  sessionId: string;
 };

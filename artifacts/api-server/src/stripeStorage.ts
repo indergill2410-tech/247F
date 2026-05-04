@@ -16,8 +16,47 @@ export async function getUserById(id: number) {
   return user ?? null;
 }
 
+export async function getUserByStripeCustomerId(stripeCustomerId: string) {
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.stripeCustomerId, stripeCustomerId));
+  return user ?? null;
+}
+
 export async function updateUserStripeCustomerId(userId: number, stripeCustomerId: string) {
   await db.update(usersTable).set({ stripeCustomerId }).where(eq(usersTable.id, userId));
+}
+
+export async function getEmergencyMembershipStatus(userId: number) {
+  const [user] = await db
+    .select({
+      emergencyMemberActive: usersTable.emergencyMemberActive,
+      emergencySubId: usersTable.emergencySubId,
+      emergencySubEnd: usersTable.emergencySubEnd,
+      emergencySubCancelAt: usersTable.emergencySubCancelAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+  return user ?? null;
+}
+
+export async function setEmergencyMembership(
+  userId: number,
+  data: {
+    active: boolean;
+    subId: string | null;
+    subEnd: Date | null;
+    cancelAtPeriodEnd: boolean;
+  },
+) {
+  await db
+    .update(usersTable)
+    .set({
+      emergencyMemberActive: data.active,
+      emergencySubId: data.subId,
+      emergencySubEnd: data.subEnd,
+      emergencySubCancelAt: data.cancelAtPeriodEnd,
+      updatedAt: sql`NOW()`,
+    })
+    .where(eq(usersTable.id, userId));
 }
 
 export async function getCreditBalance(userId: number): Promise<number> {
@@ -95,7 +134,6 @@ export async function getSubscription(subscriptionId: string) {
 }
 
 export async function runMonthlyRenewal(): Promise<{ renewed: number; skipped: number }> {
-  // Get all active tradies
   const tradies = await db
     .select({ id: usersTable.id, name: usersTable.name })
     .from(usersTable)
@@ -108,7 +146,6 @@ export async function runMonthlyRenewal(): Promise<{ renewed: number; skipped: n
     try {
       await ensureCreditBalance(tradie.id);
 
-      // Check if a renewal was already granted this calendar month
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -128,7 +165,6 @@ export async function runMonthlyRenewal(): Promise<{ renewed: number; skipped: n
         continue;
       }
 
-      // Reset balance to SIGNUP_GRANT (full monthly allocation)
       await db
         .update(creditBalancesTable)
         .set({ balance: SIGNUP_GRANT, updatedAt: sql`NOW()` })

@@ -74,6 +74,33 @@ All routes prefixed `/api/`. Source: `artifacts/api-server/src/routes/`
 - **Admin manual trigger**: `POST /api/admin/credits/renew` or `POST /api/admin/credits/grant`
 - **Cron**: `node-cron` in `artifacts/api-server/src/index.ts`, calls `runMonthlyRenewal()` from `stripeStorage.ts`
 
+## Emergency 24/7 Membership (Homeowners)
+$49 AUD/month recurring subscription for homeowners — priority dispatch, guaranteed 30-min response.
+
+### DB Columns (users table)
+- `emergency_member_active` — boolean, default false
+- `emergency_sub_id` — Stripe subscription ID (nullable)
+- `emergency_sub_end` — timestamp for current period end (nullable)
+- `emergency_sub_cancel_at` — boolean, cancel at period end
+
+### Stripe Product
+- Product: "Fixit Emergency 24/7 Membership" (metadata: `platform=fixit247`, `type=emergency_membership`)
+- Price: $49 AUD/month recurring, lookup key: `emergency_membership_monthly`
+- Auto-created on server startup via `ensureEmergencyProduct()` in `artifacts/api-server/src/index.ts`
+
+### API Routes (`artifacts/api-server/src/routes/emergency.ts`)
+- `GET /api/emergency/status` — returns membership status (active, subId, subEnd, cancelAtPeriodEnd)
+- `POST /api/emergency/checkout` — creates Stripe Checkout session (subscription mode), redirects to Stripe
+- `POST /api/emergency/verify-session` — called on return from Stripe, activates membership in DB
+- `POST /api/emergency/cancel` — sets cancel_at_period_end=true via Stripe API
+
+### Webhook Handling
+`artifacts/api-server/src/webhookHandlers.ts` — handles `customer.subscription.created/updated/deleted` to keep membership status in sync
+
+### Frontend
+- **Landing page** (`artifacts/fixit247/src/pages/landing.tsx`) — "Fixit Emergency 24/7" pricing section between Categories and FAQ: animated pricing card at A$49/mo + 4 feature highlight cards
+- **Homeowner dashboard** (`artifacts/fixit247/src/pages/dashboard-homeowner.tsx`) — `EmergencyMembershipWidget` shows subscribe promo (if inactive) or active status with renewal date + cancel button; handles `?emergency=success&session_id=xxx` return URL to auto-verify
+
 ## Demo Seed
 Run `pnpm --filter @workspace/scripts run seed-demo` to populate realistic data. Safe to re-run (skips existing emails).
 

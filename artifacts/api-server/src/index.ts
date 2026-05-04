@@ -6,8 +6,9 @@ import app from "./app.js";
 import { logger } from "./lib/logger.js";
 import { verifyToken } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
-import { getStripeSync } from "./stripeClient.js";
+import { getStripeSync, getUncachableStripeClient } from "./stripeClient.js";
 import { ensureCreditBalance, grantCredits, getCreditBalance, SIGNUP_GRANT, runMonthlyRenewal } from "./stripeStorage.js";
+import { EMERGENCY_PRODUCT_LOOKUP } from "./routes/emergency.js";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
 import { eq, isNull, sql } from "drizzle-orm";
@@ -22,6 +23,51 @@ const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+async function ensureEmergencyProduct() {
+  try {
+    const stripe = await getUncachableStripeClient();
+
+    // Check if the price already exists via lookup key
+    const existing = await stripe.prices.list({
+      lookup_keys: [EMERGENCY_PRODUCT_LOOKUP],
+      active: true,
+      limit: 1,
+    });
+
+    if (existing.data.length > 0) {
+      logger.info({ priceId: existing.data[0].id }, "Emergency membership product already exists");
+      return;
+    }
+
+    // Create the product
+    const product = await stripe.products.create({
+      name: "Fixit Emergency 24/7 Membership",
+      description: "Priority homeowner membership — guaranteed 30-min response, 24/7 emergency dispatch, and queue priority for all emergency jobs.",
+      metadata: {
+        platform: "fixit247",
+        type: "emergency_membership",
+      },
+    });
+
+    // Create the recurring price — $49 AUD/month
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: 4900,
+      currency: "aud",
+      recurring: { interval: "month" },
+      lookup_key: EMERGENCY_PRODUCT_LOOKUP,
+      metadata: {
+        type: "emergency_membership",
+        platform: "fixit247",
+      },
+    });
+
+    logger.info({ productId: product.id, priceId: price.id }, "Emergency membership product created in Stripe");
+  } catch (err) {
+    logger.error({ err }, "Failed to ensure emergency membership product (non-fatal)");
+  }
 }
 
 async function initStripe() {
@@ -48,6 +94,9 @@ async function initStripe() {
 
     // Grant signup credits to any tradies who don't have a credit balance row yet
     await grantSignupCreditsToExistingTradies();
+
+    // Ensure the emergency membership product exists in Stripe
+    await ensureEmergencyProduct();
   } catch (error) {
     logger.error({ err: error }, "Failed to initialize Stripe — payments will be unavailable");
     // Don't throw — let the server start without Stripe

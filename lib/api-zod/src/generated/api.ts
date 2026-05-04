@@ -1090,3 +1090,45 @@ export const AdminListJobsResponse = zod.object({
   page: zod.number(),
   limit: zod.number(),
 });
+
+/**
+ * @summary Get emergency membership status for the authenticated homeowner
+ */
+export const GetEmergencyMembershipStatusResponse = zod.object({
+  active: zod.boolean(),
+  subId: zod.string().nullish(),
+  subEnd: zod.coerce.date().nullish(),
+  cancelAtPeriodEnd: zod.boolean(),
+});
+
+/**
+ * @summary Create a Stripe Checkout session for emergency membership subscription
+ */
+export const CreateEmergencyCheckoutResponse = zod.object({
+  url: zod.string(),
+  sessionId: zod.string(),
+});
+
+/**
+ * @summary Verify checkout session and activate emergency membership
+ */
+export const VerifyEmergencySessionBody = zod.object({
+  sessionId: zod.string(),
+});
+
+export const VerifyEmergencySessionResponse = zod.object({
+  success: zod.boolean(),
+  active: zod.boolean(),
+  subId: zod.string().nullish(),
+  subEnd: zod.coerce.date().nullish(),
+  cancelAtPeriodEnd: zod.boolean(),
+});
+
+/**
+ * @summary Cancel emergency membership at end of current billing period
+ */
+export const CancelEmergencyMembershipResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string(),
+  subEnd: zod.coerce.date().optional(),
+});

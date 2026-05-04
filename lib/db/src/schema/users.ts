@@ -30,6 +30,10 @@ export const usersTable = pgTable("users", {
   isActive: boolean("is_active").notNull().default(true),
   isVerified: boolean("is_verified").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
+  emergencyMemberActive: boolean("emergency_member_active").notNull().default(false),
+  emergencySubId: text("emergency_sub_id"),
+  emergencySubEnd: timestamp("emergency_sub_end", { withTimezone: true }),
+  emergencySubCancelAt: boolean("emergency_sub_cancel_at").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

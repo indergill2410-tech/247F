@@ -31,6 +31,10 @@ import type {
   CreateClaimBody,
   CreateJobBody,
   CreateReviewBody,
+  EmergencyCancelResponse,
+  EmergencyCheckoutResponse,
+  EmergencyMembershipStatus,
+  EmergencyVerifyResponse,
   ErrorResponse,
   HealthStatus,
   HomeownerDashboard,
@@ -56,6 +60,7 @@ import type {
   UpdateProfileBody,
   User,
   UserListResponse,
+  VerifyEmergencySessionBody,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -3329,3 +3334,338 @@ export function useAdminListJobs<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Get emergency membership status for the authenticated homeowner
+ */
+export const getGetEmergencyMembershipStatusUrl = () => {
+  return `/api/emergency/status`;
+};
+
+export const getEmergencyMembershipStatus = async (
+  options?: RequestInit,
+): Promise<EmergencyMembershipStatus> => {
+  return customFetch<EmergencyMembershipStatus>(
+    getGetEmergencyMembershipStatusUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetEmergencyMembershipStatusQueryKey = () => {
+  return [`/api/emergency/status`] as const;
+};
+
+export const getGetEmergencyMembershipStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getEmergencyMembershipStatus>>,
+  TError = ErrorType<ErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getEmergencyMembershipStatus>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetEmergencyMembershipStatusQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getEmergencyMembershipStatus>>
+  > = ({ signal }) =>
+    getEmergencyMembershipStatus({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getEmergencyMembershipStatus>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetEmergencyMembershipStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getEmergencyMembershipStatus>>
+>;
+export type GetEmergencyMembershipStatusQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get emergency membership status for the authenticated homeowner
+ */
+
+export function useGetEmergencyMembershipStatus<
+  TData = Awaited<ReturnType<typeof getEmergencyMembershipStatus>>,
+  TError = ErrorType<ErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getEmergencyMembershipStatus>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetEmergencyMembershipStatusQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a Stripe Checkout session for emergency membership subscription
+ */
+export const getCreateEmergencyCheckoutUrl = () => {
+  return `/api/emergency/checkout`;
+};
+
+export const createEmergencyCheckout = async (
+  options?: RequestInit,
+): Promise<EmergencyCheckoutResponse> => {
+  return customFetch<EmergencyCheckoutResponse>(
+    getCreateEmergencyCheckoutUrl(),
+    {
+      ...options,
+      method: "POST",
+    },
+  );
+};
+
+export const getCreateEmergencyCheckoutMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createEmergencyCheckout>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createEmergencyCheckout>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["createEmergencyCheckout"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createEmergencyCheckout>>,
+    void
+  > = () => {
+    return createEmergencyCheckout(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateEmergencyCheckoutMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createEmergencyCheckout>>
+>;
+
+export type CreateEmergencyCheckoutMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Create a Stripe Checkout session for emergency membership subscription
+ */
+export const useCreateEmergencyCheckout = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createEmergencyCheckout>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createEmergencyCheckout>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getCreateEmergencyCheckoutMutationOptions(options));
+};
+
+/**
+ * @summary Verify checkout session and activate emergency membership
+ */
+export const getVerifyEmergencySessionUrl = () => {
+  return `/api/emergency/verify-session`;
+};
+
+export const verifyEmergencySession = async (
+  verifyEmergencySessionBody: VerifyEmergencySessionBody,
+  options?: RequestInit,
+): Promise<EmergencyVerifyResponse> => {
+  return customFetch<EmergencyVerifyResponse>(getVerifyEmergencySessionUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(verifyEmergencySessionBody),
+  });
+};
+
+export const getVerifyEmergencySessionMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof verifyEmergencySession>>,
+    TError,
+    { data: BodyType<VerifyEmergencySessionBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof verifyEmergencySession>>,
+  TError,
+  { data: BodyType<VerifyEmergencySessionBody> },
+  TContext
+> => {
+  const mutationKey = ["verifyEmergencySession"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof verifyEmergencySession>>,
+    { data: BodyType<VerifyEmergencySessionBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return verifyEmergencySession(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type VerifyEmergencySessionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof verifyEmergencySession>>
+>;
+export type VerifyEmergencySessionMutationBody =
+  BodyType<VerifyEmergencySessionBody>;
+export type VerifyEmergencySessionMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Verify checkout session and activate emergency membership
+ */
+export const useVerifyEmergencySession = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof verifyEmergencySession>>,
+    TError,
+    { data: BodyType<VerifyEmergencySessionBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof verifyEmergencySession>>,
+  TError,
+  { data: BodyType<VerifyEmergencySessionBody> },
+  TContext
+> => {
+  return useMutation(getVerifyEmergencySessionMutationOptions(options));
+};
+
+/**
+ * @summary Cancel emergency membership at end of current billing period
+ */
+export const getCancelEmergencyMembershipUrl = () => {
+  return `/api/emergency/cancel`;
+};
+
+export const cancelEmergencyMembership = async (
+  options?: RequestInit,
+): Promise<EmergencyCancelResponse> => {
+  return customFetch<EmergencyCancelResponse>(
+    getCancelEmergencyMembershipUrl(),
+    {
+      ...options,
+      method: "POST",
+    },
+  );
+};
+
+export const getCancelEmergencyMembershipMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof cancelEmergencyMembership>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof cancelEmergencyMembership>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["cancelEmergencyMembership"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof cancelEmergencyMembership>>,
+    void
+  > = () => {
+    return cancelEmergencyMembership(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CancelEmergencyMembershipMutationResult = NonNullable<
+  Awaited<ReturnType<typeof cancelEmergencyMembership>>
+>;
+
+export type CancelEmergencyMembershipMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Cancel emergency membership at end of current billing period
+ */
+export const useCancelEmergencyMembership = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof cancelEmergencyMembership>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof cancelEmergencyMembership>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getCancelEmergencyMembershipMutationOptions(options));
+};

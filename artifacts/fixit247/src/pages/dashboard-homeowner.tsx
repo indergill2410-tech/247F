@@ -1,12 +1,16 @@
 import { usePageTitle } from "@/hooks/use-page-title";
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useSearch } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useGetHomeownerDashboard,
   useUpdateClaim,
   useListNotifications,
   useMarkNotificationRead,
+  useGetEmergencyMembershipStatus,
+  useCreateEmergencyCheckout,
+  useVerifyEmergencySession,
+  useCancelEmergencyMembership,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +18,7 @@ import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
   Star, MessageSquare, MapPin, User, Users,
   ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info, Settings,
+  ShieldCheck, Zap, X,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -84,6 +89,150 @@ function TradieName({ name }: { name: string | null }) {
     <div className="w-9 h-9 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
       {initials}
     </div>
+  );
+}
+
+function EmergencyMembershipWidget() {
+  const { toast } = useToast();
+  const searchString = useSearch();
+  const params = new URLSearchParams(searchString);
+  const emergencyParam = params.get("emergency");
+  const sessionId = params.get("session_id");
+
+  const { data: membership, isLoading, refetch } = useGetEmergencyMembershipStatus();
+  const checkoutMutation = useCreateEmergencyCheckout({
+    mutation: {
+      onSuccess: (data) => {
+        if (data.url) window.location.href = data.url;
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.message ?? "Failed to start checkout";
+        toast({ title: "Checkout error", description: msg, variant: "destructive" });
+      },
+    },
+  });
+
+  const verifyMutation = useVerifyEmergencySession({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Emergency 24/7 activated!", description: "You now have priority dispatch and guaranteed 30-min response." });
+        refetch();
+        window.history.replaceState({}, "", window.location.pathname);
+      },
+      onError: () => {
+        refetch();
+        window.history.replaceState({}, "", window.location.pathname);
+      },
+    },
+  });
+
+  const cancelMutation = useCancelEmergencyMembership({
+    mutation: {
+      onSuccess: (data) => {
+        const end = data.subEnd ? new Date(data.subEnd).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }) : "";
+        toast({ title: "Membership cancellation scheduled", description: `Your Emergency 24/7 access continues until ${end}.` });
+        refetch();
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Could not cancel membership. Please try again.", variant: "destructive" });
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (emergencyParam === "success" && sessionId && !verifyMutation.isPending) {
+      verifyMutation.mutate({ data: { sessionId } });
+    }
+  }, [emergencyParam, sessionId]);
+
+  if (isLoading) {
+    return <Skeleton className="h-20 w-full bg-white/6 rounded-2xl" />;
+  }
+
+  if (!membership) return null;
+
+  const subEndDate = membership.subEnd
+    ? new Date(membership.subEnd).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+
+  if (membership.active) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`rounded-2xl border p-5 flex flex-col sm:flex-row sm:items-center gap-4 ${
+          membership.cancelAtPeriodEnd
+            ? "bg-orange-500/6 border-orange-500/20"
+            : "bg-[#ffc800]/6 border-[#ffc800]/25"
+        }`}
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${membership.cancelAtPeriodEnd ? "bg-orange-500/15" : "bg-[#ffc800]/15"}`}>
+            <ShieldCheck className={`h-5 w-5 ${membership.cancelAtPeriodEnd ? "text-orange-400" : "text-[#ffc800]"}`} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-bold text-white">Emergency 24/7 Member</span>
+              {membership.cancelAtPeriodEnd ? (
+                <span className="text-[10px] font-bold bg-orange-500/15 text-orange-400 px-2 py-0.5 rounded-md border border-orange-500/20">
+                  Cancels {subEndDate}
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/20">
+                  Active
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-white/40 mt-0.5">
+              {membership.cancelAtPeriodEnd
+                ? `Access until ${subEndDate}`
+                : `Renews ${subEndDate}`}
+            </p>
+          </div>
+        </div>
+        {!membership.cancelAtPeriodEnd && (
+          <button
+            onClick={() => {
+              if (window.confirm("Cancel your Emergency 24/7 membership? You'll keep access until the end of the billing period.")) {
+                cancelMutation.mutate();
+              }
+            }}
+            disabled={cancelMutation.isPending}
+            className="flex-shrink-0 h-8 px-3 rounded-lg text-xs font-semibold text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-50 flex items-center gap-1"
+          >
+            <X className="h-3 w-3" /> Cancel membership
+          </button>
+        )}
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-gradient-to-r from-[#ffc800]/8 to-[#130f07] border border-[#ffc800]/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+    >
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="w-10 h-10 rounded-xl bg-[#ffc800]/12 border border-[#ffc800]/15 flex items-center justify-center flex-shrink-0">
+          <Zap className="h-5 w-5 text-[#ffc800]" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-white">Unlock Emergency 24/7 Priority</p>
+          <p className="text-xs text-white/40 mt-0.5">
+            Guaranteed 30-min response · 24/7 dispatch · Jump the queue — $49/mo
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={() => checkoutMutation.mutate()}
+        disabled={checkoutMutation.isPending}
+        className="flex-shrink-0 h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors disabled:opacity-60 inline-flex items-center gap-1.5"
+      >
+        <Zap className="h-3.5 w-3.5" />
+        {checkoutMutation.isPending ? "Loading..." : "Subscribe — $49/mo"}
+      </button>
+    </motion.div>
   );
 }
 
@@ -281,6 +430,9 @@ export default function HomeownerDashboard() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Emergency 24/7 Membership Widget */}
+        <EmergencyMembershipWidget />
 
         {/* Job Pipeline strip */}
         {!isLoading && (data?.totalJobs ?? 0) > 0 && (
