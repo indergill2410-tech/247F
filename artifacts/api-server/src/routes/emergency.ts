@@ -163,6 +163,16 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
 
     const sub: Stripe.Subscription = await stripe.subscriptions.retrieve(subId);
 
+    // Plan verification: ensure the subscription contains the emergency membership price.
+    // This prevents activating emergency membership via a session from a different product.
+    const hasEmergencyPrice = sub.items.data.some(
+      (item) => item.price?.id === EMERGENCY_PRICE_ID
+    );
+    if (!hasEmergencyPrice) {
+      res.status(400).json({ error: "wrong_product", message: "Session is not for an emergency membership" });
+      return;
+    }
+
     const now = new Date();
     const periodEnd = sub.items.data[0]?.current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
     const renewalDate = new Date(periodEnd * 1000);

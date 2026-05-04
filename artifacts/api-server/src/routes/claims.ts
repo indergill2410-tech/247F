@@ -303,9 +303,10 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
   if (status === "accepted" && job) {
     await db.update(jobsTable).set({ status: "in_progress", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
 
-    // Track emergency callout usage: increment if job is a covered emergency and homeowner
-    // has an active membership with remaining callouts this year.
-    if (isCoveredEmergencyJob(job)) {
+    // Track emergency callout usage: only on the first acceptance transition (claim.status was
+    // "pending"), not on duplicate calls to avoid double-counting. Covers covered emergency jobs
+    // where the homeowner has an active membership with remaining callouts this year.
+    if (claim.status === "pending" && isCoveredEmergencyJob(job)) {
       const [homeowner] = await db
         .select({
           emergencyMembershipActive: usersTable.emergencyMembershipActive,
