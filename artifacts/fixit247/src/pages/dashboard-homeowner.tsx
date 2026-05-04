@@ -105,9 +105,8 @@ function EmergencyMembershipWidget() {
       onSuccess: (data) => {
         if (data.url) window.location.href = data.url;
       },
-      onError: (err: any) => {
-        const msg = err?.response?.data?.message ?? "Failed to start checkout";
-        toast({ title: "Checkout error", description: msg, variant: "destructive" });
+      onError: () => {
+        toast({ title: "Checkout error", description: "Failed to start checkout. Please try again.", variant: "destructive" });
       },
     },
   });

@@ -36,7 +36,7 @@ router.get("/emergency/status", requireAuth, async (req, res): Promise<void> => 
     const callsRemaining = Math.max(0, EMERGENCY_MAX_CALLOUTS - callsUsed);
 
     res.json({
-      active: status.emergencyMemberActive,
+      active: status.emergencyMembershipActive,
       plan: status.emergencyMembershipPlan ?? null,
       startedAt: status.emergencyMembershipStartedAt?.toISOString() ?? null,
       renewalDate: status.emergencyMembershipRenewalDate?.toISOString() ?? null,
@@ -67,7 +67,7 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
       return;
     }
 
-    if (dbUser.emergencyMemberActive && dbUser.emergencySubId) {
+    if (dbUser.emergencyMembershipActive && dbUser.emergencySubId) {
       res.status(409).json({ error: "already_subscribed", message: "You already have an active emergency membership" });
       return;
     }
@@ -191,7 +191,7 @@ router.post("/emergency/cancel", requireAuth, async (req, res): Promise<void> =>
 
   try {
     const status = await getEmergencyMembershipStatus(user.userId);
-    if (!status?.emergencySubId || !status.emergencyMemberActive) {
+    if (!status?.emergencySubId || !status.emergencyMembershipActive) {
       res.status(404).json({ error: "not_found", message: "No active emergency membership found" });
       return;
     }

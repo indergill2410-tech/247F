@@ -18,6 +18,17 @@ import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/
 const MAX_CLAIMS_PER_JOB = 5;
 const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
 
+/**
+ * Categories eligible for covered emergency callouts.
+ * Matches the "What we treat as an emergency" section on the landing page.
+ * Category IDs from seed: 1=Plumbing, 2=Electrical, 5=Roofing, 7=HVAC (gas/hot water), 12=Locksmith
+ */
+const COVERED_EMERGENCY_CATEGORY_IDS = new Set([1, 2, 5, 7, 12]);
+
+function isCoveredEmergencyJob(job: { urgency: string; categoryId: number }): boolean {
+  return job.urgency === "emergency" && COVERED_EMERGENCY_CATEGORY_IDS.has(job.categoryId);
+}
+
 const router = Router();
 
 function buildClaimResponse(claim: {
@@ -140,16 +151,35 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
-  // Check credit balance before claiming
-  const creditBalance = await getCreditBalance(tradieId);
-  if (creditBalance < CREDITS_PER_CLAIM) {
-    res.status(402).json({
-      error: "insufficient_credits",
-      message: `You need ${CREDITS_PER_CLAIM} credits to claim a job. Your balance: ${creditBalance}. Top up at /credits.`,
-      balance: creditBalance,
-      required: CREDITS_PER_CLAIM,
-    });
-    return;
+  // Check if this is a covered emergency job — tradies are not charged credits for covered jobs.
+  // A covered emergency is: urgency=emergency + category in covered list + homeowner has active membership
+  // with remaining callouts. We check homeowner status to gate the exemption.
+  let coveredEmergency = false;
+  if (isCoveredEmergencyJob(job)) {
+    const [homeowner] = await db
+      .select({
+        emergencyMembershipActive: usersTable.emergencyMembershipActive,
+        emergencyCallsUsedThisYear: usersTable.emergencyCallsUsedThisYear,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, job.homeownerId));
+    if (homeowner?.emergencyMembershipActive && homeowner.emergencyCallsUsedThisYear < EMERGENCY_MAX_CALLOUTS) {
+      coveredEmergency = true;
+    }
+  }
+
+  // Check credit balance before claiming (skip for covered emergency jobs)
+  if (!coveredEmergency) {
+    const creditBalance = await getCreditBalance(tradieId);
+    if (creditBalance < CREDITS_PER_CLAIM) {
+      res.status(402).json({
+        error: "insufficient_credits",
+        message: `You need ${CREDITS_PER_CLAIM} credits to claim a job. Your balance: ${creditBalance}. Top up at /credits.`,
+        balance: creditBalance,
+        required: CREDITS_PER_CLAIM,
+      });
+      return;
+    }
   }
 
   const [claim] = await db.insert(claimsTable).values({
@@ -165,10 +195,12 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     return;
   }
 
-  // Deduct credits for the claim
-  await deductCredits(tradieId, CREDITS_PER_CLAIM, `Claimed job #${jobId}: ${job.title ?? "Job"}`).catch((err) =>
-    logger.error({ err }, "Failed to deduct credits for claim")
-  );
+  // Deduct credits for the claim (skip for covered emergency jobs)
+  if (!coveredEmergency) {
+    await deductCredits(tradieId, CREDITS_PER_CLAIM, `Claimed job #${jobId}: ${job.title ?? "Job"}`).catch((err) =>
+      logger.error({ err }, "Failed to deduct credits for claim")
+    );
+  }
 
   await db.insert(notificationsTable).values({
     userId: job.homeownerId,
@@ -271,16 +303,17 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
   if (status === "accepted" && job) {
     await db.update(jobsTable).set({ status: "in_progress", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
 
-    // Track emergency callout usage: increment if homeowner has active membership and job is emergency urgency
-    if (job.urgency === "emergency") {
+    // Track emergency callout usage: increment if job is a covered emergency and homeowner
+    // has an active membership with remaining callouts this year.
+    if (isCoveredEmergencyJob(job)) {
       const [homeowner] = await db
         .select({
-          emergencyMemberActive: usersTable.emergencyMemberActive,
+          emergencyMembershipActive: usersTable.emergencyMembershipActive,
           emergencyCallsUsedThisYear: usersTable.emergencyCallsUsedThisYear,
         })
         .from(usersTable)
         .where(eq(usersTable.id, job.homeownerId));
-      if (homeowner?.emergencyMemberActive && homeowner.emergencyCallsUsedThisYear < EMERGENCY_MAX_CALLOUTS) {
+      if (homeowner?.emergencyMembershipActive && homeowner.emergencyCallsUsedThisYear < EMERGENCY_MAX_CALLOUTS) {
         await incrementEmergencyCallsUsed(job.homeownerId).catch((err) =>
           logger.error({ err }, "Failed to increment emergency callout usage")
         );

@@ -108,12 +108,26 @@ export class WebhookHandlers {
       ? new Date(firstLine.period.end * 1000)
       : null;
 
+    // Reset callsUsed only when crossing the membership YEAR boundary (not every monthly cycle).
+    // emergencyMembershipStartedAt tracks the start of the current membership year;
+    // we advance it by one year each time we cross the boundary.
+    let shouldResetCalls = false;
+    let newYearStart: Date | undefined = undefined;
+    if (isRenewal && currentStatus?.emergencyMembershipStartedAt && renewalDate) {
+      const yearStart = currentStatus.emergencyMembershipStartedAt;
+      const yearBoundary = new Date(yearStart.getTime() + 365.25 * 24 * 60 * 60 * 1000);
+      if (renewalDate > yearBoundary) {
+        shouldResetCalls = true;
+        newYearStart = yearBoundary;
+      }
+    }
+
     await setEmergencyMembership(user.id, {
       active: true,
       subId: subscriptionId ?? currentStatus?.emergencySubId ?? null,
       renewalDate,
       cancelAtPeriodEnd: false,
-      ...(isRenewal && { callsUsed: 0 }),
+      ...(shouldResetCalls && { callsUsed: 0, startedAt: newYearStart }),
     });
 
     logger.info(

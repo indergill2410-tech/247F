@@ -78,14 +78,14 @@ All routes prefixed `/api/`. Source: `artifacts/api-server/src/routes/`
 $49 AUD/month Stripe subscription for homeowners — up to 2 covered emergency callouts/year (up to $300 inc. GST each), 24/7 priority dispatch, 72-hour waiting period on join.
 
 ### DB Columns (users table)
-- `emergency_member_active` — boolean, default false
+- `emergency_membership_active` — boolean, default false (JS: `emergencyMembershipActive`)
 - `emergency_sub_id` — Stripe subscription ID (nullable)
 - `emergency_sub_cancel_at` — boolean, cancel at period end flag
-- `emergency_membership_started_at` — timestamp when first activated (nullable)
+- `emergency_membership_started_at` — tracks current membership YEAR start (advances by 1yr on year rollover)
 - `emergency_membership_renewal_date` — next billing date (nullable)
 - `emergency_membership_plan` — plan name string (nullable)
 - `emergency_waiting_period_ends_at` — 72h after join, before this no emergency callouts (nullable)
-- `emergency_calls_used_this_year` — integer, default 0; resets on each renewal invoice
+- `emergency_calls_used_this_year` — integer, default 0; resets only when crossing yearly boundary (not monthly)
 
 ### Stripe Product
 - Product: "Fixit Emergency 24/7 Membership" (metadata: `platform=fixit247`, `type=emergency_membership`)
@@ -105,9 +105,18 @@ $49 AUD/month Stripe subscription for homeowners — up to 2 covered emergency c
 - `invoice.paid` — on `billing_reason=subscription_cycle`: resets `callsUsed=0` and updates renewalDate
 - Invoice emergency detection: checks if subscriptionId matches stored `emergencySubId` in DB (Stripe v20: subscription ref is at `invoice.parent.subscription_details.subscription`)
 
+### Covered Emergency Categories
+Category IDs eligible for membership coverage: 1=Plumbing, 2=Electrical, 5=Roofing, 7=HVAC, 12=Locksmith.
+Defined in `COVERED_EMERGENCY_CATEGORY_IDS` in `claims.ts`.
+
 ### Callout Tracking
-`artifacts/api-server/src/routes/claims.ts` — when a claim is accepted on an `urgency=emergency` job, if homeowner has active membership and `callsUsed < 2`, increments `emergency_calls_used_this_year` via `incrementEmergencyCallsUsed()`
+`artifacts/api-server/src/routes/claims.ts`:
+- On **claim creation** (POST): if job is a covered emergency AND homeowner has active membership with callouts remaining, tradies are NOT charged credits (credit check + deduction skipped).
+- On **claim acceptance** (PUT status=accepted): if covered emergency + homeowner has active membership + callsUsed < 2, increments `emergency_calls_used_this_year`.
 Max callouts constant: `EMERGENCY_MAX_CALLOUTS = 2` in `stripeStorage.ts`
+
+### Yearly Callout Reset Logic
+`invoice.paid` webhook only resets `callsUsed` when the new `renewalDate` crosses the membership year boundary (1 year after `emergencyMembershipStartedAt`). On reset, `emergencyMembershipStartedAt` is advanced by 1 year. Monthly renewals that don't cross the boundary do NOT reset callouts.
 
 ### Frontend
 - **Landing page** (`artifacts/fixit247/src/pages/landing.tsx`) — Full emergency section: pricing card ($49/mo, correct 2-callout benefits list), body copy explaining the value prop, collapsible "What we treat as an emergency" and "What's not included" accordions, "Key details" bullet list, CTA button "Get 24/7 emergency cover for $49/month" (sub-label: "Cancel any time. Emergencies only — see what's covered.")

@@ -31,7 +31,7 @@ export const usersTable = pgTable("users", {
   isVerified: boolean("is_verified").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
   // Emergency 24/7 membership — business fields (required by spec)
-  emergencyMemberActive: boolean("emergency_member_active").notNull().default(false),
+  emergencyMembershipActive: boolean("emergency_membership_active").notNull().default(false),
   emergencyMembershipStartedAt: timestamp("emergency_membership_started_at", { withTimezone: true }),
   emergencyMembershipRenewalDate: timestamp("emergency_membership_renewal_date", { withTimezone: true }),
   emergencyCallsUsedThisYear: integer("emergency_calls_used_this_year").notNull().default(0),

@@ -30,7 +30,7 @@ export const EMERGENCY_MAX_CALLOUTS = 2;
 export async function getEmergencyMembershipStatus(userId: number) {
   const [user] = await db
     .select({
-      emergencyMemberActive: usersTable.emergencyMemberActive,
+      emergencyMembershipActive: usersTable.emergencyMembershipActive,
       emergencyMembershipStartedAt: usersTable.emergencyMembershipStartedAt,
       emergencyMembershipRenewalDate: usersTable.emergencyMembershipRenewalDate,
       emergencyCallsUsedThisYear: usersTable.emergencyCallsUsedThisYear,
@@ -60,7 +60,7 @@ export async function setEmergencyMembership(
   await db
     .update(usersTable)
     .set({
-      emergencyMemberActive: data.active,
+      emergencyMembershipActive: data.active,
       emergencySubId: data.subId,
       emergencyMembershipRenewalDate: data.renewalDate,
       emergencySubCancelAt: data.cancelAtPeriodEnd,
