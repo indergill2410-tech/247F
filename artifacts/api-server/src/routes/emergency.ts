@@ -13,6 +13,9 @@ import { logger } from "../lib/logger.js";
 
 export const EMERGENCY_PRODUCT_LOOKUP = "emergency_membership_monthly";
 export const EMERGENCY_PLAN_NAME = "fixit_emergency_247";
+// Explicit server-side constant for the emergency membership price ID.
+// Set EMERGENCY_PRICE_ID env var to override (e.g. in different Stripe environments).
+export const EMERGENCY_PRICE_ID = process.env.EMERGENCY_PRICE_ID ?? "price_1TTBgsPfZkklT0IdXgscEFfH";
 const WAITING_PERIOD_HOURS = 72;
 
 const router = Router();
@@ -72,16 +75,7 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
       return;
     }
 
-    const prices = await stripe.prices.list({
-      lookup_keys: [EMERGENCY_PRODUCT_LOOKUP],
-      active: true,
-      limit: 1,
-    });
-    if (!prices.data.length) {
-      res.status(503).json({ error: "product_not_found", message: "Emergency membership product not configured" });
-      return;
-    }
-    const priceId = prices.data[0].id;
+    const priceId = EMERGENCY_PRICE_ID;
 
     let customerId = dbUser.stripeCustomerId;
     if (!customerId) {
@@ -148,6 +142,25 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
     const subId = typeof session.subscription === "string"
       ? session.subscription
       : session.subscription.id;
+
+    // Idempotency guard: if this subscription is already active for this user, return
+    // current state without modifying any data. This prevents replay of old session IDs
+    // from resetting callsUsed or startedAt.
+    const existingStatus = await getEmergencyMembershipStatus(user.userId);
+    if (existingStatus?.emergencySubId === subId && existingStatus.emergencyMembershipActive) {
+      const callsUsed = existingStatus.emergencyCallsUsedThisYear;
+      res.json({
+        success: true,
+        active: true,
+        plan: existingStatus.emergencyMembershipPlan ?? EMERGENCY_PLAN_NAME,
+        renewalDate: existingStatus.emergencyMembershipRenewalDate?.toISOString() ?? null,
+        waitingPeriodEndsAt: existingStatus.emergencyWaitingPeriodEndsAt?.toISOString() ?? null,
+        callsUsed,
+        callsRemaining: Math.max(0, EMERGENCY_MAX_CALLOUTS - callsUsed),
+      });
+      return;
+    }
+
     const sub: Stripe.Subscription = await stripe.subscriptions.retrieve(subId);
 
     const now = new Date();
