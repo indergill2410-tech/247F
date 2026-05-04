@@ -9,7 +9,7 @@ import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
   CheckCircle2, Clock, Users, BadgeCheck, MessageSquare,
-  ChevronDown, HardHat,
+  ChevronDown, HardHat, Car, Shield,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -34,12 +34,6 @@ const TRADIE_PERKS = [
   "Verified profiles build trust",
 ];
 
-const STATS = [
-  { value: "12,400+", label: "Jobs completed" },
-  { value: "850+", label: "Verified tradies" },
-  { value: "< 2 hrs", label: "Avg response time" },
-  { value: "4.8 ★", label: "Customer rating" },
-];
 
 const HOW_IT_WORKS_HOMEOWNER = [
   {
@@ -334,15 +328,129 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Stats bar ─── */}
-      <section className="bg-[#ffc800] py-6" aria-label="Platform statistics">
-        <div className="container mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="text-2xl md:text-3xl font-black text-black">{s.value}</p>
-              <p className="text-black/60 text-sm mt-0.5 font-medium">{s.label}</p>
-            </div>
-          ))}
+      {/* ─── Membership Conversion Section ─── */}
+      <section className="relative overflow-hidden bg-[#0d0a05] border-y border-[#ffc800]/12 py-16 lg:py-20 text-white" aria-label="Emergency membership offer">
+        {/* Warm glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 50% 120%, rgba(255,200,0,0.07) 0%, transparent 65%)" }}
+          aria-hidden="true"
+        />
+
+        <div className="container mx-auto px-4 sm:px-6 max-w-5xl relative">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+
+            {/* ── Left: copy ── */}
+            <motion.div
+              className="flex-1 flex flex-col"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45 }}
+            >
+              <div className="inline-flex items-center gap-2 self-start bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold mb-5">
+                <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+                Fixit Emergency 24/7
+              </div>
+
+              <h2 className="text-4xl sm:text-5xl font-black leading-[1.08] tracking-tight mb-5">
+                Peace of mind for just{" "}
+                <span className="text-[#ffc800]">$49/month</span>
+              </h2>
+
+              <p className="text-white/55 text-[15px] leading-relaxed mb-8 max-w-lg">
+                When things go wrong at home or on the road, the stress hits fast — and so do the bills. Fixit 24/7 gives you one simple membership that helps protect you from both, with emergency home repair support, car breakdown assistance, and up to{" "}
+                <span className="text-white/80 font-semibold">$2,000 of covered value per membership year</span>{" "}
+                across eligible emergencies. It's a smarter way to stay prepared, stay calm, and avoid the full shock of paying for every emergency on your own.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                {[
+                  { icon: Home, label: "Home emergency support" },
+                  { icon: Car, label: "Car breakdown assistance" },
+                  { icon: ShieldCheck, label: "Up to $2,000 annual covered value" },
+                  { icon: Clock, label: "24/7 access when things go wrong" },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-3 text-sm text-white/70">
+                    <div className="w-8 h-8 rounded-lg bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center shrink-0">
+                      <Icon className="h-4 w-4 text-[#ffc800]" aria-hidden="true" />
+                    </div>
+                    {label}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleEmergencyJoin}
+                  disabled={checkoutMutation.isPending}
+                  className="inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60"
+                >
+                  {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
+                  {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
+                </button>
+                <a
+                  href="#emergency-membership"
+                  className="inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/18 hover:bg-white/6 active:scale-[0.97] transition-all"
+                >
+                  See what's covered
+                </a>
+              </div>
+            </motion.div>
+
+            {/* ── Right: price card ── */}
+            <motion.div
+              className="w-full lg:w-[280px] shrink-0"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.12 }}
+            >
+              <div className="relative rounded-3xl">
+                <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/35 to-[#ffc800]/8" aria-hidden="true" />
+                <div className="relative bg-gradient-to-b from-[#1c1508] to-[#110d05] rounded-3xl p-8 text-center border border-[#ffc800]/18">
+                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5">Fixit Emergency 24/7</p>
+
+                  <div className="mb-5">
+                    <div className="flex items-end justify-center gap-1">
+                      <span className="text-white/45 text-lg font-bold self-start mt-3">A$</span>
+                      <span className="text-7xl font-black text-white leading-none">49</span>
+                      <span className="text-white/45 text-base font-medium self-end mb-1">/mo</span>
+                    </div>
+                    <p className="text-white/30 text-[11px] mt-2">No lock-in · cancel any time</p>
+                  </div>
+
+                  <div className="space-y-2.5 mb-7 text-left">
+                    {[
+                      "Up to 2 emergency callouts/year",
+                      "Up to $2,000 covered value/year",
+                      "Home + car breakdown support",
+                      "Priority tradie dispatch 24/7",
+                    ].map((perk) => (
+                      <div key={perk} className="flex items-center gap-2.5 text-[13px] text-white/65">
+                        <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
+                        {perk}
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleEmergencyJoin}
+                    disabled={checkoutMutation.isPending}
+                    className="w-full h-11 rounded-xl font-bold text-[14px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+                  >
+                    {checkoutMutation.isPending ? "Loading…" : "Get protected"}
+                    {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
+                  </button>
+
+                  <p className="text-[10px] text-white/25 mt-3 leading-snug">
+                    Eligible emergencies only · fair use and exclusions apply
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
@@ -464,7 +572,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Emergency 24/7 Membership ─── */}
-      <section className="py-20 bg-[#0b0904] text-white">
+      <section id="emergency-membership" className="py-20 bg-[#0b0904] text-white">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="text-center mb-10">
             <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Homeowner Membership</span>
