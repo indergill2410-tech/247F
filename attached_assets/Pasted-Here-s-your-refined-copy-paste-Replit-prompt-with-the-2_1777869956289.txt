@@ -1,0 +1,236 @@
+Here’s your refined **copy-paste Replit prompt** with the **$2,000 covered value removed from all public-facing copy** and kept **only in T&Cs / legal / FAQ detail**.
+
+***
+
+Build a new dedicated **membership experience** for Fixit 24/7 by adding the emergency membership prominently in **two places**:
+
+1. In the **hero section** of the homepage.  
+2. In the **header navigation bar**, near where **How it works** and **Categories** currently sit.
+
+Also create a brand-new page for this offer that explains how the membership benefits the customer, using emotionally resonant, psychologically persuasive conversion copy, strong visual storytelling, and premium imagery. The page should feel like a high-converting premium membership funnel, not a generic service page. Clear, benefit-led hero copy and simplified above-the-fold messaging usually improve comprehension and conversion. [zoconnected](https://zoconnected.com/blog/how-to-write-hero-section-website-copy/)
+
+## Important rule
+
+Remove the phrase **“$2,000 covered value”** or any similar financial cover amount from **everywhere in public marketing copy across the app**.
+
+That means:
+- do **not** show it in the hero
+- do **not** show it in the homepage membership section
+- do **not** show it in pricing cards
+- do **not** show it in CTA areas
+- do **not** show it in badges, trust bullets, or banners
+
+The exact financial cap or benefit limit should appear **only** inside:
+- Terms & Conditions
+- FAQ / fine print
+- disclosure section
+- legal details modal / expandable T&C block
+
+Marketing claims should stay clean, clear, and emotionally persuasive, while detailed cover limits and legal constraints stay in supporting terms. Claims in advertising should be accurate and provable under Australian consumer law. [accc.gov](https://www.accc.gov.au/consumers/advertising-and-promotions)
+
+## Main navigation update
+
+Add a new header nav item called:
+
+**Fixit 24/7 Emergency**
+
+Place it in the top navigation near:
+- How it works
+- Categories
+
+This nav item should link to either:
+- a new standalone page, or
+- a dedicated anchored section plus a full benefits page
+
+The new nav item should feel like a major product pillar, not a secondary page. Header navigation should support the core conversion path and make the main offer easy to find. [vitaldesign](https://vitaldesign.com/navigation-header-design/)
+
+## Hero section update
+
+Update the hero section so that **Fixit 24/7 Emergency** is visible above the fold as a premium membership offer.
+
+The hero should clearly communicate:
+- **$49/month**
+- emergency home support
+- car breakdown assistance
+- peace of mind
+- fast help when life goes wrong
+
+Use hero copy like this:
+
+**Eyebrow / label**  
+**Fixit 24/7 Emergency**
+
+**Headline**  
+**Peace of mind for just $49/month**
+
+**Subheadline**  
+Unexpected home emergencies and car breakdowns never happen at a good time. Fixit 24/7 Emergency gives you one simple membership designed to reduce panic, soften surprise costs, and help you get support faster when things go wrong.
+
+**Support line**  
+Includes emergency home support and car breakdown assistance in one simple monthly membership.
+
+**Primary CTA**  
+**Get protected for $49/month**
+
+**Secondary CTA**  
+**See how the membership works**
+
+Also add 3–4 short reassurance bullets under the hero:
+- Home emergencies covered
+- Car breakdown support included
+- 24/7 support when it matters most
+- One simple monthly membership
+
+The hero must stay simple, premium, and instantly understandable. High-performing hero sections usually focus on the main benefit, supporting clarity, and one clear next action. [anikarosewrites](https://anikarosewrites.ca/hero-copy/)
+
+## New dedicated page
+
+Create a new page called:
+
+**Fixit 24/7 Emergency**
+
+This page should explain the membership in a highly persuasive and emotionally intelligent way. It should feel like a premium subscription landing page, not a boring insurance document.
+
+The page should include these sections:
+
+### 1. Hero
+A premium landing-page hero repeating the **$49/month** offer and the emotional value proposition.
+
+Suggested copy:
+
+**Fixit 24/7 Emergency**  
+For $49/month, get a smarter way to handle life’s worst-timed problems — from burst pipes and lockouts to urgent car breakdown support. One membership. Less panic. Faster help. More peace of mind.
+
+### 2. Why people join
+This section should emotionally connect with real pain points:
+- panic when something breaks
+- fear of big surprise costs
+- stress of searching for help in the middle of an emergency
+- wanting to protect family, home, and routine
+- wanting one reliable backup plan
+
+Use emotionally resonant copy like:
+- “When things go wrong, the stress hits fast.”
+- “The real cost of emergencies is not just money — it’s panic, disruption, and feeling stuck.”
+- “Fixit 24/7 Emergency helps you stay calm, act faster, and feel more in control.”
+
+Emotional marketing and conversion copy work best when they connect the product to relief, trust, control, and reduced uncertainty. [crazyegg](https://www.crazyegg.com/blog/conversion-copywriting/)
+
+### 3. What’s included
+Explain:
+- emergency plumbing support
+- electrical emergencies
+- locksmith / lockout emergencies
+- gas / hot water / roof leak emergencies
+- car breakdown assistance support
+
+Do **not** mention the $2,000 figure in this section.
+
+### 4. Why it’s worth it
+This section should explain that:
+- a single emergency can cost hundreds
+- breakdowns and urgent repairs often come at the worst time
+- for $49/month, members get year-round reassurance
+- the offer is a fraction of what one major incident can cost
+
+Use psychologically persuasive lines such as:
+- “You hope you never need it. You’ll be relieved it’s there when you do.”
+- “One membership can protect you from some of life’s worst-timed costs.”
+- “You’re not just paying for assistance — you’re paying for fewer panic moments.”
+
+### 5. How it works
+A simple step-by-step flow:
+1. Join for $49/month
+2. Get membership access for eligible emergencies
+3. Request help when something goes wrong
+4. We organise support fast
+5. Extra work outside the included scope is quoted clearly
+
+### 6. Peace-of-mind visuals
+Use strong visual storytelling with premium, emotionally relevant images, not placeholders.
+
+Add images that communicate:
+- family at home feeling safe
+- a stressed emergency moment turned calm
+- a locked-out or broken-down scenario resolved
+- tradie or breakdown assistance arriving
+- home + vehicle support in one membership
+
+Use visuals to reinforce calm, relief, reassurance, and preparedness. [swankyagency](https://swankyagency.com/high-converting-subscription-landing-page-ecommerce/)
+
+### 7. FAQ / trust / terms section
+Include:
+- what is covered
+- what is not covered
+- fair use and exclusions apply
+- larger non-covered work can still be quoted through the app
+- **exact cover limits and financial caps only in this detailed section or linked T&Cs**
+
+If needed, show the exact annual cap only here, not in the headline or promotional copy.
+
+## Copy and tone
+
+The whole page should be:
+- emotionally persuasive
+- psychologically smart
+- high-conversion
+- premium and trustworthy
+- clear, simple, and benefit-led
+- written for everyday Australian households
+
+Avoid:
+- generic SaaS language
+- dry policy wording in key conversion sections
+- overcomplicated jargon
+- fearmongering that feels manipulative
+- detailed financial cap claims in hero/sales copy
+
+Instead, make it feel like a reassuring protection product designed for people who want to avoid chaos.
+
+## Design direction
+
+Visually, make this page feel:
+- premium
+- modern
+- warm
+- high-trust
+- conversion-optimized
+- image-rich
+- emotionally engaging
+
+Use:
+- strong hierarchy
+- sections with visual rhythm
+- big headline moments
+- clear CTA repetition
+- premium membership card design
+- subtle animation and reveal effects
+- image-backed storytelling sections
+
+## Additional cleanup task
+
+Search the app for all references to:
+- `$2,000`
+- `covered value`
+- `annual covered value`
+- similar benefit-cap phrases
+
+Remove them from all public-facing pages and leave them only in the detailed T&Cs / disclosure / FAQ layer.
+
+## Important implementation note
+
+Do not just add a plain link in the header and a paragraph on the homepage.  
+Create a real membership funnel:
+- header nav item
+- hero presence
+- dedicated benefits page
+- repeated CTA
+- emotionally persuasive structure
+- images that support the emotional promise
+- detailed cap language only in terms/disclosures, not in sales copy
+
+***
+
+This version is stronger because it keeps the conversion message **clean and emotional** while moving risky detail into the right place. Simpler hero copy plus supporting detail lower on the page is a common conversion best practice, and keeping exact claims provable and clearly contextualized matters under Australian consumer law. [accc.gov](https://www.accc.gov.au/consumers/advertising-and-promotions/false-or-misleading-claims)
+
+If you want, I can also create a **compressed “Agent-safe” version** that is shorter and more forceful for Replit.
