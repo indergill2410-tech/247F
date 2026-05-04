@@ -222,44 +222,49 @@ export default function LandingPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 self-start bg-[#ffc800]/12 border border-[#ffc800]/25 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold backdrop-blur-sm">
-              <Shield className="h-3.5 w-3.5" aria-hidden="true" />
-              Fixit 24/7 Emergency
+            <div className="inline-flex items-center gap-2 self-start bg-white/6 border border-white/12 rounded-full px-4 py-1.5 text-sm text-white/70 font-medium backdrop-blur-sm">
+              <Clock className="h-3.5 w-3.5 text-[#ffc800]" aria-hidden="true" />
+              Available 24/7 across Australia
             </div>
 
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                Peace of mind<br />for just{" "}
-                <span className="text-[#ffc800]">$49/month</span>
+                Emergency repairs,<br />
+                <span className="text-[#ffc800]">fixed fast.</span>
               </h1>
             </div>
 
             <p className="text-lg text-white/60 max-w-md leading-relaxed">
-              Unexpected home emergencies and car breakdowns never happen at a good time. Fixit 24/7 Emergency gives you one simple membership designed to reduce panic, soften surprise costs, and help you get support faster when things go wrong.
+              From burst pipes and power outages to lockouts, broken aircon, and everyday home repairs — Fixit 24/7 connects you with trusted local tradies for any job, any time of day.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+            <div className="flex gap-2 max-w-md w-full">
+              <div className="flex-1 relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" aria-hidden="true" />
+                <input
+                  type="text"
+                  value={suburb}
+                  onChange={(e) => setSuburb(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
+                  placeholder="Your suburb or postcode"
+                  aria-label="Enter your suburb to find tradies"
+                  className="w-full bg-white/5 border border-white/12 rounded-xl pl-10 pr-4 h-12 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                />
+              </div>
               <button
-                onClick={handleEmergencyJoin}
-                disabled={checkoutMutation.isPending}
-                className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60"
+                onClick={handleFindTradies}
+                className="h-12 px-5 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0"
               >
-                {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
-                {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
+                Find tradies
               </button>
-              <Link href="/emergency">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 active:scale-[0.97] transition-all">
-                  See how the membership works
-                </button>
-              </Link>
             </div>
 
             <div className="flex flex-wrap gap-3 max-w-md">
               {[
-                "Home emergencies covered",
-                "Car breakdown support",
-                "24/7 when it matters most",
-                "One simple monthly membership",
+                "Plumbing & electrical",
+                "Lockouts & security",
+                "HVAC & appliances",
+                "All home repairs",
               ].map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50 bg-white/5 rounded-full px-3 py-1">
                   <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
@@ -267,29 +272,14 @@ export default function LandingPage() {
               ))}
             </div>
 
-            {/* Secondary: find tradies */}
-            <div className="pt-2 border-t border-white/8 max-w-md">
-              <p className="text-xs text-white/35 mb-2.5 font-medium uppercase tracking-wider">Or find a tradie now</p>
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" aria-hidden="true" />
-                  <input
-                    type="text"
-                    value={suburb}
-                    onChange={(e) => setSuburb(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
-                    placeholder="Your suburb or postcode"
-                    aria-label="Enter your suburb to find tradies"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 h-10 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
-                  />
-                </div>
-                <button
-                  onClick={handleFindTradies}
-                  className="h-10 px-4 rounded-xl font-semibold text-sm text-white border border-white/15 hover:bg-white/8 active:scale-[0.97] transition-all shrink-0"
-                >
-                  Find tradies
-                </button>
-              </div>
+            <div className="pt-1">
+              <Link href="/emergency">
+                <span className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-[#ffc800] transition-colors cursor-pointer">
+                  <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+                  Fixit 24/7 Emergency membership — $49/month
+                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              </Link>
             </div>
           </motion.div>
 
