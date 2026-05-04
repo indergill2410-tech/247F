@@ -26,6 +26,7 @@ import CreditsPage from "@/pages/credits";
 import TradiesPage from "@/pages/tradies";
 import TradieProfilePage from "@/pages/tradie-profile";
 import EmergencyPage from "@/pages/emergency";
+import ForTradiesPage from "@/pages/for-tradies";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -73,6 +74,7 @@ function Router() {
         <Route path="/" component={RootRoute} />
         <Route path="/how-it-works" component={HowItWorksPage} />
         <Route path="/emergency" component={EmergencyPage} />
+        <Route path="/for-tradies" component={ForTradiesPage} />
         <Route path="/categories" component={CategoriesPublicPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/careers" component={CareersPage} />

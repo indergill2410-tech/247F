@@ -330,9 +330,12 @@ export default function LandingPage() {
                   </button>
                 </Link>
 
-                <p className="text-center text-xs text-gray-400 mt-4">
-                  Homeowner and tradie accounts are separate for a tailored experience.
-                </p>
+                <Link href="/for-tradies">
+                  <span className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">
+                    Why join Fixit 24/7?
+                    <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                </Link>
               </div>
             </div>
           </motion.div>
