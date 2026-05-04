@@ -403,7 +403,7 @@ export default function LandingPage() {
 
             {/* ── Right: price card ── */}
             <motion.div
-              className="w-full lg:w-[280px] shrink-0"
+              className="w-full lg:w-[320px] shrink-0"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -411,42 +411,44 @@ export default function LandingPage() {
             >
               <div className="relative rounded-3xl">
                 <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/35 to-[#ffc800]/8" aria-hidden="true" />
-                <div className="relative bg-gradient-to-b from-[#1c1508] to-[#110d05] rounded-3xl p-8 text-center border border-[#ffc800]/18">
-                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5">Fixit Emergency 24/7</p>
+                <div className="relative bg-gradient-to-b from-[#1c1508] to-[#110d05] rounded-3xl p-7 border border-[#ffc800]/18">
+                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5 text-center">Choose your plan</p>
 
-                  <div className="mb-5">
-                    <div className="flex items-end justify-center gap-1">
-                      <span className="text-white/45 text-lg font-bold self-start mt-3">A$</span>
-                      <span className="text-7xl font-black text-white leading-none">49</span>
-                      <span className="text-white/45 text-base font-medium self-end mb-1">/mo</span>
+                  {/* Monthly option */}
+                  <div className="bg-[#ffc800]/8 border border-[#ffc800]/30 rounded-2xl p-5 mb-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[#ffc800] text-[11px] font-bold uppercase tracking-widest">Monthly</span>
                     </div>
-                    <p className="text-white/30 text-[11px] mt-1.5">or <span className="text-white/45 font-semibold">$529/yr</span> — save 10%</p>
+                    <div className="flex items-end gap-1 mb-4">
+                      <span className="text-white/50 text-base font-bold self-start mt-1">A$</span>
+                      <span className="text-5xl font-black text-white leading-none">49</span>
+                      <span className="text-white/50 text-sm font-medium self-end mb-0.5">/mo</span>
+                    </div>
+                    <button
+                      onClick={handleEmergencyJoin}
+                      disabled={checkoutMutation.isPending}
+                      className="w-full h-10 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+                    >
+                      {checkoutMutation.isPending ? "Loading…" : "Get protected"}
+                      {!checkoutMutation.isPending && <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
+                    </button>
                   </div>
 
-                  <div className="space-y-2.5 mb-7 text-left">
-                    {[
-                      "Home + car breakdown support",
-                      "Priority tradie dispatch 24/7",
-                      "In or out of home — one membership",
-                      "12 months · billed monthly",
-                    ].map((perk) => (
-                      <div key={perk} className="flex items-center gap-2.5 text-[13px] text-white/65">
-                        <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
-                        {perk}
-                      </div>
-                    ))}
+                  {/* Annual option */}
+                  <div className="bg-white/4 border border-white/10 rounded-2xl p-5 relative mb-5">
+                    <span className="absolute -top-2.5 right-4 bg-[#ffc800] text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Save 10%</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-white/40 text-[11px] font-bold uppercase tracking-widest">Annual</span>
+                      <span className="text-white/25 text-[10px]">Coming soon</span>
+                    </div>
+                    <div className="flex items-end gap-1">
+                      <span className="text-white/35 text-base font-bold self-start mt-1">A$</span>
+                      <span className="text-5xl font-black text-white/40 leading-none">529</span>
+                      <span className="text-white/35 text-sm font-medium self-end mb-0.5">/yr</span>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={handleEmergencyJoin}
-                    disabled={checkoutMutation.isPending}
-                    className="w-full h-11 rounded-xl font-bold text-[14px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
-                  >
-                    {checkoutMutation.isPending ? "Loading…" : "Get protected"}
-                    {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
-                  </button>
-
-                  <p className="text-[10px] text-white/25 mt-3 leading-snug">
+                  <p className="text-[10px] text-white/25 text-center leading-snug">
                     Eligible emergencies only · fair use and exclusions apply
                   </p>
                 </div>
@@ -579,8 +581,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="text-center mb-10">
             <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Homeowner Membership</span>
-            <h2 className="text-3xl sm:text-4xl font-black mt-3">One membership for emergencies — in or out of home</h2>
-            <p className="text-white/45 mt-3 text-[15px] max-w-lg mx-auto">Peace of mind and security for when life's worst-timed problems hit.</p>
+            <h2 className="text-3xl sm:text-4xl font-black mt-3">One membership for emergencies — whether in or out of home</h2>
+            <p className="text-white/45 mt-3 text-[15px] max-w-lg mx-auto">Giving you peace of mind and security when life's worst-timed problems hit.</p>
           </div>
 
           {/* Main card */}
@@ -769,7 +771,7 @@ export default function LandingPage() {
                           "Full system upgrades or major projects (full roof replacement, full switchboard upgrade, full bathroom/kitchen renovations).",
                           "Pre‑existing or long‑standing problems that were there before you joined.",
                           "Area‑wide power outages that sit with your energy provider.",
-                          "Any cost above $300 inc. GST per callout (you can still approve and pay extra through the app).",
+                          "Any costs beyond the included cover amount — you can still approve and pay extra through the app.",
                         ].map((item) => (
                           <li key={item} className="flex items-start gap-2">
                             <span className="text-white/30 mt-0.5 shrink-0">–</span>
