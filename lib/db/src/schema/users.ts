@@ -30,9 +30,15 @@ export const usersTable = pgTable("users", {
   isActive: boolean("is_active").notNull().default(true),
   isVerified: boolean("is_verified").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
+  // Emergency 24/7 membership — business fields (required by spec)
   emergencyMemberActive: boolean("emergency_member_active").notNull().default(false),
+  emergencyMembershipStartedAt: timestamp("emergency_membership_started_at", { withTimezone: true }),
+  emergencyMembershipRenewalDate: timestamp("emergency_membership_renewal_date", { withTimezone: true }),
+  emergencyCallsUsedThisYear: integer("emergency_calls_used_this_year").notNull().default(0),
+  emergencyMembershipPlan: text("emergency_membership_plan"),
+  emergencyWaitingPeriodEndsAt: timestamp("emergency_waiting_period_ends_at", { withTimezone: true }),
+  // Internal Stripe reference (for API calls — cancel, verify)
   emergencySubId: text("emergency_sub_id"),
-  emergencySubEnd: timestamp("emergency_sub_end", { withTimezone: true }),
   emergencySubCancelAt: boolean("emergency_sub_cancel_at").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

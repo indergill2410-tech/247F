@@ -75,31 +75,43 @@ All routes prefixed `/api/`. Source: `artifacts/api-server/src/routes/`
 - **Cron**: `node-cron` in `artifacts/api-server/src/index.ts`, calls `runMonthlyRenewal()` from `stripeStorage.ts`
 
 ## Emergency 24/7 Membership (Homeowners)
-$49 AUD/month recurring subscription for homeowners — priority dispatch, guaranteed 30-min response.
+$49 AUD/month Stripe subscription for homeowners — up to 2 covered emergency callouts/year (up to $300 inc. GST each), 24/7 priority dispatch, 72-hour waiting period on join.
 
 ### DB Columns (users table)
 - `emergency_member_active` — boolean, default false
 - `emergency_sub_id` — Stripe subscription ID (nullable)
-- `emergency_sub_end` — timestamp for current period end (nullable)
-- `emergency_sub_cancel_at` — boolean, cancel at period end
+- `emergency_sub_cancel_at` — boolean, cancel at period end flag
+- `emergency_membership_started_at` — timestamp when first activated (nullable)
+- `emergency_membership_renewal_date` — next billing date (nullable)
+- `emergency_membership_plan` — plan name string (nullable)
+- `emergency_waiting_period_ends_at` — 72h after join, before this no emergency callouts (nullable)
+- `emergency_calls_used_this_year` — integer, default 0; resets on each renewal invoice
 
 ### Stripe Product
 - Product: "Fixit Emergency 24/7 Membership" (metadata: `platform=fixit247`, `type=emergency_membership`)
-- Price: $49 AUD/month recurring, lookup key: `emergency_membership_monthly`
+- Price: $49 AUD/month recurring, lookup key: `emergency_membership_monthly`, price ID: `price_1TTBgsPfZkklT0IdXgscEFfH`
 - Auto-created on server startup via `ensureEmergencyProduct()` in `artifacts/api-server/src/index.ts`
+- Uses Stripe SDK v20 — `current_period_end` is on `subscription.items.data[0]` not `subscription` directly
 
 ### API Routes (`artifacts/api-server/src/routes/emergency.ts`)
-- `GET /api/emergency/status` — returns membership status (active, subId, subEnd, cancelAtPeriodEnd)
-- `POST /api/emergency/checkout` — creates Stripe Checkout session (subscription mode), redirects to Stripe
-- `POST /api/emergency/verify-session` — called on return from Stripe, activates membership in DB
+- `GET /api/emergency/status` — returns `{ active, plan, startedAt, renewalDate, waitingPeriodEndsAt, callsUsed, callsRemaining, cancelAtPeriodEnd }`
+- `POST /api/emergency/checkout` — creates Stripe Checkout session (subscription mode), homeowner-only
+- `POST /api/emergency/verify-session` — called on return from Stripe; sets startedAt, renewalDate, waitingPeriodEndsAt, plan, callsUsed=0
 - `POST /api/emergency/cancel` — sets cancel_at_period_end=true via Stripe API
 
 ### Webhook Handling
-`artifacts/api-server/src/webhookHandlers.ts` — handles `customer.subscription.created/updated/deleted` to keep membership status in sync
+`artifacts/api-server/src/webhookHandlers.ts`:
+- `customer.subscription.*` — syncs active/renewalDate/cancelAtPeriodEnd
+- `invoice.paid` — on `billing_reason=subscription_cycle`: resets `callsUsed=0` and updates renewalDate
+- Invoice emergency detection: checks if subscriptionId matches stored `emergencySubId` in DB (Stripe v20: subscription ref is at `invoice.parent.subscription_details.subscription`)
+
+### Callout Tracking
+`artifacts/api-server/src/routes/claims.ts` — when a claim is accepted on an `urgency=emergency` job, if homeowner has active membership and `callsUsed < 2`, increments `emergency_calls_used_this_year` via `incrementEmergencyCallsUsed()`
+Max callouts constant: `EMERGENCY_MAX_CALLOUTS = 2` in `stripeStorage.ts`
 
 ### Frontend
-- **Landing page** (`artifacts/fixit247/src/pages/landing.tsx`) — "Fixit Emergency 24/7" pricing section between Categories and FAQ: animated pricing card at A$49/mo + 4 feature highlight cards
-- **Homeowner dashboard** (`artifacts/fixit247/src/pages/dashboard-homeowner.tsx`) — `EmergencyMembershipWidget` shows subscribe promo (if inactive) or active status with renewal date + cancel button; handles `?emergency=success&session_id=xxx` return URL to auto-verify
+- **Landing page** (`artifacts/fixit247/src/pages/landing.tsx`) — Full emergency section: pricing card ($49/mo, correct 2-callout benefits list), body copy explaining the value prop, collapsible "What we treat as an emergency" and "What's not included" accordions, "Key details" bullet list, CTA button "Get 24/7 emergency cover for $49/month" (sub-label: "Cancel any time. Emergencies only — see what's covered.")
+- **Homeowner dashboard** (`artifacts/fixit247/src/pages/dashboard-homeowner.tsx`) — `EmergencyMembershipWidget` shows subscribe promo (if inactive) or active status with `renewalDate`, `callsRemaining` ("x of 2 callouts remaining this year"), cancel button; handles `?emergency=success&session_id=xxx` return URL to auto-verify
 
 ## Demo Seed
 Run `pnpm --filter @workspace/scripts run seed-demo` to populate realistic data. Safe to re-run (skips existing emails).

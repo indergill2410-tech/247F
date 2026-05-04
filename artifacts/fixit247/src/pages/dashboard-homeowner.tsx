@@ -151,9 +151,11 @@ function EmergencyMembershipWidget() {
 
   if (!membership) return null;
 
-  const subEndDate = membership.subEnd
-    ? new Date(membership.subEnd).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
+  const renewalDateStr = membership.renewalDate
+    ? new Date(membership.renewalDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
     : null;
+
+  const callsRemaining = membership.callsRemaining ?? (2 - (membership.callsUsed ?? 0));
 
   if (membership.active) {
     return (
@@ -175,7 +177,7 @@ function EmergencyMembershipWidget() {
               <span className="text-sm font-bold text-white">Emergency 24/7 Member</span>
               {membership.cancelAtPeriodEnd ? (
                 <span className="text-[10px] font-bold bg-orange-500/15 text-orange-400 px-2 py-0.5 rounded-md border border-orange-500/20">
-                  Cancels {subEndDate}
+                  Cancels {renewalDateStr}
                 </span>
               ) : (
                 <span className="text-[10px] font-bold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/20">
@@ -185,8 +187,12 @@ function EmergencyMembershipWidget() {
             </div>
             <p className="text-xs text-white/40 mt-0.5">
               {membership.cancelAtPeriodEnd
-                ? `Access until ${subEndDate}`
-                : `Renews ${subEndDate}`}
+                ? `Access until ${renewalDateStr}`
+                : `Renews ${renewalDateStr}`}
+              {" · "}
+              <span className={callsRemaining > 0 ? "text-[#ffc800]/70" : "text-white/30"}>
+                {callsRemaining} of 2 callout{callsRemaining !== 1 ? "s" : ""} remaining this year
+              </span>
             </p>
           </div>
         </div>

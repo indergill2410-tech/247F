@@ -25,12 +25,18 @@ export async function updateUserStripeCustomerId(userId: number, stripeCustomerI
   await db.update(usersTable).set({ stripeCustomerId }).where(eq(usersTable.id, userId));
 }
 
+export const EMERGENCY_MAX_CALLOUTS = 2;
+
 export async function getEmergencyMembershipStatus(userId: number) {
   const [user] = await db
     .select({
       emergencyMemberActive: usersTable.emergencyMemberActive,
+      emergencyMembershipStartedAt: usersTable.emergencyMembershipStartedAt,
+      emergencyMembershipRenewalDate: usersTable.emergencyMembershipRenewalDate,
+      emergencyCallsUsedThisYear: usersTable.emergencyCallsUsedThisYear,
+      emergencyMembershipPlan: usersTable.emergencyMembershipPlan,
+      emergencyWaitingPeriodEndsAt: usersTable.emergencyWaitingPeriodEndsAt,
       emergencySubId: usersTable.emergencySubId,
-      emergencySubEnd: usersTable.emergencySubEnd,
       emergencySubCancelAt: usersTable.emergencySubCancelAt,
     })
     .from(usersTable)
@@ -43,8 +49,12 @@ export async function setEmergencyMembership(
   data: {
     active: boolean;
     subId: string | null;
-    subEnd: Date | null;
+    renewalDate: Date | null;
     cancelAtPeriodEnd: boolean;
+    startedAt?: Date | null;
+    waitingPeriodEndsAt?: Date | null;
+    callsUsed?: number;
+    plan?: string | null;
   },
 ) {
   await db
@@ -52,8 +62,22 @@ export async function setEmergencyMembership(
     .set({
       emergencyMemberActive: data.active,
       emergencySubId: data.subId,
-      emergencySubEnd: data.subEnd,
+      emergencyMembershipRenewalDate: data.renewalDate,
       emergencySubCancelAt: data.cancelAtPeriodEnd,
+      ...(data.startedAt !== undefined && { emergencyMembershipStartedAt: data.startedAt }),
+      ...(data.waitingPeriodEndsAt !== undefined && { emergencyWaitingPeriodEndsAt: data.waitingPeriodEndsAt }),
+      ...(data.callsUsed !== undefined && { emergencyCallsUsedThisYear: data.callsUsed }),
+      ...(data.plan !== undefined && { emergencyMembershipPlan: data.plan }),
+      updatedAt: sql`NOW()`,
+    })
+    .where(eq(usersTable.id, userId));
+}
+
+export async function incrementEmergencyCallsUsed(userId: number): Promise<void> {
+  await db
+    .update(usersTable)
+    .set({
+      emergencyCallsUsedThisYear: sql`${usersTable.emergencyCallsUsedThisYear} + 1`,
       updatedAt: sql`NOW()`,
     })
     .where(eq(usersTable.id, userId));

@@ -12,7 +12,7 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
-import { deductCredits, getCreditBalance, CREDITS_PER_CLAIM } from "../stripeStorage.js";
+import { deductCredits, getCreditBalance, CREDITS_PER_CLAIM, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
 import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/email.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
@@ -267,9 +267,25 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
     .where(eq(claimsTable.id, claimId))
     .returning();
 
-  // If accepted: update job to in_progress + auto-create conversation
+  // If accepted: update job to in_progress + auto-create conversation + track emergency callouts
   if (status === "accepted" && job) {
     await db.update(jobsTable).set({ status: "in_progress", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
+
+    // Track emergency callout usage: increment if homeowner has active membership and job is emergency urgency
+    if (job.urgency === "emergency") {
+      const [homeowner] = await db
+        .select({
+          emergencyMemberActive: usersTable.emergencyMemberActive,
+          emergencyCallsUsedThisYear: usersTable.emergencyCallsUsedThisYear,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, job.homeownerId));
+      if (homeowner?.emergencyMemberActive && homeowner.emergencyCallsUsedThisYear < EMERGENCY_MAX_CALLOUTS) {
+        await incrementEmergencyCallsUsed(job.homeownerId).catch((err) =>
+          logger.error({ err }, "Failed to increment emergency callout usage")
+        );
+      }
+    }
 
     // Create a conversation between homeowner and tradie (idempotent)
     const [existingConvo] = await db

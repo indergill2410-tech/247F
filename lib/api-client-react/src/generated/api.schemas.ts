@@ -500,8 +500,12 @@ export interface CreateReviewBody {
 
 export interface EmergencyMembershipStatus {
   active: boolean;
-  subId?: string | null;
-  subEnd?: string | null;
+  plan?: string | null;
+  startedAt?: string | null;
+  renewalDate?: string | null;
+  waitingPeriodEndsAt?: string | null;
+  callsUsed: number;
+  callsRemaining: number;
   cancelAtPeriodEnd: boolean;
 }
 
@@ -513,9 +517,11 @@ export interface EmergencyCheckoutResponse {
 export interface EmergencyVerifyResponse {
   success: boolean;
   active: boolean;
-  subId?: string | null;
-  subEnd?: string | null;
-  cancelAtPeriodEnd: boolean;
+  plan?: string | null;
+  renewalDate?: string | null;
+  waitingPeriodEndsAt?: string | null;
+  callsUsed: number;
+  callsRemaining: number;
 }
 
 export interface EmergencyCancelResponse {

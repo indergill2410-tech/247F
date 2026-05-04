@@ -1917,16 +1917,28 @@ components:
       properties:
         active:
           type: boolean
-        subId:
+        plan:
           type: string
           nullable: true
-        subEnd:
+        startedAt:
           type: string
           format: date-time
           nullable: true
+        renewalDate:
+          type: string
+          format: date-time
+          nullable: true
+        waitingPeriodEndsAt:
+          type: string
+          format: date-time
+          nullable: true
+        callsUsed:
+          type: integer
+        callsRemaining:
+          type: integer
         cancelAtPeriodEnd:
           type: boolean
-      required: [active, cancelAtPeriodEnd]
+      required: [active, callsUsed, callsRemaining, cancelAtPeriodEnd]
 
     EmergencyCheckoutResponse:
       type: object
@@ -1944,16 +1956,22 @@ components:
           type: boolean
         active:
           type: boolean
-        subId:
+        plan:
           type: string
           nullable: true
-        subEnd:
+        renewalDate:
           type: string
           format: date-time
           nullable: true
-        cancelAtPeriodEnd:
-          type: boolean
-      required: [success, active, cancelAtPeriodEnd]
+        waitingPeriodEndsAt:
+          type: string
+          format: date-time
+          nullable: true
+        callsUsed:
+          type: integer
+        callsRemaining:
+          type: integer
+      required: [success, active, callsUsed, callsRemaining]
 
     EmergencyCancelResponse:
       type: object

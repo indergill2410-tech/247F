@@ -1,6 +1,12 @@
 import { getStripeSync } from './stripeClient.js';
-import { getUserByStripeCustomerId, setEmergencyMembership } from './stripeStorage.js';
+import {
+  getUserByStripeCustomerId,
+  setEmergencyMembership,
+  getEmergencyMembershipStatus,
+} from './stripeStorage.js';
 import { logger } from './lib/logger.js';
+import type Stripe from 'stripe';
+import { EMERGENCY_PRODUCT_LOOKUP } from './routes/emergency.js';
 
 export class WebhookHandlers {
   static async processWebhook(payload: Buffer, signature: string): Promise<void> {
@@ -13,35 +19,38 @@ export class WebhookHandlers {
     const sync = await getStripeSync();
     await sync.processWebhook(payload, signature);
 
-    // Also handle emergency membership subscription lifecycle events
     try {
-      const event = JSON.parse(payload.toString()) as { type: string; data: { object: any } };
-      await WebhookHandlers.handleEmergencySubscriptionEvent(event);
+      const event = JSON.parse(payload.toString()) as Stripe.Event;
+      await WebhookHandlers.handleEmergencyEvent(event);
     } catch (err) {
-      logger.warn({ err }, 'Failed to process emergency subscription webhook event (non-fatal)');
+      logger.warn({ err }, 'Failed to process emergency webhook event (non-fatal)');
     }
   }
 
-  static async handleEmergencySubscriptionEvent(event: { type: string; data: { object: any } }): Promise<void> {
+  static async handleEmergencyEvent(event: Stripe.Event): Promise<void> {
+    if (event.type === 'invoice.paid') {
+      await WebhookHandlers.handleInvoicePaid(event.data.object as Stripe.Invoice);
+      return;
+    }
+
     const subscriptionEvents = [
       'customer.subscription.created',
       'customer.subscription.updated',
       'customer.subscription.deleted',
     ];
-
     if (!subscriptionEvents.includes(event.type)) return;
 
-    const subscription = event.data.object;
-    const customerId = subscription.customer as string | undefined;
+    const subscription = event.data.object as Stripe.Subscription;
+    const customerId = typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer.id;
     if (!customerId) return;
 
-    // Check if any of the subscription's items are emergency membership products
-    const items: any[] = subscription.items?.data ?? [];
+    const items = subscription.items.data;
     const isEmergency = items.some(
-      (item: any) =>
-        item.price?.lookup_key === 'emergency_membership_monthly' ||
-        item.price?.metadata?.type === 'emergency_membership' ||
-        item.price?.product?.metadata?.type === 'emergency_membership',
+      (item) =>
+        item.price?.lookup_key === EMERGENCY_PRODUCT_LOOKUP ||
+        item.price?.metadata?.['type'] === 'emergency_membership',
     );
     if (!isEmergency) return;
 
@@ -53,21 +62,63 @@ export class WebhookHandlers {
 
     const isDeleted = event.type === 'customer.subscription.deleted';
     const isActive = !isDeleted && (subscription.status === 'active' || subscription.status === 'trialing');
-    const subEnd = subscription.current_period_end
-      ? new Date(subscription.current_period_end * 1000)
-      : null;
-    const cancelAtPeriodEnd = subscription.cancel_at_period_end ?? false;
+    const periodEnd = subscription.items.data[0]?.current_period_end;
+    const renewalDate = periodEnd ? new Date(periodEnd * 1000) : null;
+    const cancelAtPeriodEnd = subscription.cancel_at_period_end;
 
     await setEmergencyMembership(user.id, {
       active: isActive,
-      subId: isActive ? (subscription.id as string) : null,
-      subEnd: isActive ? subEnd : null,
+      subId: isActive ? subscription.id : null,
+      renewalDate: isActive ? renewalDate : null,
       cancelAtPeriodEnd: isActive ? cancelAtPeriodEnd : false,
     });
 
     logger.info(
       { userId: user.id, event: event.type, active: isActive },
       'Emergency membership updated via webhook',
+    );
+  }
+
+  static async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
+    const customerRef = invoice.customer;
+    const customerId = typeof customerRef === 'string'
+      ? customerRef
+      : customerRef?.id ?? null;
+    if (!customerId) return;
+
+    const user = await getUserByStripeCustomerId(customerId);
+    if (!user) return;
+
+    // In Stripe v20 the subscription reference lives under invoice.parent
+    const subRef = invoice.parent?.subscription_details?.subscription;
+    const subscriptionId = typeof subRef === 'string' ? subRef : (subRef as Stripe.Subscription | null)?.id ?? null;
+
+    // Only handle invoices tied to the user's stored emergency subscription
+    const currentStatus = await getEmergencyMembershipStatus(user.id);
+    const isEmergency =
+      subscriptionId !== null &&
+      !!currentStatus?.emergencySubId &&
+      subscriptionId === currentStatus.emergencySubId;
+    if (!isEmergency) return;
+
+    const isRenewal = invoice.billing_reason === 'subscription_cycle';
+
+    const firstLine = invoice.lines.data[0];
+    const renewalDate = firstLine?.period?.end
+      ? new Date(firstLine.period.end * 1000)
+      : null;
+
+    await setEmergencyMembership(user.id, {
+      active: true,
+      subId: subscriptionId ?? currentStatus?.emergencySubId ?? null,
+      renewalDate,
+      cancelAtPeriodEnd: false,
+      ...(isRenewal && { callsUsed: 0 }),
+    });
+
+    logger.info(
+      { userId: user.id, isRenewal, subscriptionId },
+      'Emergency membership renewed via invoice.paid webhook',
     );
   }
 }

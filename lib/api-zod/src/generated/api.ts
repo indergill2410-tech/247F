@@ -1096,8 +1096,12 @@ export const AdminListJobsResponse = zod.object({
  */
 export const GetEmergencyMembershipStatusResponse = zod.object({
   active: zod.boolean(),
-  subId: zod.string().nullish(),
-  subEnd: zod.coerce.date().nullish(),
+  plan: zod.string().nullish(),
+  startedAt: zod.coerce.date().nullish(),
+  renewalDate: zod.coerce.date().nullish(),
+  waitingPeriodEndsAt: zod.coerce.date().nullish(),
+  callsUsed: zod.number(),
+  callsRemaining: zod.number(),
   cancelAtPeriodEnd: zod.boolean(),
 });
 
@@ -1119,9 +1123,11 @@ export const VerifyEmergencySessionBody = zod.object({
 export const VerifyEmergencySessionResponse = zod.object({
   success: zod.boolean(),
   active: zod.boolean(),
-  subId: zod.string().nullish(),
-  subEnd: zod.coerce.date().nullish(),
-  cancelAtPeriodEnd: zod.boolean(),
+  plan: zod.string().nullish(),
+  renewalDate: zod.coerce.date().nullish(),
+  waitingPeriodEndsAt: zod.coerce.date().nullish(),
+  callsUsed: zod.number(),
+  callsRemaining: zod.number(),
 });
 
 /**

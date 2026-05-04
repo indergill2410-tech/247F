@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type Stripe from "stripe";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { getUncachableStripeClient } from "../stripeClient.js";
 import {
@@ -6,14 +7,17 @@ import {
   updateUserStripeCustomerId,
   getEmergencyMembershipStatus,
   setEmergencyMembership,
+  EMERGENCY_MAX_CALLOUTS,
 } from "../stripeStorage.js";
 import { logger } from "../lib/logger.js";
 
 export const EMERGENCY_PRODUCT_LOOKUP = "emergency_membership_monthly";
+export const EMERGENCY_PLAN_NAME = "fixit_emergency_247";
+const WAITING_PERIOD_HOURS = 72;
 
 const router = Router();
 
-// GET /api/emergency/status — get membership status for the authenticated homeowner
+// GET /api/emergency/status
 router.get("/emergency/status", requireAuth, async (req, res): Promise<void> => {
   const user = req.user!;
   if (user.role !== "homeowner") {
@@ -28,39 +32,17 @@ router.get("/emergency/status", requireAuth, async (req, res): Promise<void> => 
       return;
     }
 
-    // If active, cross-check with Stripe for up-to-date subscription state
-    if (status.emergencyMemberActive && status.emergencySubId) {
-      try {
-        const stripe = await getUncachableStripeClient();
-        const sub = await stripe.subscriptions.retrieve(status.emergencySubId);
-        const isActive = sub.status === "active" || sub.status === "trialing";
-        const subEnd = new Date((sub as any).current_period_end * 1000);
-        const cancelAt = (sub as any).cancel_at_period_end ?? false;
-
-        if (!isActive || subEnd.getTime() !== status.emergencySubEnd?.getTime()) {
-          await setEmergencyMembership(user.userId, {
-            active: isActive,
-            subId: isActive ? status.emergencySubId : null,
-            subEnd: isActive ? subEnd : null,
-            cancelAtPeriodEnd: cancelAt,
-          });
-          res.json({
-            active: isActive,
-            subId: isActive ? status.emergencySubId : null,
-            subEnd: isActive ? subEnd.toISOString() : null,
-            cancelAtPeriodEnd: cancelAt,
-          });
-          return;
-        }
-      } catch (err) {
-        logger.warn({ err }, "Failed to verify subscription with Stripe, returning cached state");
-      }
-    }
+    const callsUsed = status.emergencyCallsUsedThisYear;
+    const callsRemaining = Math.max(0, EMERGENCY_MAX_CALLOUTS - callsUsed);
 
     res.json({
       active: status.emergencyMemberActive,
-      subId: status.emergencySubId,
-      subEnd: status.emergencySubEnd ? status.emergencySubEnd.toISOString() : null,
+      plan: status.emergencyMembershipPlan ?? null,
+      startedAt: status.emergencyMembershipStartedAt?.toISOString() ?? null,
+      renewalDate: status.emergencyMembershipRenewalDate?.toISOString() ?? null,
+      waitingPeriodEndsAt: status.emergencyWaitingPeriodEndsAt?.toISOString() ?? null,
+      callsUsed,
+      callsRemaining,
       cancelAtPeriodEnd: status.emergencySubCancelAt,
     });
   } catch (err) {
@@ -69,7 +51,7 @@ router.get("/emergency/status", requireAuth, async (req, res): Promise<void> => 
   }
 });
 
-// POST /api/emergency/checkout — create Stripe Checkout session for emergency membership subscription
+// POST /api/emergency/checkout
 router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> => {
   const user = req.user!;
   if (user.role !== "homeowner") {
@@ -85,32 +67,22 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
       return;
     }
 
-    // Check if already subscribed
     if (dbUser.emergencyMemberActive && dbUser.emergencySubId) {
       res.status(409).json({ error: "already_subscribed", message: "You already have an active emergency membership" });
       return;
     }
 
-    // Find the emergency membership price via lookup key
-    let priceId: string;
-    try {
-      const price = await stripe.prices.retrieve(`price_${EMERGENCY_PRODUCT_LOOKUP}`, {});
-      priceId = price.id;
-    } catch {
-      // Fall back to searching by lookup key
-      const prices = await stripe.prices.list({
-        lookup_keys: [EMERGENCY_PRODUCT_LOOKUP],
-        active: true,
-        limit: 1,
-      });
-      if (!prices.data.length) {
-        res.status(503).json({ error: "product_not_found", message: "Emergency membership product not configured" });
-        return;
-      }
-      priceId = prices.data[0].id;
+    const prices = await stripe.prices.list({
+      lookup_keys: [EMERGENCY_PRODUCT_LOOKUP],
+      active: true,
+      limit: 1,
+    });
+    if (!prices.data.length) {
+      res.status(503).json({ error: "product_not_found", message: "Emergency membership product not configured" });
+      return;
     }
+    const priceId = prices.data[0].id;
 
-    // Create or reuse Stripe customer
     let customerId = dbUser.stripeCustomerId;
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -140,9 +112,14 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
   }
 });
 
-// POST /api/emergency/verify-session — called after successful checkout to activate membership
+// POST /api/emergency/verify-session
 router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<void> => {
   const user = req.user!;
+  if (user.role !== "homeowner") {
+    res.status(403).json({ error: "forbidden", message: "Only homeowners can activate emergency memberships" });
+    return;
+  }
+
   const { sessionId } = req.body as { sessionId?: string };
   if (!sessionId) {
     res.status(400).json({ error: "validation_error", message: "sessionId is required" });
@@ -151,9 +128,7 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
 
   try {
     const stripe = await getUncachableStripeClient();
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["subscription"],
-    });
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status !== "paid" && session.status !== "complete") {
       res.status(402).json({ error: "not_paid", message: "Payment not completed" });
@@ -165,41 +140,40 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
       return;
     }
 
-    const subscription = session.subscription as any;
-    if (!subscription) {
+    if (!session.subscription) {
       res.status(400).json({ error: "no_subscription", message: "No subscription found on session" });
       return;
     }
 
-    const subId = typeof subscription === "string" ? subscription : subscription.id;
-    let subEnd: Date | null = null;
-    let cancelAt = false;
+    const subId = typeof session.subscription === "string"
+      ? session.subscription
+      : session.subscription.id;
+    const sub: Stripe.Subscription = await stripe.subscriptions.retrieve(subId);
 
-    if (typeof subscription === "object") {
-      subEnd = subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000)
-        : null;
-      cancelAt = subscription.cancel_at_period_end ?? false;
-    } else {
-      // Retrieve it
-      const sub = await stripe.subscriptions.retrieve(subId);
-      subEnd = new Date((sub as any).current_period_end * 1000);
-      cancelAt = (sub as any).cancel_at_period_end ?? false;
-    }
+    const now = new Date();
+    const periodEnd = sub.items.data[0]?.current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+    const renewalDate = new Date(periodEnd * 1000);
+    const waitingPeriodEndsAt = new Date(now.getTime() + WAITING_PERIOD_HOURS * 60 * 60 * 1000);
 
     await setEmergencyMembership(user.userId, {
       active: true,
-      subId,
-      subEnd,
-      cancelAtPeriodEnd: cancelAt,
+      subId: sub.id,
+      renewalDate,
+      cancelAtPeriodEnd: sub.cancel_at_period_end,
+      startedAt: now,
+      waitingPeriodEndsAt,
+      callsUsed: 0,
+      plan: EMERGENCY_PLAN_NAME,
     });
 
     res.json({
       success: true,
       active: true,
-      subId,
-      subEnd: subEnd?.toISOString() ?? null,
-      cancelAtPeriodEnd: cancelAt,
+      plan: EMERGENCY_PLAN_NAME,
+      renewalDate: renewalDate.toISOString(),
+      waitingPeriodEndsAt: waitingPeriodEndsAt.toISOString(),
+      callsUsed: 0,
+      callsRemaining: EMERGENCY_MAX_CALLOUTS,
     });
   } catch (err) {
     logger.error({ err }, "Failed to verify emergency session");
@@ -207,7 +181,7 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
   }
 });
 
-// POST /api/emergency/cancel — cancel the emergency membership at period end
+// POST /api/emergency/cancel
 router.post("/emergency/cancel", requireAuth, async (req, res): Promise<void> => {
   const user = req.user!;
   if (user.role !== "homeowner") {
@@ -223,22 +197,23 @@ router.post("/emergency/cancel", requireAuth, async (req, res): Promise<void> =>
     }
 
     const stripe = await getUncachableStripeClient();
-    const sub = await stripe.subscriptions.update(status.emergencySubId, {
+    const sub: Stripe.Subscription = await stripe.subscriptions.update(status.emergencySubId, {
       cancel_at_period_end: true,
     });
 
-    const subEnd = new Date((sub as any).current_period_end * 1000);
+    const cancelPeriodEnd = sub.items.data[0]?.current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+    const renewalDate = new Date(cancelPeriodEnd * 1000);
     await setEmergencyMembership(user.userId, {
       active: true,
       subId: status.emergencySubId,
-      subEnd,
+      renewalDate,
       cancelAtPeriodEnd: true,
     });
 
     res.json({
       success: true,
       message: "Membership will cancel at end of current billing period",
-      subEnd: subEnd.toISOString(),
+      subEnd: renewalDate.toISOString(),
     });
   } catch (err) {
     logger.error({ err }, "Failed to cancel emergency membership");
