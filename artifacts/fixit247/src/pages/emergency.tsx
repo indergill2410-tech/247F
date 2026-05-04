@@ -100,16 +100,12 @@ const FAQS = [
     a: "Non-urgent or cosmetic work (dripping taps, painting, minor cracks), full system upgrades or major renovations, pre-existing or long-standing problems, and area-wide utility outages. Larger non-covered jobs can still be quoted through the Fixit 24/7 app as normal paid work.",
   },
   {
-    q: "What's the annual covered value?",
-    a: "Your membership includes up to 2 covered emergency callouts per membership year. Each covered callout includes tradie attendance, up to 1 hour of labour and minor parts, up to $300 inc. GST in total value. If more work is needed, the tradie will quote you first — you choose whether to proceed and pay any extra through the app. Maximum covered value across both callouts is up to $600 inc. GST per membership year.",
-  },
-  {
     q: "Is there a waiting period?",
     a: "A 72-hour waiting period applies from the moment you first activate your membership. After that, you can request emergency support at any time.",
   },
   {
     q: "Can I cancel?",
-    a: "Yes — cancel any time, no lock-in. Your membership stays active until the end of the current billing period.",
+    a: "You can cancel your monthly membership at any time. Your membership stays active until the end of the current billing period.",
   },
   {
     q: "What about fair use?",
@@ -200,7 +196,7 @@ export default function EmergencyPage() {
             </h1>
 
             <p className="text-xl text-white/60 max-w-2xl leading-relaxed">
-              For <span className="text-white font-bold">$49/month</span>, get a smarter way to handle life's worst-timed problems — from burst pipes and lockouts to urgent car breakdown support. One membership. Less panic. Faster help. More peace of mind.
+              One membership for emergencies — whether in or out of home. For <span className="text-white font-bold">$49/month</span>, get peace of mind and security when life's worst-timed problems hit: burst pipes, lockouts, power failures, car breakdowns and more.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 items-center">
@@ -212,7 +208,7 @@ export default function EmergencyPage() {
                 {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
                 {!checkoutMutation.isPending && <ChevronRight className="h-5 w-5" aria-hidden="true" />}
               </button>
-              <p className="text-white/35 text-sm">No lock-in · cancel any time</p>
+              <p className="text-white/35 text-sm">or $529/yr — save 10%</p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 pt-2">
@@ -361,21 +357,41 @@ export default function EmergencyPage() {
             viewport={{ once: true }}
             className="text-center bg-gradient-to-b from-[#1a1408] to-[#0e0b05] border border-[#ffc800]/20 rounded-3xl p-8"
           >
-            <p className="text-white/50 text-sm mb-2">Membership starts at</p>
-            <div className="flex items-end justify-center gap-1 mb-4">
-              <span className="text-white/40 text-xl font-bold self-start mt-2">A$</span>
-              <span className="text-7xl font-black text-white leading-none">49</span>
-              <span className="text-white/40 text-lg font-medium self-end mb-1">/month</span>
+            <p className="text-white/50 text-sm mb-4">Choose your plan</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+              {/* Monthly */}
+              <div className="flex-1 max-w-[200px] mx-auto sm:mx-0 bg-[#ffc800]/8 border border-[#ffc800]/30 rounded-2xl px-5 py-4 text-center">
+                <p className="text-[#ffc800] text-[10px] font-bold uppercase tracking-widest mb-2">Monthly</p>
+                <div className="flex items-end justify-center gap-0.5">
+                  <span className="text-white/50 text-base font-bold self-start mt-1.5">A$</span>
+                  <span className="text-4xl font-black text-white leading-none">49</span>
+                  <span className="text-white/50 text-sm font-medium self-end mb-0.5">/mo</span>
+                </div>
+                <button
+                  onClick={handleJoin}
+                  disabled={checkoutMutation.isPending}
+                  className="mt-4 w-full h-10 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-1"
+                >
+                  {checkoutMutation.isPending ? "Loading…" : "Get started"}
+                  {!checkoutMutation.isPending && <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />}
+                </button>
+              </div>
+              {/* Annual */}
+              <div className="flex-1 max-w-[200px] mx-auto sm:mx-0 bg-white/4 border border-white/10 rounded-2xl px-5 py-4 text-center relative">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#ffc800] text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap">Save 10%</span>
+                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Annual</p>
+                <div className="flex items-end justify-center gap-0.5">
+                  <span className="text-white/40 text-base font-bold self-start mt-1.5">A$</span>
+                  <span className="text-4xl font-black text-white leading-none">529</span>
+                  <span className="text-white/40 text-sm font-medium self-end mb-0.5">/yr</span>
+                </div>
+                <p className="text-white/30 text-[11px] mt-1">Coming soon</p>
+                <div className="mt-4 w-full h-10 rounded-xl font-bold text-[13px] text-white/30 bg-white/5 border border-white/8 flex items-center justify-center cursor-not-allowed select-none">
+                  Notify me
+                </div>
+              </div>
             </div>
-            <button
-              onClick={handleJoin}
-              disabled={checkoutMutation.isPending}
-              className="inline-flex items-center gap-2 h-13 px-8 rounded-xl font-black text-[16px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 mb-3"
-            >
-              {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
-              {!checkoutMutation.isPending && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
-            </button>
-            <p className="text-white/30 text-xs">No lock-in · eligible emergencies only · fair use applies</p>
+            <p className="text-white/30 text-xs">Eligible emergencies only · fair use applies</p>
           </motion.div>
         </div>
       </section>
@@ -434,7 +450,7 @@ export default function EmergencyPage() {
 
           <div className="bg-white/3 border border-white/8 rounded-2xl p-6 text-white/40 text-[12px] leading-relaxed space-y-2">
             <p className="font-semibold text-white/55 text-[13px] mb-3">Membership details & fair use</p>
-            <p>$49/month, billed monthly. No annual prepay required.</p>
+            <p>$49/month billed monthly, or $529/year billed annually (save 10%). Annual billing coming soon.</p>
             <p>Includes up to 2 covered emergency callouts per membership year. Each covered callout includes tradie attendance, up to 1 hour of labour and minor parts, capped at $300 inc. GST per callout (up to $600 inc. GST total per membership year).</p>
             <p>If more time, parts, or additional work is needed, the tradie will present a clear quote before proceeding. You choose whether to approve and pay any extra through the app.</p>
             <p>Emergencies must be sudden and unforeseen. Long-term issues, known pre-existing faults, and non-urgent work are excluded. A 72-hour waiting period applies from first activation.</p>

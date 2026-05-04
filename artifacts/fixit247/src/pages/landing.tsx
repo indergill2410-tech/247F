@@ -420,15 +420,15 @@ export default function LandingPage() {
                       <span className="text-7xl font-black text-white leading-none">49</span>
                       <span className="text-white/45 text-base font-medium self-end mb-1">/mo</span>
                     </div>
-                    <p className="text-white/30 text-[11px] mt-2">No lock-in · cancel any time</p>
+                    <p className="text-white/30 text-[11px] mt-1.5">or <span className="text-white/45 font-semibold">$529/yr</span> — save 10%</p>
                   </div>
 
                   <div className="space-y-2.5 mb-7 text-left">
                     {[
-                      "Up to 2 emergency callouts/year",
                       "Home + car breakdown support",
                       "Priority tradie dispatch 24/7",
-                      "Cancel any time, no lock-in",
+                      "In or out of home — one membership",
+                      "12 months · billed monthly",
                     ].map((perk) => (
                       <div key={perk} className="flex items-center gap-2.5 text-[13px] text-white/65">
                         <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
@@ -579,7 +579,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="text-center mb-10">
             <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Homeowner Membership</span>
-            <h2 className="text-3xl sm:text-4xl font-black mt-3">Fixit Emergency 24/7 – Peace of mind for the "oh‑no" moments</h2>
+            <h2 className="text-3xl sm:text-4xl font-black mt-3">One membership for emergencies — in or out of home</h2>
+            <p className="text-white/45 mt-3 text-[15px] max-w-lg mx-auto">Peace of mind and security for when life's worst-timed problems hit.</p>
           </div>
 
           {/* Main card */}
@@ -608,15 +609,14 @@ export default function LandingPage() {
                       <span className="text-6xl font-black text-white">49</span>
                       <span className="text-white/50 text-base font-medium self-end mb-2">/month</span>
                     </div>
-                    <p className="text-white/35 text-xs mt-1">No lock‑in</p>
+                    <p className="text-white/35 text-xs mt-1">or <span className="text-white/50 font-semibold">$529/yr</span> — save 10%</p>
                   </div>
 
                   <ul className="flex flex-col gap-2.5 mb-6" role="list">
                     {[
-                      "Up to 2 emergency callouts per year",
-                      "Up to $300 inc. GST per callout",
                       "24/7 access to trusted tradies",
                       "Priority dispatch — we find help fast",
+                      "In or out of home — one membership",
                       "Member‑only rates on extra work",
                     ].map((perk) => (
                       <li key={perk} className="flex items-start gap-2.5 text-[13px] text-white/75">
@@ -635,20 +635,20 @@ export default function LandingPage() {
                     {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
                   </button>
                   <p className="text-center text-[11px] text-white/30 mt-3">
-                    Cancel any time. Emergencies only — see what's covered.
+                    Eligible emergencies only · fair use applies
                   </p>
                 </div>
 
                 {/* Body copy */}
                 <div className="flex-1 text-white/60 text-[14px] leading-relaxed space-y-3">
                   <p>
-                    Most home emergencies arrive out of nowhere: a burst pipe flooding the hallway, no power on a freezing night, or getting home late and realising you are locked out. A single after‑hours plumber or locksmith can easily cost a few hundred dollars just to show up — before parts or extra time.
+                    Whether you're at home or out and about — a burst pipe flooding the hallway, no power on a freezing night, locked out late, or stranded with a car that won't start — emergencies don't wait for a convenient moment.
                   </p>
                   <p>
-                    Fixit Emergency 24/7 turns those <span className="text-white/85 font-semibold">"how much is this going to cost me?"</span> moments into <span className="text-white/85 font-semibold">"it's covered — just tap the app."</span>
+                    Fixit Emergency 24/7 is <span className="text-white/85 font-semibold">one membership that covers you wherever you are</span>, turning those <span className="text-white/85 font-semibold">"how much is this going to cost me?"</span> moments into <span className="text-white/85 font-semibold">"it's sorted — just tap the app."</span>
                   </p>
                   <p className="text-white/40 text-xs italic border-l-2 border-[#ffc800]/30 pl-3">
-                    One late‑night emergency can easily cost as much as a month or more of membership on its own — Fixit Emergency 24/7 gives you <strong className="text-white/60 not-italic">protection all year for a fraction of what a single disaster can cost.</strong>
+                    One membership. Home emergencies and car breakdowns covered. <strong className="text-white/60 not-italic">Peace of mind and security — in or out of home.</strong>
                   </p>
                 </div>
               </div>
@@ -795,9 +795,9 @@ export default function LandingPage() {
             <p className="font-bold text-white text-sm mb-3">Key details</p>
             <ul className="space-y-2 text-white/50 text-[13px] leading-relaxed">
               {[
-                "$49/month, billed monthly. No annual prepay.",
-                "Includes up to 2 covered emergency callouts per membership year.",
-                "Each covered callout includes: tradie attendance, up to 1 hour of labour and minor parts, up to $300 inc. GST in total.",
+                "$49/month billed monthly, or $529/year billed annually (save 10%).",
+                "12-month membership — home emergencies and car breakdown support included.",
+                "Cover applies whether you are at home or out — one membership for all eligible emergencies.",
                 "If more time or parts are needed, the tradie will show a quote first — you choose whether to proceed and pay the extra in the app.",
                 "Emergencies must be sudden and unforeseen. Long‑term issues and known faults are excluded.",
                 "A short waiting period (72 hours) applies from when you first join before you can request an emergency.",
