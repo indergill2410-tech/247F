@@ -18,20 +18,15 @@ import {
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
-  { label: "Categories", href: "/categories" },
   { label: "Fixit 24/7 Emergency", href: "/emergency", highlight: true },
-  { label: "Find a Tradie", href: "/tradies" },
   { label: "About", href: "/about" },
   { label: "Partner with us", href: "/partner" },
-  { label: "We are hiring", href: "/careers" },
 ];
 
 // Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
 const DESKTOP_NAV_LABELS: Record<string, string> = {
   "/emergency": "Emergency",
-  "/tradies": "Find Tradie",
   "/partner": "Partner",
-  "/careers": "Careers",
 };
 
 function publicNavCls(href: string, location: string) {
