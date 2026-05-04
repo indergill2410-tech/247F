@@ -196,7 +196,7 @@ export default function EmergencyPage() {
             </h1>
 
             <p className="text-xl text-white/60 max-w-2xl leading-relaxed">
-              One membership for emergencies — whether in or out of home. For <span className="text-white font-bold">$49/month</span>, get peace of mind and security when life's worst-timed problems hit: burst pipes, lockouts, power failures, car breakdowns and more.
+              One membership for emergencies, whether in or out of home — giving you peace of mind and security. For <span className="text-white font-bold">$49/month</span>, get help fast when things go wrong: burst pipes, lockouts, power failures, car breakdowns and more.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 items-center">

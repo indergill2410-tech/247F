@@ -603,18 +603,44 @@ export default function LandingPage() {
 
               <div className="flex flex-col lg:flex-row gap-8 pt-2">
                 {/* Pricing + CTA column */}
-                <div className="lg:w-64 flex-shrink-0">
-                  <div className="text-center lg:text-left mb-5">
-                    <p className="text-white/40 text-sm font-medium mb-1">Fixit Emergency 24/7</p>
-                    <div className="flex items-end justify-center lg:justify-start gap-1">
-                      <span className="text-white/50 text-xl font-bold self-start mt-2">A$</span>
-                      <span className="text-6xl font-black text-white">49</span>
-                      <span className="text-white/50 text-base font-medium self-end mb-2">/month</span>
+                <div className="lg:w-72 flex-shrink-0">
+                  <p className="text-white/40 text-sm font-medium mb-4">Choose your plan</p>
+
+                  {/* Monthly */}
+                  <div className="bg-[#ffc800]/8 border border-[#ffc800]/30 rounded-2xl p-4 mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[#ffc800] text-[11px] font-bold uppercase tracking-widest">Monthly</span>
                     </div>
-                    <p className="text-white/35 text-xs mt-1">or <span className="text-white/50 font-semibold">$529/yr</span> — save 10%</p>
+                    <div className="flex items-end gap-1 mb-3">
+                      <span className="text-white/50 text-base font-bold self-start mt-1">A$</span>
+                      <span className="text-4xl font-black text-white leading-none">49</span>
+                      <span className="text-white/50 text-sm font-medium self-end mb-0.5">/mo</span>
+                    </div>
+                    <button
+                      onClick={handleEmergencyJoin}
+                      disabled={checkoutMutation.isPending}
+                      className="w-full h-10 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                    >
+                      {checkoutMutation.isPending ? "Loading…" : "Get protected"}
+                      {!checkoutMutation.isPending && <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
+                    </button>
                   </div>
 
-                  <ul className="flex flex-col gap-2.5 mb-6" role="list">
+                  {/* Annual */}
+                  <div className="bg-white/4 border border-white/10 rounded-2xl p-4 relative mb-5">
+                    <span className="absolute -top-2.5 right-3 bg-[#ffc800] text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Save 10%</span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white/40 text-[11px] font-bold uppercase tracking-widest">Annual</span>
+                      <span className="text-white/25 text-[10px]">Coming soon</span>
+                    </div>
+                    <div className="flex items-end gap-1">
+                      <span className="text-white/35 text-base font-bold self-start mt-1">A$</span>
+                      <span className="text-4xl font-black text-white/40 leading-none">529</span>
+                      <span className="text-white/35 text-sm font-medium self-end mb-0.5">/yr</span>
+                    </div>
+                  </div>
+
+                  <ul className="flex flex-col gap-2.5 mb-4" role="list">
                     {[
                       "24/7 access to trusted tradies",
                       "Priority dispatch — we find help fast",
@@ -628,15 +654,7 @@ export default function LandingPage() {
                     ))}
                   </ul>
 
-                  <button
-                    onClick={handleEmergencyJoin}
-                    disabled={checkoutMutation.isPending}
-                    className="w-full h-12 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2 disabled:opacity-60"
-                  >
-                    {checkoutMutation.isPending ? "Loading…" : "Get 24/7 emergency cover for $49/month"}
-                    {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
-                  </button>
-                  <p className="text-center text-[11px] text-white/30 mt-3">
+                  <p className="text-[11px] text-white/30">
                     Eligible emergencies only · fair use applies
                   </p>
                 </div>
