@@ -249,7 +249,7 @@ export default function LandingPage() {
               </button>
               <Link href="/emergency">
                 <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 active:scale-[0.97] transition-all">
-                  See how it works
+                  See how the membership works
                 </button>
               </Link>
             </div>
@@ -399,7 +399,7 @@ export default function LandingPage() {
                 </button>
                 <Link href="/emergency">
                   <button className="inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/18 hover:bg-white/6 active:scale-[0.97] transition-all">
-                    See how it works
+                    See how the membership works
                   </button>
                 </Link>
               </div>
