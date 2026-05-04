@@ -13,12 +13,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useGetUnreadNotificationCount, useListConversations } from "@workspace/api-client-react";
 import {
   Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase,
-  ChevronDown, ShieldCheck, MessageCircle, Menu, X, Zap, Users,
+  ChevronDown, ShieldCheck, MessageCircle, Menu, X, Zap, Users, Shield,
 } from "lucide-react";
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
   { label: "Categories", href: "/categories" },
+  { label: "Fixit 24/7 Emergency", href: "/emergency", highlight: true },
   { label: "Find a Tradie", href: "/tradies" },
   { label: "About", href: "/about" },
   { label: "Partner with us", href: "/partner" },
@@ -27,6 +28,7 @@ const PUBLIC_NAV = [
 
 // Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
 const DESKTOP_NAV_LABELS: Record<string, string> = {
+  "/emergency": "Emergency",
   "/tradies": "Find Tradie",
   "/partner": "Partner",
   "/careers": "Careers",
@@ -97,9 +99,20 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-0.5 mx-auto" aria-label="Main navigation">
             {PUBLIC_NAV.map((item) => (
               <Link key={item.href} href={item.href}>
-                <span className={publicNavCls(item.href, location)}>
-                  {DESKTOP_NAV_LABELS[item.href] ?? item.label}
-                </span>
+                {item.highlight ? (
+                  <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 ${
+                    location === item.href
+                      ? "bg-[#ffc800]/15 text-[#ffc800]"
+                      : "text-[#ffc800]/80 hover:text-[#ffc800] hover:bg-[#ffc800]/10"
+                  }`}>
+                    <Shield className="h-3 w-3" aria-hidden="true" />
+                    {DESKTOP_NAV_LABELS[item.href] ?? item.label}
+                  </span>
+                ) : (
+                  <span className={publicNavCls(item.href, location)}>
+                    {DESKTOP_NAV_LABELS[item.href] ?? item.label}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -284,7 +297,18 @@ export function Navbar() {
               <>
                 {PUBLIC_NAV.map((item) => (
                   <Link key={item.href} href={item.href}>
-                    <span className={mobileLinkCls(item.href, location)}>{item.label}</span>
+                    {item.highlight ? (
+                      <span className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                        location === item.href
+                          ? "bg-[#ffc800]/12 text-[#ffc800]"
+                          : "text-[#ffc800]/75 hover:text-[#ffc800] hover:bg-[#ffc800]/8"
+                      }`}>
+                        <Shield className="h-4 w-4" aria-hidden="true" />
+                        {item.label}
+                      </span>
+                    ) : (
+                      <span className={mobileLinkCls(item.href, location)}>{item.label}</span>
+                    )}
                   </Link>
                 ))}
                 <div className="mt-3 pt-3 border-t border-white/8 flex flex-col gap-2">

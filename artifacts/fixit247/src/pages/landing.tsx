@@ -217,68 +217,79 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-16 lg:py-28">
           {/* Left */}
           <motion.div
-            className="w-full lg:flex-1 flex flex-col gap-7"
+            className="w-full lg:flex-1 flex flex-col gap-6"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 self-start bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-white/80 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#ffc800] animate-pulse" aria-hidden="true" />
-              Urgent Fix 24/7 — tradies online now
+            <div className="inline-flex items-center gap-2 self-start bg-[#ffc800]/12 border border-[#ffc800]/25 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold backdrop-blur-sm">
+              <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+              Fixit 24/7 Emergency
             </div>
 
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                Emergency<br />repairs,<br />
-                <span className="text-[#ffc800]">fixed fast.</span>
+                Peace of mind<br />for just{" "}
+                <span className="text-[#ffc800]">$49/month</span>
               </h1>
             </div>
 
             <p className="text-lg text-white/60 max-w-md leading-relaxed">
-              Plumbing, electrical, locksmith and more — get matched with verified local tradies, day or night, anywhere in Australia.
+              Unexpected home emergencies and car breakdowns never happen at a good time. Fixit 24/7 Emergency gives you one simple membership designed to reduce panic, soften surprise costs, and help you get support faster when things go wrong.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-2 max-w-md">
-              <div className="flex-1 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" aria-hidden="true" />
-                <input
-                  type="text"
-                  value={suburb}
-                  onChange={(e) => setSuburb(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
-                  placeholder="Your suburb or postcode"
-                  aria-label="Enter your suburb to find tradies"
-                  className="w-full bg-white/8 border border-white/12 rounded-xl pl-10 pr-4 h-11 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-[#ffc800]/60 focus:bg-white/12 transition-all"
-                />
-              </div>
-              <button
-                onClick={handleFindTradies}
-                className="h-11 px-5 rounded-xl font-semibold text-sm text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0"
-              >
-                Find tradies
-              </button>
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
-              <Link href="/signup?role=homeowner">
-                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-semibold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
-                  Post a job — it's free
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </Link>
-              <Link href="/signup?role=tradie">
+              <button
+                onClick={handleEmergencyJoin}
+                disabled={checkoutMutation.isPending}
+                className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60"
+              >
+                {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
+                {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
+              </button>
+              <Link href="/emergency">
                 <button className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/20 hover:bg-white/8 active:scale-[0.97] transition-all">
-                  Tradies — join free
+                  See how it works
                 </button>
               </Link>
             </div>
 
             <div className="flex flex-wrap gap-3 max-w-md">
-              {["Free to post", "Verified tradies", "No credit card", "Direct messaging"].map((t) => (
-                <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/45 bg-white/5 rounded-full px-3 py-1">
+              {[
+                "Home emergencies covered",
+                "Car breakdown support",
+                "24/7 when it matters most",
+                "One simple monthly membership",
+              ].map((t) => (
+                <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50 bg-white/5 rounded-full px-3 py-1">
                   <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
                 </span>
               ))}
+            </div>
+
+            {/* Secondary: find tradies */}
+            <div className="pt-2 border-t border-white/8 max-w-md">
+              <p className="text-xs text-white/35 mb-2.5 font-medium uppercase tracking-wider">Or find a tradie now</p>
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" aria-hidden="true" />
+                  <input
+                    type="text"
+                    value={suburb}
+                    onChange={(e) => setSuburb(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
+                    placeholder="Your suburb or postcode"
+                    aria-label="Enter your suburb to find tradies"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 h-10 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                  />
+                </div>
+                <button
+                  onClick={handleFindTradies}
+                  className="h-10 px-4 rounded-xl font-semibold text-sm text-white border border-white/15 hover:bg-white/8 active:scale-[0.97] transition-all shrink-0"
+                >
+                  Find tradies
+                </button>
+              </div>
             </div>
           </motion.div>
 
@@ -359,9 +370,7 @@ export default function LandingPage() {
               </h2>
 
               <p className="text-white/55 text-[15px] leading-relaxed mb-8 max-w-lg">
-                When things go wrong at home or on the road, the stress hits fast — and so do the bills. Fixit 24/7 gives you one simple membership that helps protect you from both, with emergency home repair support, car breakdown assistance, and up to{" "}
-                <span className="text-white/80 font-semibold">$2,000 of covered value per membership year</span>{" "}
-                across eligible emergencies. It's a smarter way to stay prepared, stay calm, and avoid the full shock of paying for every emergency on your own.
+                When things go wrong at home or on the road, the stress hits fast — and so do the bills. Fixit 24/7 Emergency gives you one simple membership with emergency home repair support and car breakdown assistance. It's a smarter way to stay prepared, stay calm, and avoid the full shock of paying for every emergency on your own.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
@@ -388,12 +397,11 @@ export default function LandingPage() {
                   {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
                   {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
                 </button>
-                <a
-                  href="#emergency-membership"
-                  className="inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/18 hover:bg-white/6 active:scale-[0.97] transition-all"
-                >
-                  See what's covered
-                </a>
+                <Link href="/emergency">
+                  <button className="inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/18 hover:bg-white/6 active:scale-[0.97] transition-all">
+                    See how it works
+                  </button>
+                </Link>
               </div>
             </motion.div>
 
@@ -422,9 +430,9 @@ export default function LandingPage() {
                   <div className="space-y-2.5 mb-7 text-left">
                     {[
                       "Up to 2 emergency callouts/year",
-                      "Up to $2,000 covered value/year",
                       "Home + car breakdown support",
                       "Priority tradie dispatch 24/7",
+                      "Cancel any time, no lock-in",
                     ].map((perk) => (
                       <div key={perk} className="flex items-center gap-2.5 text-[13px] text-white/65">
                         <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
