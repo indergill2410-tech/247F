@@ -14,7 +14,9 @@ import { useGetUnreadNotificationCount, useListConversations } from "@workspace/
 import {
   Wrench, Bell, User, LogOut, LayoutDashboard, Briefcase,
   ChevronDown, ShieldCheck, MessageCircle, Menu, X, Zap, Users, Shield,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
+import { useNavHistory } from "@/hooks/use-nav-history";
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
@@ -53,6 +55,7 @@ export function Navbar() {
   const [location, setLocation] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const { canGoBack, canGoForward, goBack, goForward } = useNavHistory();
 
   useEffect(() => { setMenuOpen(false); }, [location]);
 
@@ -78,15 +81,44 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-white/6 bg-[#0b0904]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0904]/80">
       <div className="container mx-auto px-4 sm:px-6 flex h-16 items-center justify-between gap-4">
 
-        {/* Logo */}
-        <Link href="/">
-          <span className="flex items-center gap-2 cursor-pointer shrink-0" aria-label="Fixit 24/7 — home">
-            <Wrench className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
-            <span className="font-black text-xl text-white tracking-tight whitespace-nowrap">
-              Fixit <span className="text-[#ffc800]">24/7</span>
+        {/* Back / Forward + Logo */}
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-0.5 mr-1">
+            <button
+              onClick={goBack}
+              disabled={!canGoBack}
+              aria-label="Go back"
+              className={`h-7 w-7 rounded-lg flex items-center justify-center transition-all ${
+                canGoBack
+                  ? "text-white/60 hover:text-white hover:bg-white/8 active:scale-90"
+                  : "text-white/20 cursor-not-allowed"
+              }`}
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              onClick={goForward}
+              disabled={!canGoForward}
+              aria-label="Go forward"
+              className={`h-7 w-7 rounded-lg flex items-center justify-center transition-all ${
+                canGoForward
+                  ? "text-white/60 hover:text-white hover:bg-white/8 active:scale-90"
+                  : "text-white/20 cursor-not-allowed"
+              }`}
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+
+          <Link href="/">
+            <span className="flex items-center gap-2 cursor-pointer" aria-label="Fixit 24/7 — home">
+              <Wrench className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+              <span className="font-black text-xl text-white tracking-tight whitespace-nowrap">
+                Fixit <span className="text-[#ffc800]">24/7</span>
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+        </div>
 
         {/* Desktop centre nav */}
         {!isAuthenticated ? (
