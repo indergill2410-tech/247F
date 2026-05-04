@@ -450,7 +450,7 @@ export default function EmergencyPage() {
 
           <div className="bg-white/3 border border-white/8 rounded-2xl p-6 text-white/40 text-[12px] leading-relaxed space-y-2">
             <p className="font-semibold text-white/55 text-[13px] mb-3">Membership details & fair use</p>
-            <p>$49/month billed monthly, or $529/year billed annually (save 10%). Annual billing coming soon.</p>
+            <p>$49/month, billed monthly. No annual prepay required.</p>
             <p>Includes up to 2 covered emergency callouts per membership year. Each covered callout includes tradie attendance, up to 1 hour of labour and minor parts, capped at $300 inc. GST per callout (up to $600 inc. GST total per membership year).</p>
             <p>If more time, parts, or additional work is needed, the tradie will present a clear quote before proceeding. You choose whether to approve and pay any extra through the app.</p>
             <p>Emergencies must be sudden and unforeseen. Long-term issues, known pre-existing faults, and non-urgent work are excluded. A 72-hour waiting period applies from first activation.</p>
