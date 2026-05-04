@@ -26,7 +26,6 @@ const PUBLIC_NAV = [
 // Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
 const DESKTOP_NAV_LABELS: Record<string, string> = {
   "/emergency": "Emergency",
-  "/partner": "Partner",
 };
 
 function publicNavCls(href: string, location: string) {
