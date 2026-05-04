@@ -366,7 +366,7 @@ export default function LandingPage() {
               </h2>
 
               <p className="text-white/55 text-[15px] leading-relaxed mb-8 max-w-lg">
-                One membership for emergencies — whether in or out of home — giving you peace of mind and security. From burst pipes and lockouts to power failures and car breakdowns, Fixit Emergency 24/7 means you're always one tap away from trusted help, without the shock of paying full price every time.
+                One membership for emergencies, whether in or out of home — giving you peace of mind and security. From burst pipes and lockouts to power failures and car breakdowns, Fixit Emergency 24/7 means you're always one tap away from trusted help, without the shock of paying full price every time.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
