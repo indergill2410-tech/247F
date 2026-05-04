@@ -368,7 +368,6 @@ export default function LandingPage() {
                 {[
                   { icon: Home, label: "Home emergency support" },
                   { icon: Car, label: "Car breakdown assistance" },
-                  { icon: ShieldCheck, label: "Up to $2,000 annual covered value" },
                   { icon: Clock, label: "24/7 access when things go wrong" },
                 ].map(({ icon: Icon, label }) => (
                   <div key={label} className="flex items-center gap-3 text-sm text-white/70">
