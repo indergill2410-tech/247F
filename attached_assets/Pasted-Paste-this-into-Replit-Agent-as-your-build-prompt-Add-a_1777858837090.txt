@@ -1,0 +1,136 @@
+Paste this into Replit Agent as your build prompt:
+
+***
+
+Add a new **homeowner membership plan** called **“Fixit Emergency 24/7”** to the existing Fixit 24/7 app without changing or removing any current tradie subscription plans or pricing. Only **add** this plan and the related logic alongside what already exists.
+
+### 1. New plan (product & billing)
+
+- Create a new plan object/record for **Fixit Emergency 24/7**.
+- Price: **$49/month**, billed monthly only (no annual billing option).
+- Target user: **homeowner role** only (not tradies).
+- Payment provider: wire it into the same Stripe/billing system already used for tradie subscriptions, but as a separate product/price.
+- Store on the user account:
+  - `emergency_membership_active` (boolean)
+  - `emergency_membership_started_at`
+  - `emergency_membership_renewal_date`
+  - `emergency_calls_used_this_year` (integer)
+  - an internal `emergency_membership_plan` identifier in case we add more tiers later.
+
+Include a short **waiting period flag** (e.g. `emergency_waiting_period_ends_at`) to support a 72-hour wait before first claim, but do not enforce strict business rules yet if that would break existing flows.
+
+### 2. Pricing page UI (add, don’t modify existing)
+
+On the existing pricing page in the Replit app:
+
+- Add a **new plan card** for homeowners, clearly separated from tradie membership plans.
+- Do NOT modify the tradie membership copy, layout, or logic.
+- For the new card, use this copy verbatim:
+
+**Heading + tag line**
+
+> **Fixit Emergency 24/7 – Peace of mind for the “oh‑no” moments**
+
+**Plan card body**
+
+> **Fixit Emergency 24/7**  
+> **$49/month – no lock‑in**  
+>  
+> Most home emergencies arrive out of nowhere: a burst pipe flooding the hallway, no power on a freezing night, or getting home late and realising you are locked out. A single after‑hours plumber or locksmith can easily cost a few hundred dollars just to show up – before parts or extra time.  
+>  
+> Fixit Emergency 24/7 turns those “how much is this going to cost me?” moments into **“it’s covered – just tap the app.”**  
+>  
+> You get:  
+> – **Up to 2 emergency callouts per membership year.**  
+>   Each callout includes **tradie attendance + up to 1 hour on site + minor parts, up to a total of $300 inc. GST.**  
+> – **24/7 access** to trusted plumbers, electricians and locksmiths for real emergencies.  
+> – **Priority dispatch** – we find and send help while you look after your family.  
+> – **Member‑only rates** on any extra work if the job goes beyond the included cover.  
+>  
+> One late‑night emergency can easily cost as much as a month or more of membership on its own – Fixit Emergency 24/7 gives you **protection all year for a fraction of what a single disaster can cost.**
+
+**Button text**
+
+> **Get 24/7 emergency cover for $49/month**
+
+**Sub‑label under button**
+
+> **Cancel any time. Emergencies only – see what’s covered.**
+
+Place this card near the homeowner content and visually separate it from tradie plans, but keep design consistent with existing pricing cards.
+
+### 3. “What’s covered” / “What’s not covered” section
+
+On the same page (or linked from the plan), add two collapsible sections or a dedicated detail section.
+
+Use this copy (do not change wording):
+
+**What we treat as an emergency**
+
+> Your membership is for situations that affect **safety, security or essential services** at home. We’ll organise an emergency tradie for:  
+>  
+> **Plumbing**  
+> – Burst pipes or serious leaks causing internal damage.  
+> – Blocked toilet, drain or sewer with overflow or no usable toilet in the home.  
+> – Fixtures that will not stop running and cannot be isolated.  
+>  
+> **Electrical**  
+> – Loss of power to your home that is not a wider network outage.  
+> – Dangerous faults: sparking outlets, burning smells, tripping switchboard or exposed live wiring.  
+>  
+> **Locksmith & security**  
+> – Locked out of your home and unable to gain entry.  
+> – Broken or jammed external door locks that stop you securing the property.  
+> – Broken external door or window leaving the home insecure (make‑safe only).  
+>  
+> **Gas & hot water**  
+> – Suspected gas leak inside or immediately around the home.  
+> – Complete failure of your main hot water system (no hot water at all).  
+>  
+> **Roof & storm**  
+> – Sudden roof or gutter damage causing water to enter the home (temporary make‑safe, for example tarping).
+
+**What’s not included**
+
+> To keep the service fair and sustainable for everyone, Fixit Emergency 24/7 does **not** cover:  
+>  
+> – Non‑urgent or cosmetic issues (dripping taps, painting, minor cracks, routine upgrades).  
+> – Full system upgrades or major projects (full roof replacement, full switchboard upgrade, full bathroom/kitchen renovations).  
+> – Pre‑existing or long‑standing problems that were there before you joined.  
+> – Area‑wide power outages that sit with your energy provider.  
+> – Any cost above **$300 inc. GST per callout** (you can still approve and pay extra through the app).  
+>  
+> Those jobs can still be booked through Fixit 24/7 as normal paid jobs, just not as part of the membership cover.
+
+### 4. Key details / T&Cs snippet
+
+Add a small “Key details” area under the plan to manage expectations and reduce chargebacks:
+
+> **Key details**  
+> – **$49/month, billed monthly.** No annual prepay.  
+> – Includes **up to 2 covered emergency callouts per membership year.**  
+> – Each covered callout includes: tradie attendance, up to 1 hour of labour and minor parts, up to **$300 inc. GST** in total.  
+> – If more time or parts are needed, the tradie will show a quote first – you choose whether to proceed and pay the extra in the app.  
+> – Emergencies must be **sudden and unforeseen**. Long‑term issues and known faults are excluded.  
+> – A short **waiting period (e.g. 72 hours)** applies from when you first join before you can request an emergency.
+
+### 5. Backend logic (minimal integration)
+
+Without breaking any existing flows:
+
+- Add an endpoint and service function to **start emergency membership** when Stripe confirms the $49/month subscription.  
+- Increment `emergency_calls_used_this_year` each time a covered emergency job is created and accepted under this membership.  
+- Prevent more than 2 calls per membership year from being treated as “covered” – after that, route emergencies as normal paid jobs, but still show member pricing if we define it.  
+- Expose membership status and remaining callouts in the homeowner dashboard (simple text is enough for now).
+
+Do **not** change tradie membership logic or commission logic; just extend the system to support one more membership type for the homeowner role.
+
+### 6. UX polish and emotions
+
+- Make sure the new plan visually emphasises **peace of mind**, **24/7**, and **fraction of the cost of one emergency**.  
+- Place this plan near the top of the homeowner pricing area, above secondary features.  
+- Ensure the button and labels use the exact wording above to maximise emotional clarity and risk‑reduction. High‑converting plans usually highlight reduced uncertainty, clear value vs. alternatives, and easy cancellation. [123internet](https://www.123internet.agency/the-psychology-of-conversion-7-triggers-that-turn-visitors-into-buyers/)
+
+***
+
+Keep the implementation contained: **only add this Fixit Emergency 24/7 member plan and its UI/backend wiring, without altering or removing the existing tradie membership subs on the pricing page.**
