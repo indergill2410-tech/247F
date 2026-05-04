@@ -229,13 +229,13 @@ export default function LandingPage() {
 
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                Emergency repairs,<br />
+                Any job, any tradie,<br />
                 <span className="text-[#ffc800]">fixed fast.</span>
               </h1>
             </div>
 
             <p className="text-lg text-white/60 max-w-md leading-relaxed">
-              From burst pipes and power outages to lockouts, broken aircon, and everyday home repairs — Fixit 24/7 connects you with trusted local tradies for any job, any time of day.
+              From everyday repairs to after-hours emergencies — plumbing, electrical, lockouts, HVAC, carpentry and more. Fixit 24/7 connects you with verified local tradies for any job, 24/7.
             </p>
 
             <div className="flex gap-2 max-w-md w-full">
@@ -253,33 +253,23 @@ export default function LandingPage() {
               </div>
               <button
                 onClick={handleFindTradies}
-                className="h-12 px-5 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0"
+                className="h-12 px-5 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0 whitespace-nowrap"
               >
-                Find tradies
+                Post your job for free
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-3 max-w-md">
+            <div className="flex flex-wrap gap-2.5 max-w-md">
               {[
-                "Plumbing & electrical",
-                "Lockouts & security",
-                "HVAC & appliances",
-                "All home repairs",
-              ].map((t) => (
-                <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50 bg-white/5 rounded-full px-3 py-1">
-                  <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
+                { icon: BadgeCheck, label: "Licensed & insured tradies" },
+                { icon: CheckCircle2, label: "Free to post any job" },
+                { icon: Shield, label: "Emergency jobs prioritised" },
+                { icon: Star, label: "Rated & reviewed" },
+              ].map(({ icon: Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/55 bg-white/5 border border-white/8 rounded-full px-3 py-1.5">
+                  <Icon className="h-3 w-3 text-[#ffc800] shrink-0" aria-hidden="true" /> {label}
                 </span>
               ))}
-            </div>
-
-            <div className="pt-1">
-              <Link href="/emergency">
-                <span className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-[#ffc800] transition-colors cursor-pointer">
-                  <Shield className="h-3.5 w-3.5" aria-hidden="true" />
-                  Fixit 24/7 Emergency membership — $49/month
-                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </span>
-              </Link>
             </div>
           </motion.div>
 
@@ -292,6 +282,9 @@ export default function LandingPage() {
           >
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
               <div className="p-7">
+                {/* Built for tradies eyebrow */}
+                <p className="text-[11px] font-black uppercase tracking-widest text-[#b8920a] mb-3">Built for tradies</p>
+
                 {/* Credits callout badge */}
                 <div className="flex items-center gap-2 mb-4">
                   <span className="inline-flex items-center gap-1.5 bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-3 py-1.5 rounded-full">
