@@ -215,7 +215,7 @@ export default function CreditsPage() {
               <div>
                 <p className="text-sm font-bold text-orange-300">You're out of credits</p>
                 <p className="text-xs text-orange-300/70 mt-0.5">
-                  You need at least 50 credits to claim a job. Purchase a pack below to keep working.
+                  You need at least 30 credits to claim a job. Purchase a pack below to keep working.
                 </p>
               </div>
             </motion.div>
