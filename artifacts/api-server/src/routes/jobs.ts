@@ -5,6 +5,8 @@ import {
   usersTable,
   categoriesTable,
   claimsTable,
+  tradieSkillsTable,
+  reviewsTable,
 } from "@workspace/db";
 import { eq, and, sql, count, desc, asc } from "drizzle-orm";
 import {
@@ -104,6 +106,18 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
   // Role-based filtering
   if (user.role === "homeowner") {
     conditions.push(eq(jobsTable.homeownerId, user.userId));
+  }
+
+  // Tradie "My trades" filter — limit to category IDs matching the tradie's skills
+  if (user.role === "tradie" && query.filter === "my_trades") {
+    const mySkills = await db
+      .select({ categoryId: tradieSkillsTable.categoryId })
+      .from(tradieSkillsTable)
+      .where(eq(tradieSkillsTable.tradieId, user.userId));
+    if (mySkills.length > 0) {
+      const catIds = mySkills.map((s) => s.categoryId);
+      conditions.push(sql`${jobsTable.categoryId} = ANY(ARRAY[${sql.join(catIds.map((id) => sql`${id}`), sql`, `)}]::int[])`);
+    }
   }
   // Tradies see all open/matched jobs plus their claimed ones
   // Admin sees all
@@ -349,6 +363,84 @@ router.delete("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
 
   await db.update(jobsTable).set({ status: "cancelled" }).where(eq(jobsTable.id, parsed.data.id));
   res.status(200).json({ success: true, message: "Job cancelled" });
+});
+
+// GET /api/jobs/:jobId/tradie-trust-card  — homeowner / admin only
+router.get("/jobs/:jobId/tradie-trust-card", requireAuth, async (req, res): Promise<void> => {
+  const user = req.user!;
+  if (user.role === "tradie") {
+    res.status(403).json({ error: "forbidden", message: "Tradies cannot view trust cards" });
+    return;
+  }
+
+  const jobId = Number(req.params.jobId);
+  if (!Number.isInteger(jobId) || jobId <= 0) { res.status(400).json({ error: "bad_request" }); return; }
+
+  const [job] = await db
+    .select({ id: jobsTable.id, homeownerId: jobsTable.homeownerId })
+    .from(jobsTable)
+    .where(eq(jobsTable.id, jobId));
+  if (!job) { res.status(404).json({ error: "not_found", message: "Job not found" }); return; }
+  if (user.role !== "admin" && job.homeownerId !== user.userId) {
+    res.status(403).json({ error: "forbidden" }); return;
+  }
+
+  // Try accepted claim first, then fall back to most recent claim
+  let activeClaim = (await db
+    .select()
+    .from(claimsTable)
+    .where(and(eq(claimsTable.jobId, jobId), eq(claimsTable.status, "accepted")))
+    .limit(1))[0];
+
+  if (!activeClaim) {
+    activeClaim = (await db
+      .select()
+      .from(claimsTable)
+      .where(eq(claimsTable.jobId, jobId))
+      .orderBy(desc(claimsTable.createdAt))
+      .limit(1))[0];
+  }
+
+  if (!activeClaim) {
+    res.status(404).json({ error: "not_found", message: "No tradie has responded yet" }); return;
+  }
+
+  const [tradie] = await db.select().from(usersTable).where(eq(usersTable.id, activeClaim.tradieId));
+  if (!tradie) { res.status(404).json({ error: "not_found" }); return; }
+
+  const recentReviews = await db
+    .select({
+      id: reviewsTable.id,
+      jobId: reviewsTable.jobId,
+      reviewerId: reviewsTable.reviewerId,
+      reviewerName: usersTable.name,
+      reviewerAvatarUrl: usersTable.avatarUrl,
+      revieweeId: reviewsTable.revieweeId,
+      rating: reviewsTable.rating,
+      comment: reviewsTable.comment,
+      createdAt: reviewsTable.createdAt,
+    })
+    .from(reviewsTable)
+    .innerJoin(usersTable, eq(usersTable.id, reviewsTable.reviewerId))
+    .where(eq(reviewsTable.revieweeId, tradie.id))
+    .orderBy(desc(reviewsTable.createdAt))
+    .limit(3);
+
+  res.json({
+    tradieId: tradie.id,
+    displayName: tradie.name,
+    avatarUrl: tradie.avatarUrl,
+    primaryTrade: tradie.primaryTrade,
+    secondaryTrades: tradie.secondaryTrades ?? [],
+    rating: tradie.rating,
+    reviewCount: tradie.reviewCount,
+    isVerified: tradie.isVerified,
+    suburb: tradie.suburb,
+    proposedPrice: activeClaim.proposedPrice,
+    message: activeClaim.message,
+    recentReviews,
+    claimId: activeClaim.id,
+  });
 });
 
 export default router;

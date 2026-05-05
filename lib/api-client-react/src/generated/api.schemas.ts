@@ -38,6 +38,8 @@ export interface RegisterBody {
   postcode?: string;
   bio?: string;
   skills?: number[];
+  primaryTrade?: string;
+  secondaryTrades?: string[];
 }
 
 export interface LoginBody {
@@ -67,6 +69,8 @@ export interface User {
   reviewCount: number;
   isActive: boolean;
   isVerified: boolean;
+  primaryTrade?: string | null;
+  secondaryTrades?: string[] | null;
   createdAt: string;
 }
 
@@ -83,6 +87,8 @@ export interface UpdateProfileBody {
   bio?: string;
   avatarUrl?: string;
   skills?: number[];
+  primaryTrade?: string;
+  secondaryTrades?: string[];
 }
 
 export type AdminUpdateUserBodyRole =
@@ -480,8 +486,51 @@ export interface TradiePublicProfile {
   reviewCount: number;
   isVerified: boolean;
   createdAt: string;
+  primaryTrade?: string | null;
+  secondaryTrades?: string[] | null;
   categories: TradiePublicProfileCategoriesItem[];
   reviews: Review[];
+}
+
+export interface TradieTrustCard {
+  tradieId: number;
+  displayName: string;
+  avatarUrl?: string | null;
+  primaryTrade?: string | null;
+  secondaryTrades: string[];
+  rating?: number | null;
+  reviewCount: number;
+  isVerified: boolean;
+  suburb?: string | null;
+  proposedPrice?: number | null;
+  message?: string | null;
+  recentReviews: Review[];
+  claimId: number;
+}
+
+export type TradieFullProfileCategoriesItem = {
+  id: number;
+  name: string;
+  icon: string;
+};
+
+export interface TradieFullProfile {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  suburb?: string | null;
+  postcode?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  rating?: number | null;
+  reviewCount: number;
+  isVerified: boolean;
+  primaryTrade?: string | null;
+  secondaryTrades: string[];
+  categories: TradieFullProfileCategoriesItem[];
+  reviews: Review[];
+  createdAt: string;
 }
 
 export interface TradieListResponse {
@@ -560,7 +609,17 @@ export type ListJobsParams = {
   urgency?: string;
   page?: number;
   limit?: number;
+  filter?: ListJobsFilter;
+  sortBy?: string;
 };
+
+export type ListJobsFilter =
+  (typeof ListJobsFilter)[keyof typeof ListJobsFilter];
+
+export const ListJobsFilter = {
+  my_trades: "my_trades",
+  all: "all",
+} as const;
 
 export type ListNotificationsParams = {
   unreadOnly?: boolean;

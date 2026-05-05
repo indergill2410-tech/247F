@@ -152,13 +152,33 @@ export default function TradieProfilePage() {
                 </span>
               </div>
 
-              {/* Trade categories */}
+              {/* Primary trade badge */}
+              {(tradie as { primaryTrade?: string | null }).primaryTrade && (
+                <div className="mt-2">
+                  <span className="inline-flex items-center text-xs font-black bg-[#ffc800] text-black px-3 py-1 rounded-xl">
+                    {(tradie as { primaryTrade?: string | null }).primaryTrade}
+                  </span>
+                </div>
+              )}
+
+              {/* Secondary trades */}
+              {((tradie as { secondaryTrades?: string[] | null }).secondaryTrades ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {((tradie as { secondaryTrades?: string[] | null }).secondaryTrades ?? []).map((trade) => (
+                    <span key={trade} className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800]">
+                      {trade}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Trade skill categories */}
               {tradie.categories.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {tradie.categories.map((cat) => (
                     <span
                       key={cat.id}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800]"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl bg-white/8 border border-white/10 text-white/50"
                     >
                       <CatIcon icon={cat.icon ?? ""} /> {cat.name}
                     </span>

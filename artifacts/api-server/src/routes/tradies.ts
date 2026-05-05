@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { usersTable, tradieSkillsTable, categoriesTable, reviewsTable } from "@workspace/db";
 import { eq, and, ilike, or, sql, desc, count } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
+import { requireAuth } from "../middlewares/require-auth.js";
 
 const router = Router();
 
@@ -43,6 +44,8 @@ router.get("/tradies", async (req, res): Promise<void> => {
         rating: usersTable.rating,
         reviewCount: usersTable.reviewCount,
         isVerified: usersTable.isVerified,
+        primaryTrade: usersTable.primaryTrade,
+        secondaryTrades: usersTable.secondaryTrades,
         createdAt: usersTable.createdAt,
       })
       .from(usersTable)
@@ -105,10 +108,74 @@ router.get("/tradies", async (req, res): Promise<void> => {
   }
 });
 
+// GET /api/tradies/:id/full-profile — admin only, returns email + phone + full trade info
+router.get("/tradies/:id/full-profile", requireAuth, async (req, res): Promise<void> => {
+  if (req.user!.role !== "admin") {
+    res.status(403).json({ error: "forbidden", message: "Admin access required" });
+    return;
+  }
+
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) { res.status(400).json({ error: "bad_request" }); return; }
+
+  try {
+    const [tradie] = await db
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        phone: usersTable.phone,
+        suburb: usersTable.suburb,
+        postcode: usersTable.postcode,
+        bio: usersTable.bio,
+        avatarUrl: usersTable.avatarUrl,
+        rating: usersTable.rating,
+        reviewCount: usersTable.reviewCount,
+        isVerified: usersTable.isVerified,
+        primaryTrade: usersTable.primaryTrade,
+        secondaryTrades: usersTable.secondaryTrades,
+        createdAt: usersTable.createdAt,
+      })
+      .from(usersTable)
+      .where(and(eq(usersTable.id, id), sql`${usersTable.role} = 'tradie'`));
+
+    if (!tradie) { res.status(404).json({ error: "not_found", message: "Tradie not found" }); return; }
+
+    const categories = await db
+      .select({ id: categoriesTable.id, name: categoriesTable.name, icon: categoriesTable.icon })
+      .from(tradieSkillsTable)
+      .innerJoin(categoriesTable, eq(categoriesTable.id, tradieSkillsTable.categoryId))
+      .where(eq(tradieSkillsTable.tradieId, id));
+
+    const reviews = await db
+      .select({
+        id: reviewsTable.id,
+        jobId: reviewsTable.jobId,
+        reviewerId: reviewsTable.reviewerId,
+        reviewerName: usersTable.name,
+        reviewerAvatarUrl: usersTable.avatarUrl,
+        revieweeId: reviewsTable.revieweeId,
+        rating: reviewsTable.rating,
+        comment: reviewsTable.comment,
+        createdAt: reviewsTable.createdAt,
+      })
+      .from(reviewsTable)
+      .innerJoin(usersTable, eq(usersTable.id, reviewsTable.reviewerId))
+      .where(eq(reviewsTable.revieweeId, id))
+      .orderBy(desc(reviewsTable.createdAt))
+      .limit(20);
+
+    res.json({ ...tradie, secondaryTrades: tradie.secondaryTrades ?? [], categories, reviews });
+  } catch (err) {
+    logger.error({ err }, "Failed to fetch tradie full profile");
+    res.status(500).json({ error: "server_error" });
+  }
+});
+
 // GET /api/tradies/:id — single tradie public profile with categories + recent reviews
 router.get("/tradies/:id", async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) { res.status(400).json({ error: "bad_request" }); return; }
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) { res.status(400).json({ error: "bad_request" }); return; }
 
   try {
     const [tradie] = await db
@@ -122,6 +189,8 @@ router.get("/tradies/:id", async (req, res): Promise<void> => {
         rating: usersTable.rating,
         reviewCount: usersTable.reviewCount,
         isVerified: usersTable.isVerified,
+        primaryTrade: usersTable.primaryTrade,
+        secondaryTrades: usersTable.secondaryTrades,
         createdAt: usersTable.createdAt,
       })
       .from(usersTable)
@@ -153,7 +222,7 @@ router.get("/tradies/:id", async (req, res): Promise<void> => {
       .orderBy(desc(reviewsTable.createdAt))
       .limit(10);
 
-    res.json({ ...tradie, categories, reviews });
+    res.json({ ...tradie, secondaryTrades: tradie.secondaryTrades ?? [], categories, reviews });
   } catch (err) {
     logger.error({ err }, "Failed to fetch tradie profile");
     res.status(500).json({ error: "server_error" });

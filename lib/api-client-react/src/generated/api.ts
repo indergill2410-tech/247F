@@ -54,8 +54,10 @@ import type {
   SendMessageBody,
   SuccessResponse,
   TradieDashboard,
+  TradieFullProfile,
   TradieListResponse,
   TradiePublicProfile,
+  TradieTrustCard,
   UnreadCountResponse,
   UpdateClaimBody,
   UpdateJobBody,
@@ -1221,6 +1223,94 @@ export const useDeleteJob = <
 > => {
   return useMutation(getDeleteJobMutationOptions(options));
 };
+
+/**
+ * @summary Get limited tradie Trust Card for a job (homeowner only)
+ */
+export const getGetTradieTrustCardUrl = (jobId: number) => {
+  return `/api/jobs/${jobId}/tradie-trust-card`;
+};
+
+export const getTradieTrustCard = async (
+  jobId: number,
+  options?: RequestInit,
+): Promise<TradieTrustCard> => {
+  return customFetch<TradieTrustCard>(getGetTradieTrustCardUrl(jobId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTradieTrustCardQueryKey = (jobId: number) => {
+  return [`/api/jobs/${jobId}/tradie-trust-card`] as const;
+};
+
+export const getGetTradieTrustCardQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTradieTrustCard>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  jobId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTradieTrustCard>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetTradieTrustCardQueryKey(jobId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getTradieTrustCard>>
+  > = ({ signal }) => getTradieTrustCard(jobId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!jobId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTradieTrustCard>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetTradieTrustCardQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTradieTrustCard>>
+>;
+export type GetTradieTrustCardQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get limited tradie Trust Card for a job (homeowner only)
+ */
+
+export function useGetTradieTrustCard<
+  TData = Awaited<ReturnType<typeof getTradieTrustCard>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  jobId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTradieTrustCard>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTradieTrustCardQueryOptions(jobId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary List claims for a job
@@ -2906,6 +2996,94 @@ export function useListTradies<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getListTradiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get full tradie profile (admin or homeowner who hired them)
+ */
+export const getGetTradieFullProfileUrl = (id: number) => {
+  return `/api/tradies/${id}/full-profile`;
+};
+
+export const getTradieFullProfile = async (
+  id: number,
+  options?: RequestInit,
+): Promise<TradieFullProfile> => {
+  return customFetch<TradieFullProfile>(getGetTradieFullProfileUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTradieFullProfileQueryKey = (id: number) => {
+  return [`/api/tradies/${id}/full-profile`] as const;
+};
+
+export const getGetTradieFullProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTradieFullProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTradieFullProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetTradieFullProfileQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getTradieFullProfile>>
+  > = ({ signal }) => getTradieFullProfile(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTradieFullProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetTradieFullProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTradieFullProfile>>
+>;
+export type GetTradieFullProfileQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get full tradie profile (admin or homeowner who hired them)
+ */
+
+export function useGetTradieFullProfile<
+  TData = Awaited<ReturnType<typeof getTradieFullProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTradieFullProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTradieFullProfileQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

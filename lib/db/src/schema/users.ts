@@ -37,6 +37,9 @@ export const usersTable = pgTable("users", {
   emergencyCallsUsedThisYear: integer("emergency_calls_used_this_year").notNull().default(0),
   emergencyMembershipPlan: text("emergency_membership_plan"),
   emergencyWaitingPeriodEndsAt: timestamp("emergency_waiting_period_ends_at", { withTimezone: true }),
+  // Trade specialisation (Task #27)
+  primaryTrade: text("primary_trade"),
+  secondaryTrades: text("secondary_trades").array(),
   // Internal Stripe reference (for API calls — cancel, verify)
   emergencySubId: text("emergency_sub_id"),
   emergencySubCancelAt: boolean("emergency_sub_cancel_at").notNull().default(false),

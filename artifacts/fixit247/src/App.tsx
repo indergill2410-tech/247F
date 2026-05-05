@@ -45,6 +45,13 @@ function ProtectedRoute({ component: Component, roles }: { component: React.Comp
   return <Component />;
 }
 
+function TradieProfileRoute() {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Redirect to="/login" />;
+  if (user?.role === "admin") return <TradieProfilePage />;
+  return <Redirect to={user?.role === "tradie" ? "/dashboard/tradie" : "/dashboard/homeowner"} />;
+}
+
 function RootRoute() {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <LandingPage />;
@@ -136,10 +143,10 @@ function Router() {
           {() => <ProtectedRoute component={CreditsPage} roles={["tradie"]} />}
         </Route>
         <Route path="/tradies/:id">
-          {() => <TradieProfilePage />}
+          {() => <TradieProfileRoute />}
         </Route>
         <Route path="/tradies">
-          {() => <TradiesPage />}
+          {() => <ProtectedRoute component={TradiesPage} />}
         </Route>
         <Route component={NotFound} />
       </Switch>

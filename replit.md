@@ -31,7 +31,7 @@ Full-stack production-grade marketplace connecting homeowners with tradies (trad
 
 ## Database Schema
 Tables in `lib/db/src/schema/`:
-- `users` — homeowners, tradies, admins (single role enum)
+- `users` — homeowners, tradies, admins (single role enum); tradies have `primaryTrade` (text) + `secondaryTrades` (text[])
 - `jobs` — job postings (title, description, status, urgency, category, budget, location)
 - `claims` — tradie bids on jobs (message, proposedPrice, status)
 - `categories` — service categories (12 seeded)
@@ -46,18 +46,22 @@ All routes prefixed `/api/`. Source: `artifacts/api-server/src/routes/`
 
 - `POST /api/auth/register` — register + sends welcome email (SendGrid)
 - `POST /api/auth/login` — login, returns JWT
-- `GET/PUT /api/auth/me` — profile
-- `GET /api/jobs` — list jobs (role-filtered)
+- `GET/PUT /api/auth/me` — profile (tradie: includes primaryTrade, secondaryTrades)
+- `GET /api/jobs` — list jobs (role-filtered; tradie: filter=my_trades|all)
 - `POST /api/jobs` — create job (homeowner)
 - `GET/PUT/DELETE /api/jobs/:id` — job CRUD
 - `GET/POST /api/jobs/:jobId/claims` — list / submit claim
 - `PUT /api/jobs/:jobId/claims/:claimId` — accept/reject/complete claim (auto-creates conversation on accept)
+- `GET /api/jobs/:jobId/tradie-trust-card` — tradie mini-profile card for homeowner (homeowner/admin only)
 - `GET /api/conversations` — list conversations for user
 - `GET/POST /api/conversations/:id/messages` — read / send messages
 - `GET/POST /api/jobs/:jobId/reviews` — reviews + auto-update reviewee rating
 - `GET /api/notifications` — in-app notifications
 - `POST /api/notifications/read-all` — mark all read
 - `GET /api/notifications/unread-count` — unread badge count
+- `GET /api/tradies` — browse tradies (public; includes primaryTrade, secondaryTrades)
+- `GET /api/tradies/:id` — single tradie public profile
+- `GET /api/tradies/:id/full-profile` — full tradie profile with email/phone (admin only)
 - `GET /api/dashboard/homeowner|tradie|admin` — dashboard stats
 - `GET/PUT/DELETE /api/admin/users/:id` — admin user management
 - `GET /api/admin/jobs` — admin job list

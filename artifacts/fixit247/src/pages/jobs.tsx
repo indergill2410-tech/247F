@@ -49,6 +49,7 @@ export default function JobsPage() {
   const [categoryId, setCategoryId] = useState("all");
   const [urgency, setUrgency]     = useState("all");
   const [sortBy, setSortBy]       = useState("newest");
+  const [tradeFilter, setTradeFilter] = useState<"my_trades" | "all">("my_trades");
 
   // Inline claim expansion
   const [expandedClaimJobId, setExpandedClaimJobId] = useState<number | null>(null);
@@ -61,6 +62,7 @@ export default function JobsPage() {
     categoryId: categoryId !== "all" ? Number(categoryId)     : undefined,
     urgency:    urgency    !== "all" ? (urgency as string)     : undefined,
     sortBy:     sortBy     !== "newest" ? sortBy              : undefined,
+    filter:     user?.role === "tradie" && tradeFilter !== "all" ? tradeFilter : undefined,
     page: 1,
     limit: 50,
   } as Parameters<typeof useListJobs>[0]);
@@ -101,7 +103,7 @@ export default function JobsPage() {
   if (sortBy !== "newest")  chips.push({ key: "sort",     label: { oldest: "Oldest first", budget_high: "Budget ↓", budget_low: "Budget ↑", urgency: "Most urgent" }[sortBy] ?? sortBy, clear: () => setSortBy("newest") });
 
   function clearAll() {
-    setStatus("all"); setCategoryId("all"); setUrgency("all"); setSortBy("newest"); setSearch("");
+    setStatus("all"); setCategoryId("all"); setUrgency("all"); setSortBy("newest"); setSearch(""); setTradeFilter("my_trades");
   }
 
   function handleClaimExpand(jobId: number) {
@@ -135,6 +137,26 @@ export default function JobsPage() {
       </div>
 
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+        {/* My Trades / All Jobs tab strip — tradie only */}
+        {user?.role === "tradie" && (
+          <div className="flex bg-white/5 border border-white/8 rounded-xl p-1">
+            {(["my_trades", "all"] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setTradeFilter(f)}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                  tradeFilter === f
+                    ? "bg-[#ffc800] text-black shadow-sm"
+                    : "text-white/45 hover:text-white/70"
+                }`}
+              >
+                {f === "my_trades" ? "⚡ My Trades" : "🌐 All Nearby Jobs"}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Filter bar */}
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row gap-2.5">

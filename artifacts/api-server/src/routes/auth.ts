@@ -17,7 +17,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
 
-  const { name, email, password, role, phone, suburb, postcode, bio, skills } = parsed.data;
+  const { name, email, password, role, phone, suburb, postcode, bio, skills, primaryTrade, secondaryTrades } = parsed.data;
 
   const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
   if (existing.length > 0) {
@@ -35,6 +35,8 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     suburb: suburb ?? null,
     postcode: postcode ?? null,
     bio: bio ?? null,
+    primaryTrade: primaryTrade ?? null,
+    secondaryTrades: secondaryTrades ?? null,
   }).returning();
 
   if (!user) {

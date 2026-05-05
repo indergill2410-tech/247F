@@ -29,6 +29,8 @@ export const RegisterUserBody = zod.object({
   postcode: zod.string().optional(),
   bio: zod.string().optional(),
   skills: zod.array(zod.number()).optional(),
+  primaryTrade: zod.string().optional(),
+  secondaryTrades: zod.array(zod.string()).optional(),
 });
 
 /**
@@ -54,6 +56,8 @@ export const LoginUserResponse = zod.object({
     reviewCount: zod.number(),
     isActive: zod.boolean(),
     isVerified: zod.boolean(),
+    primaryTrade: zod.string().nullish(),
+    secondaryTrades: zod.array(zod.string()).nullish(),
     createdAt: zod.coerce.date(),
   }),
   token: zod.string(),
@@ -84,6 +88,8 @@ export const GetMeResponse = zod.object({
   reviewCount: zod.number(),
   isActive: zod.boolean(),
   isVerified: zod.boolean(),
+  primaryTrade: zod.string().nullish(),
+  secondaryTrades: zod.array(zod.string()).nullish(),
   createdAt: zod.coerce.date(),
 });
 
@@ -98,6 +104,8 @@ export const UpdateMeBody = zod.object({
   bio: zod.string().optional(),
   avatarUrl: zod.string().optional(),
   skills: zod.array(zod.number()).optional(),
+  primaryTrade: zod.string().optional(),
+  secondaryTrades: zod.array(zod.string()).optional(),
 });
 
 export const UpdateMeResponse = zod.object({
@@ -114,6 +122,8 @@ export const UpdateMeResponse = zod.object({
   reviewCount: zod.number(),
   isActive: zod.boolean(),
   isVerified: zod.boolean(),
+  primaryTrade: zod.string().nullish(),
+  secondaryTrades: zod.array(zod.string()).nullish(),
   createdAt: zod.coerce.date(),
 });
 
@@ -162,6 +172,8 @@ export const ListJobsQueryParams = zod.object({
   urgency: zod.coerce.string().optional(),
   page: zod.coerce.number().default(listJobsQueryPageDefault),
   limit: zod.coerce.number().default(listJobsQueryLimitDefault),
+  filter: zod.enum(["my_trades", "all"]).optional(),
+  sortBy: zod.coerce.string().optional(),
 });
 
 export const ListJobsResponse = zod.object({
@@ -293,6 +305,8 @@ export const GetJobResponse = zod
             reviewCount: zod.number(),
             isActive: zod.boolean(),
             isVerified: zod.boolean(),
+            primaryTrade: zod.string().nullish(),
+            secondaryTrades: zod.array(zod.string()).nullish(),
             createdAt: zod.coerce.date(),
           }),
         )
@@ -357,6 +371,47 @@ export const DeleteJobParams = zod.object({
 export const DeleteJobResponse = zod.object({
   success: zod.boolean(),
   message: zod.string().optional(),
+});
+
+/**
+ * @summary Get limited tradie Trust Card for a job (homeowner only)
+ */
+export const GetTradieTrustCardParams = zod.object({
+  jobId: zod.coerce.number(),
+});
+
+export const getTradieTrustCardResponseRecentReviewsItemRatingMax = 5;
+
+export const GetTradieTrustCardResponse = zod.object({
+  tradieId: zod.number(),
+  displayName: zod.string(),
+  avatarUrl: zod.string().nullish(),
+  primaryTrade: zod.string().nullish(),
+  secondaryTrades: zod.array(zod.string()),
+  rating: zod.number().nullish(),
+  reviewCount: zod.number(),
+  isVerified: zod.boolean(),
+  suburb: zod.string().nullish(),
+  proposedPrice: zod.number().nullish(),
+  message: zod.string().nullish(),
+  recentReviews: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.number(),
+      reviewerId: zod.number(),
+      reviewerName: zod.string().nullish(),
+      reviewerAvatarUrl: zod.string().nullish(),
+      revieweeId: zod.number(),
+      revieweeName: zod.string().nullish(),
+      rating: zod
+        .number()
+        .min(1)
+        .max(getTradieTrustCardResponseRecentReviewsItemRatingMax),
+      comment: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  claimId: zod.number(),
 });
 
 /**
@@ -725,6 +780,8 @@ export const GetAdminDashboardResponse = zod.object({
       reviewCount: zod.number(),
       isActive: zod.boolean(),
       isVerified: zod.boolean(),
+      primaryTrade: zod.string().nullish(),
+      secondaryTrades: zod.array(zod.string()).nullish(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -743,6 +800,8 @@ export const GetAdminDashboardResponse = zod.object({
       reviewCount: zod.number(),
       isActive: zod.boolean(),
       isVerified: zod.boolean(),
+      primaryTrade: zod.string().nullish(),
+      secondaryTrades: zod.array(zod.string()).nullish(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -776,6 +835,8 @@ export const AdminListUsersResponse = zod.object({
       reviewCount: zod.number(),
       isActive: zod.boolean(),
       isVerified: zod.boolean(),
+      primaryTrade: zod.string().nullish(),
+      secondaryTrades: zod.array(zod.string()).nullish(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -812,6 +873,8 @@ export const AdminUpdateUserResponse = zod.object({
   reviewCount: zod.number(),
   isActive: zod.boolean(),
   isVerified: zod.boolean(),
+  primaryTrade: zod.string().nullish(),
+  secondaryTrades: zod.array(zod.string()).nullish(),
   createdAt: zod.coerce.date(),
 });
 
@@ -944,6 +1007,8 @@ export const ListTradiesResponse = zod.object({
       reviewCount: zod.number(),
       isVerified: zod.boolean(),
       createdAt: zod.coerce.date(),
+      primaryTrade: zod.string().nullish(),
+      secondaryTrades: zod.array(zod.string()).nullish(),
       categories: zod.array(
         zod.object({
           id: zod.number(),
@@ -976,6 +1041,56 @@ export const ListTradiesResponse = zod.object({
 });
 
 /**
+ * @summary Get full tradie profile (admin or homeowner who hired them)
+ */
+export const GetTradieFullProfileParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const getTradieFullProfileResponseReviewsItemRatingMax = 5;
+
+export const GetTradieFullProfileResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  suburb: zod.string().nullish(),
+  postcode: zod.string().nullish(),
+  bio: zod.string().nullish(),
+  avatarUrl: zod.string().nullish(),
+  rating: zod.number().nullish(),
+  reviewCount: zod.number(),
+  isVerified: zod.boolean(),
+  primaryTrade: zod.string().nullish(),
+  secondaryTrades: zod.array(zod.string()),
+  categories: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      icon: zod.string(),
+    }),
+  ),
+  reviews: zod.array(
+    zod.object({
+      id: zod.number(),
+      jobId: zod.number(),
+      reviewerId: zod.number(),
+      reviewerName: zod.string().nullish(),
+      reviewerAvatarUrl: zod.string().nullish(),
+      revieweeId: zod.number(),
+      revieweeName: zod.string().nullish(),
+      rating: zod
+        .number()
+        .min(1)
+        .max(getTradieFullProfileResponseReviewsItemRatingMax),
+      comment: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  createdAt: zod.coerce.date(),
+});
+
+/**
  * @summary Get public tradie profile
  */
 export const GetTradieProfileParams = zod.object({
@@ -995,6 +1110,8 @@ export const GetTradieProfileResponse = zod.object({
   reviewCount: zod.number(),
   isVerified: zod.boolean(),
   createdAt: zod.coerce.date(),
+  primaryTrade: zod.string().nullish(),
+  secondaryTrades: zod.array(zod.string()).nullish(),
   categories: zod.array(
     zod.object({
       id: zod.number(),

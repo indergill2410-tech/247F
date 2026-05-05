@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetJob, useClaimJob, useUpdateClaim, useDeleteJob, useListJobReviews, useCreateReview } from "@workspace/api-client-react";
+import { useGetJob, useClaimJob, useUpdateClaim, useDeleteJob, useListJobReviews, useCreateReview, useGetTradieTrustCard, getGetTradieTrustCardQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star,
   ChevronLeft, CheckCircle, XCircle, AlertTriangle, MessageCircle,
-  ThumbsUp, Award, User,
+  ThumbsUp, Award, User, ShieldCheck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -111,6 +111,13 @@ export default function JobDetailPage() {
 
   const { data: job, isLoading, refetch } = useGetJob(Number(id));
   const { data: reviews, refetch: refetchReviews } = useListJobReviews(Number(id));
+  const { data: trustCard } = useGetTradieTrustCard(Number(id), {
+    query: {
+      enabled: !!(user?.role === "homeowner" || user?.role === "admin") && !!id,
+      retry: false,
+      queryKey: getGetTradieTrustCardQueryKey(Number(id)),
+    },
+  });
 
   const claimMutation = useClaimJob({
     mutation: {
@@ -498,6 +505,98 @@ export default function JobDetailPage() {
               : <><User className="h-5 w-5 flex-shrink-0" /><span className="text-sm">You've claimed this job. Waiting for the homeowner's response.</span></>
             }
           </div>
+        )}
+
+        {/* ── TRADIE TRUST CARD (homeowner view, accepted claim) ── */}
+        {(isOwner || isAdmin) && trustCard && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden"
+          >
+            <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
+              <h2 className="font-bold text-[#ffc800]">Accepted Tradie</h2>
+              {trustCard.isVerified && (
+                <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3" /> Verified
+                </span>
+              )}
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Tradie header */}
+              <div className="flex items-start gap-4">
+                {trustCard.avatarUrl ? (
+                  <img src={trustCard.avatarUrl} alt={trustCard.displayName} className="w-14 h-14 rounded-2xl object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-[#ffc800]/15 text-[#ffc800] font-black text-xl flex items-center justify-center flex-shrink-0">
+                    {initials(trustCard.displayName)}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-black text-white text-lg leading-none">{trustCard.displayName}</p>
+                    {trustCard.primaryTrade && (
+                      <span className="text-[10px] font-black bg-[#ffc800] text-black px-2 py-0.5 rounded-md">
+                        {trustCard.primaryTrade}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/45 mt-1.5">
+                    {trustCard.rating != null && (
+                      <span className="flex items-center gap-1.5">
+                        <StarDisplay rating={trustCard.rating} />
+                        <span className="text-[#ffc800] font-semibold">{trustCard.rating.toFixed(1)}</span>
+                        <span>({trustCard.reviewCount} review{trustCard.reviewCount !== 1 ? "s" : ""})</span>
+                      </span>
+                    )}
+                    {trustCard.suburb && (
+                      <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{trustCard.suburb}</span>
+                    )}
+                  </div>
+                  {(trustCard.secondaryTrades ?? []).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {(trustCard.secondaryTrades ?? []).map((t) => (
+                        <span key={t} className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800]">{t}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quote details */}
+              {(trustCard.message || trustCard.proposedPrice != null) && (
+                <div className="bg-white/4 border border-white/8 rounded-xl p-4 space-y-2">
+                  {trustCard.proposedPrice != null && (
+                    <p className="text-sm font-black text-[#ffc800] flex items-center gap-1.5">
+                      <DollarSign className="h-4 w-4" /> Quote: ${trustCard.proposedPrice.toLocaleString()}
+                    </p>
+                  )}
+                  {trustCard.message && (
+                    <p className="text-sm text-white/55 italic leading-relaxed">"{trustCard.message}"</p>
+                  )}
+                </div>
+              )}
+
+              {/* Recent reviews */}
+              {(trustCard.recentReviews ?? []).length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">Recent Reviews</p>
+                  <div className="space-y-2">
+                    {(trustCard.recentReviews ?? []).map((rev) => (
+                      <div key={rev.id} className="bg-white/3 border border-white/6 rounded-xl px-4 py-3">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <p className="text-xs font-semibold text-white/70">{(rev as { reviewerName?: string | null }).reviewerName ?? "Anonymous"}</p>
+                          <StarDisplay rating={rev.rating} />
+                        </div>
+                        {rev.comment && <p className="text-xs text-white/45 leading-relaxed">{rev.comment}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
         )}
 
         {/* ── CLAIMS LIST (homeowner + admin view) ── */}

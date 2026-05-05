@@ -30,6 +30,8 @@ export default function ProfilePage() {
   const [bio, setBio] = useState(user?.bio ?? "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
   const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
+  const [primaryTrade, setPrimaryTrade] = useState("");
+  const [secondaryTrades, setSecondaryTrades] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
@@ -52,6 +54,8 @@ export default function ProfilePage() {
       setPostcode(me.postcode ?? "");
       setBio(me.bio ?? "");
       setAvatarUrl(me.avatarUrl ?? "");
+      setPrimaryTrade((me as { primaryTrade?: string | null }).primaryTrade ?? "");
+      setSecondaryTrades((me as { secondaryTrades?: string[] | null }).secondaryTrades ?? []);
     }
   }, [me]);
 
@@ -90,9 +94,27 @@ export default function ProfilePage() {
         postcode: postcode || undefined,
         bio: bio || undefined,
         avatarUrl: avatarUrl || undefined,
-        ...(isTradie ? { skills: selectedSkills } : {}),
+        ...(isTradie ? {
+          skills: selectedSkills,
+          primaryTrade: primaryTrade || undefined,
+          secondaryTrades: secondaryTrades.length > 0 ? secondaryTrades : [],
+        } : {}),
       },
     });
+  };
+
+  const TRADES = [
+    "Plumbing", "Electrical", "Carpentry", "Painting", "Tiling",
+    "HVAC / Air conditioning", "Locksmith", "Roofing", "Landscaping & gardening",
+    "Handyman / general repairs", "Glazier", "Plasterer", "Flooring",
+    "Appliance repair", "Pest control",
+  ];
+
+  const toggleSecondaryTrade = (trade: string) => {
+    if (trade === primaryTrade) return;
+    setSecondaryTrades((prev) =>
+      prev.includes(trade) ? prev.filter((t) => t !== trade) : [...prev, trade]
+    );
   };
 
   const toggleSkill = (categoryId: number) => {
@@ -184,7 +206,14 @@ export default function ProfilePage() {
 
           {/* Personal */}
           <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
-            <h2 className="font-bold text-white">Personal Information</h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-bold text-white">Personal Information</h2>
+              {isTradie && (
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-white/8 text-white/40 border border-white/8 flex-shrink-0">
+                  Private
+                </span>
+              )}
+            </div>
             <div className="space-y-1.5">
               <label className={labelCls}>Full Name</label>
               <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" />
@@ -202,7 +231,14 @@ export default function ProfilePage() {
 
           {/* Location */}
           <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
-            <h2 className="font-bold text-white">Location</h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-bold text-white">Location</h2>
+              {isTradie && (
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
+                  Public
+                </span>
+              )}
+            </div>
             <SuburbInput
               suburb={suburb}
               postcode={postcode}
@@ -218,7 +254,14 @@ export default function ProfilePage() {
 
           {/* Bio */}
           <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
-            <h2 className="font-bold text-white">{isTradie ? "Professional Bio" : "About Me"}</h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-bold text-white">{isTradie ? "Professional Bio" : "About Me"}</h2>
+              {isTradie && (
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
+                  Public
+                </span>
+              )}
+            </div>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -232,12 +275,82 @@ export default function ProfilePage() {
             />
           </div>
 
+          {/* Trade Specialisation (tradie only) */}
+          {isTradie && (
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-bold text-white">Trade Specialisation</h2>
+                  <p className="text-xs text-white/40 mt-1">Shown on your public profile and used to match you to jobs.</p>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
+                  Public
+                </span>
+              </div>
+
+              {/* Primary trade */}
+              <div className="space-y-1.5">
+                <label className={labelCls}>Primary Trade</label>
+                <div className="relative">
+                  <select
+                    value={primaryTrade}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPrimaryTrade(val);
+                      setSecondaryTrades((prev) => prev.filter((t) => t !== val));
+                    }}
+                    className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                  >
+                    <option value="" className="bg-[#1a1509] text-white/50">Select primary trade…</option>
+                    {TRADES.map((t) => (
+                      <option key={t} value={t} className="bg-[#1a1509] text-white">{t}</option>
+                    ))}
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+
+              {/* Secondary trades */}
+              <div className="space-y-2">
+                <label className={labelCls}>Secondary Trades <span className="text-white/30">(optional)</span></label>
+                <div className="flex flex-wrap gap-2">
+                  {TRADES.filter((t) => t !== primaryTrade).map((trade) => {
+                    const selected = secondaryTrades.includes(trade);
+                    return (
+                      <button
+                        key={trade}
+                        type="button"
+                        onClick={() => toggleSecondaryTrade(trade)}
+                        className={`h-8 px-3 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${
+                          selected
+                            ? "bg-[#ffc800]/15 border-[#ffc800]/40 text-[#ffc800]"
+                            : "bg-white/4 border-white/8 text-white/45 hover:bg-white/8 hover:text-white/65"
+                        }`}
+                      >
+                        {selected && <Check className="h-3 w-3 flex-shrink-0" />}
+                        {trade}
+                      </button>
+                    );
+                  })}
+                </div>
+                {secondaryTrades.length > 0 && (
+                  <p className="text-xs text-white/35">{secondaryTrades.length} additional trade{secondaryTrades.length !== 1 ? "s" : ""}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Skill categories (tradie only) */}
           {isTradie && (
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
-              <div>
-                <h2 className="font-bold text-white">Trade Skills</h2>
-                <p className="text-xs text-white/40 mt-1">Select the trades you offer — this helps match you to the right jobs.</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-bold text-white">Trade Skills</h2>
+                  <p className="text-xs text-white/40 mt-1">Select the trades you offer — this helps match you to the right jobs.</p>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
+                  Public
+                </span>
               </div>
               {categoriesLoading ? (
                 <div className="text-xs text-white/30 py-4 text-center">Loading trade categories…</div>

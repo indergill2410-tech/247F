@@ -224,6 +224,15 @@ paths:
           schema:
             type: integer
             default: 20
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [my_trades, all]
+        - name: sortBy
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: Job list
@@ -313,6 +322,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
+
+  /jobs/{jobId}/tradie-trust-card:
+    get:
+      operationId: getTradieTrustCard
+      tags: [jobs]
+      summary: Get limited tradie Trust Card for a job (homeowner only)
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trust Card data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradieTrustCard"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No tradie response for this job yet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   # Job Claims
   /jobs/{jobId}/claims:
@@ -753,6 +793,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/TradieListResponse"
 
+  /tradies/{id}/full-profile:
+    get:
+      operationId: getTradieFullProfile
+      tags: [users]
+      summary: Get full tradie profile (admin or homeowner who hired them)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Full tradie profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradieFullProfile"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /tradies/{id}:
     get:
       operationId: getTradieProfile
@@ -1020,6 +1091,12 @@ components:
           type: array
           items:
             type: integer
+        primaryTrade:
+          type: string
+        secondaryTrades:
+          type: array
+          items:
+            type: string
       required:
         - name
         - email
@@ -1085,6 +1162,14 @@ components:
           type: boolean
         isVerified:
           type: boolean
+        primaryTrade:
+          type: string
+          nullable: true
+        secondaryTrades:
+          type: array
+          nullable: true
+          items:
+            type: string
         createdAt:
           type: string
           format: date-time
@@ -1117,6 +1202,12 @@ components:
           type: array
           items:
             type: integer
+        primaryTrade:
+          type: string
+        secondaryTrades:
+          type: array
+          items:
+            type: string
 
     AdminUpdateUserBody:
       type: object
@@ -1823,6 +1914,14 @@ components:
         createdAt:
           type: string
           format: date-time
+        primaryTrade:
+          type: string
+          nullable: true
+        secondaryTrades:
+          type: array
+          nullable: true
+          items:
+            type: string
         categories:
           type: array
           items:
@@ -1840,6 +1939,122 @@ components:
           items:
             $ref: "#/components/schemas/Review"
       required: [id, name, reviewCount, isVerified, createdAt, categories, reviews]
+
+    TradieTrustCard:
+      type: object
+      properties:
+        tradieId:
+          type: integer
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        primaryTrade:
+          type: string
+          nullable: true
+        secondaryTrades:
+          type: array
+          items:
+            type: string
+        rating:
+          type: number
+          nullable: true
+        reviewCount:
+          type: integer
+        isVerified:
+          type: boolean
+        suburb:
+          type: string
+          nullable: true
+        proposedPrice:
+          type: number
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        recentReviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        claimId:
+          type: integer
+      required:
+        - tradieId
+        - displayName
+        - reviewCount
+        - isVerified
+        - secondaryTrades
+        - recentReviews
+        - claimId
+
+    TradieFullProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        suburb:
+          type: string
+          nullable: true
+        postcode:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        rating:
+          type: number
+          nullable: true
+        reviewCount:
+          type: integer
+        isVerified:
+          type: boolean
+        primaryTrade:
+          type: string
+          nullable: true
+        secondaryTrades:
+          type: array
+          items:
+            type: string
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+            required: [id, name, icon]
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - reviewCount
+        - isVerified
+        - secondaryTrades
+        - categories
+        - reviews
+        - createdAt
 
     TradieListResponse:
       type: object
