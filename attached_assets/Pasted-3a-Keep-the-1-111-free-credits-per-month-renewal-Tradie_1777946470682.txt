@@ -1,0 +1,139 @@
+3a. Keep the 1,111 free credits per month renewal
+Tradies continue to receive 1,111 free credits per month, automatically renewed. Do not remove or change this. Keep the wording "1111 credits / month — free" wherever it currently appears (on /partner, in tradie dashboard, in tradie onboarding).
+3b. Replace flat 222-credits-per-claim with AI-sized per-job credit cost (with homeowner size-band guardrail)
+Remove the "Each claim costs 222 credits" model entirely. Replace with a per-job credit cost determined when the homeowner posts the job, sized by an AI backend function and bounded by a homeowner-selected size band.
+Add a "Job size" step to the homeowner post-job flow. Before final submission, the homeowner picks one of four bands:
+
+Small — "A quick fix or minor task. Examples: leaking tap washer, paint a door, replace a power point, unblock a drain."
+Medium — "Half a day's work or a single-room job. Examples: paint a room, install a dishwasher, repair a fence section, replace a hot water tap."
+Large — "A multi-day project. Examples: full house exterior paint, retile a bathroom, rewire a room."
+Premium — "A full renovation or major install. Examples: full house repaint, kitchen install, bathroom reno, full rewire."
+
+This is the upper-bound guardrail. The AI cannot exceed the band the homeowner selected.
+Build the AI sizing function as a backend endpoint. When a homeowner submits a job (after picking the size band), the backend calls an AI function (use the existing AI integration if present; otherwise OpenAI or Anthropic Claude API — there must be an env variable for the API key). Inputs: job title, description, trade category, homeowner-selected size band. Outputs:
+
+estimated_credit_cost (integer, must fall within the homeowner's selected band)
+job_size_category (string, matches the homeowner's selected band)
+reasoning (string, internal/log only)
+
+Credit cost bands:
+
+Small: 30–60 credits
+Medium: 80–150 credits
+Large: 200–400 credits
+Premium: 500–800 credits
+
+If the AI returns a value outside the band, clamp to the nearest boundary. Store the credit cost on the job record at posting time. The cost is locked at post time and does not change after.
+Display the credit cost prominently on each job card in the tradie's Browse Jobs feed: "45 credits to claim" with subtitle "Sized to job scope".
+Update the tradie credits page "How credits work" section to read:
+
+"1,111 free credits every month — automatically renewed for every active tradie."
+"Credit cost varies by job — small jobs (a door repaint, a leaking tap) cost 30–60 credits. Large jobs (a full reno, a house repaint) cost up to 800 credits. The cost is shown upfront on every job card, before you claim."
+"Top up anytime — Credit packs from $49. Credits never expire."
+
+3c. Remove the broken "$49 = 0 credits" tier
+Remove the "Fixit Emergency 24/7 Membership — $49 — 0 credits — ≈0 job claims" card from the tradie credits page entirely.
+3d. Update the remaining credit packs
+Keep the two top-up packs at unchanged prices. Update subtitles only:
+
+Starter Pack ($49 / 300 credits): "≈ 5–10 small jobs, or 2–3 medium jobs"
+Pro Pack ($99 / 600 credits): "≈ 10–20 small jobs, or 4–6 medium jobs · best value"
+
+3e. Trade specialisation — required at signup, primary + secondary
+Add a required step to tradie signup titled "What's your trade?" with two parts:
+
+Primary trade (single-select, required) — main specialty.
+Secondary trades (multi-select, optional) — "Other trades you're qualified for and happy to take jobs in."
+
+Trade list (used for both selectors):
+
+Plumbing
+Electrical
+Carpentry
+Painting
+Tiling
+HVAC / Air conditioning
+Locksmith
+Roofing
+Landscaping & gardening
+Handyman / general repairs (general tradies who take small mixed jobs across categories — they should also see jobs flagged as "general / handyman" by homeowners)
+Glazier
+Plasterer
+Flooring
+Appliance repair
+Pest control
+
+Store: tradie.primary_trade (string) and tradie.secondary_trades (array of strings).
+Display chosen trades on the tradie dashboard as badges. Primary trade as a filled badge, secondary trades as outlined badges.
+Tradie's Browse Jobs feed:
+
+Default view: jobs matching their primary trade OR any secondary trade.
+Add a tab/filter at the top: "My trades" (default) and "All nearby jobs" (shows all jobs in their service radius regardless of trade).
+Empty state when no matches: "No new jobs in your trades right now. We'll notify you when something matches." with a link to update specialisations in profile.
+
+Allow tradies to update primary and secondary trades later via Profile / Edit Profile.
+For existing tradie accounts created before this change: set primary_trade to "Handyman / general repairs" and secondary_trades to empty array, so their dashboards keep working.
+3f. Tradie profile privacy — three tiers
+Tradie full profiles must NOT be public. Implement three visibility tiers.
+Tier 1 — Public / Anonymous (anyone unauthenticated, or signed-in users without a relevant context):
+Tradie full profile pages are NOT accessible publicly. URL patterns like /tradie/[id] or /tradies/[name] should not exist as public pages, OR if they exist for SEO, redirect unauthenticated users to sign in. Tradies are not browsable or searchable to the general public.
+Tier 2 — Trust Card view (homeowner who has posted a job and received a response from this tradie, but has not yet hired them):
+Trust Card shows ONLY:
+
+First name + last initial (e.g. "Mike R.")
+Profile photo (if uploaded)
+Primary trade + secondary trades (badges)
+Star rating + total review count
+Verified credentials ticks (ABN verified ✓ / Licence verified ✓ / Insurance confirmed ✓) — only show ticks that are actually verified, never fake
+Average response time (e.g. "Usually replies within 1 hour")
+Up to 3 most recent reviews — reviewer first name + last initial only, star rating, review text, date. No reviewer contact info.
+Service area suburbs (general only, not exact address)
+Their proposed quote / message for the current job
+
+Trust Card does NOT show: full name, phone number, email, business address, ABN number itself, licence number itself, full review list, full portfolio, payment history, years on platform, total jobs completed count.
+Trust Card includes the messaging: "You'll see [Mike R.]'s full contact details and business information once you accept their quote."
+Tier 3 — Full Profile view (homeowner who has accepted this tradie's quote, AND admin):
+Full Profile shows everything:
+
+Full name
+Phone number (click-to-call)
+Email
+Business name + ABN number
+Licence number
+Full review history
+Portfolio / past work photos (if uploaded)
+Full service area
+
+Admin role always has full access to all tradie full profiles.
+Tradie's "Edit Profile" page must include privacy notes per field group:
+
+Public-but-limited ("Visible on Trust Card before hire"): first name + last initial, profile photo, trades, ratings, verified badges, suburb area.
+Private-until-hired ("Visible only after a homeowner hires you"): full name, phone, email, ABN, licence number, full address, portfolio photos.
+
+Do NOT
+
+Do not change credit pack prices ($49 / $99).
+Do not let existing tradie accounts lose data — apply the default migration in 3e.
+Do not expose tradie phone numbers, full names, ABN numbers, licence numbers, or full addresses to anyone other than admin and homeowners who have hired them.
+Do not allow the AI sizing function to return a credit cost outside the homeowner-selected band — clamp to the boundary.
+Do not invent fake verified credentials — only show ✓ for credentials that are actually verified in the database.
+Do not change visual styling beyond what's listed.
+Do not add years-on-platform or total-jobs-completed-count to the Trust Card.
+
+Verify after
+
+Posting a new job requires the homeowner to pick a size band (Small / Medium / Large / Premium).
+After posting, the AI sizing function runs and stores a credit cost on the job clamped to the chosen band.
+Each job card in the tradie Browse Jobs feed shows a per-job credit cost (varying, not flat 222) with subtitle "Sized to job scope".
+The tradie credits page "How credits work" section shows the new three-bullet copy.
+The "$49 = 0 credits" tier is gone from the credits page.
+The two remaining credit packs show the new "≈ X small jobs, or Y medium jobs" subtitles.
+Tradie signup includes a required "What's your trade?" step with primary trade (single-select) and optional secondary trades (multi-select).
+The "Handyman / general repairs" option is present in the trade list.
+Tradie Browse Jobs feed defaults to "My trades" with an "All nearby jobs" secondary tab.
+Empty state copy appears when no matching jobs exist.
+Tradie public profile pages do not exist as publicly browsable pages (or redirect to sign in).
+Homeowners who receive a tradie response see the limited Trust Card with first name + last initial, verified credentials, ratings, recent reviews, response time only — NO phone, full name, ABN/licence numbers, years-on-platform, or total-jobs-completed count.
+Once a homeowner accepts a quote, that homeowner sees the full tradie profile.
+Admin role can see all full tradie profiles.
+Existing tradie accounts have primary_trade = "Handyman / general repairs" by default.
