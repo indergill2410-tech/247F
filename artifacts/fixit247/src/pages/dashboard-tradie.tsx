@@ -284,14 +284,14 @@ export default function TradieDashboard() {
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <h1 className="text-xl font-black text-white leading-none">{user?.name ?? firstName}</h1>
-                {(user as { primaryTrade?: string | null })?.primaryTrade && (
+                {(meData as { primaryTrade?: string | null })?.primaryTrade && (
                   <span className="text-[10px] font-black bg-[#ffc800] text-black px-2 py-0.5 rounded-md">
-                    {(user as { primaryTrade?: string | null }).primaryTrade}
+                    {(meData as { primaryTrade?: string | null }).primaryTrade}
                   </span>
                 )}
-                {data?.myCategories?.filter((cat) => cat.name !== (user as { primaryTrade?: string | null })?.primaryTrade).map((cat) => (
-                  <span key={cat.id} className="text-[10px] font-bold bg-[#ffc800]/12 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/15">
-                    {cat.name}
+                {(meData as { secondaryTrades?: string[] | null })?.secondaryTrades?.map((trade) => (
+                  <span key={trade} className="text-[10px] font-bold bg-[#ffc800]/12 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/15">
+                    {trade}
                   </span>
                 ))}
               </div>

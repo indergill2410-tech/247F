@@ -266,19 +266,33 @@ export default function JobsPage() {
           ) : !filteredJobs.length ? (
             <div className="text-center py-20 text-white/35">
               <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p className="font-semibold text-white/50 text-lg">No jobs found</p>
-              <p className="text-sm mt-1 mb-5">Try adjusting your filters</p>
-              {chips.length > 0 && (
-                <button onClick={clearAll} className="h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors">
-                  Clear filters
-                </button>
-              )}
-              {user?.role === "homeowner" && (
-                <Link href="/jobs/new">
-                  <button className="mt-3 h-9 px-5 rounded-xl bg-white/8 text-white font-semibold text-sm hover:bg-white/12 transition-colors block mx-auto">
-                    Post a job
-                  </button>
-                </Link>
+              {user?.role === "tradie" && tradeFilter === "my_trades" && chips.length === 0 ? (
+                <>
+                  <p className="font-semibold text-white/50 text-lg">No new jobs in your trades right now</p>
+                  <p className="text-sm mt-1 mb-5">We'll notify you when something matches.</p>
+                  <Link href="/profile">
+                    <button className="h-9 px-5 rounded-xl bg-white/8 text-white font-semibold text-sm hover:bg-white/12 transition-colors">
+                      Update specialisations
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold text-white/50 text-lg">No jobs found</p>
+                  <p className="text-sm mt-1 mb-5">Try adjusting your filters</p>
+                  {chips.length > 0 && (
+                    <button onClick={clearAll} className="h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors">
+                      Clear filters
+                    </button>
+                  )}
+                  {user?.role === "homeowner" && (
+                    <Link href="/jobs/new">
+                      <button className="mt-3 h-9 px-5 rounded-xl bg-white/8 text-white font-semibold text-sm hover:bg-white/12 transition-colors block mx-auto">
+                        Post a job
+                      </button>
+                    </Link>
+                  )}
+                </>
               )}
             </div>
           ) : (

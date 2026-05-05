@@ -108,15 +108,24 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
     conditions.push(eq(jobsTable.homeownerId, user.userId));
   }
 
-  // Tradie "My trades" filter — limit to category IDs matching the tradie's skills
+  // Tradie "My trades" filter — limit to jobs whose category name matches the tradie's primary/secondary trades
   if (user.role === "tradie" && query.filter === "my_trades") {
-    const mySkills = await db
-      .select({ categoryId: tradieSkillsTable.categoryId })
-      .from(tradieSkillsTable)
-      .where(eq(tradieSkillsTable.tradieId, user.userId));
-    if (mySkills.length > 0) {
-      const catIds = mySkills.map((s) => s.categoryId);
-      conditions.push(sql`${jobsTable.categoryId} = ANY(ARRAY[${sql.join(catIds.map((id) => sql`${id}`), sql`, `)}]::int[])`);
+    const [tradie] = await db
+      .select({ primaryTrade: usersTable.primaryTrade, secondaryTrades: usersTable.secondaryTrades })
+      .from(usersTable)
+      .where(eq(usersTable.id, user.userId));
+
+    // "Handyman / general repairs" sees all jobs — no filter applied
+    if (tradie && tradie.primaryTrade !== "Handyman / general repairs") {
+      const allTrades = [
+        ...(tradie.primaryTrade ? [tradie.primaryTrade.toLowerCase()] : []),
+        ...(tradie.secondaryTrades ?? []).map((t) => t.toLowerCase()),
+      ];
+      if (allTrades.length > 0) {
+        conditions.push(
+          sql`LOWER(${categoriesTable.name}) = ANY(ARRAY[${sql.join(allTrades.map((t) => sql`${t}`), sql`, `)}]::text[])`
+        );
+      }
     }
   }
   // Tradies see all open/matched jobs plus their claimed ones
