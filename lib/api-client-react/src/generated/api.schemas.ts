@@ -217,11 +217,22 @@ export const CreateJobBodyUrgency = {
   emergency: "emergency",
 } as const;
 
+export type CreateJobBodySizeBand =
+  (typeof CreateJobBodySizeBand)[keyof typeof CreateJobBodySizeBand];
+
+export const CreateJobBodySizeBand = {
+  small: "small",
+  medium: "medium",
+  large: "large",
+  premium: "premium",
+} as const;
+
 export interface CreateJobBody {
   title: string;
   description: string;
   categoryId: number;
   urgency: CreateJobBodyUrgency;
+  sizeBand: CreateJobBodySizeBand;
   suburb?: string;
   postcode?: string;
   address?: string;

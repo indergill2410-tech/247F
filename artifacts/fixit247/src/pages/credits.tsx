@@ -131,10 +131,14 @@ export default function CreditsPage() {
   const jobsLeft = Math.floor(balance / MIN_CLAIM_COST);
 
   const PACK_HIGHLIGHTS = [
-    { credits: "300",  color: "border-white/10",           badge: "" },
-    { credits: "600",  color: "border-[#ffc800]/30",       badge: "Most Popular" },
-    { credits: "1111", color: "border-emerald-500/30",     badge: "Best Value" },
+    { credits: "300", color: "border-white/10",       badge: "" },
+    { credits: "600", color: "border-[#ffc800]/30",   badge: "Best Value" },
   ];
+
+  const PACK_SUBTITLES: Record<string, string> = {
+    "300": "≈ 5–10 small jobs, or 2–3 medium jobs",
+    "600": "≈ 10–20 small jobs, or 4–6 medium jobs · best value",
+  };
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
@@ -228,9 +232,9 @@ export default function CreditsPage() {
           <h2 className="font-bold text-white text-sm mb-4">How credits work</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { icon: Zap, color: "text-[#ffc800] bg-[#ffc800]/10", title: "Free starter credits", desc: `Every new tradie gets ${(creditsData?.signupGrant ?? 1111).toLocaleString()} free credits on signup — start claiming straight away.` },
-              { icon: Package, color: "text-blue-400 bg-blue-500/10", title: "Credits vary by job size", desc: "Small jobs from 50 credits. Medium 100, Large 200, Premium 400. Each job shows its cost before you claim." },
-              { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Buy credit packs starting from $49 AUD. Credits never expire — use them at your own pace." },
+              { icon: Zap, color: "text-[#ffc800] bg-[#ffc800]/10", title: "Free credits every month", desc: "1,111 free credits every month — automatically renewed for every active tradie." },
+              { icon: Package, color: "text-blue-400 bg-blue-500/10", title: "Credit cost varies by job", desc: "Small jobs (a door repaint, a leaking tap) cost 30–60 credits. Large jobs (a full reno, a house repaint) cost up to 800 credits. The cost is shown upfront on every job card, before you claim." },
+              { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Credit packs from $49. Credits never expire." },
             ].map(({ icon: Icon, color, title, desc }) => (
               <div key={title} className="flex gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
@@ -273,13 +277,19 @@ export default function CreditsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="grid sm:grid-cols-3 gap-4"
+              className="grid sm:grid-cols-2 gap-4"
             >
-              {packs.map((pack) => {
+              {packs
+                .filter((pack) => {
+                  const credits = pack.metadata?.credits ?? "0";
+                  return credits === "300" || credits === "600";
+                })
+                .map((pack) => {
                 const credits = pack.metadata?.credits ?? "0";
                 const price = pack.prices[0];
                 const highlight = PACK_HIGHLIGHTS.find((h) => h.credits === credits);
                 const isBuying = purchasing === price?.id;
+                const subtitle = PACK_SUBTITLES[credits] ?? null;
 
                 return (
                   <motion.div
@@ -299,10 +309,9 @@ export default function CreditsPage() {
                     <p className="text-sm font-semibold text-white/70 mb-1">{pack.name.replace("Fixit 247 ", "")}</p>
                     {price && (
                       <>
-                        <p className="text-xs text-white/35">{pack.description}</p>
-                        <div className="mt-3 text-xs text-white/30">
-                          Up to {Math.floor(Number(credits) / 50)} claims (varies by job size)
-                        </div>
+                        {subtitle && (
+                          <p className="text-xs text-white/35">{subtitle}</p>
+                        )}
                         <div className="mt-auto pt-4">
                           <p className="text-xl font-black text-[#ffc800] mb-3">{fmtAud(price.unitAmount)} AUD</p>
                           <button

@@ -207,6 +207,7 @@ export const CreateJobBody = zod.object({
   description: zod.string(),
   categoryId: zod.number(),
   urgency: zod.enum(["standard", "urgent", "emergency"]),
+  sizeBand: zod.enum(["small", "medium", "large", "premium"]),
   suburb: zod.string().optional(),
   postcode: zod.string().optional(),
   address: zod.string().optional(),

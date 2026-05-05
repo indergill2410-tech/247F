@@ -1297,6 +1297,9 @@ components:
         urgency:
           type: string
           enum: [standard, urgent, emergency]
+        sizeBand:
+          type: string
+          enum: [small, medium, large, premium]
         suburb:
           type: string
         postcode:
@@ -1317,6 +1320,7 @@ components:
         - description
         - categoryId
         - urgency
+        - sizeBand
 
     UpdateJobBody:
       type: object

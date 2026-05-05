@@ -18,7 +18,7 @@ import {
 import { requireAuth } from "../middlewares/require-auth.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
-import { classifyJobSize } from "../lib/openai.js";
+import { estimateCreditCost, BAND_RANGE, type SizeBand } from "../lib/openai.js";
 
 const router = Router();
 
@@ -172,13 +172,35 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  const { title, description, categoryId, urgency, suburb, postcode, address, imageUrls, budget, scheduledFor } = parsed.data;
+  const { title, description, categoryId, urgency, sizeBand, suburb, postcode, address, imageUrls, budget, scheduledFor } = parsed.data;
+
+  // Fetch category name for AI sizing (before insert so we can include creditCost in the response)
+  const [category] = await db
+    .select({ name: categoriesTable.name })
+    .from(categoriesTable)
+    .where(eq(categoriesTable.id, categoryId));
+
+  // AI credit cost estimation — synchronous so the response includes the cost immediately
+  const chosenBand = (sizeBand as SizeBand | undefined) ?? "medium";
+  const creditCost = await estimateCreditCost({
+    title,
+    description,
+    categoryName: category?.name ?? null,
+    sizeBand: chosenBand,
+    budget: budget ?? null,
+    urgency,
+  }).catch((err) => {
+    logger.error({ err }, "Credit cost estimation failed — using band midpoint");
+    return BAND_RANGE[chosenBand].midpoint;
+  });
 
   const [job] = await db.insert(jobsTable).values({
     title,
     description,
     categoryId,
     urgency: urgency as "standard" | "urgent" | "emergency",
+    sizeBand: chosenBand,
+    creditCost,
     homeownerId: req.user!.userId,
     suburb: suburb ?? null,
     postcode: postcode ?? null,
@@ -197,31 +219,6 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
   // Trigger matching engine asynchronously
   setImmediate(() => {
     runMatchingEngine(job.id, categoryId, postcode ?? null).catch(() => {});
-  });
-
-  // AI job sizing — fire and forget, update the job row with sizeBand + creditCost
-  setImmediate(async () => {
-    try {
-      const [category] = await db
-        .select({ name: categoriesTable.name })
-        .from(categoriesTable)
-        .where(eq(categoriesTable.id, categoryId));
-
-      const { sizeBand, creditCost } = await classifyJobSize({
-        title,
-        description,
-        categoryName: category?.name ?? null,
-        budget: budget ?? null,
-        urgency,
-      });
-
-      await db
-        .update(jobsTable)
-        .set({ sizeBand, creditCost, updatedAt: sql`NOW()` })
-        .where(eq(jobsTable.id, job.id));
-    } catch (err) {
-      logger.error({ err }, "Failed to classify job size with AI");
-    }
   });
 
   res.status(201).json(buildJobResponse({ ...job, claimCount: 0 }));

@@ -127,14 +127,22 @@ export default function TradieDashboard() {
   const [expandedClaimJobId, setExpandedClaimJobId] = useState<number | null>(null);
   const [claimMessage, setClaimMessage] = useState("");
   const [claimPrice, setClaimPrice] = useState("");
+  const [pendingClaimCost, setPendingClaimCost] = useState<number | null>(null);
 
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Claimed!", description: "You've successfully claimed this job. Credits deducted from your balance." });
+        const cost = pendingClaimCost;
+        toast({
+          title: "Claimed!",
+          description: cost != null
+            ? `${cost} credits deducted. You've successfully claimed this job.`
+            : "You've successfully claimed this job. Credits deducted from your balance.",
+        });
         setExpandedClaimJobId(null);
         setClaimMessage("");
         setClaimPrice("");
+        setPendingClaimCost(null);
         refetch();
         // Refresh credit balance
         if (token) {
@@ -161,11 +169,13 @@ export default function TradieDashboard() {
     },
   });
 
-  function handleClaimExpand(jobId: number) {
+  function handleClaimExpand(jobId: number, creditCost?: number | null) {
     if (expandedClaimJobId === jobId) {
       setExpandedClaimJobId(null);
+      setPendingClaimCost(null);
     } else {
       setExpandedClaimJobId(jobId);
+      setPendingClaimCost(creditCost ?? null);
       setClaimMessage("");
       setClaimPrice("");
     }
@@ -718,7 +728,7 @@ export default function TradieDashboard() {
                                 ? "bg-white/10 text-white/60 border border-white/10"
                                 : "bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black"
                             }`}
-                            onClick={() => handleClaimExpand(job.id)}
+                            onClick={() => handleClaimExpand(job.id, job.creditCost)}
                           >
                             {isExpanded ? <X className="h-3.5 w-3.5" /> : "Claim"}
                           </button>

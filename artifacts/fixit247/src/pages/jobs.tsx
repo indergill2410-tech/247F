@@ -297,10 +297,16 @@ export default function JobsPage() {
                               {job.categoryName}
                             </span>
                           )}
-                          {user?.role === "tradie" && job.creditCost != null && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] flex items-center gap-1">
-                              <Zap className="h-2.5 w-2.5" /> {job.creditCost} credits
-                            </span>
+                          {user?.role === "tradie" && (
+                            job.creditCost != null ? (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] flex items-center gap-1">
+                                <Zap className="h-2.5 w-2.5" /> {job.creditCost} credits to claim
+                              </span>
+                            ) : (
+                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/35">
+                                Credits TBD
+                              </span>
+                            )
                           )}
                         </div>
 
