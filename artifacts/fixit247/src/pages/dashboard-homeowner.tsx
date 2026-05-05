@@ -8,7 +8,6 @@ import {
   useListNotifications,
   useMarkNotificationRead,
   useGetEmergencyMembershipStatus,
-  useCreateEmergencyCheckout,
   useVerifyEmergencySession,
   useCancelEmergencyMembership,
 } from "@workspace/api-client-react";
@@ -18,7 +17,7 @@ import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
   Star, MessageSquare, MapPin, User, Users,
   ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info, Settings,
-  ShieldCheck, Zap, X,
+  ShieldCheck, Zap, X, Droplets, Lock, Flame, Wind, Bug, Thermometer, Phone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -92,6 +91,17 @@ function TradieName({ name }: { name: string | null }) {
   );
 }
 
+const COVERAGE_ITEMS = [
+  { icon: Droplets, label: "Burst pipe" },
+  { icon: Zap,      label: "Power outage" },
+  { icon: Lock,     label: "Lockout" },
+  { icon: Flame,    label: "Gas leak" },
+  { icon: Wind,     label: "Storm damage" },
+  { icon: Flame,    label: "Fire risk" },
+  { icon: Thermometer, label: "HVAC failure" },
+  { icon: Bug,      label: "Pest emergency" },
+];
+
 function EmergencyMembershipWidget() {
   const { toast } = useToast();
   const searchString = useSearch();
@@ -99,18 +109,9 @@ function EmergencyMembershipWidget() {
   const emergencyParam = params.get("emergency");
   const sessionId = params.get("session_id");
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "emergency">("overview");
 
   const { data: membership, isLoading, refetch } = useGetEmergencyMembershipStatus();
-  const checkoutMutation = useCreateEmergencyCheckout({
-    mutation: {
-      onSuccess: (data) => {
-        if (data.url) window.location.href = data.url;
-      },
-      onError: () => {
-        toast({ title: "Checkout error", description: "Failed to start checkout. Please try again.", variant: "destructive" });
-      },
-    },
-  });
 
   const verifyMutation = useVerifyEmergencySession({
     mutation: {
@@ -145,40 +146,102 @@ function EmergencyMembershipWidget() {
     if (emergencyParam === "success" && sessionId && !verifyMutation.isPending) {
       verifyMutation.mutate({ data: { sessionId } });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emergencyParam, sessionId]);
 
   if (isLoading) {
-    return <Skeleton className="h-20 w-full bg-white/6 rounded-2xl" />;
+    return <Skeleton className="h-24 w-full bg-white/6 rounded-2xl" />;
   }
 
-  if (!membership) return null;
-
-  const renewalDateStr = membership.renewalDate
-    ? new Date(membership.renewalDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
-    : null;
-
-  const callsRemaining = membership.callsRemaining ?? (2 - (membership.callsUsed ?? 0));
-
-  if (membership.active) {
+  /* ── NON-MEMBER: high-conversion upsell card ── */
+  if (!membership || !membership.active) {
     return (
-      <>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-5 flex flex-col sm:flex-row sm:items-center gap-4 ${
-          membership.cancelAtPeriodEnd
-            ? "bg-orange-500/6 border-orange-500/20"
-            : "bg-[#ffc800]/6 border-[#ffc800]/25"
-        }`}
+        className="rounded-2xl border border-[#ffc800]/20 overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #1c1400 0%, #0d0a03 100%)" }}
       >
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${membership.cancelAtPeriodEnd ? "bg-orange-500/15" : "bg-[#ffc800]/15"}`}>
-            <ShieldCheck className={`h-5 w-5 ${membership.cancelAtPeriodEnd ? "text-orange-400" : "text-[#ffc800]"}`} />
+        <div className="p-6">
+          {/* Label row */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-7 h-7 rounded-lg bg-[#ffc800]/15 flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
+            </div>
+            <span className="text-xs font-bold text-[#ffc800] uppercase tracking-wider">Fixit 24/7 Plus</span>
+            <span className="ml-auto text-[10px] font-semibold text-white/25 uppercase tracking-wider">Homeowners only</span>
           </div>
-          <div className="min-w-0">
+
+          {/* Urgency headline */}
+          <h3 className="text-xl font-black text-white leading-snug mb-2">
+            What happens at 2 AM when a pipe bursts?
+          </h3>
+          <p className="text-sm text-white/50 mb-5 leading-relaxed">
+            One membership puts a trusted tradie at your door — day, night, or weekend. No scrambling, no price gouging.
+          </p>
+
+          {/* Benefits grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 mb-6">
+            {[
+              "Burst pipes & plumbing emergencies",
+              "Power outages & electrical faults",
+              "Lockouts & security issues",
+              "Gas leaks & storm damage",
+              "24/7 dispatch, any day of the year",
+              "Priority over standard job queue",
+            ].map((b) => (
+              <div key={b} className="flex items-center gap-2">
+                <CheckCircle className="h-3.5 w-3.5 text-[#ffc800] flex-shrink-0" />
+                <span className="text-xs text-white/60">{b}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Price anchor + CTA */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex-1">
+              <span className="text-3xl font-black text-white">A$49</span>
+              <span className="text-sm text-white/40 ml-1">/month</span>
+            </div>
+            <Link href="/emergency">
+              <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-sm transition-colors whitespace-nowrap">
+                Get Plus — A$49/month
+              </button>
+            </Link>
+          </div>
+
+          {/* Trust signal */}
+          <p className="text-[11px] text-white/25 mt-3 text-center sm:text-left">
+            No lock-in · Cancel anytime · 6-month minimum commitment applies
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  /* ── MEMBER: perks card with tabs ── */
+  const renewalDateStr = membership.renewalDate
+    ? new Date(membership.renewalDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+  const callsRemaining = membership.callsRemaining ?? (2 - (membership.callsUsed ?? 0));
+  const isCancelling = membership.cancelAtPeriodEnd;
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`rounded-2xl border p-5 ${isCancelling ? "bg-orange-500/6 border-orange-500/20" : "bg-[#ffc800]/6 border-[#ffc800]/25"}`}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isCancelling ? "bg-orange-500/15" : "bg-[#ffc800]/15"}`}>
+            <ShieldCheck className={`h-5 w-5 ${isCancelling ? "text-orange-400" : "text-[#ffc800]"}`} />
+          </div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-bold text-white">Fixit 24/7 Plus Member</span>
-              {membership.cancelAtPeriodEnd ? (
+              <span className="text-base font-black text-white">You're covered, 24/7.</span>
+              {isCancelling ? (
                 <span className="text-[10px] font-bold bg-orange-500/15 text-orange-400 px-2 py-0.5 rounded-md border border-orange-500/20">
                   Cancels {renewalDateStr}
                 </span>
@@ -189,24 +252,111 @@ function EmergencyMembershipWidget() {
               )}
             </div>
             <p className="text-xs text-white/40 mt-0.5">
-              {membership.cancelAtPeriodEnd
-                ? `Access until ${renewalDateStr}`
-                : `Renews ${renewalDateStr}`}
-              {" · "}
-              <span className={callsRemaining > 0 ? "text-[#ffc800]/70" : "text-white/30"}>
-                {callsRemaining} of 2 callout{callsRemaining !== 1 ? "s" : ""} remaining this year
-              </span>
+              Fixit 24/7 Plus ·{" "}
+              {isCancelling ? `Access until ${renewalDateStr}` : `Renews ${renewalDateStr}`}
             </p>
           </div>
         </div>
-        {!membership.cancelAtPeriodEnd && (
-          <button
-            onClick={() => setShowCancelModal(true)}
-            disabled={cancelMutation.isPending}
-            className="flex-shrink-0 h-8 px-3 rounded-lg text-xs font-semibold text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-50 flex items-center gap-1"
-          >
-            <X className="h-3 w-3" /> Cancel membership
+
+        {/* Always-visible primary CTA */}
+        <Link href="/emergency">
+          <button className="w-full h-10 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-4">
+            <Phone className="h-4 w-4" />
+            Request Emergency Help
           </button>
+        </Link>
+
+        {/* Tab strip */}
+        <div className="flex gap-1 bg-white/5 rounded-lg p-0.5 mb-4">
+          {(["overview", "emergency"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                activeTab === tab ? "bg-white/12 text-white" : "text-white/40 hover:text-white/65"
+              }`}
+            >
+              {tab === "overview" ? "Overview" : "Emergency"}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <AnimatePresence mode="wait">
+          {activeTab === "overview" ? (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+            >
+              {/* Coverage icon grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {COVERAGE_ITEMS.map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2.5">
+                    <Icon className="h-4 w-4 text-[#ffc800]" />
+                    <span className="text-[10px] text-white/50 text-center leading-tight">{label}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Calls remaining */}
+              <div className="flex items-center justify-between bg-white/4 rounded-xl px-4 py-3">
+                <span className="text-xs text-white/50">Callouts remaining this year</span>
+                <span className={`text-sm font-black ${callsRemaining > 0 ? "text-[#ffc800]" : "text-white/30"}`}>
+                  {callsRemaining} of 2
+                </span>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="emergency"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-3"
+            >
+              {/* Large request button */}
+              <Link href="/emergency">
+                <button className="w-full h-14 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-base transition-colors flex items-center justify-center gap-2">
+                  <Phone className="h-5 w-5" />
+                  Request Help Now
+                </button>
+              </Link>
+              {/* 3-step dispatch flow */}
+              <div className="space-y-2">
+                {[
+                  { step: "1", text: "Describe the emergency — we triage immediately" },
+                  { step: "2", text: "We dispatch a trusted tradie, day or night" },
+                  { step: "3", text: "Tradie arrives and resolves the problem" },
+                ].map(({ step, text }) => (
+                  <div key={step} className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#ffc800]/15 text-[#ffc800] text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      {step}
+                    </div>
+                    <span className="text-xs text-white/55">{text}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/30 text-center pt-1">
+                Average response within 2 hours · Available 24/7, 365 days
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Subtle cancel link */}
+        {!isCancelling && (
+          <div className="mt-4 pt-3 border-t border-white/6 text-center">
+            <button
+              onClick={() => setShowCancelModal(true)}
+              disabled={cancelMutation.isPending}
+              className="text-xs text-white/25 hover:text-white/50 transition-colors"
+            >
+              Cancel membership
+            </button>
+          </div>
         )}
       </motion.div>
 
@@ -258,9 +408,6 @@ function EmergencyMembershipWidget() {
       </AnimatePresence>
     </>
   );
-}
-
-  return null;
 }
 
 export default function HomeownerDashboard() {
