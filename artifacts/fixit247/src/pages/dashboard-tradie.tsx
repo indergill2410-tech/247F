@@ -110,8 +110,8 @@ export default function TradieDashboard() {
 
   // Credit balance
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
-  // Minimum claim cost (small job = 50 credits) used for conservative "jobsLeft" estimate
-  const MIN_CLAIM_COST = 50;
+  // Minimum claim cost (small job = 30 credits) used for conservative "jobsLeft" estimate
+  const MIN_CLAIM_COST = 30;
 
   useEffect(() => {
     if (!token) return;
