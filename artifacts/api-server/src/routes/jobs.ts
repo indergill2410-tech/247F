@@ -188,7 +188,7 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
 
   const { title, description, categoryId, urgency, sizeBand, suburb, postcode, address, imageUrls, budget, scheduledFor } = parsed.data;
 
-  // Fetch category name for AI sizing (needed for async estimate after insert)
+  // Fetch category name for AI sizing
   const [category] = await db
     .select({ name: categoriesTable.name })
     .from(categoriesTable)
@@ -196,14 +196,27 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
 
   const chosenBand = (sizeBand as SizeBand | undefined) ?? "medium";
 
-  // Insert job first with band midpoint as the initial credit cost
+  // AI credit cost estimation — synchronous so creditCost is final before insert and never changes
+  const creditCost = await estimateCreditCost({
+    title,
+    description,
+    categoryName: category?.name ?? null,
+    sizeBand: chosenBand,
+    budget: budget ?? null,
+    urgency,
+  }).catch((err) => {
+    logger.error({ err }, "Credit cost estimation failed — using band midpoint as final fallback");
+    return BAND_RANGE[chosenBand].midpoint;
+  });
+
+  // Insert with final creditCost — will not change after this point
   const [job] = await db.insert(jobsTable).values({
     title,
     description,
     categoryId,
     urgency: urgency as "standard" | "urgent" | "emergency",
     sizeBand: chosenBand,
-    creditCost: BAND_RANGE[chosenBand].midpoint,
+    creditCost,
     homeownerId: req.user!.userId,
     suburb: suburb ?? null,
     postcode: postcode ?? null,
@@ -219,24 +232,12 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  // Respond immediately, then refine credit cost with AI and run matching engine
-  res.status(201).json(buildJobResponse({ ...job, claimCount: 0 }));
-
+  // Trigger matching engine asynchronously (does not affect creditCost)
   setImmediate(() => {
-    estimateCreditCost({
-      title,
-      description,
-      categoryName: category?.name ?? null,
-      sizeBand: chosenBand,
-      budget: budget ?? null,
-      urgency,
-    }).then(async (aiCost) => {
-      await db.update(jobsTable).set({ creditCost: aiCost }).where(eq(jobsTable.id, job.id));
-    }).catch((err) => {
-      logger.error({ err }, "Credit cost estimation failed — keeping band midpoint");
-    });
     runMatchingEngine(job.id, categoryId, postcode ?? null).catch(() => {});
   });
+
+  res.status(201).json(buildJobResponse({ ...job, claimCount: 0 }));
 });
 
 // GET /api/jobs/:id
