@@ -1,0 +1,46 @@
+You are making a focused change to the Fixit 24/7 app landing page. Read this entire prompt before starting. Do not make any changes outside what is listed.
+Context
+The current homepage hero shows a homeowner pitch on the left AND a tradie acquisition card on the right. This dual-audience hero is killing conversion because neither audience gets a focused message. Make the hero homeowner-only and move the tradie content to the existing /partner page (the page already linked as "Partner with us" in the top nav).
+What to do
+Remove from the hero section the entire right-hand card containing this content (delete it completely from the homepage):
+
+"BUILT FOR TRADIES" eyebrow
+"1111 credits / month — free" badge
+"Start picking up jobs and grow your business revenue — join free" heading
+"Get 1111 free credits every month to unlock jobs and start winning new work" subheading
+"1111 credits renewed every month, automatically"
+"Use credits to unlock and pick up local jobs"
+"Grow revenue without heavy ad spend"
+"Get in front of homeowners already searching"
+"Join free and start picking up jobs" CTA button
+"See how tradie credits work" secondary link
+
+Move that exact content to the /partner page, positioned as a prominent block above the existing partner content. Preserve the original styling, the four bullet points, the primary CTA button "Join free and start picking up jobs" (linked to tradie signup), the secondary link "See how tradie credits work" (linked to tradie credits info), the "BUILT FOR TRADIES" eyebrow, and the "1111 credits / month — free" badge. Nothing is lost — it just lives on /partner instead of the homepage.
+Replace the H1 "Any job, any tradie, fixed fast." with: "From a leaky tap to a full reno."
+Keep these elements unchanged in the hero:
+
+The eyebrow "Available 24/7 across Australia"
+The existing description paragraph
+The postcode input field
+The "Post your job for free" CTA button
+The four trust chips below the button: "Licensed & insured tradies", "Free to post any job", "Emergency jobs prioritised", "Rated & reviewed"
+
+Remove the line "Fixit 24/7 Emergency membership — $49/month" that currently sits below the trust chips. Delete it entirely.
+Add a slim full-width band immediately below the hero (above the next major page section), styled subtly with smaller text and secondary visual weight (NOT a big CTA): "Are you a tradie? Get verified jobs in your area →". This should link to /partner.
+Do NOT
+
+Do not change colors, fonts, or visual styling beyond the elements listed above.
+Do not change the layout grid of the page beyond removing the right-hand card.
+Do not change any other section of the homepage below the hero (testimonials, How it works, footer, etc. all stay the same).
+Do not delete the tradie content — it must be moved to /partner, not deleted.
+Do not change the route /partner or its top-nav link.
+Do not add fake social proof numbers anywhere.
+
+Verify after
+
+Homepage hero shows only the homeowner pitch on the full width — no tradie card on the right.
+The H1 reads "From a leaky tap to a full reno."
+The "Fixit 24/7 Emergency membership — $49/month" line is gone from below the trust chips.
+A slim "Are you a tradie? Get verified jobs in your area →" band sits below the hero, linking to /partner.
+The /partner page now contains the tradie acquisition card that previously lived in the hero, with all original content intact.
+All existing routes still resolve and the app does not throw errors.
