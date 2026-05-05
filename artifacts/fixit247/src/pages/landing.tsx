@@ -227,11 +227,11 @@ export default function LandingPage() {
               </h1>
             </div>
 
-            <p className="text-lg text-white/60 max-w-md leading-relaxed">
+            <p className="text-lg text-white/60 max-w-2xl leading-relaxed">
               From everyday repairs to after-hours emergencies — plumbing, electrical, lockouts, HVAC, carpentry and more. Fixit 24/7 connects you with verified local tradies for any job, 24/7.
             </p>
 
-            <div className="flex gap-2 max-w-md w-full">
+            <div className="flex gap-2 max-w-2xl w-full">
               <div className="flex-1 relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" aria-hidden="true" />
                 <input
@@ -252,7 +252,7 @@ export default function LandingPage() {
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-2.5 max-w-md">
+            <div className="flex flex-wrap gap-2.5 max-w-2xl">
               {[
                 { icon: BadgeCheck, label: "Licensed & insured tradies" },
                 { icon: CheckCircle2, label: "Free to post any job" },
