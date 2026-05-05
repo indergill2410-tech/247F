@@ -9,7 +9,7 @@ import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
   CheckCircle2, Clock, Users, BadgeCheck, MessageSquare,
-  ChevronDown, HardHat, Car, Shield,
+  ChevronDown, HardHat, Car, Shield, Lock, Flame, Thermometer, BatteryFull, Fuel,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -400,34 +400,83 @@ export default function LandingPage() {
 
       {/* ─── Fixit 24/7 Plus CTA ─── */}
       <section id="emergency-membership" className="py-20 bg-[#0b0904] text-white">
-        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 sm:px-6 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="relative rounded-3xl"
+            className="rounded-2xl border border-[#ffc800]/20 overflow-hidden"
+            style={{ background: "linear-gradient(135deg, #1c1400 0%, #0d0a03 100%)" }}
           >
-            <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/35 to-[#ffc800]/8" aria-hidden="true" />
-            <div className="relative bg-[#130f07] rounded-3xl p-10 border border-[#ffc800]/18 text-center">
-              <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold mb-6">
-                <Shield className="h-3.5 w-3.5" aria-hidden="true" />
-                Fixit 24/7 Plus
+            <div className="p-7 sm:p-8">
+              {/* Label row */}
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-7 h-7 rounded-lg bg-[#ffc800]/15 flex items-center justify-center">
+                  <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
+                </div>
+                <span className="text-xs font-bold text-[#ffc800] uppercase tracking-wider">Fixit 24/7 Plus</span>
+                <span className="ml-auto text-[10px] font-semibold text-white/25 uppercase tracking-wider">Homeowners only</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-black mb-4 leading-tight">
-                Wherever life happens,<br />you're covered.
+
+              {/* Headline */}
+              <h2 className="text-2xl sm:text-3xl font-black text-white leading-snug mb-2">
+                Home emergency or car breakdown —{" "}
+                <span className="text-[#ffc800]">one membership covers both.</span>
               </h2>
-              <p className="text-white/50 text-[15px] leading-relaxed max-w-xl mx-auto mb-8">
-                At home or on the road — one membership dispatches trusted help, 24/7. From burst pipes to car breakdowns, real tradies are ready when you need them most.
+              <p className="text-sm text-white/50 mb-6 leading-relaxed">
+                Pipe burst at midnight. Car dead on the highway. One call sorts it — any time, any day.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+
+              {/* Two-pillar grid */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-white/4 border border-white/6 rounded-xl p-4">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Home className="h-3.5 w-3.5 text-[#ffc800]" />
+                    <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">At Home</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {["Burst pipes", "Power outages", "Lockouts", "Gas leaks", "Storm damage"].map((i) => (
+                      <li key={i} className="flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                        <span className="text-[12px] text-white/55">{i}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="bg-white/4 border border-white/6 rounded-xl p-4">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Car className="h-3.5 w-3.5 text-[#ffc800]" />
+                    <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">On the Road</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {["Car breakdown", "Flat tyres", "Battery jump-start", "Fuel delivery", "Keys locked in"].map((i) => (
+                      <li key={i} className="flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                        <span className="text-[12px] text-white/55">{i}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Price + CTA */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <span className="text-3xl font-black text-white">A$49</span>
+                  <span className="text-sm text-white/40 ml-1">/month</span>
+                  <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
+                </div>
                 <Link href="/emergency">
-                  <button className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
-                    Learn about Fixit 24/7 Plus <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-sm transition-colors whitespace-nowrap">
+                    Get Plus — A$49/month
                   </button>
                 </Link>
               </div>
-              <p className="text-white/25 text-xs mt-6">A$49/mo · 12-month membership · billed monthly · eligible emergencies only</p>
+
+              <p className="text-[11px] text-white/25 mt-3">
+                6-month minimum commitment · Cancel anytime after that
+              </p>
             </div>
           </motion.div>
         </div>
