@@ -1,6 +1,6 @@
 import { usePageTitle } from "@/hooks/use-page-title";
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useSearch } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCreateEmergencyCheckout } from "@workspace/api-client-react";
@@ -117,10 +117,13 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
   );
 }
 
+const RETURN_TO_PLUS = encodeURIComponent("/emergency?autoCheckout=1");
+
 export default function EmergencyPage() {
   usePageTitle("Fixit 24/7 Plus — Wherever life happens, you're covered.");
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const searchString = useSearch();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [coveredOpen, setCoveredOpen] = useState(false);
   const [notCoveredOpen, setNotCoveredOpen] = useState(false);
@@ -134,9 +137,27 @@ export default function EmergencyPage() {
     },
   });
 
+  // Auto-trigger checkout when redirected back from login with ?autoCheckout=1
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    if (params.get("autoCheckout") === "1" && user && user.role === "homeowner") {
+      // Clear the param from the URL without a navigation event
+      window.history.replaceState({}, "", "/emergency");
+      setAgreementChecked(true);
+      checkoutMutation.mutate();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, searchString]);
+
   function handleJoin() {
-    if (!user) { setLocation("/login"); return; }
-    if (user.role !== "homeowner") { setLocation("/register?role=homeowner"); return; }
+    if (!user) {
+      setLocation(`/login?returnTo=${RETURN_TO_PLUS}`);
+      return;
+    }
+    if (user.role !== "homeowner") {
+      setLocation(`/register?role=homeowner&returnTo=${RETURN_TO_PLUS}`);
+      return;
+    }
     if (!agreementChecked) {
       const el = document.getElementById("agreement-checkbox");
       el?.scrollIntoView({ behavior: "smooth", block: "center" });

@@ -1,6 +1,6 @@
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useLoginUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -12,19 +12,37 @@ const DEMOS = [
   { label: "Admin", email: "admin@fixit247.com", pw: "admin123" },
 ];
 
+function safeReturnTo(raw: string | null): string | null {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    // Must be a relative path — no protocol, no double-slash (open-redirect guard)
+    if (decoded.startsWith("/") && !decoded.startsWith("//") && !decoded.includes(":")) {
+      return decoded;
+    }
+  } catch {
+    // ignore malformed URIs
+  }
+  return null;
+}
+
 export default function LoginPage() {
   usePageTitle("Sign In");
   const [, setLocation] = useLocation();
+  const searchString = useSearch();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
 
+  const returnTo = safeReturnTo(new URLSearchParams(searchString).get("returnTo"));
+
   const loginMutation = useLoginUser({
     mutation: {
       onSuccess: (data) => {
         login(data);
+        if (returnTo) { setLocation(returnTo); return; }
         const role = data.user.role;
         if (role === "admin") setLocation("/admin");
         else if (role === "tradie") setLocation("/dashboard/tradie");
