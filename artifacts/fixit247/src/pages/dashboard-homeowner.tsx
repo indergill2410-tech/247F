@@ -17,7 +17,7 @@ import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
   Star, MessageSquare, MapPin, User, Users,
   ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info, Settings,
-  ShieldCheck, Zap, X, Droplets, Lock, Flame, Wind, Bug, Thermometer, Phone,
+  ShieldCheck, Zap, Droplets, Lock, Flame, Wind, Bug, Thermometer, Phone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -212,7 +212,7 @@ function EmergencyMembershipWidget() {
 
           {/* Trust signal */}
           <p className="text-[11px] text-white/25 mt-3 text-center sm:text-left">
-            No lock-in · Cancel anytime · 6-month minimum commitment applies
+            6-month minimum commitment · Cancel anytime after that · Homeowners only
           </p>
         </div>
       </motion.div>
@@ -302,7 +302,7 @@ function EmergencyMembershipWidget() {
               </div>
               {/* Calls remaining */}
               <div className="flex items-center justify-between bg-white/4 rounded-xl px-4 py-3">
-                <span className="text-xs text-white/50">Callouts remaining this year</span>
+                <span className="text-xs text-white/50">Callouts remaining this month</span>
                 <span className={`text-sm font-black ${callsRemaining > 0 ? "text-[#ffc800]" : "text-white/30"}`}>
                   {callsRemaining} of 2
                 </span>
