@@ -9,12 +9,24 @@ import { SuburbInput } from "@/components/suburb-input";
 
 type Role = "homeowner" | "tradie";
 
+function safeReturnTo(raw: string | null): string | null {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    if (decoded.startsWith("/") && !decoded.startsWith("//") && !decoded.includes(":")) {
+      return decoded;
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
 export default function RegisterPage() {
   usePageTitle("Create Account");
   const [, setLocation] = useLocation();
   const search = useSearch();
   const params = new URLSearchParams(search);
   const defaultRole = (params.get("role") as Role) ?? "homeowner";
+  const returnTo = safeReturnTo(params.get("returnTo"));
 
   const { login } = useAuth();
   const [role, setRole] = useState<Role>(defaultRole);
@@ -30,6 +42,7 @@ export default function RegisterPage() {
     mutation: {
       onSuccess: (data) => {
         login(data);
+        if (returnTo) { setLocation(returnTo); return; }
         if (data.user.role === "tradie") setLocation("/dashboard/tradie");
         else setLocation("/dashboard");
       },
@@ -147,7 +160,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-white/40">
             Already have an account?{" "}
-            <Link href="/login">
+            <Link href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>
               <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
             </Link>
           </p>

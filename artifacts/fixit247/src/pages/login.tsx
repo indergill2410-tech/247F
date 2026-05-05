@@ -160,7 +160,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-white/40">
             Don't have an account?{" "}
-            <Link href="/signup">
+            <Link href={returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}>
               <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">
                 Sign up free
               </span>
