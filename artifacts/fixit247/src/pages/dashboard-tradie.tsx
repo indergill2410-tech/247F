@@ -747,6 +747,13 @@ export default function TradieDashboard() {
                           className="overflow-hidden"
                         >
                           <div className="px-6 py-4 bg-[#0f0c06]">
+                            {pendingClaimCost != null && (
+                              <div className="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-lg bg-[#ffc800]/8 border border-[#ffc800]/20">
+                                <Zap className="h-3.5 w-3.5 text-[#ffc800] shrink-0" />
+                                <span className="text-sm font-bold text-[#ffc800]">{pendingClaimCost} credits</span>
+                                <span className="text-xs text-white/50">will be deducted from your balance to claim this job</span>
+                              </div>
+                            )}
                             <p className="text-xs font-semibold text-white/50 mb-3">Claim details (optional)</p>
                             <div className="grid sm:grid-cols-2 gap-3">
                               <div>

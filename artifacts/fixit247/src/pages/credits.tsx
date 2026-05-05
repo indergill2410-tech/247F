@@ -126,8 +126,8 @@ export default function CreditsPage() {
   }
 
   const balance = creditsData?.balance ?? 0;
-  // Min claim cost is 50 (small job) — used for optimistic "max claims" estimate
-  const MIN_CLAIM_COST = 50;
+  // Min claim cost is 30 (small job) — used for optimistic "max claims" estimate
+  const MIN_CLAIM_COST = 30;
   const jobsLeft = Math.floor(balance / MIN_CLAIM_COST);
 
   const PACK_HIGHLIGHTS = [
@@ -147,7 +147,7 @@ export default function CreditsPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <h1 className="text-2xl font-black text-white">Credits</h1>
-          <p className="text-sm text-white/40 mt-1">Use credits to claim jobs. Cost varies by job size — from 50 to 400 credits.</p>
+          <p className="text-sm text-white/40 mt-1">Use credits to claim jobs. Cost varies by job size — from 30 to 800 credits.</p>
         </motion.div>
 
         {/* Balance card */}

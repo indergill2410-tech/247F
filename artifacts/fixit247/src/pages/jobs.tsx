@@ -308,6 +308,11 @@ export default function JobsPage() {
                               </span>
                             )
                           )}
+                          {user?.role === "tradie" && job.creditCost != null && (
+                            <span className="text-[10px] text-white/30">
+                              Sized to job scope
+                            </span>
+                          )}
                         </div>
 
                         {/* Description */}
