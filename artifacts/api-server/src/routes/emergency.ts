@@ -80,7 +80,16 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
       return;
     }
 
-    const priceId = EMERGENCY_PRICE_ID;
+    // Resolve the active price via lookup key; fall back to env/hardcoded ID
+    let priceId = EMERGENCY_PRICE_ID;
+    const lookedUp = await stripe.prices.list({
+      lookup_keys: [EMERGENCY_PRODUCT_LOOKUP],
+      active: true,
+      limit: 1,
+    });
+    if (lookedUp.data.length > 0) {
+      priceId = lookedUp.data[0].id;
+    }
 
     let customerId = dbUser.stripeCustomerId;
     if (!customerId) {
@@ -100,7 +109,10 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${host}/dashboard?emergency=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${host}/dashboard?emergency=cancelled`,
+      cancel_url: `${host}/emergency`,
+      subscription_data: {
+        metadata: { userId: String(dbUser.id), type: "emergency_membership" },
+      },
       metadata: { userId: String(dbUser.id), type: "emergency_membership" },
     });
 
