@@ -168,15 +168,18 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
     }
   }
 
+  // Use per-job credit cost if set, otherwise fall back to legacy CREDITS_PER_CLAIM
+  const claimCost = job.creditCost ?? CREDITS_PER_CLAIM;
+
   // Check credit balance before claiming (skip for covered emergency jobs)
   if (!coveredEmergency) {
     const creditBalance = await getCreditBalance(tradieId);
-    if (creditBalance < CREDITS_PER_CLAIM) {
+    if (creditBalance < claimCost) {
       res.status(402).json({
         error: "insufficient_credits",
-        message: `You need ${CREDITS_PER_CLAIM} credits to claim a job. Your balance: ${creditBalance}. Top up at /credits.`,
+        message: `You need ${claimCost} credits to claim this job. Your balance: ${creditBalance}. Top up at /credits.`,
         balance: creditBalance,
-        required: CREDITS_PER_CLAIM,
+        required: claimCost,
       });
       return;
     }
@@ -197,7 +200,7 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
 
   // Deduct credits for the claim (skip for covered emergency jobs)
   if (!coveredEmergency) {
-    await deductCredits(tradieId, CREDITS_PER_CLAIM, `Claimed job #${jobId}: ${job.title ?? "Job"}`).catch((err) =>
+    await deductCredits(tradieId, claimCost, `Claimed job #${jobId}: ${job.title ?? "Job"}`).catch((err) =>
       logger.error({ err }, "Failed to deduct credits for claim")
     );
   }

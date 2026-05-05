@@ -1224,6 +1224,13 @@ components:
         budget:
           type: number
           nullable: true
+        sizeBand:
+          type: string
+          enum: [small, medium, large, premium]
+          nullable: true
+        creditCost:
+          type: integer
+          nullable: true
         claimCount:
           type: integer
         createdAt:

@@ -126,8 +126,9 @@ export default function CreditsPage() {
   }
 
   const balance = creditsData?.balance ?? 0;
-  const perClaim = creditsData?.creditsPerClaim ?? 222;
-  const jobsLeft = Math.floor(balance / perClaim);
+  // Min claim cost is 50 (small job) — used for optimistic "max claims" estimate
+  const MIN_CLAIM_COST = 50;
+  const jobsLeft = Math.floor(balance / MIN_CLAIM_COST);
 
   const PACK_HIGHLIGHTS = [
     { credits: "300",  color: "border-white/10",           badge: "" },
@@ -142,7 +143,7 @@ export default function CreditsPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <h1 className="text-2xl font-black text-white">Credits</h1>
-          <p className="text-sm text-white/40 mt-1">Use credits to claim jobs. Each claim costs {perClaim} credits.</p>
+          <p className="text-sm text-white/40 mt-1">Use credits to claim jobs. Cost varies by job size — from 50 to 400 credits.</p>
         </motion.div>
 
         {/* Balance card */}
@@ -164,16 +165,16 @@ export default function CreditsPage() {
                 </div>
               )}
               {!loading && (
-                <p className={`text-sm mt-2 font-semibold ${jobsLeft > 0 ? "text-emerald-400" : "text-orange-400"}`}>
-                  {jobsLeft > 0
-                    ? `≈ ${jobsLeft} job claim${jobsLeft !== 1 ? "s" : ""} remaining`
+                <p className={`text-sm mt-2 font-semibold ${balance > 0 ? "text-emerald-400" : "text-orange-400"}`}>
+                  {balance > 0
+                    ? `Up to ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""} (varies by job size)`
                     : "No credits — top up to claim jobs"}
                 </p>
               )}
             </div>
             <div className="flex items-center gap-3">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${jobsLeft > 0 ? "bg-[#ffc800]/10" : "bg-orange-500/10"}`}>
-                <Zap className={`h-8 w-8 ${jobsLeft > 0 ? "text-[#ffc800]" : "text-orange-400"}`} />
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${balance > 0 ? "bg-[#ffc800]/10" : "bg-orange-500/10"}`}>
+                <Zap className={`h-8 w-8 ${balance > 0 ? "text-[#ffc800]" : "text-orange-400"}`} />
               </div>
             </div>
           </div>
@@ -187,7 +188,7 @@ export default function CreditsPage() {
               </div>
               <div className="h-2.5 bg-white/6 rounded-full overflow-hidden">
                 <motion.div
-                  className={`h-full rounded-full ${jobsLeft > 2 ? "bg-[#ffc800]" : "bg-orange-400"}`}
+                  className={`h-full rounded-full ${balance > 100 ? "bg-[#ffc800]" : "bg-orange-400"}`}
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min((balance / creditsData.signupGrant) * 100, 100)}%` }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
@@ -199,7 +200,7 @@ export default function CreditsPage() {
 
         {/* Alert: low credits */}
         <AnimatePresence>
-          {!loading && balance < perClaim && (
+          {!loading && balance < MIN_CLAIM_COST && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -210,7 +211,7 @@ export default function CreditsPage() {
               <div>
                 <p className="text-sm font-bold text-orange-300">You're out of credits</p>
                 <p className="text-xs text-orange-300/70 mt-0.5">
-                  You need {perClaim} credits to claim a job. Purchase a pack below to keep working.
+                  You need at least 50 credits to claim a job. Purchase a pack below to keep working.
                 </p>
               </div>
             </motion.div>
@@ -227,9 +228,9 @@ export default function CreditsPage() {
           <h2 className="font-bold text-white text-sm mb-4">How credits work</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { icon: Zap, color: "text-[#ffc800] bg-[#ffc800]/10", title: "Free starter credits", desc: `Every new tradie gets ${(creditsData?.signupGrant ?? 1111).toLocaleString()} free credits — enough for ~5 jobs.` },
-              { icon: Package, color: "text-blue-400 bg-blue-500/10", title: `${perClaim} credits per claim`, desc: "Each time you claim an available job, credits are deducted from your balance." },
-              { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Buy credit packs starting from $49 AUD. Credits never expire." },
+              { icon: Zap, color: "text-[#ffc800] bg-[#ffc800]/10", title: "Free starter credits", desc: `Every new tradie gets ${(creditsData?.signupGrant ?? 1111).toLocaleString()} free credits on signup — start claiming straight away.` },
+              { icon: Package, color: "text-blue-400 bg-blue-500/10", title: "Credits vary by job size", desc: "Small jobs from 50 credits. Medium 100, Large 200, Premium 400. Each job shows its cost before you claim." },
+              { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Buy credit packs starting from $49 AUD. Credits never expire — use them at your own pace." },
             ].map(({ icon: Icon, color, title, desc }) => (
               <div key={title} className="flex gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
@@ -300,7 +301,7 @@ export default function CreditsPage() {
                       <>
                         <p className="text-xs text-white/35">{pack.description}</p>
                         <div className="mt-3 text-xs text-white/30">
-                          ≈ {Math.floor(Number(credits) / 222)} job claim{Math.floor(Number(credits) / 222) !== 1 ? "s" : ""}
+                          Up to {Math.floor(Number(credits) / 50)} claims (varies by job size)
                         </div>
                         <div className="mt-auto pt-4">
                           <p className="text-xl font-black text-[#ffc800] mb-3">{fmtAud(price.unitAmount)} AUD</p>

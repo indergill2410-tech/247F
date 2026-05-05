@@ -17,6 +17,8 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { runMatchingEngine } from "../lib/matching.js";
+import { logger } from "../lib/logger.js";
+import { classifyJobSize } from "../lib/openai.js";
 
 const router = Router();
 
@@ -33,6 +35,8 @@ function buildJobResponse(job: {
   address: string | null;
   imageUrls: string[] | null;
   budget: number | null;
+  sizeBand?: "small" | "medium" | "large" | "premium" | null;
+  creditCost?: number | null;
   scheduledFor: Date | null;
   createdAt: Date;
   categoryName?: string | null;
@@ -54,6 +58,8 @@ function buildJobResponse(job: {
     address: job.address,
     imageUrls: job.imageUrls,
     budget: job.budget,
+    sizeBand: job.sizeBand ?? null,
+    creditCost: job.creditCost ?? null,
     claimCount: job.claimCount ?? 0,
     createdAt: job.createdAt,
     scheduledFor: job.scheduledFor,
@@ -82,6 +88,8 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
       address: jobsTable.address,
       imageUrls: jobsTable.imageUrls,
       budget: jobsTable.budget,
+      sizeBand: jobsTable.sizeBand,
+      creditCost: jobsTable.creditCost,
       scheduledFor: jobsTable.scheduledFor,
       createdAt: jobsTable.createdAt,
       claimCount: count(claimsTable.id),
@@ -191,6 +199,31 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
     runMatchingEngine(job.id, categoryId, postcode ?? null).catch(() => {});
   });
 
+  // AI job sizing — fire and forget, update the job row with sizeBand + creditCost
+  setImmediate(async () => {
+    try {
+      const [category] = await db
+        .select({ name: categoriesTable.name })
+        .from(categoriesTable)
+        .where(eq(categoriesTable.id, categoryId));
+
+      const { sizeBand, creditCost } = await classifyJobSize({
+        title,
+        description,
+        categoryName: category?.name ?? null,
+        budget: budget ?? null,
+        urgency,
+      });
+
+      await db
+        .update(jobsTable)
+        .set({ sizeBand, creditCost, updatedAt: sql`NOW()` })
+        .where(eq(jobsTable.id, job.id));
+    } catch (err) {
+      logger.error({ err }, "Failed to classify job size with AI");
+    }
+  });
+
   res.status(201).json(buildJobResponse({ ...job, claimCount: 0 }));
 });
 
@@ -218,6 +251,8 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
       address: jobsTable.address,
       imageUrls: jobsTable.imageUrls,
       budget: jobsTable.budget,
+      sizeBand: jobsTable.sizeBand,
+      creditCost: jobsTable.creditCost,
       scheduledFor: jobsTable.scheduledFor,
       createdAt: jobsTable.createdAt,
     })

@@ -110,7 +110,8 @@ export default function TradieDashboard() {
 
   // Credit balance
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
-  const [creditsPerClaim, setCreditsPerClaim] = useState(222);
+  // Minimum claim cost (small job = 50 credits) used for conservative "jobsLeft" estimate
+  const MIN_CLAIM_COST = 50;
 
   useEffect(() => {
     if (!token) return;
@@ -118,7 +119,6 @@ export default function TradieDashboard() {
       .then((r) => r.json())
       .then((d) => {
         if (typeof d.balance === "number") setCreditBalance(d.balance);
-        if (typeof d.creditsPerClaim === "number") setCreditsPerClaim(d.creditsPerClaim);
       })
       .catch(() => {});
   }, [token]);
@@ -131,7 +131,7 @@ export default function TradieDashboard() {
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Claimed!", description: `You've successfully claimed this job. ${creditsPerClaim} credits deducted.` });
+        toast({ title: "Claimed!", description: "You've successfully claimed this job. Credits deducted from your balance." });
         setExpandedClaimJobId(null);
         setClaimMessage("");
         setClaimPrice("");
@@ -149,7 +149,7 @@ export default function TradieDashboard() {
         if (errData?.data?.error === "insufficient_credits") {
           toast({
             title: "Not enough credits",
-            description: `You need ${errData.data.required ?? creditsPerClaim} credits to claim. Your balance: ${errData.data.balance ?? 0}. Top up at Credits.`,
+            description: `You need ${errData.data.required ?? MIN_CLAIM_COST} credits to claim this job. Your balance: ${errData.data.balance ?? 0}. Top up at Credits.`,
             variant: "destructive",
           });
           setCreditBalance(errData.data.balance ?? 0);
@@ -196,16 +196,16 @@ export default function TradieDashboard() {
   // Accepted claims sourced directly from dedicated API field (comprehensive, no limit)
   const acceptedClaims = data?.acceptedClaims ?? [];
 
-  const jobsLeft = creditBalance !== null ? Math.floor(creditBalance / creditsPerClaim) : null;
+  const jobsLeft = creditBalance !== null ? Math.floor(creditBalance / MIN_CLAIM_COST) : null;
 
   const stats = [
     {
       label: "Credits",
       value: creditBalance !== null ? creditBalance.toLocaleString() : "–",
       icon: Zap,
-      color: creditBalance !== null && creditBalance < creditsPerClaim ? "text-orange-400" : "text-[#ffc800]",
-      bg: creditBalance !== null && creditBalance < creditsPerClaim ? "bg-orange-500/10" : "bg-[#ffc800]/10",
-      desc: jobsLeft !== null ? `≈ ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""} left` : "loading…",
+      color: creditBalance !== null && creditBalance < MIN_CLAIM_COST ? "text-orange-400" : "text-[#ffc800]",
+      bg: creditBalance !== null && creditBalance < MIN_CLAIM_COST ? "bg-orange-500/10" : "bg-[#ffc800]/10",
+      desc: jobsLeft !== null ? `up to ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""}` : "loading…",
       href: "/credits",
     },
     {

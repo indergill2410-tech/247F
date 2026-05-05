@@ -297,6 +297,11 @@ export default function JobsPage() {
                               {job.categoryName}
                             </span>
                           )}
+                          {user?.role === "tradie" && job.creditCost != null && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] flex items-center gap-1">
+                              <Zap className="h-2.5 w-2.5" /> {job.creditCost} credits
+                            </span>
+                          )}
                         </div>
 
                         {/* Description */}

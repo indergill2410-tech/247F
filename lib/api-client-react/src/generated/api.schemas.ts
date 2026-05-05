@@ -140,6 +140,15 @@ export const JobUrgency = {
   emergency: "emergency",
 } as const;
 
+export type JobSizeBand = (typeof JobSizeBand)[keyof typeof JobSizeBand] | null;
+
+export const JobSizeBand = {
+  small: "small",
+  medium: "medium",
+  large: "large",
+  premium: "premium",
+} as const;
+
 export interface Job {
   id: number;
   title: string;
@@ -155,6 +164,8 @@ export interface Job {
   address?: string | null;
   imageUrls: string[];
   budget?: number | null;
+  sizeBand?: JobSizeBand;
+  creditCost?: number | null;
   claimCount: number;
   createdAt: string;
   scheduledFor?: string | null;

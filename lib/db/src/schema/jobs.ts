@@ -22,6 +22,8 @@ export const jobStatusEnum = pgEnum("job_status", [
 
 export const urgencyEnum = pgEnum("urgency", ["standard", "urgent", "emergency"]);
 
+export const sizeBandEnum = pgEnum("size_band", ["small", "medium", "large", "premium"]);
+
 export const jobsTable = pgTable("jobs", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -39,6 +41,8 @@ export const jobsTable = pgTable("jobs", {
   address: text("address"),
   imageUrls: text("image_urls").array().notNull().default([]),
   budget: real("budget"),
+  sizeBand: sizeBandEnum("size_band"),
+  creditCost: integer("credit_cost"),
   scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
