@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
-import { useListCategories, useCreateEmergencyCheckout } from "@workspace/api-client-react";
+import { useListCategories } from "@workspace/api-client-react";
 import { Footer } from "@/components/footer";
 import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
@@ -157,30 +157,8 @@ export default function LandingPage() {
   const [, setLocation] = useLocation();
   const [howRole, setHowRole] = useState<"homeowner" | "tradie">("homeowner");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [coveredOpen, setCoveredOpen] = useState(false);
-  const [notCoveredOpen, setNotCoveredOpen] = useState(false);
   const { data: categories } = useListCategories();
   const { user } = useAuth();
-
-  const checkoutMutation = useCreateEmergencyCheckout({
-    mutation: {
-      onSuccess: (data) => {
-        if (data.url) window.location.href = data.url;
-      },
-    },
-  });
-
-  function handleEmergencyJoin() {
-    if (!user) {
-      setLocation("/login");
-      return;
-    }
-    if (user.role !== "homeowner") {
-      setLocation("/register?role=homeowner");
-      return;
-    }
-    checkoutMutation.mutate();
-  }
 
   const handleFindTradies = () => {
     setLocation(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
@@ -281,126 +259,24 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ─── Membership Conversion Section ─── */}
-      <section className="relative overflow-hidden bg-[#0d0a05] border-y border-[#ffc800]/12 py-16 lg:py-20 text-white" aria-label="Emergency membership offer">
-        {/* Warm glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 50% 120%, rgba(255,200,0,0.07) 0%, transparent 65%)" }}
-          aria-hidden="true"
-        />
-
-        <div className="container mx-auto px-4 sm:px-6 max-w-5xl relative">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-
-            {/* ── Left: copy ── */}
-            <motion.div
-              className="flex-1 flex flex-col"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45 }}
-            >
-              <div className="inline-flex items-center gap-2 self-start bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold mb-5">
-                <Shield className="h-3.5 w-3.5" aria-hidden="true" />
-                Fixit Emergency 24/7
+      {/* ─── Fixit 24/7 Plus teaser ─── */}
+      <section className="relative overflow-hidden bg-[#0d0a05] border-y border-[#ffc800]/12 py-12 text-white" aria-label="Fixit 24/7 Plus membership">
+        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+          <div className="flex flex-col sm:flex-row items-center gap-6 justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[#ffc800]/12 border border-[#ffc800]/20 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
               </div>
-
-              <h2 className="text-4xl sm:text-5xl font-black leading-[1.08] tracking-tight mb-5">
-                Peace of mind for just{" "}
-                <span className="text-[#ffc800]">$49/month</span>
-              </h2>
-
-              <p className="text-white/55 text-[15px] leading-relaxed mb-8 max-w-lg">
-                One membership for emergencies, whether in or out of home — giving you peace of mind and security. From burst pipes and lockouts to power failures and car breakdowns, Fixit Emergency 24/7 means you're always one tap away from trusted help, without the shock of paying full price every time.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                {[
-                  { icon: Home, label: "Home emergency support" },
-                  { icon: Car, label: "Car breakdown assistance" },
-                  { icon: Clock, label: "24/7 access when things go wrong" },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} className="flex items-center gap-3 text-sm text-white/70">
-                    <div className="w-8 h-8 rounded-lg bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center shrink-0">
-                      <Icon className="h-4 w-4 text-[#ffc800]" aria-hidden="true" />
-                    </div>
-                    {label}
-                  </div>
-                ))}
+              <div>
+                <p className="text-sm font-bold text-white">Fixit 24/7 Plus — A$49/mo</p>
+                <p className="text-xs text-white/45 mt-0.5">Emergency cover at home and on the road, 24/7 dispatch, member rates.</p>
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={handleEmergencyJoin}
-                  disabled={checkoutMutation.isPending}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60"
-                >
-                  {checkoutMutation.isPending ? "Loading…" : "Get protected for $49/month"}
-                  {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
-                </button>
-                <Link href="/emergency">
-                  <button className="inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold text-[15px] text-white border border-white/18 hover:bg-white/6 active:scale-[0.97] transition-all">
-                    See how the membership works
-                  </button>
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* ── Right: price card ── */}
-            <motion.div
-              className="w-full lg:w-[320px] shrink-0"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.12 }}
-            >
-              <div className="relative rounded-3xl">
-                <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/35 to-[#ffc800]/8" aria-hidden="true" />
-                <div className="relative bg-gradient-to-b from-[#1c1508] to-[#110d05] rounded-3xl p-7 border border-[#ffc800]/18">
-                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5 text-center">Choose your plan</p>
-
-                  {/* Monthly option */}
-                  <div className="bg-[#ffc800]/8 border border-[#ffc800]/30 rounded-2xl p-5 mb-3">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[#ffc800] text-[11px] font-bold uppercase tracking-widest">Monthly</span>
-                    </div>
-                    <div className="flex items-end gap-1 mb-4">
-                      <span className="text-white/50 text-base font-bold self-start mt-1">A$</span>
-                      <span className="text-5xl font-black text-white leading-none">49</span>
-                      <span className="text-white/50 text-sm font-medium self-end mb-0.5">/mo</span>
-                    </div>
-                    <button
-                      onClick={handleEmergencyJoin}
-                      disabled={checkoutMutation.isPending}
-                      className="w-full h-10 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
-                    >
-                      {checkoutMutation.isPending ? "Loading…" : "Get protected"}
-                      {!checkoutMutation.isPending && <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
-                    </button>
-                  </div>
-
-                  {/* Annual option */}
-                  <div className="bg-white/4 border border-white/10 rounded-2xl p-5 relative mb-5">
-                    <span className="absolute -top-2.5 right-4 bg-[#ffc800] text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Save 10%</span>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-white/40 text-[11px] font-bold uppercase tracking-widest">Annual</span>
-                      <span className="text-white/25 text-[10px]">Coming soon</span>
-                    </div>
-                    <div className="flex items-end gap-1">
-                      <span className="text-white/35 text-base font-bold self-start mt-1">A$</span>
-                      <span className="text-5xl font-black text-white/40 leading-none">529</span>
-                      <span className="text-white/35 text-sm font-medium self-end mb-0.5">/yr</span>
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-white/25 text-center leading-snug">
-                    Eligible emergencies only · fair use and exclusions apply
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
+            </div>
+            <Link href="/emergency">
+              <button className="shrink-0 inline-flex items-center gap-2 h-10 px-5 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
+                Learn more <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -522,258 +398,37 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Emergency 24/7 Membership ─── */}
+      {/* ─── Fixit 24/7 Plus CTA ─── */}
       <section id="emergency-membership" className="py-20 bg-[#0b0904] text-white">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-          <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Homeowner Membership</span>
-            <h2 className="text-3xl sm:text-4xl font-black mt-3">One membership for emergencies — whether in or out of home</h2>
-            <p className="text-white/45 mt-3 text-[15px] max-w-lg mx-auto">Giving you peace of mind and security when life's worst-timed problems hit.</p>
-          </div>
-
-          {/* Main card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="relative rounded-3xl mb-6"
+            className="relative rounded-3xl"
           >
-            <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/40 to-[#ffc800]/10" aria-hidden="true" />
-            <div className="relative bg-[#130f07] rounded-3xl p-8 border border-[#ffc800]/20">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-[#ffc800] text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                  Homeowners Only
-                </span>
+            <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/35 to-[#ffc800]/8" aria-hidden="true" />
+            <div className="relative bg-[#130f07] rounded-3xl p-10 border border-[#ffc800]/18 text-center">
+              <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold mb-6">
+                <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+                Fixit 24/7 Plus
               </div>
-
-              <div className="flex flex-col lg:flex-row gap-8 pt-2">
-                {/* Pricing + CTA column */}
-                <div className="lg:w-72 flex-shrink-0">
-                  <p className="text-white/40 text-sm font-medium mb-4">Choose your plan</p>
-
-                  {/* Monthly */}
-                  <div className="bg-[#ffc800]/8 border border-[#ffc800]/30 rounded-2xl p-4 mb-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#ffc800] text-[11px] font-bold uppercase tracking-widest">Monthly</span>
-                    </div>
-                    <div className="flex items-end gap-1 mb-3">
-                      <span className="text-white/50 text-base font-bold self-start mt-1">A$</span>
-                      <span className="text-4xl font-black text-white leading-none">49</span>
-                      <span className="text-white/50 text-sm font-medium self-end mb-0.5">/mo</span>
-                    </div>
-                    <button
-                      onClick={handleEmergencyJoin}
-                      disabled={checkoutMutation.isPending}
-                      className="w-full h-10 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
-                    >
-                      {checkoutMutation.isPending ? "Loading…" : "Get protected"}
-                      {!checkoutMutation.isPending && <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />}
-                    </button>
-                  </div>
-
-                  {/* Annual */}
-                  <div className="bg-white/4 border border-white/10 rounded-2xl p-4 relative mb-5">
-                    <span className="absolute -top-2.5 right-3 bg-[#ffc800] text-black text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Save 10%</span>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-white/40 text-[11px] font-bold uppercase tracking-widest">Annual</span>
-                      <span className="text-white/25 text-[10px]">Coming soon</span>
-                    </div>
-                    <div className="flex items-end gap-1">
-                      <span className="text-white/35 text-base font-bold self-start mt-1">A$</span>
-                      <span className="text-4xl font-black text-white/40 leading-none">529</span>
-                      <span className="text-white/35 text-sm font-medium self-end mb-0.5">/yr</span>
-                    </div>
-                  </div>
-
-                  <ul className="flex flex-col gap-2.5 mb-4" role="list">
-                    {[
-                      "24/7 access to trusted tradies",
-                      "Priority dispatch — we find help fast",
-                      "In or out of home — one membership",
-                      "Member‑only rates on extra work",
-                    ].map((perk) => (
-                      <li key={perk} className="flex items-start gap-2.5 text-[13px] text-white/75">
-                        <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" />
-                        {perk}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <p className="text-[11px] text-white/30">
-                    Eligible emergencies only · fair use applies
-                  </p>
-                </div>
-
-                {/* Body copy */}
-                <div className="flex-1 text-white/60 text-[14px] leading-relaxed space-y-3">
-                  <p>
-                    Whether you're at home or out and about — a burst pipe flooding the hallway, no power on a freezing night, locked out late, or stranded with a car that won't start — emergencies don't wait for a convenient moment.
-                  </p>
-                  <p>
-                    Fixit Emergency 24/7 is <span className="text-white/85 font-semibold">one membership that covers you wherever you are</span>, turning those <span className="text-white/85 font-semibold">"how much is this going to cost me?"</span> moments into <span className="text-white/85 font-semibold">"it's sorted — just tap the app."</span>
-                  </p>
-                  <p className="text-white/40 text-xs italic border-l-2 border-[#ffc800]/30 pl-3">
-                    One membership. Home emergencies and car breakdowns covered. <strong className="text-white/60 not-italic">Peace of mind and security — in or out of home.</strong>
-                  </p>
-                </div>
+              <h2 className="text-3xl sm:text-4xl font-black mb-4 leading-tight">
+                Wherever life happens,<br />you're covered.
+              </h2>
+              <p className="text-white/50 text-[15px] leading-relaxed max-w-xl mx-auto mb-8">
+                At home or on the road — one membership dispatches trusted help, 24/7. From burst pipes to car breakdowns, real tradies are ready when you need them most.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/emergency">
+                  <button className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
+                    Learn about Fixit 24/7 Plus <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </Link>
               </div>
+              <p className="text-white/25 text-xs mt-6">A$49/mo · 12-month membership · billed monthly · eligible emergencies only</p>
             </div>
-          </motion.div>
-
-          {/* What's covered / What's not covered accordions */}
-          <div className="flex flex-col gap-2 mb-6">
-            {/* What's covered */}
-            <div className="border border-white/8 rounded-2xl overflow-hidden bg-white/3">
-              <button
-                onClick={() => setCoveredOpen(!coveredOpen)}
-                className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
-                aria-expanded={coveredOpen}
-              >
-                <span className="font-semibold text-white text-[15px]">What we treat as an emergency</span>
-                <ChevronDown
-                  className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${coveredOpen ? "rotate-180" : ""}`}
-                  aria-hidden="true"
-                />
-              </button>
-              <AnimatePresence initial={false}>
-                {coveredOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.22, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 pb-5 text-white/55 text-sm leading-relaxed space-y-4">
-                      <p>Your membership is for situations that affect <strong className="text-white/75">safety, security or essential services</strong> at home. We'll organise an emergency tradie for:</p>
-                      <div className="space-y-3">
-                        {[
-                          {
-                            title: "Plumbing",
-                            items: [
-                              "Burst pipes or serious leaks causing internal damage.",
-                              "Blocked toilet, drain or sewer with overflow or no usable toilet in the home.",
-                              "Fixtures that will not stop running and cannot be isolated.",
-                            ],
-                          },
-                          {
-                            title: "Electrical",
-                            items: [
-                              "Loss of power to your home that is not a wider network outage.",
-                              "Dangerous faults: sparking outlets, burning smells, tripping switchboard or exposed live wiring.",
-                            ],
-                          },
-                          {
-                            title: "Locksmith & security",
-                            items: [
-                              "Locked out of your home and unable to gain entry.",
-                              "Broken or jammed external door locks that stop you securing the property.",
-                              "Broken external door or window leaving the home insecure (make‑safe only).",
-                            ],
-                          },
-                          {
-                            title: "Gas & hot water",
-                            items: [
-                              "Suspected gas leak inside or immediately around the home.",
-                              "Complete failure of your main hot water system (no hot water at all).",
-                            ],
-                          },
-                          {
-                            title: "Roof & storm",
-                            items: [
-                              "Sudden roof or gutter damage causing water to enter the home (temporary make‑safe, for example tarping).",
-                            ],
-                          },
-                        ].map((cat) => (
-                          <div key={cat.title}>
-                            <p className="font-semibold text-white/75 mb-1">{cat.title}</p>
-                            <ul className="space-y-1">
-                              {cat.items.map((item) => (
-                                <li key={item} className="flex items-start gap-2">
-                                  <span className="text-[#ffc800] mt-0.5 shrink-0">–</span>
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* What's not covered */}
-            <div className="border border-white/8 rounded-2xl overflow-hidden bg-white/3">
-              <button
-                onClick={() => setNotCoveredOpen(!notCoveredOpen)}
-                className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
-                aria-expanded={notCoveredOpen}
-              >
-                <span className="font-semibold text-white text-[15px]">What's not included</span>
-                <ChevronDown
-                  className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${notCoveredOpen ? "rotate-180" : ""}`}
-                  aria-hidden="true"
-                />
-              </button>
-              <AnimatePresence initial={false}>
-                {notCoveredOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.22, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 pb-5 text-white/55 text-sm leading-relaxed">
-                      <p className="mb-3">To keep the service fair and sustainable for everyone, Fixit Emergency 24/7 does <strong className="text-white/75">not</strong> cover:</p>
-                      <ul className="space-y-2">
-                        {[
-                          "Non‑urgent or cosmetic issues (dripping taps, painting, minor cracks, routine upgrades).",
-                          "Full system upgrades or major projects (full roof replacement, full switchboard upgrade, full bathroom/kitchen renovations).",
-                          "Pre‑existing or long‑standing problems that were there before you joined.",
-                          "Area‑wide power outages that sit with your energy provider.",
-                          "Any costs beyond the included cover amount — you can still approve and pay extra through the app.",
-                        ].map((item) => (
-                          <li key={item} className="flex items-start gap-2">
-                            <span className="text-white/30 mt-0.5 shrink-0">–</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="mt-3 text-white/40 italic">Those jobs can still be booked through Fixit 24/7 as normal paid jobs, just not as part of the membership cover.</p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          {/* Key details */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white/3 border border-white/8 rounded-2xl p-5"
-          >
-            <p className="font-bold text-white text-sm mb-3">Key details</p>
-            <ul className="space-y-2 text-white/50 text-[13px] leading-relaxed">
-              {[
-                "$49/month billed monthly, or $529/year billed annually (save 10%).",
-                "12-month membership — home emergencies and car breakdown support included.",
-                "Cover applies whether you are at home or out — one membership for all eligible emergencies.",
-                "If more time or parts are needed, the tradie will show a quote first — you choose whether to proceed and pay the extra in the app.",
-                "Emergencies must be sudden and unforeseen. Long‑term issues and known faults are excluded.",
-                "A short waiting period (72 hours) applies from when you first join before you can request an emergency.",
-              ].map((detail) => (
-                <li key={detail} className="flex items-start gap-2">
-                  <span className="text-[#ffc800]/50 mt-0.5 shrink-0">–</span>
-                  {detail}
-                </li>
-              ))}
-            </ul>
           </motion.div>
         </div>
       </section>

@@ -24,6 +24,8 @@ import type {
   AdminListUsersParams,
   AdminUpdateUserBody,
   AuthResponse,
+  CancelEmergencyMembership422,
+  CancelEmergencyMembershipBody,
   Category,
   Claim,
   Conversation,
@@ -3594,6 +3596,7 @@ export const getCancelEmergencyMembershipUrl = () => {
 };
 
 export const cancelEmergencyMembership = async (
+  cancelEmergencyMembershipBody?: CancelEmergencyMembershipBody,
   options?: RequestInit,
 ): Promise<EmergencyCancelResponse> => {
   return customFetch<EmergencyCancelResponse>(
@@ -3601,25 +3604,27 @@ export const cancelEmergencyMembership = async (
     {
       ...options,
       method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(cancelEmergencyMembershipBody),
     },
   );
 };
 
 export const getCancelEmergencyMembershipMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = ErrorType<CancelEmergencyMembership422>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof cancelEmergencyMembership>>,
     TError,
-    void,
+    { data: BodyType<CancelEmergencyMembershipBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof cancelEmergencyMembership>>,
   TError,
-  void,
+  { data: BodyType<CancelEmergencyMembershipBody> },
   TContext
 > => {
   const mutationKey = ["cancelEmergencyMembership"];
@@ -3633,9 +3638,11 @@ export const getCancelEmergencyMembershipMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof cancelEmergencyMembership>>,
-    void
-  > = () => {
-    return cancelEmergencyMembership(requestOptions);
+    { data: BodyType<CancelEmergencyMembershipBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return cancelEmergencyMembership(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -3644,27 +3651,29 @@ export const getCancelEmergencyMembershipMutationOptions = <
 export type CancelEmergencyMembershipMutationResult = NonNullable<
   Awaited<ReturnType<typeof cancelEmergencyMembership>>
 >;
-
-export type CancelEmergencyMembershipMutationError = ErrorType<unknown>;
+export type CancelEmergencyMembershipMutationBody =
+  BodyType<CancelEmergencyMembershipBody>;
+export type CancelEmergencyMembershipMutationError =
+  ErrorType<CancelEmergencyMembership422>;
 
 /**
  * @summary Cancel emergency membership at end of current billing period
  */
 export const useCancelEmergencyMembership = <
-  TError = ErrorType<unknown>,
+  TError = ErrorType<CancelEmergencyMembership422>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof cancelEmergencyMembership>>,
     TError,
-    void,
+    { data: BodyType<CancelEmergencyMembershipBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof cancelEmergencyMembership>>,
   TError,
-  void,
+  { data: BodyType<CancelEmergencyMembershipBody> },
   TContext
 > => {
   return useMutation(getCancelEmergencyMembershipMutationOptions(options));

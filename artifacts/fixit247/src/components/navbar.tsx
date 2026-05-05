@@ -20,14 +20,14 @@ import { useNavHistory } from "@/hooks/use-nav-history";
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
-  { label: "Fixit 24/7 Emergency", href: "/emergency", highlight: true },
+  { label: "Fixit 24/7 Plus", href: "/emergency", highlight: true },
   { label: "About", href: "/about" },
   { label: "Partner with us", href: "/partner" },
 ];
 
 // Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
 const DESKTOP_NAV_LABELS: Record<string, string> = {
-  "/emergency": "Emergency",
+  "/emergency": "Plus",
 };
 
 function publicNavCls(href: string, location: string) {

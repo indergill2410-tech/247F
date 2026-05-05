@@ -507,6 +507,8 @@ export interface EmergencyMembershipStatus {
   callsUsed: number;
   callsRemaining: number;
   cancelAtPeriodEnd: boolean;
+  /** True if the membership is within the 6-month early-cancellation window */
+  withinCommitmentPeriod?: boolean;
 }
 
 export interface EmergencyCheckoutResponse {
@@ -564,4 +566,16 @@ export type AdminListJobsParams = {
 
 export type VerifyEmergencySessionBody = {
   sessionId: string;
+};
+
+export type CancelEmergencyMembershipBody = {
+  /** Must be true when cancelling within the 6-month commitment period */
+  acknowledgedEarlyFee?: boolean;
+};
+
+export type CancelEmergencyMembership422 = {
+  error?: string;
+  message?: string;
+  withinCommitmentPeriod?: boolean;
+  earlyFeeAmount?: number;
 };

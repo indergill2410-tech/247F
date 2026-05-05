@@ -931,6 +931,16 @@ paths:
       summary: Cancel emergency membership at end of current billing period
       security:
         - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acknowledgedEarlyFee:
+                  type: boolean
+                  description: Must be true when cancelling within the 6-month commitment period
       responses:
         "200":
           description: Cancellation scheduled
@@ -938,6 +948,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EmergencyCancelResponse"
+        "422":
+          description: Within commitment period — acknowledgment required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+                  withinCommitmentPeriod:
+                    type: boolean
+                  earlyFeeAmount:
+                    type: number
 
 components:
   schemas:
@@ -1938,6 +1963,9 @@ components:
           type: integer
         cancelAtPeriodEnd:
           type: boolean
+        withinCommitmentPeriod:
+          type: boolean
+          description: True if the membership is within the 6-month early-cancellation window
       required: [active, callsUsed, callsRemaining, cancelAtPeriodEnd]
 
     EmergencyCheckoutResponse:

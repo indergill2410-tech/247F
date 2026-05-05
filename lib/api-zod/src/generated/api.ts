@@ -1103,6 +1103,12 @@ export const GetEmergencyMembershipStatusResponse = zod.object({
   callsUsed: zod.number(),
   callsRemaining: zod.number(),
   cancelAtPeriodEnd: zod.boolean(),
+  withinCommitmentPeriod: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True if the membership is within the 6-month early-cancellation window",
+    ),
 });
 
 /**
@@ -1133,6 +1139,15 @@ export const VerifyEmergencySessionResponse = zod.object({
 /**
  * @summary Cancel emergency membership at end of current billing period
  */
+export const CancelEmergencyMembershipBody = zod.object({
+  acknowledgedEarlyFee: zod
+    .boolean()
+    .optional()
+    .describe(
+      "Must be true when cancelling within the 6-month commitment period",
+    ),
+});
+
 export const CancelEmergencyMembershipResponse = zod.object({
   success: zod.boolean(),
   message: zod.string(),

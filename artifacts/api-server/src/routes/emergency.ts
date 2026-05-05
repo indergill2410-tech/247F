@@ -38,6 +38,10 @@ router.get("/emergency/status", requireAuth, async (req, res): Promise<void> => 
     const callsUsed = status.emergencyCallsUsedThisYear;
     const callsRemaining = Math.max(0, EMERGENCY_MAX_CALLOUTS - callsUsed);
 
+    const withinCommitmentPeriod =
+      status.emergencyMembershipStartedAt != null &&
+      Date.now() - status.emergencyMembershipStartedAt.getTime() < SIX_MONTHS_MS;
+
     res.json({
       active: status.emergencyMembershipActive,
       plan: status.emergencyMembershipPlan ?? null,
@@ -47,6 +51,7 @@ router.get("/emergency/status", requireAuth, async (req, res): Promise<void> => 
       callsUsed,
       callsRemaining,
       cancelAtPeriodEnd: status.emergencySubCancelAt,
+      withinCommitmentPeriod,
     });
   } catch (err) {
     logger.error({ err }, "Failed to get emergency membership status");
@@ -204,6 +209,9 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
   }
 });
 
+const SIX_MONTHS_MS = 6 * 30 * 24 * 60 * 60 * 1000;
+const EARLY_CANCELLATION_FEE = 200;
+
 // POST /api/emergency/cancel
 router.post("/emergency/cancel", requireAuth, async (req, res): Promise<void> => {
   const user = req.user!;
@@ -212,10 +220,27 @@ router.post("/emergency/cancel", requireAuth, async (req, res): Promise<void> =>
     return;
   }
 
+  const { acknowledgedEarlyFee } = req.body as { acknowledgedEarlyFee?: boolean };
+
   try {
     const status = await getEmergencyMembershipStatus(user.userId);
     if (!status?.emergencySubId || !status.emergencyMembershipActive) {
       res.status(404).json({ error: "not_found", message: "No active emergency membership found" });
+      return;
+    }
+
+    // Check 6-month commitment period
+    const withinCommitmentPeriod =
+      status.emergencyMembershipStartedAt != null &&
+      Date.now() - status.emergencyMembershipStartedAt.getTime() < SIX_MONTHS_MS;
+
+    if (withinCommitmentPeriod && !acknowledgedEarlyFee) {
+      res.status(422).json({
+        error: "early_cancellation",
+        message: "Cancelling within the 12-month commitment period may incur an early cancellation fee. Please acknowledge to proceed.",
+        withinCommitmentPeriod: true,
+        earlyFeeAmount: EARLY_CANCELLATION_FEE,
+      });
       return;
     }
 

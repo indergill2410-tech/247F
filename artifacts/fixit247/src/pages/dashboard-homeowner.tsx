@@ -98,6 +98,7 @@ function EmergencyMembershipWidget() {
   const params = new URLSearchParams(searchString);
   const emergencyParam = params.get("emergency");
   const sessionId = params.get("session_id");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const { data: membership, isLoading, refetch } = useGetEmergencyMembershipStatus();
   const checkoutMutation = useCreateEmergencyCheckout({
@@ -114,7 +115,7 @@ function EmergencyMembershipWidget() {
   const verifyMutation = useVerifyEmergencySession({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Emergency 24/7 activated!", description: "You now have priority dispatch and guaranteed 30-min response." });
+        toast({ title: "Fixit 24/7 Plus activated!", description: "You now have priority dispatch and 24/7 emergency cover." });
         refetch();
         window.history.replaceState({}, "", window.location.pathname);
       },
@@ -129,11 +130,13 @@ function EmergencyMembershipWidget() {
     mutation: {
       onSuccess: (data) => {
         const end = data.subEnd ? new Date(data.subEnd).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }) : "";
-        toast({ title: "Membership cancellation scheduled", description: `Your Emergency 24/7 access continues until ${end}.` });
+        toast({ title: "Membership cancellation scheduled", description: `Your Fixit 24/7 Plus access continues until ${end}.` });
+        setShowCancelModal(false);
         refetch();
       },
       onError: () => {
         toast({ title: "Error", description: "Could not cancel membership. Please try again.", variant: "destructive" });
+        setShowCancelModal(false);
       },
     },
   });
@@ -158,6 +161,7 @@ function EmergencyMembershipWidget() {
 
   if (membership.active) {
     return (
+      <>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -173,7 +177,7 @@ function EmergencyMembershipWidget() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-bold text-white">Emergency 24/7 Member</span>
+              <span className="text-sm font-bold text-white">Fixit 24/7 Plus Member</span>
               {membership.cancelAtPeriodEnd ? (
                 <span className="text-[10px] font-bold bg-orange-500/15 text-orange-400 px-2 py-0.5 rounded-md border border-orange-500/20">
                   Cancels {renewalDateStr}
@@ -197,11 +201,7 @@ function EmergencyMembershipWidget() {
         </div>
         {!membership.cancelAtPeriodEnd && (
           <button
-            onClick={() => {
-              if (window.confirm("Cancel your Emergency 24/7 membership? You'll keep access until the end of the billing period.")) {
-                cancelMutation.mutate();
-              }
-            }}
+            onClick={() => setShowCancelModal(true)}
             disabled={cancelMutation.isPending}
             className="flex-shrink-0 h-8 px-3 rounded-lg text-xs font-semibold text-white/40 hover:text-white/70 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-50 flex items-center gap-1"
           >
@@ -209,36 +209,58 @@ function EmergencyMembershipWidget() {
           </button>
         )}
       </motion.div>
-    );
-  }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-r from-[#ffc800]/8 to-[#130f07] border border-[#ffc800]/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
-    >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-10 h-10 rounded-xl bg-[#ffc800]/12 border border-[#ffc800]/15 flex items-center justify-center flex-shrink-0">
-          <Zap className="h-5 w-5 text-[#ffc800]" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-white">Unlock Emergency 24/7 Priority</p>
-          <p className="text-xs text-white/40 mt-0.5">
-            Guaranteed 30-min response · 24/7 dispatch · Jump the queue — $49/mo
-          </p>
-        </div>
-      </div>
-      <button
-        onClick={() => checkoutMutation.mutate()}
-        disabled={checkoutMutation.isPending}
-        className="flex-shrink-0 h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors disabled:opacity-60 inline-flex items-center gap-1.5"
-      >
-        <Zap className="h-3.5 w-3.5" />
-        {checkoutMutation.isPending ? "Loading..." : "Subscribe — $49/mo"}
-      </button>
-    </motion.div>
+      {/* Cancel confirmation modal */}
+      <AnimatePresence>
+        {showCancelModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowCancelModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ duration: 0.2 }}
+              className="bg-[#17120a] border border-white/12 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-base font-bold text-white mb-2">Cancel Fixit 24/7 Plus?</h3>
+              <p className="text-sm text-white/55 leading-relaxed mb-4">
+                Your membership will remain active until{" "}
+                <span className="text-white/80 font-semibold">{renewalDateStr ?? "the end of this billing period"}</span>.
+                {" "}Early cancellation terms apply — see your{" "}
+                <a href="/membership-agreement" className="text-[#ffc800]/70 hover:text-[#ffc800] underline underline-offset-2">
+                  Membership Agreement
+                </a>{" "}for details.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  className="flex-1 h-9 rounded-xl text-sm font-semibold text-white/60 border border-white/12 hover:border-white/25 hover:text-white/80 transition-colors"
+                >
+                  Keep membership
+                </button>
+                <button
+                  onClick={() => cancelMutation.mutate({ data: { acknowledgedEarlyFee: true } })}
+                  disabled={cancelMutation.isPending}
+                  className="flex-1 h-9 rounded-xl text-sm font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/8 transition-colors disabled:opacity-50"
+                >
+                  {cancelMutation.isPending ? "Cancelling…" : "Confirm cancellation"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
+}
+
+  return null;
 }
 
 export default function HomeownerDashboard() {
