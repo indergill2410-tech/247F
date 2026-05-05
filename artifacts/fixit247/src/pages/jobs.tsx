@@ -151,7 +151,7 @@ export default function JobsPage() {
                     : "text-white/45 hover:text-white/70"
                 }`}
               >
-                {f === "my_trades" ? "⚡ My Trades" : "🌐 All Nearby Jobs"}
+                {f === "my_trades" ? "My trades" : "All nearby jobs"}
               </button>
             ))}
           </div>

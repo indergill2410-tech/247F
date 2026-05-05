@@ -5,7 +5,6 @@ import {
   usersTable,
   categoriesTable,
   claimsTable,
-  tradieSkillsTable,
   reviewsTable,
 } from "@workspace/db";
 import { eq, and, sql, count, desc, asc } from "drizzle-orm";
@@ -108,8 +107,8 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
     conditions.push(eq(jobsTable.homeownerId, user.userId));
   }
 
-  // Tradie "My trades" filter — limit to jobs whose category name matches the tradie's primary/secondary trades
-  if (user.role === "tradie" && query.filter === "my_trades") {
+  // Tradie "My trades" filter — default for tradies; only skipped when filter=all is explicit
+  if (user.role === "tradie" && query.filter !== "all") {
     const [tradie] = await db
       .select({ primaryTrade: usersTable.primaryTrade, secondaryTrades: usersTable.secondaryTrades })
       .from(usersTable)
