@@ -40,14 +40,16 @@ const queryClient = new QueryClient({
 
 function ProtectedRoute({ component: Component, roles }: { component: React.ComponentType; roles?: string[] }) {
   const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated) return <Redirect to="/login" />;
+  const [location] = useLocation();
+  if (!isAuthenticated) return <Redirect to={`/login?returnTo=${encodeURIComponent(location)}`} />;
   if (roles && user && !roles.includes(user.role)) return <Redirect to="/" />;
   return <Component />;
 }
 
 function TradieProfileRoute() {
   const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated) return <Redirect to="/login" />;
+  const [location] = useLocation();
+  if (!isAuthenticated) return <Redirect to={`/login?returnTo=${encodeURIComponent(location)}`} />;
   if (user?.role === "admin") return <TradieProfilePage />;
   const dashHref =
     user?.role === "tradie" ? "/dashboard/tradie" : "/dashboard/homeowner";

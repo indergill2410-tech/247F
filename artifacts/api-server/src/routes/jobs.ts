@@ -287,8 +287,10 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  const user = req.user!;
+
   // Get claims for this job
-  const claims = await db
+  const rawClaims = await db
     .select({
       id: claimsTable.id,
       jobId: claimsTable.jobId,
@@ -308,8 +310,29 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     .where(eq(claimsTable.jobId, parsed.data.id))
     .orderBy(desc(claimsTable.createdAt));
 
+  const isJobOwner = user.role === "homeowner" && row.homeownerId === user.userId;
+  const isAdminReq = user.role === "admin";
+
+  let claims: typeof rawClaims & { tradieEmail?: string | null; tradiePhone?: string | null }[] = rawClaims;
+
+  // Enrich accepted claim with contact details for hired jobs (in_progress/completed)
+  if ((isJobOwner || isAdminReq) && ["in_progress", "completed"].includes(row.status)) {
+    const acceptedClaim = rawClaims.find((c) => c.status === "accepted");
+    if (acceptedClaim) {
+      const [tradieContact] = await db
+        .select({ email: usersTable.email, phone: usersTable.phone })
+        .from(usersTable)
+        .where(eq(usersTable.id, acceptedClaim.tradieId));
+      claims = rawClaims.map((c) =>
+        c.id === acceptedClaim.id
+          ? { ...c, tradieEmail: tradieContact?.email ?? null, tradiePhone: tradieContact?.phone ?? null }
+          : c
+      );
+    }
+  }
+
   res.status(200).json({
-    ...buildJobResponse({ ...row, claimCount: claims.length }),
+    ...buildJobResponse({ ...row, claimCount: rawClaims.length }),
     claims,
   });
 });
@@ -418,7 +441,7 @@ router.get("/jobs/:jobId/tradie-trust-card", requireAuth, async (req, res): Prom
   const [tradie] = await db.select().from(usersTable).where(eq(usersTable.id, activeClaim.tradieId));
   if (!tradie) { res.status(404).json({ error: "not_found" }); return; }
 
-  const recentReviews = await db
+  const rawReviews = await db
     .select({
       id: reviewsTable.id,
       jobId: reviewsTable.jobId,
@@ -435,6 +458,15 @@ router.get("/jobs/:jobId/tradie-trust-card", requireAuth, async (req, res): Prom
     .where(eq(reviewsTable.revieweeId, tradie.id))
     .orderBy(desc(reviewsTable.createdAt))
     .limit(3);
+
+  const recentReviews = rawReviews.map((rev) => {
+    const parts = (rev.reviewerName ?? "").trim().split(/\s+/);
+    const maskedName =
+      parts.length > 1
+        ? `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`
+        : (parts[0] || "Anonymous");
+    return { ...rev, reviewerName: maskedName, reviewerAvatarUrl: null };
+  });
 
   const nameParts = tradie.name.trim().split(/\s+/);
   const firstName = nameParts[0] ?? "";

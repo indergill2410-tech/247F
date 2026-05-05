@@ -211,7 +211,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20">Trust Card</span>
-                  <span className="text-xs text-white/40">Visible to homeowners who've received your quote</span>
+                  <span className="text-xs text-white/40">Visible on your Trust Card — shown to homeowners before they hire you</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/8 text-white/35 border border-white/10">After hire</span>
