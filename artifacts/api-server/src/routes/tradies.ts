@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, tradieSkillsTable, categoriesTable, reviewsTable } from "@workspace/db";
+import { usersTable, tradieSkillsTable, categoriesTable, reviewsTable, claimsTable, jobsTable } from "@workspace/db";
 import { eq, and, ilike, or, sql, desc, count } from "drizzle-orm";
 import { logger } from "../lib/logger.js";
 import { requireAuth } from "../middlewares/require-auth.js";
@@ -108,10 +108,12 @@ router.get("/tradies", async (req, res): Promise<void> => {
   }
 });
 
-// GET /api/tradies/:id/full-profile — admin only, returns email + phone + full trade info
+// GET /api/tradies/:id/full-profile — admin always; homeowner if they hired this tradie
 router.get("/tradies/:id/full-profile", requireAuth, async (req, res): Promise<void> => {
-  if (req.user!.role !== "admin") {
-    res.status(403).json({ error: "forbidden", message: "Admin access required" });
+  const user = req.user!;
+
+  if (user.role === "tradie") {
+    res.status(403).json({ error: "forbidden", message: "Tradies cannot view full profiles this way" });
     return;
   }
 
@@ -140,6 +142,28 @@ router.get("/tradies/:id/full-profile", requireAuth, async (req, res): Promise<v
       .where(and(eq(usersTable.id, id), sql`${usersTable.role} = 'tradie'`));
 
     if (!tradie) { res.status(404).json({ error: "not_found", message: "Tradie not found" }); return; }
+
+    // Homeowners must have a job where this tradie's claim is accepted and the job is in_progress or completed
+    if (user.role === "homeowner") {
+      const [hiredRelationship] = await db
+        .select({ claimId: claimsTable.id })
+        .from(claimsTable)
+        .innerJoin(jobsTable, eq(jobsTable.id, claimsTable.jobId))
+        .where(
+          and(
+            eq(claimsTable.tradieId, id),
+            eq(claimsTable.status, "accepted"),
+            eq(jobsTable.homeownerId, user.userId),
+            sql`${jobsTable.status} IN ('in_progress', 'completed')`
+          )
+        )
+        .limit(1);
+
+      if (!hiredRelationship) {
+        res.status(403).json({ error: "forbidden", message: "Full profile is only available after hiring this tradie" });
+        return;
+      }
+    }
 
     const categories = await db
       .select({ id: categoriesTable.id, name: categoriesTable.name, icon: categoriesTable.icon })

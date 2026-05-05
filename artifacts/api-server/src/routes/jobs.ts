@@ -436,9 +436,15 @@ router.get("/jobs/:jobId/tradie-trust-card", requireAuth, async (req, res): Prom
     .orderBy(desc(reviewsTable.createdAt))
     .limit(3);
 
+  const nameParts = tradie.name.trim().split(/\s+/);
+  const firstName = nameParts[0] ?? "";
+  const lastInitial =
+    nameParts.length > 1 ? ` ${nameParts[nameParts.length - 1][0].toUpperCase()}.` : "";
+  const displayName = `${firstName}${lastInitial}`;
+
   res.json({
     tradieId: tradie.id,
-    displayName: tradie.name,
+    displayName,
     avatarUrl: tradie.avatarUrl,
     primaryTrade: tradie.primaryTrade,
     secondaryTrades: tradie.secondaryTrades ?? [],

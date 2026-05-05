@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star,
   ChevronLeft, CheckCircle, XCircle, AlertTriangle, MessageCircle,
-  ThumbsUp, Award, User, ShieldCheck,
+  ThumbsUp, Award, User, ShieldCheck, Mail, Phone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -507,8 +507,8 @@ export default function JobDetailPage() {
           </div>
         )}
 
-        {/* ── TRADIE TRUST CARD (homeowner view, accepted claim) ── */}
-        {(isOwner || isAdmin) && trustCard && (
+        {/* ── TRADIE TRUST CARD (homeowner view — open/matched) ── */}
+        {(isOwner || isAdmin) && trustCard && ["open", "matched"].includes(job.status) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -516,7 +516,7 @@ export default function JobDetailPage() {
           >
             <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
-              <h2 className="font-bold text-[#ffc800]">Accepted Tradie</h2>
+              <h2 className="font-bold text-[#ffc800]">Responding Tradie</h2>
               {trustCard.isVerified && (
                 <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" /> Verified
@@ -595,6 +595,80 @@ export default function JobDetailPage() {
                   </div>
                 </div>
               )}
+
+              {/* Privacy message strip */}
+              {isOwner && (
+                <div className="bg-white/3 border border-white/8 rounded-xl px-4 py-3 flex items-start gap-2.5">
+                  <ShieldCheck className="h-4 w-4 text-white/30 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-white/40 leading-relaxed">
+                    You'll see <span className="text-white/60 font-semibold">{trustCard.displayName}'s</span> full contact details and business information once you accept their quote.
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── HIRED TRADIE FULL DETAILS (homeowner view — in_progress/completed) ── */}
+        {isOwner && acceptedClaim && ["in_progress", "completed"].includes(job.status) && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#130f07] border border-emerald-500/20 rounded-2xl overflow-hidden"
+          >
+            <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              <h2 className="font-bold text-white">Your Hired Tradie</h2>
+              <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                Full Details Unlocked
+              </span>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-400 font-black text-xl flex items-center justify-center flex-shrink-0">
+                  {initials(acceptedClaim.tradieName)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-white text-lg">{acceptedClaim.tradieName ?? "Tradie"}</p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2">
+                    {acceptedClaim.tradieRating != null && (
+                      <span className="flex items-center gap-1.5 text-xs text-white/50">
+                        <StarDisplay rating={acceptedClaim.tradieRating} />
+                        <span className="text-[#ffc800] font-semibold">{acceptedClaim.tradieRating.toFixed(1)}</span>
+                      </span>
+                    )}
+                    {acceptedClaim.tradieSuburb && (
+                      <span className="flex items-center gap-1 text-xs text-white/50">
+                        <MapPin className="h-3 w-3" />{acceptedClaim.tradieSuburb}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {(acceptedClaim as { tradieEmail?: string | null }).tradieEmail && (
+                  <a
+                    href={`mailto:${(acceptedClaim as { tradieEmail?: string | null }).tradieEmail}`}
+                    className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    <Mail className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    {(acceptedClaim as { tradieEmail?: string | null }).tradieEmail}
+                  </a>
+                )}
+                {(acceptedClaim as { tradiePhone?: string | null }).tradiePhone && (
+                  <a
+                    href={`tel:${(acceptedClaim as { tradiePhone?: string | null }).tradiePhone}`}
+                    className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    <Phone className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    {(acceptedClaim as { tradiePhone?: string | null }).tradiePhone}
+                  </a>
+                )}
+                {!(acceptedClaim as { tradieEmail?: string | null }).tradieEmail && !(acceptedClaim as { tradiePhone?: string | null }).tradiePhone && (
+                  <p className="text-sm text-white/30 col-span-2">Contact details not available yet. Message the tradie directly.</p>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

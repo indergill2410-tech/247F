@@ -204,13 +204,30 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Privacy legend (tradie only) */}
+          {isTradie && (
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl px-5 py-4 space-y-2.5">
+              <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Privacy guide</p>
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20">Trust Card</span>
+                  <span className="text-xs text-white/40">Visible to homeowners who've received your quote</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/8 text-white/35 border border-white/10">After hire</span>
+                  <span className="text-xs text-white/40">Visible only after a homeowner hires you</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Personal */}
           <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
             <div className="flex items-start justify-between gap-3">
               <h2 className="font-bold text-white">Personal Information</h2>
               {isTradie && (
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-white/8 text-white/40 border border-white/8 flex-shrink-0">
-                  Private
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-white/8 text-white/40 border border-white/10 flex-shrink-0">
+                  After hire
                 </span>
               )}
             </div>
@@ -234,8 +251,8 @@ export default function ProfilePage() {
             <div className="flex items-start justify-between gap-3">
               <h2 className="font-bold text-white">Location</h2>
               {isTradie && (
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
-                  Public
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                  Trust Card
                 </span>
               )}
             </div>
@@ -257,8 +274,8 @@ export default function ProfilePage() {
             <div className="flex items-start justify-between gap-3">
               <h2 className="font-bold text-white">{isTradie ? "Professional Bio" : "About Me"}</h2>
               {isTradie && (
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
-                  Public
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                  Trust Card
                 </span>
               )}
             </div>
@@ -281,10 +298,10 @@ export default function ProfilePage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-bold text-white">Trade Specialisation</h2>
-                  <p className="text-xs text-white/40 mt-1">Shown on your public profile and used to match you to jobs.</p>
+                  <p className="text-xs text-white/40 mt-1">Shown on your Trust Card and used to match you to jobs.</p>
                 </div>
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
-                  Public
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                  Trust Card
                 </span>
               </div>
 
@@ -348,8 +365,8 @@ export default function ProfilePage() {
                   <h2 className="font-bold text-white">Trade Skills</h2>
                   <p className="text-xs text-white/40 mt-1">Select the trades you offer — this helps match you to the right jobs.</p>
                 </div>
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 flex-shrink-0">
-                  Public
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                  Trust Card
                 </span>
               </div>
               {categoriesLoading ? (

@@ -46,9 +46,12 @@ function ProtectedRoute({ component: Component, roles }: { component: React.Comp
 }
 
 function TradieProfileRoute() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Redirect to="/login" />;
-  return <TradieProfilePage />;
+  if (user?.role === "admin") return <TradieProfilePage />;
+  const dashHref =
+    user?.role === "tradie" ? "/dashboard/tradie" : "/dashboard/homeowner";
+  return <Redirect to={dashHref} />;
 }
 
 function RootRoute() {

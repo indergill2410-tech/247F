@@ -1,12 +1,12 @@
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useRoute, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { useGetTradieProfile } from "@workspace/api-client-react";
+import { useGetTradieFullProfile } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ChevronLeft, MapPin, Star, ShieldCheck, MessageSquare, Briefcase, Calendar,
+  ChevronLeft, MapPin, Star, ShieldCheck, Briefcase, Calendar,
   Droplets, Zap, Hammer, Paintbrush, Home, TreePine, Wind, Grid2X2,
-  Layers, Sparkles, Bug, Lock, Wrench,
+  Layers, Sparkles, Bug, Lock, Wrench, Phone, Mail,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -55,10 +55,10 @@ export default function TradieProfilePage() {
   const [, params] = useRoute("/tradies/:id");
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-  const tradieId = params?.id ? parseInt(params.id) : 0;
+  const tradieId = params?.id ? Number(params.id) : 0;
 
-  const { data: tradie, isLoading, isError } = useGetTradieProfile(tradieId, {
-    query: { enabled: !!tradieId, queryKey: ["tradie-profile", tradieId] },
+  const { data: tradie, isLoading, isError } = useGetTradieFullProfile(tradieId, {
+    query: { enabled: !!tradieId && user?.role === "admin", queryKey: ["tradie-full-profile", tradieId] },
   });
 
   if (isLoading) {
@@ -91,8 +91,8 @@ export default function TradieProfilePage() {
       <div className="min-h-screen bg-[#0b0904] flex items-center justify-center">
         <div className="text-center">
           <p className="text-white font-bold text-lg">Tradie not found</p>
-          <button onClick={() => setLocation("/tradies")} className="mt-4 text-[#ffc800] text-sm hover:underline">
-            Back to directory
+          <button onClick={() => setLocation("/dashboard/admin")} className="mt-4 text-[#ffc800] text-sm hover:underline">
+            Back to admin
           </button>
         </div>
       </div>
@@ -107,10 +107,10 @@ export default function TradieProfilePage() {
       <div className="border-b border-white/6 bg-[#0f0c06] py-8">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <button
-            onClick={() => setLocation("/tradies")}
+            onClick={() => setLocation("/dashboard/admin")}
             className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors"
           >
-            <ChevronLeft className="h-4 w-4" /> Back to directory
+            <ChevronLeft className="h-4 w-4" /> Back to admin
           </button>
 
           <div className="flex items-start gap-5 flex-wrap">
@@ -129,6 +129,9 @@ export default function TradieProfilePage() {
                     <ShieldCheck className="h-3.5 w-3.5" /> Verified Tradie
                   </span>
                 )}
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-red-500/10 text-red-400 border border-red-500/15">
+                  Admin View
+                </span>
               </div>
 
               <div className="flex flex-wrap gap-4 mt-2 text-sm text-white/50">
@@ -187,26 +190,14 @@ export default function TradieProfilePage() {
               )}
             </div>
 
-            {/* Contact CTA */}
-            {user && user.role === "homeowner" && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setLocation("/post-job")}
+            {/* Admin quick-contact */}
+            {user?.role === "admin" && tradie.phone && (
+              <a
+                href={`tel:${tradie.phone}`}
                 className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors flex-shrink-0"
               >
-                <Briefcase className="h-4 w-4" /> Post a Job
-              </motion.button>
-            )}
-            {user && user.role === "homeowner" && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setLocation("/messages")}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl border border-white/15 text-white/70 hover:text-white hover:border-white/30 font-semibold text-sm transition-all flex-shrink-0"
-              >
-                <MessageSquare className="h-4 w-4" /> Message
-              </motion.button>
+                <Phone className="h-4 w-4" /> Call Tradie
+              </a>
             )}
           </div>
         </div>
@@ -214,6 +205,32 @@ export default function TradieProfilePage() {
 
       <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+
+          {/* Contact details — full profile (admin only) */}
+          <motion.div variants={item} className="bg-[#130f07] border border-red-500/15 rounded-2xl p-6 space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck className="h-4 w-4 text-red-400" />
+              <h2 className="font-bold text-white">Contact Details</h2>
+              <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/15">
+                Admin only
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-5">
+              <a href={`mailto:${tradie.email}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                <Mail className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                {tradie.email}
+              </a>
+              {tradie.phone && (
+                <a href={`tel:${tradie.phone}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                  <Phone className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                  {tradie.phone}
+                </a>
+              )}
+              {!tradie.phone && (
+                <span className="text-sm text-white/25 italic">No phone number on file</span>
+              )}
+            </div>
+          </motion.div>
 
           {/* Bio */}
           {tradie.bio && (
