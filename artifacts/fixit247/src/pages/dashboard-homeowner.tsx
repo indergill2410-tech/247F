@@ -18,6 +18,7 @@ import {
   Star, MessageSquare, MapPin, User, Users,
   ThumbsUp, ThumbsDown, TrendingUp, Home, AlertCircle, Info, Settings,
   ShieldCheck, Zap, Droplets, Lock, Flame, Wind, Bug, Thermometer, Phone,
+  Car, BatteryFull, Fuel,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -91,15 +92,20 @@ function TradieName({ name }: { name: string | null }) {
   );
 }
 
-const COVERAGE_ITEMS = [
-  { icon: Droplets, label: "Burst pipe" },
-  { icon: Zap,      label: "Power outage" },
-  { icon: Lock,     label: "Lockout" },
-  { icon: Flame,    label: "Gas leak" },
-  { icon: Wind,     label: "Storm damage" },
-  { icon: Flame,    label: "Fire risk" },
+const HOME_COVERAGE = [
+  { icon: Droplets,    label: "Burst pipe" },
+  { icon: Zap,         label: "Power outage" },
+  { icon: Lock,        label: "Lockout" },
+  { icon: Flame,       label: "Gas leak" },
+  { icon: Wind,        label: "Storm damage" },
   { icon: Thermometer, label: "HVAC failure" },
-  { icon: Bug,      label: "Pest emergency" },
+];
+
+const ROAD_COVERAGE = [
+  { icon: Car,        label: "Breakdown" },
+  { icon: Wrench,     label: "Flat tyre" },
+  { icon: BatteryFull, label: "Jump-start" },
+  { icon: Fuel,       label: "Fuel delivery" },
 ];
 
 function EmergencyMembershipWidget() {
@@ -172,29 +178,48 @@ function EmergencyMembershipWidget() {
             <span className="ml-auto text-[10px] font-semibold text-white/25 uppercase tracking-wider">Homeowners only</span>
           </div>
 
-          {/* Urgency headline */}
-          <h3 className="text-xl font-black text-white leading-snug mb-2">
-            What happens at 2 AM when a pipe bursts?
+          {/* Headline — leading USP */}
+          <h3 className="text-xl font-black text-white leading-snug mb-1">
+            Home emergency or car breakdown —{" "}
+            <span className="text-[#ffc800]">one membership covers both.</span>
           </h3>
           <p className="text-sm text-white/50 mb-5 leading-relaxed">
-            One membership puts a trusted tradie at your door — day, night, or weekend. No scrambling, no price gouging.
+            Pipe burst at midnight. Car dead on the highway. One call sorts it — any time, any day.
           </p>
 
-          {/* Benefits grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 mb-6">
-            {[
-              "Burst pipes & plumbing emergencies",
-              "Power outages & electrical faults",
-              "Lockouts & security issues",
-              "Gas leaks & storm damage",
-              "24/7 dispatch, any day of the year",
-              "Priority over standard job queue",
-            ].map((b) => (
-              <div key={b} className="flex items-center gap-2">
-                <CheckCircle className="h-3.5 w-3.5 text-[#ffc800] flex-shrink-0" />
-                <span className="text-xs text-white/60">{b}</span>
+          {/* Two-pillar coverage grid */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            {/* Home pillar */}
+            <div className="bg-white/4 border border-white/6 rounded-xl p-3.5">
+              <div className="flex items-center gap-1.5 mb-2.5">
+                <Home className="h-3.5 w-3.5 text-[#ffc800]" />
+                <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">At Home</span>
               </div>
-            ))}
+              <ul className="space-y-1.5">
+                {["Burst pipes", "Power outages", "Lockouts", "Gas leaks", "Storm damage"].map((i) => (
+                  <li key={i} className="flex items-center gap-1.5">
+                    <CheckCircle className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                    <span className="text-[11px] text-white/55">{i}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Road pillar */}
+            <div className="bg-white/4 border border-white/6 rounded-xl p-3.5">
+              <div className="flex items-center gap-1.5 mb-2.5">
+                <Car className="h-3.5 w-3.5 text-[#ffc800]" />
+                <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">On the Road</span>
+              </div>
+              <ul className="space-y-1.5">
+                {["Car breakdown", "Flat tyres", "Battery jump-start", "Fuel delivery", "Keys locked in"].map((i) => (
+                  <li key={i} className="flex items-center gap-1.5">
+                    <CheckCircle className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                    <span className="text-[11px] text-white/55">{i}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Price anchor + CTA */}
@@ -202,6 +227,7 @@ function EmergencyMembershipWidget() {
             <div className="flex-1">
               <span className="text-3xl font-black text-white">A$49</span>
               <span className="text-sm text-white/40 ml-1">/month</span>
+              <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
             </div>
             <Link href="/emergency">
               <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-sm transition-colors whitespace-nowrap">
@@ -211,8 +237,8 @@ function EmergencyMembershipWidget() {
           </div>
 
           {/* Trust signal */}
-          <p className="text-[11px] text-white/25 mt-3 text-center sm:text-left">
-            6-month minimum commitment · Cancel anytime after that · Homeowners only
+          <p className="text-[11px] text-white/25 mt-3">
+            6-month minimum commitment · Cancel anytime after that
           </p>
         </div>
       </motion.div>
@@ -291,14 +317,35 @@ function EmergencyMembershipWidget() {
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
             >
-              {/* Coverage icon grid */}
-              <div className="grid grid-cols-4 gap-2 mb-4">
-                {COVERAGE_ITEMS.map(({ icon: Icon, label }) => (
-                  <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2.5">
-                    <Icon className="h-4 w-4 text-[#ffc800]" />
-                    <span className="text-[10px] text-white/50 text-center leading-tight">{label}</span>
-                  </div>
-                ))}
+              {/* Home coverage */}
+              <div className="mb-3">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Home className="h-3 w-3 text-white/30" />
+                  <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">At Home</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {HOME_COVERAGE.map(({ icon: Icon, label }) => (
+                    <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2">
+                      <Icon className="h-4 w-4 text-[#ffc800]" />
+                      <span className="text-[10px] text-white/50 text-center leading-tight">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Road coverage */}
+              <div className="mb-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Car className="h-3 w-3 text-white/30" />
+                  <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">On the Road</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {ROAD_COVERAGE.map(({ icon: Icon, label }) => (
+                    <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2">
+                      <Icon className="h-4 w-4 text-[#ffc800]" />
+                      <span className="text-[10px] text-white/50 text-center leading-tight">{label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
               {/* Calls remaining */}
               <div className="flex items-center justify-between bg-white/4 rounded-xl px-4 py-3">
