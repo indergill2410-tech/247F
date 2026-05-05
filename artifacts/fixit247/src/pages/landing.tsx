@@ -416,7 +416,6 @@ export default function LandingPage() {
                   <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
                 </div>
                 <span className="text-xs font-bold text-[#ffc800] uppercase tracking-wider">Fixit 24/7 Plus</span>
-                <span className="ml-auto text-[10px] font-semibold text-white/25 uppercase tracking-wider">Homeowners only</span>
               </div>
 
               {/* Headline */}
