@@ -27,13 +27,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
   lock: ShieldCheck,
 };
 
-const TRADIE_PERKS = [
-  "1111 credits renewed every month, automatically",
-  "Use credits to unlock and pick up local jobs",
-  "Grow revenue without heavy ad spend",
-  "Get in front of homeowners already searching",
-];
-
 
 const HOW_IT_WORKS_HOMEOWNER = [
   {
@@ -229,8 +222,8 @@ export default function LandingPage() {
 
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                Any job, any tradie,<br />
-                <span className="text-[#ffc800]">fixed fast.</span>
+                From a leaky tap<br />
+                <span className="text-[#ffc800]">to a full reno.</span>
               </h1>
             </div>
 
@@ -272,61 +265,21 @@ export default function LandingPage() {
               ))}
             </div>
           </motion.div>
-
-          {/* Right — Tradie card */}
-          <motion.div
-            className="w-full lg:w-[380px] shrink-0"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-              <div className="p-7">
-                {/* Built for tradies eyebrow */}
-                <p className="text-[11px] font-black uppercase tracking-widest text-[#b8920a] mb-3">Built for tradies</p>
-
-                {/* Credits callout badge */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="inline-flex items-center gap-1.5 bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-3 py-1.5 rounded-full">
-                    <Star className="h-3.5 w-3.5" aria-hidden="true" />
-                    1111 credits / month — free
-                  </span>
-                </div>
-
-                <h2 className="text-[21px] font-bold text-gray-900 leading-snug mb-2">
-                  Start picking up jobs and grow your business revenue — join free
-                </h2>
-                <p className="text-sm text-gray-500 mb-5">
-                  Get 1111 free credits every month to unlock jobs and start winning new work.
-                </p>
-
-                <ul className="flex flex-col gap-3 mb-6" role="list">
-                  {TRADIE_PERKS.map((perk) => (
-                    <li key={perk} className="flex items-center gap-3 text-[14px] text-gray-700">
-                      <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" aria-hidden="true" />
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link href="/signup?role=tradie">
-                  <button className="w-full h-12 rounded-xl font-bold text-[15px] text-white bg-[#1a1a1a] hover:bg-[#2d2d2d] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
-                    Join free and start picking up jobs
-                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </Link>
-
-                <Link href="#how-it-works">
-                  <span className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">
-                    See how tradie credits work
-                    <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </span>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
+
+      {/* ─── Tradie nudge band ─── */}
+      <div className="bg-[#0d0b07] border-b border-white/8">
+        <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
+          <span className="text-sm text-white/45">Are you a tradie?</span>
+          <Link href="/partner">
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-white/65 hover:text-[#ffc800] transition-colors cursor-pointer">
+              Get verified jobs in your area
+              <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+          </Link>
+        </div>
+      </div>
 
       {/* ─── Membership Conversion Section ─── */}
       <section className="relative overflow-hidden bg-[#0d0a05] border-y border-[#ffc800]/12 py-16 lg:py-20 text-white" aria-label="Emergency membership offer">

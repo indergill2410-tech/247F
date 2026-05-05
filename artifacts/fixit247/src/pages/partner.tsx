@@ -487,6 +487,64 @@ export default function PartnerPage() {
         </motion.div>
       </section>
 
+      {/* ─── Tradie acquisition card ─── */}
+      <section className="py-14 sm:py-16 bg-[#0b0904] border-b border-white/8">
+        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="bg-white/5 border border-white/10 rounded-2xl p-8 sm:p-10"
+          >
+            <p className="text-[11px] font-black uppercase tracking-widest text-[#ffc800] mb-4">Built for tradies</p>
+
+            <div className="flex items-center gap-2 mb-5">
+              <span className="inline-flex items-center gap-1.5 bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-3 py-1.5 rounded-full">
+                <Star className="h-3.5 w-3.5" aria-hidden="true" />
+                1111 credits / month — free
+              </span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-2">
+              Start picking up jobs and grow your business revenue — join free
+            </h2>
+            <p className="text-white/55 text-[15px] mb-7">
+              Get 1111 free credits every month to unlock jobs and start winning new work.
+            </p>
+
+            <ul className="flex flex-col gap-3 mb-8" role="list">
+              {[
+                "1111 credits renewed every month, automatically",
+                "Use credits to unlock and pick up local jobs",
+                "Grow revenue without heavy ad spend",
+                "Get in front of homeowners already searching",
+              ].map((perk) => (
+                <li key={perk} className="flex items-center gap-3 text-[14px] text-white/75">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" aria-hidden="true" />
+                  {perk}
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a href="/signup?role=tradie">
+                <button className="h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
+                  Join free and start picking up jobs
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </a>
+              <a href="/#how-it-works">
+                <span className="h-12 px-5 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
+                  See how tradie credits work
+                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ─── Scaling pillars ─── */}
       <section className="py-16 sm:py-20 bg-[#0e0c08]">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
