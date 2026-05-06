@@ -62,35 +62,42 @@ app.use(
   }),
 );
 
-// Simple in-memory rate limiter for auth endpoints (10 req/min per IP)
-const _rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of _rateLimitStore.entries()) {
-    if (entry.resetAt < now) _rateLimitStore.delete(key);
-  }
-}, 60_000);
+// In-memory rate limiter factory
+function makeRateLimit(maxRequests: number, windowMs: number) {
+  const store = new Map<string, { count: number; resetAt: number }>();
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of store.entries()) {
+      if (entry.resetAt < now) store.delete(key);
+    }
+  }, windowMs);
 
-export function authRateLimit(req: Request, res: Response, next: NextFunction): void {
-  const ip = ((req.headers["x-forwarded-for"] as string) ?? req.ip ?? "unknown")
-    .split(",")[0]
-    .trim();
-  const now = Date.now();
-  const entry = _rateLimitStore.get(ip);
+  return function rateLimit(req: Request, res: Response, next: NextFunction): void {
+    const ip = ((req.headers["x-forwarded-for"] as string) ?? req.ip ?? "unknown")
+      .split(",")[0]
+      .trim();
+    const now = Date.now();
+    const entry = store.get(ip);
 
-  if (!entry || entry.resetAt < now) {
-    _rateLimitStore.set(ip, { count: 1, resetAt: now + 60_000 });
-    return next();
-  }
+    if (!entry || entry.resetAt < now) {
+      store.set(ip, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
 
-  if (entry.count >= 10) {
-    res.status(429).json({ error: "too_many_requests", message: "Too many requests, please try again later" });
-    return;
-  }
+    if (entry.count >= maxRequests) {
+      res.status(429).json({ error: "too_many_requests", message: "Too many requests, please try again later" });
+      return;
+    }
 
-  entry.count++;
-  next();
+    entry.count++;
+    next();
+  };
 }
+
+// 10 req/min for auth endpoints
+export const authRateLimit = makeRateLimit(10, 60_000);
+// 30 req/min for write endpoints (job posting, claims)
+export const writeRateLimit = makeRateLimit(30, 60_000);
 
 // IMPORTANT: Stripe webhook MUST be registered BEFORE express.json()
 // Stripe needs the raw Buffer body to verify signatures

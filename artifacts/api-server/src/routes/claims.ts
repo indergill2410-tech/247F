@@ -11,6 +11,7 @@ import {
   ListJobClaimsParams,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
+import { writeRateLimit } from "../app.js";
 import { logger } from "../lib/logger.js";
 import { CREDITS_PER_CLAIM, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
 import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/email.js";
@@ -93,7 +94,7 @@ router.get("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> =
 });
 
 // POST /api/jobs/:jobId/claims
-router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> => {
+router.post("/jobs/:jobId/claims", requireAuth, writeRateLimit, async (req, res): Promise<void> => {
   if (req.user!.role !== "tradie") {
     res.status(403).json({ error: "forbidden", message: "Only tradies can claim jobs" });
     return;
