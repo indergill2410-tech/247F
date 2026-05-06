@@ -19,9 +19,12 @@ import {
 import { requireAuth } from "../middlewares/require-auth.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
+import { estimateLatLng } from "../lib/geo.js";
 import { estimateCreditCost, BAND_RANGE, type SizeBand } from "../lib/openai.js";
 
 const router = Router();
+
+const MAX_CLAIMS_PER_JOB = 5;
 
 function buildJobResponse(job: {
   id: number;
@@ -217,6 +220,9 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
     return BAND_RANGE[chosenBand].midpoint;
   });
 
+  // Derive coordinates from postcode so matching engine can use haversine
+  const jobLatLng = estimateLatLng(postcode);
+
   // Insert with final creditCost — will not change after this point
   const [job] = await db.insert(jobsTable).values({
     title,
@@ -229,6 +235,8 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
     suburb: suburb ?? null,
     postcode: postcode ?? null,
     address: address ?? null,
+    latitude: jobLatLng?.lat ?? null,
+    longitude: jobLatLng?.lng ?? null,
     imageUrls: imageUrls ?? [],
     budget: budget ?? null,
     scheduledFor: scheduledFor ? new Date(scheduledFor as unknown as string) : null,
@@ -351,10 +359,17 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     claims = rawClaims.map(({ tradieEmail: _e, tradiePhone: _p, tradieBio: _b, tradieIsVerified: _v, tradiePrimaryTrade: _t, tradieWorkPhotoUrls: _w, ...pub }) => pub);
   }
 
-  // For tradie viewers who have a claim on this job, include homeowner contact details
-  const hasClaimed = isTradieReq && rawClaims.some((c) => c.tradieId === user.userId);
+  // First-5 claimants rule: homeowner contact is only revealed to the first 5 tradies
+  // who ever claimed this job (by claim creation time — oldest first, lifetime cap).
+  const claimsAscending = [...rawClaims].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+  const firstFiveClaimantIds = new Set(
+    claimsAscending.slice(0, MAX_CLAIMS_PER_JOB).map((c) => c.tradieId)
+  );
+  const isFirstFiveClaimant = isTradieReq && firstFiveClaimantIds.has(user.userId);
   const extraJobFields: Record<string, string | null> = {};
-  if (hasClaimed) {
+  if (isFirstFiveClaimant) {
     extraJobFields.homeownerEmail = row.homeownerEmail ?? null;
     extraJobFields.homeownerPhone = row.homeownerPhone ?? null;
   }

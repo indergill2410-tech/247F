@@ -43,6 +43,9 @@ export const usersTable = pgTable("users", {
   // Service area preferences (Task #35)
   serviceRadius: integer("service_radius"),
   serviceSuburbs: text("service_suburbs").array(),
+  // Geocoded coordinates — populated from postcode on profile save (Task #35)
+  latitude: real("latitude"),
+  longitude: real("longitude"),
   // Work portfolio (Task #35)
   workPhotoUrls: text("work_photo_urls").array(),
   // Internal Stripe reference (for API calls — cancel, verify)

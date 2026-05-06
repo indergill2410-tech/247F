@@ -39,6 +39,9 @@ export const jobsTable = pgTable("jobs", {
   suburb: text("suburb"),
   postcode: text("postcode"),
   address: text("address"),
+  // Geocoded coordinates — populated from postcode on job creation (Task #35)
+  latitude: real("latitude"),
+  longitude: real("longitude"),
   imageUrls: text("image_urls").array().notNull().default([]),
   budget: real("budget"),
   sizeBand: sizeBandEnum("size_band"),

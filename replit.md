@@ -31,8 +31,8 @@ Full-stack production-grade marketplace connecting homeowners with tradies (trad
 
 ## Database Schema
 Tables in `lib/db/src/schema/`:
-- `users` — homeowners, tradies, admins (single role enum); tradies have `primaryTrade` (text) + `secondaryTrades` (text[]) + `serviceRadius` (integer, km) + `serviceSuburbs` (text[]) + `workPhotoUrls` (text[])
-- `jobs` — job postings (title, description, status, urgency, category, budget, location)
+- `users` — homeowners, tradies, admins (single role enum); tradies have `primaryTrade` (text) + `secondaryTrades` (text[]) + `serviceRadius` (integer, km) + `serviceSuburbs` (text[]) + `workPhotoUrls` (text[]) + `latitude`/`longitude` (real, auto-derived from postcode on profile save)
+- `jobs` — job postings (title, description, status, urgency, category, budget, location, `latitude`/`longitude` auto-derived from postcode on creation)
 - `claims` — tradie bids on jobs (message, proposedPrice, status)
 - `categories` — service categories (12 seeded)
 - `tradie_skills` — many-to-many: tradies ↔ categories

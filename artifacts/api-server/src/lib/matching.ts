@@ -10,39 +10,30 @@ import {
 import { eq, and, count, inArray, sql } from "drizzle-orm";
 import { logger } from "./logger.js";
 import { sendNewJobMatchEmail } from "./email.js";
+import { haversineKm, estimateLatLng } from "./geo.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
 const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
 
 /**
- * Approximate km distance between two AU postcodes.
- * Australian postcodes follow a rough geographic ordering within each state.
- * Conservative factor: 1 postcode unit ≈ 0.25 km in metro, more in rural.
- * We use 4 postcode units per km as a middle-ground approximation.
- */
-const POSTCODE_UNITS_PER_KM = 4;
-
-function postcodeDistanceKm(pc1: string, pc2: string): number | null {
-  const a = parseInt(pc1, 10);
-  const b = parseInt(pc2, 10);
-  if (isNaN(a) || isNaN(b)) return null;
-  // Must be same state (same leading digit in AU numbering)
-  if (Math.floor(a / 1000) !== Math.floor(b / 1000)) return null;
-  return Math.abs(a - b) / POSTCODE_UNITS_PER_KM;
-}
-
-/**
  * Determine whether a tradie's service-area preferences cover a given job location.
  *
- * Logic (OR):
- *   - "No preference" (no suburbs AND no radius) → always passes
- *   - serviceSuburbs set → job suburb must match one of them (case-insensitive)
- *   - serviceRadius set  → job postcode must be within approx. radius km of tradie postcode
- *   - Both set → either condition suffices
+ * Logic (OR — either condition suffices):
+ *   - No preferences (no suburbs AND no radius) → passes (all areas)
+ *   - serviceSuburbs set → job suburb must match one entry (case-insensitive)
+ *   - serviceRadius set  → job must be within radius km of tradie (haversine)
  */
 function isInServiceArea(
-  tradie: { serviceSuburbs: string[] | null; serviceRadius: number | null; postcode: string | null },
+  tradie: {
+    serviceSuburbs: string[] | null;
+    serviceRadius: number | null;
+    latitude: number | null;
+    longitude: number | null;
+    postcode: string | null;
+  },
   jobSuburb: string | null,
+  jobLatitude: number | null,
+  jobLongitude: number | null,
   jobPostcode: string | null
 ): boolean {
   const hasSuburbPrefs = tradie.serviceSuburbs && tradie.serviceSuburbs.length > 0;
@@ -51,23 +42,39 @@ function isInServiceArea(
   // No preferences → all areas
   if (!hasSuburbPrefs && !hasRadiusPref) return true;
 
-  // Suburb match (case-insensitive exact)
+  // Suburb exact match (case-insensitive)
   if (hasSuburbPrefs && jobSuburb) {
-    const jobSuburbLower = jobSuburb.toLowerCase();
-    if (tradie.serviceSuburbs!.some((s) => s.toLowerCase() === jobSuburbLower)) {
+    const jobLower = jobSuburb.toLowerCase();
+    if (tradie.serviceSuburbs!.some((s) => s.toLowerCase() === jobLower)) {
       return true;
     }
   }
 
-  // Radius match (postcode-distance approximation)
-  if (hasRadiusPref && tradie.postcode && jobPostcode) {
-    const distKm = postcodeDistanceKm(tradie.postcode, jobPostcode);
-    if (distKm !== null && distKm <= tradie.serviceRadius!) {
-      return true;
+  // Radius match using haversine (prefer stored coordinates, fall back to postcode estimate)
+  if (hasRadiusPref) {
+    let tradieLat = tradie.latitude;
+    let tradieLng = tradie.longitude;
+    let jobLat = jobLatitude;
+    let jobLng = jobLongitude;
+
+    // Fall back to postcode-estimated coordinates when stored values are absent
+    if ((tradieLat == null || tradieLng == null) && tradie.postcode) {
+      const est = estimateLatLng(tradie.postcode);
+      if (est) { tradieLat = est.lat; tradieLng = est.lng; }
+    }
+    if ((jobLat == null || jobLng == null) && jobPostcode) {
+      const est = estimateLatLng(jobPostcode);
+      if (est) { jobLat = est.lat; jobLng = est.lng; }
+    }
+
+    if (tradieLat != null && tradieLng != null && jobLat != null && jobLng != null) {
+      const distKm = haversineKm(tradieLat, tradieLng, jobLat, jobLng);
+      if (distKm <= tradie.serviceRadius!) {
+        return true;
+      }
     }
   }
 
-  // Had at least one preference but neither matched
   return false;
 }
 
@@ -108,7 +115,6 @@ export async function runMatchingEngine(
 
     const activeCountMap = new Map(activeCounts.map((r) => [r.tradieId, r.activeCount]));
 
-    // Filter tradies who haven't hit the active job limit
     const eligibleIds = tradieIds.filter((id) => {
       const active = Number(activeCountMap.get(id) ?? 0);
       return active < MAX_ACTIVE_JOBS_PER_TRADIE;
@@ -119,7 +125,25 @@ export async function runMatchingEngine(
       return;
     }
 
-    // Get tradie details including full service area preferences
+    // Fetch job row: title, urgency, category name, and stored coordinates
+    const [jobRow] = await db
+      .select({
+        title: jobsTable.title,
+        urgency: jobsTable.urgency,
+        latitude: jobsTable.latitude,
+        longitude: jobsTable.longitude,
+        categoryName: categoriesTable.name,
+      })
+      .from(jobsTable)
+      .leftJoin(categoriesTable, eq(categoriesTable.id, jobsTable.categoryId))
+      .where(eq(jobsTable.id, jobId));
+
+    if (!jobRow) {
+      logger.warn({ jobId }, "Job not found in matching engine");
+      return;
+    }
+
+    // Get tradie details including service area preferences and coordinates
     const tradies = await db
       .select({
         id: usersTable.id,
@@ -127,6 +151,8 @@ export async function runMatchingEngine(
         email: usersTable.email,
         rating: usersTable.rating,
         postcode: usersTable.postcode,
+        latitude: usersTable.latitude,
+        longitude: usersTable.longitude,
         isActive: usersTable.isActive,
         serviceSuburbs: usersTable.serviceSuburbs,
         serviceRadius: usersTable.serviceRadius,
@@ -134,70 +160,54 @@ export async function runMatchingEngine(
       .from(usersTable)
       .where(and(inArray(usersTable.id, eligibleIds), eq(usersTable.isActive, true)));
 
-    // Service area filter: suburb match OR radius match, with no-preference passthrough
+    // Service area filter: suburb match OR haversine radius match
     const serviceAreaFiltered = tradies.filter((tradie) =>
-      isInServiceArea(tradie, suburb, postcode)
+      isInServiceArea(
+        tradie,
+        suburb,
+        jobRow.latitude ?? null,
+        jobRow.longitude ?? null,
+        postcode
+      )
     );
 
     if (serviceAreaFiltered.length === 0) {
-      logger.info({ jobId, suburb, postcode }, "No tradies within service area for this job");
+      logger.info({ jobId, suburb, postcode }, "No tradies within service area — job stays open");
       return;
     }
 
-    // Score by rating (primary), postcode proximity (secondary tiebreaker)
-    const scored = serviceAreaFiltered.map((tradie) => {
-      let score = tradie.rating ?? 3.0;
-      if (postcode && tradie.postcode) {
-        if (tradie.postcode === postcode) {
-          score += 0.5;
-        } else if (tradie.postcode.slice(0, 2) === postcode.slice(0, 2)) {
-          score += 0.2;
-        }
-      }
-      return { ...tradie, score };
-    });
+    // Score by rating only (service area is already enforced by filter above)
+    const scored = serviceAreaFiltered
+      .map((tradie) => ({ ...tradie, score: tradie.rating ?? 3.0 }))
+      .sort((a, b) => b.score - a.score);
 
-    scored.sort((a, b) => b.score - a.score);
     const selected = scored.slice(0, MAX_CLAIMS_PER_JOB);
 
-    // Fetch job info (title, urgency, category) for email content
-    const [jobRow] = await db
-      .select({
-        title: jobsTable.title,
-        urgency: jobsTable.urgency,
-        categoryName: categoriesTable.name,
-      })
-      .from(jobsTable)
-      .leftJoin(categoriesTable, eq(categoriesTable.id, jobsTable.categoryId))
-      .where(eq(jobsTable.id, jobId));
+    // Create in-app notifications
+    await db.insert(notificationsTable).values(
+      selected.map((tradie) => ({
+        userId: tradie.id,
+        type: "job_match",
+        title: "New Job Match",
+        message: `A new job matching your skills is available${suburb ? ` in ${suburb}` : ""}. Be one of the first to claim it!`,
+        jobId,
+      }))
+    );
 
-    // Create in-app notifications for matched tradies
-    const notificationInserts = selected.map((tradie) => ({
-      userId: tradie.id,
-      type: "job_match",
-      title: "New Job Match",
-      message: `A new job matching your skills is available${suburb ? ` in ${suburb}` : ""}. Be one of the first to claim it!`,
-      jobId,
-    }));
-
-    await db.insert(notificationsTable).values(notificationInserts);
-
-    // Fire-and-forget email notifications (never blocks the matching flow)
-    if (jobRow) {
-      for (const tradie of selected) {
-        sendNewJobMatchEmail({
-          tradieEmail: tradie.email,
-          tradieName: tradie.name,
-          jobTitle: jobRow.title,
-          jobId,
-          categoryName: jobRow.categoryName ?? null,
-          urgency: jobRow.urgency,
-          suburb,
-        }).catch(() => {});
-      }
+    // Fire-and-forget email notifications
+    for (const tradie of selected) {
+      sendNewJobMatchEmail({
+        tradieEmail: tradie.email,
+        tradieName: tradie.name,
+        jobTitle: jobRow.title,
+        jobId,
+        categoryName: jobRow.categoryName ?? null,
+        urgency: jobRow.urgency,
+        suburb,
+      }).catch(() => {});
     }
 
-    // Only transition to "matched" when at least one tradie was notified
+    // Only mark as matched when at least one tradie was notified
     await db
       .update(jobsTable)
       .set({ status: "matched", updatedAt: sql`NOW()` })

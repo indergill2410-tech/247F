@@ -6,6 +6,7 @@ import { RegisterUserBody, LoginUserBody, UpdateMeBody } from "@workspace/api-zo
 import { hashPassword, verifyPassword, signToken } from "../lib/auth.js";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { sendCustomerWelcome, sendTradieWelcome } from "../lib/email.js";
+import { estimateLatLng } from "../lib/geo.js";
 
 const router = Router();
 
@@ -113,7 +114,14 @@ router.put("/auth/me", requireAuth, async (req, res): Promise<void> => {
   }
 
   const { skills, ...rest } = parsed.data;
-  const updates: Record<string, unknown> = { ...rest, updatedAt: sql`NOW()` };
+
+  // Auto-populate lat/lng from postcode whenever a postcode is present
+  const latLng = estimateLatLng(rest.postcode);
+  const updates: Record<string, unknown> = {
+    ...rest,
+    ...(latLng ? { latitude: latLng.lat, longitude: latLng.lng } : {}),
+    updatedAt: sql`NOW()`,
+  };
 
   const [updated] = await db
     .update(usersTable)
