@@ -359,8 +359,16 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     extraJobFields.homeownerPhone = row.homeownerPhone ?? null;
   }
 
+  const baseResponse = buildJobResponse({ ...row, claimCount: rawClaims.length });
+
+  // Address privacy: only the job owner and admins see the full home address.
+  // Tradies and other viewers should contact via the messaging system.
+  if (!isJobOwner && !isAdminReq) {
+    (baseResponse as Record<string, unknown>).address = null;
+  }
+
   res.status(200).json({
-    ...buildJobResponse({ ...row, claimCount: rawClaims.length }),
+    ...baseResponse,
     claims,
     ...extraJobFields,
   });
