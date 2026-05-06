@@ -40,6 +40,11 @@ export const usersTable = pgTable("users", {
   // Trade specialisation (Task #27)
   primaryTrade: text("primary_trade"),
   secondaryTrades: text("secondary_trades").array(),
+  // Service area preferences (Task #35)
+  serviceRadius: integer("service_radius"),
+  serviceSuburbs: text("service_suburbs").array(),
+  // Work portfolio (Task #35)
+  workPhotoUrls: text("work_photo_urls").array(),
   // Internal Stripe reference (for API calls — cancel, verify)
   emergencySubId: text("emergency_sub_id"),
   emergencySubCancelAt: boolean("emergency_sub_cancel_at").notNull().default(false),

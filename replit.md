@@ -31,7 +31,7 @@ Full-stack production-grade marketplace connecting homeowners with tradies (trad
 
 ## Database Schema
 Tables in `lib/db/src/schema/`:
-- `users` — homeowners, tradies, admins (single role enum); tradies have `primaryTrade` (text) + `secondaryTrades` (text[])
+- `users` — homeowners, tradies, admins (single role enum); tradies have `primaryTrade` (text) + `secondaryTrades` (text[]) + `serviceRadius` (integer, km) + `serviceSuburbs` (text[]) + `workPhotoUrls` (text[])
 - `jobs` — job postings (title, description, status, urgency, category, budget, location)
 - `claims` — tradie bids on jobs (message, proposedPrice, status)
 - `categories` — service categories (12 seeded)
@@ -158,6 +158,13 @@ Seeded data includes:
 - User dropdown with role badge, dashboard + jobs + messages + notifications shortcuts
 - Role-based nav links
 
+## Tradie Service Area & Contact Reveal
+- **Service area**: Tradies can set `serviceSuburbs` (tag list) and `serviceRadius` (km) in profile. Matching engine filters — tradies with `serviceSuburbs` only receive job notifications if the job's suburb matches. No preference = all areas.
+- **Work photos**: Tradies can set up to 6 `workPhotoUrls` — shown in Who's Quoting panel.
+- **Who's Quoting panel**: Replaces old "Tradie Responses" list in job-detail. For homeowners/admins, shows rich tradie cards: avatar, primary trade badge, verified badge, rating, bio, work photo thumbnails, quote, email + phone contact links for ALL claims (first-5 reveal). Accept/Decline buttons inline.
+- **Homeowner Contact card**: For tradies who have claimed a job, the job detail reveals homeowner email + phone in a "Homeowner Contact / Revealed on Claim" card.
+- **Job match email**: `sendNewJobMatchEmail` fires (fire-and-forget) when matching engine runs, sending branded email to matched tradies with job title, urgency, suburb, and CTA.
+
 ## Key Flows
 1. **Job Posting** → homeowner posts → tradies see it in Browse Jobs
 2. **Claiming** → tradie submits claim with message + price → homeowner sees in job detail
@@ -165,6 +172,7 @@ Seeded data includes:
 4. **Messaging** → homeowner ↔ tradie chat in real-time (5s polling)
 5. **Completion** → homeowner marks done → both parties can leave reviews → tradie rating updated
 6. **Email** → welcome email sent on registration (SendGrid, graceful fail if unconfigured)
+7. **Job match email** → when a job posts, matched tradies get an email + in-app notification
 
 ## Config & Environment
 Required env vars: `SESSION_SECRET`, `DATABASE_URL`, `PORT`  

@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Calendar, DollarSign, Clock, Zap, Briefcase, Star,
   ChevronLeft, CheckCircle, XCircle, AlertTriangle, MessageCircle,
-  ThumbsUp, Award, User, ShieldCheck, Mail, Phone,
+  ThumbsUp, Award, User, ShieldCheck, Mail, Phone, Users,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -201,11 +201,18 @@ export default function JobDetailPage() {
   type Claim = {
     id: number; tradieId: number; tradieName: string | null;
     tradieRating: number | null; tradieReviewCount: number;
-    tradieSuburb: string | null; status: string;
+    tradieSuburb: string | null; tradieAvatarUrl?: string | null;
+    tradieBio?: string | null; tradieIsVerified?: boolean | null;
+    tradiePrimaryTrade?: string | null; tradieWorkPhotoUrls?: string[] | null;
+    status: string;
     message: string | null; proposedPrice: number | null; createdAt: string;
     tradieEmail?: string | null; tradiePhone?: string | null;
   };
-  type JobWithClaims = typeof job & { claims?: Claim[] };
+  type JobWithClaims = typeof job & {
+    claims?: Claim[];
+    homeownerEmail?: string | null;
+    homeownerPhone?: string | null;
+  };
   const jobWithClaims = job as JobWithClaims;
   const claims = jobWithClaims.claims ?? [];
 
@@ -508,6 +515,48 @@ export default function JobDetailPage() {
           </div>
         )}
 
+        {/* ── HOMEOWNER CONTACT (tradie view — revealed once tradie has claimed) ── */}
+        {isTradie && alreadyClaimed && (jobWithClaims.homeownerEmail || jobWithClaims.homeownerPhone) && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden"
+          >
+            <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
+              <Phone className="h-4 w-4 text-[#ffc800]" />
+              <h2 className="font-bold text-white">Homeowner Contact</h2>
+              <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-[#ffc800]/12 text-[#ffc800] border border-[#ffc800]/20">
+                Revealed on Claim
+              </span>
+            </div>
+            <div className="p-6 space-y-3">
+              <p className="text-sm text-white/50">
+                Contact <span className="text-white/70 font-semibold">{job.homeownerName ?? "the homeowner"}</span> directly about this job.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {jobWithClaims.homeownerEmail && (
+                  <a
+                    href={`mailto:${jobWithClaims.homeownerEmail}`}
+                    className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    <Mail className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    {jobWithClaims.homeownerEmail}
+                  </a>
+                )}
+                {jobWithClaims.homeownerPhone && (
+                  <a
+                    href={`tel:${jobWithClaims.homeownerPhone}`}
+                    className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    <Phone className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    {jobWithClaims.homeownerPhone}
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* ── TRADIE TRUST CARD (homeowner view — open/matched) ── */}
         {(isOwner || isAdmin) && trustCard && ["open", "matched"].includes(job.status) && (
           <motion.div
@@ -674,82 +723,151 @@ export default function JobDetailPage() {
           </motion.div>
         )}
 
-        {/* ── CLAIMS LIST (homeowner + admin view) ── */}
+        {/* ── WHO'S QUOTING PANEL (homeowner + admin) ── */}
         {(isOwner || isAdmin) && (
           <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
-              <User className="h-4 w-4 text-white/40" />
-              <h2 className="font-bold text-white">Tradie Responses</h2>
+              <Users className="h-4 w-4 text-[#ffc800]" />
+              <h2 className="font-bold text-white">Who's Quoting</h2>
               {claims.length > 0 && (
                 <span className="text-[10px] font-bold bg-[#ffc800] text-black px-2 py-0.5 rounded-full ml-1">
                   {claims.length}
                 </span>
               )}
+              {claims.length > 0 && (
+                <span className="ml-auto text-[10px] text-white/30">Contact details visible for all quotes</span>
+              )}
             </div>
             <div className="divide-y divide-white/5">
               {!claims.length ? (
                 <div className="px-6 py-10 text-center">
-                  <p className="text-white/35 text-sm">No tradies have claimed this job yet.</p>
-                  <p className="text-white/20 text-xs mt-1">Our matching engine will notify relevant tradies.</p>
+                  <p className="text-white/35 text-sm">No tradies have quoted yet.</p>
+                  <p className="text-white/20 text-xs mt-1">Our matching engine will notify relevant tradies by email.</p>
                 </div>
               ) : (
                 claims.map((claim) => {
                   const cs = CLAIM_STATUS[claim.status] ?? { label: claim.status, cls: "bg-white/8 text-white/40" };
                   return (
-                    <motion.div key={claim.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-6 py-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
+                    <motion.div key={claim.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6">
+                      {/* Tradie header */}
+                      <div className="flex items-start gap-4">
+                        {claim.tradieAvatarUrl ? (
+                          <img
+                            src={claim.tradieAvatarUrl}
+                            alt={claim.tradieName ?? ""}
+                            className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
                             {initials(claim.tradieName)}
                           </div>
-                          <div>
-                            <p className="font-semibold text-white">{claim.tradieName ?? "Tradie"}</p>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/40 mt-0.5">
-                              {claim.tradieRating != null && (
-                                <span className="flex items-center gap-1.5">
-                                  <StarDisplay rating={claim.tradieRating} />
-                                  <span className="text-[#ffc800] font-semibold">{claim.tradieRating.toFixed(1)}</span>
-                                  {(claim.tradieReviewCount ?? 0) > 0 && (
-                                    <span>({claim.tradieReviewCount})</span>
-                                  )}
-                                </span>
-                              )}
-                              {claim.tradieSuburb && (
-                                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{claim.tradieSuburb}</span>
-                              )}
-                              <span>{timeAgo(claim.createdAt)}</span>
-                            </div>
-                            {claim.message && (
-                              <p className="text-sm mt-2 text-white/55 italic leading-relaxed">"{claim.message}"</p>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-bold text-white">{claim.tradieName ?? "Tradie"}</p>
+                            {claim.tradiePrimaryTrade && (
+                              <span className="text-[10px] font-black bg-[#ffc800] text-black px-2 py-0.5 rounded-md">
+                                {claim.tradiePrimaryTrade}
+                              </span>
                             )}
-                            {claim.proposedPrice != null && (
-                              <p className="text-sm font-bold mt-1.5 text-[#ffc800] flex items-center gap-1">
-                                <DollarSign className="h-3.5 w-3.5" /> Quoted: ${claim.proposedPrice.toLocaleString()}
-                              </p>
+                            {claim.tradieIsVerified && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                                <ShieldCheck className="h-3 w-3" /> Verified
+                              </span>
                             )}
+                            <span className={`ml-auto text-[10px] font-bold px-2.5 py-1 rounded-md ${cs.cls}`}>{cs.label}</span>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/40 mt-1">
+                            {claim.tradieRating != null && (
+                              <span className="flex items-center gap-1.5">
+                                <StarDisplay rating={claim.tradieRating} />
+                                <span className="text-[#ffc800] font-semibold">{claim.tradieRating.toFixed(1)}</span>
+                                {(claim.tradieReviewCount ?? 0) > 0 && (
+                                  <span>({claim.tradieReviewCount})</span>
+                                )}
+                              </span>
+                            )}
+                            {claim.tradieSuburb && (
+                              <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{claim.tradieSuburb}</span>
+                            )}
+                            <span>{timeAgo(claim.createdAt)}</span>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2.5 flex-shrink-0">
-                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md ${cs.cls}`}>{cs.label}</span>
-                          {claim.status === "pending" && isOwner && (
-                            <div className="flex gap-2">
-                              <button
-                                className="h-7 px-3 rounded-lg bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
-                                onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "accepted" } })}
-                                disabled={updateClaimMutation.isPending}
-                              >
-                                <CheckCircle className="h-3 w-3" /> Accept
-                              </button>
-                              <button
-                                className="h-7 px-3 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
-                                onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "rejected" } })}
-                                disabled={updateClaimMutation.isPending}
-                              >
-                                <XCircle className="h-3 w-3" /> Reject
-                              </button>
-                            </div>
+                      </div>
+
+                      {/* Bio */}
+                      {claim.tradieBio && (
+                        <p className="text-sm text-white/45 mt-3 leading-relaxed line-clamp-2">{claim.tradieBio}</p>
+                      )}
+
+                      {/* Work photos */}
+                      {(claim.tradieWorkPhotoUrls ?? []).length > 0 && (
+                        <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                          {(claim.tradieWorkPhotoUrls ?? []).slice(0, 3).map((url, i) => (
+                            <img
+                              key={i}
+                              src={url}
+                              alt={`Work sample ${i + 1}`}
+                              className="h-16 w-16 rounded-lg object-cover flex-shrink-0 border border-white/8"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Quote details */}
+                      {(claim.message || claim.proposedPrice != null) && (
+                        <div className="mt-3 bg-white/4 border border-white/8 rounded-xl p-3 space-y-1.5">
+                          {claim.proposedPrice != null && (
+                            <p className="text-sm font-black text-[#ffc800] flex items-center gap-1.5">
+                              <DollarSign className="h-4 w-4" /> Quoted: ${claim.proposedPrice.toLocaleString()}
+                            </p>
+                          )}
+                          {claim.message && (
+                            <p className="text-sm text-white/55 italic leading-relaxed">"{claim.message}"</p>
                           )}
                         </div>
+                      )}
+
+                      {/* Contact + accept/reject actions */}
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        {claim.tradieEmail && (
+                          <a
+                            href={`mailto:${claim.tradieEmail}`}
+                            className="flex items-center gap-2 bg-white/4 border border-white/8 rounded-lg px-3 py-2 text-xs text-white/60 hover:text-white transition-colors"
+                          >
+                            <Mail className="h-3.5 w-3.5 text-[#ffc800]" />
+                            {claim.tradieEmail}
+                          </a>
+                        )}
+                        {claim.tradiePhone && (
+                          <a
+                            href={`tel:${claim.tradiePhone}`}
+                            className="flex items-center gap-2 bg-white/4 border border-white/8 rounded-lg px-3 py-2 text-xs text-white/60 hover:text-white transition-colors"
+                          >
+                            <Phone className="h-3.5 w-3.5 text-[#ffc800]" />
+                            {claim.tradiePhone}
+                          </a>
+                        )}
+                        {claim.status === "pending" && isOwner && (
+                          <div className="flex gap-2 ml-auto">
+                            <button
+                              className="h-8 px-4 rounded-lg bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                              onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "accepted" } })}
+                              disabled={updateClaimMutation.isPending}
+                            >
+                              <CheckCircle className="h-3.5 w-3.5" /> Accept
+                            </button>
+                            <button
+                              className="h-8 px-4 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 text-xs font-bold transition-colors flex items-center gap-1 disabled:opacity-50"
+                              onClick={() => updateClaimMutation.mutate({ jobId: job.id, claimId: claim.id, data: { status: "rejected" } })}
+                              disabled={updateClaimMutation.isPending}
+                            >
+                              <XCircle className="h-3.5 w-3.5" /> Decline
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   );

@@ -333,6 +333,48 @@ export async function sendTradieVerifiedEmail(opts: {
   }
 }
 
+export async function sendNewJobMatchEmail(opts: {
+  tradieEmail: string;
+  tradieName: string;
+  jobTitle: string;
+  jobId: number;
+  categoryName: string | null;
+  urgency: string;
+  suburb: string | null;
+}): Promise<void> {
+  try {
+    const urgencyBadge =
+      opts.urgency === "emergency"
+        ? '<span style="background:#dc2626;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">EMERGENCY</span>'
+        : opts.urgency === "urgent"
+        ? '<span style="background:#ea580c;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">URGENT</span>'
+        : "";
+    const suburbRow = opts.suburb
+      ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">📍 ${opts.suburb}</p>`
+      : "";
+    const html = brandedHtml(
+      "New Job Match",
+      `<p style="margin:0 0 16px;color:#ccc;font-size:15px">Hi ${opts.tradieName},</p>
+       <p style="margin:0 0 12px;color:#ccc;font-size:15px">A new job matching your trade has been posted — be one of the first to claim it!</p>
+       <div style="background:#1d1a12;border:1px solid #2a2510;border-radius:12px;padding:16px;margin-bottom:20px">
+         <div style="margin-bottom:10px">
+           <strong style="color:#fff;font-size:16px">${opts.jobTitle}</strong>${urgencyBadge}
+         </div>
+         ${opts.categoryName ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">🔧 ${opts.categoryName}</p>` : ""}
+         ${suburbRow}
+       </div>
+       <p style="margin:0 0 20px;color:#aaa;font-size:14px">Act quickly — only the first tradies to claim will be considered.</p>
+       <p style="margin:0">
+         <a href="${config.appUrl}/jobs/${opts.jobId}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">View Job &amp; Claim →</a>
+       </p>`,
+    );
+    await sendViaHtml(opts.tradieEmail, opts.tradieName, `New job match: "${opts.jobTitle}"`, html);
+    logger.info({ email: opts.tradieEmail, jobId: opts.jobId }, "Job match email sent");
+  } catch (err) {
+    logger.error({ err }, "Failed to send job match email");
+  }
+}
+
 export async function sendTradieSuspendedEmail(opts: {
   email: string;
   name: string;

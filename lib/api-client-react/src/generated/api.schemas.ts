@@ -71,6 +71,12 @@ export interface User {
   isVerified: boolean;
   primaryTrade?: string | null;
   secondaryTrades?: string[] | null;
+  /** Preferred service radius in km (null = no preference) */
+  serviceRadius?: number | null;
+  /** List of suburbs the tradie is willing to service (null = all) */
+  serviceSuburbs?: string[] | null;
+  /** URLs of work portfolio photos (up to 6) */
+  workPhotoUrls?: string[] | null;
   createdAt: string;
 }
 
@@ -89,6 +95,9 @@ export interface UpdateProfileBody {
   skills?: number[];
   primaryTrade?: string;
   secondaryTrades?: string[];
+  serviceRadius?: number | null;
+  serviceSuburbs?: string[] | null;
+  workPhotoUrls?: string[] | null;
 }
 
 export type AdminUpdateUserBodyRole =
@@ -196,6 +205,14 @@ export interface Claim {
   tradieReviewCount: number | null;
   tradieSuburb?: string | null;
   tradieAvatarUrl?: string | null;
+  /** Revealed to homeowner on all quotes */
+  tradieEmail?: string | null;
+  /** Revealed to homeowner on all quotes */
+  tradiePhone?: string | null;
+  tradieBio?: string | null;
+  tradieIsVerified?: boolean | null;
+  tradiePrimaryTrade?: string | null;
+  tradieWorkPhotoUrls?: string[] | null;
   status: ClaimStatus;
   message?: string | null;
   proposedPrice?: number | null;
@@ -205,6 +222,10 @@ export interface Claim {
 export type JobDetail = Job & {
   claims?: Claim[];
   matchedTradies?: User[];
+  /** Homeowner contact phone — revealed to tradie once they have claimed the job */
+  homeownerPhone?: string | null;
+  /** Homeowner contact email — revealed to tradie once they have claimed the job */
+  homeownerEmail?: string | null;
 };
 
 export interface JobListResponse {

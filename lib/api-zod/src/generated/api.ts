@@ -58,6 +58,20 @@ export const LoginUserResponse = zod.object({
     isVerified: zod.boolean(),
     primaryTrade: zod.string().nullish(),
     secondaryTrades: zod.array(zod.string()).nullish(),
+    serviceRadius: zod
+      .number()
+      .nullish()
+      .describe("Preferred service radius in km (null = no preference)"),
+    serviceSuburbs: zod
+      .array(zod.string())
+      .nullish()
+      .describe(
+        "List of suburbs the tradie is willing to service (null = all)",
+      ),
+    workPhotoUrls: zod
+      .array(zod.string())
+      .nullish()
+      .describe("URLs of work portfolio photos (up to 6)"),
     createdAt: zod.coerce.date(),
   }),
   token: zod.string(),
@@ -90,6 +104,18 @@ export const GetMeResponse = zod.object({
   isVerified: zod.boolean(),
   primaryTrade: zod.string().nullish(),
   secondaryTrades: zod.array(zod.string()).nullish(),
+  serviceRadius: zod
+    .number()
+    .nullish()
+    .describe("Preferred service radius in km (null = no preference)"),
+  serviceSuburbs: zod
+    .array(zod.string())
+    .nullish()
+    .describe("List of suburbs the tradie is willing to service (null = all)"),
+  workPhotoUrls: zod
+    .array(zod.string())
+    .nullish()
+    .describe("URLs of work portfolio photos (up to 6)"),
   createdAt: zod.coerce.date(),
 });
 
@@ -106,6 +132,9 @@ export const UpdateMeBody = zod.object({
   skills: zod.array(zod.number()).optional(),
   primaryTrade: zod.string().optional(),
   secondaryTrades: zod.array(zod.string()).optional(),
+  serviceRadius: zod.number().nullish(),
+  serviceSuburbs: zod.array(zod.string()).nullish(),
+  workPhotoUrls: zod.array(zod.string()).nullish(),
 });
 
 export const UpdateMeResponse = zod.object({
@@ -124,6 +153,18 @@ export const UpdateMeResponse = zod.object({
   isVerified: zod.boolean(),
   primaryTrade: zod.string().nullish(),
   secondaryTrades: zod.array(zod.string()).nullish(),
+  serviceRadius: zod
+    .number()
+    .nullish()
+    .describe("Preferred service radius in km (null = no preference)"),
+  serviceSuburbs: zod
+    .array(zod.string())
+    .nullish()
+    .describe("List of suburbs the tradie is willing to service (null = all)"),
+  workPhotoUrls: zod
+    .array(zod.string())
+    .nullish()
+    .describe("URLs of work portfolio photos (up to 6)"),
   createdAt: zod.coerce.date(),
 });
 
@@ -276,6 +317,18 @@ export const GetJobResponse = zod
             tradieReviewCount: zod.number().nullable(),
             tradieSuburb: zod.string().nullish(),
             tradieAvatarUrl: zod.string().nullish(),
+            tradieEmail: zod
+              .string()
+              .nullish()
+              .describe("Revealed to homeowner on all quotes"),
+            tradiePhone: zod
+              .string()
+              .nullish()
+              .describe("Revealed to homeowner on all quotes"),
+            tradieBio: zod.string().nullish(),
+            tradieIsVerified: zod.boolean().nullish(),
+            tradiePrimaryTrade: zod.string().nullish(),
+            tradieWorkPhotoUrls: zod.array(zod.string()).nullish(),
             status: zod.enum([
               "pending",
               "accepted",
@@ -307,10 +360,38 @@ export const GetJobResponse = zod
             isVerified: zod.boolean(),
             primaryTrade: zod.string().nullish(),
             secondaryTrades: zod.array(zod.string()).nullish(),
+            serviceRadius: zod
+              .number()
+              .nullish()
+              .describe(
+                "Preferred service radius in km (null = no preference)",
+              ),
+            serviceSuburbs: zod
+              .array(zod.string())
+              .nullish()
+              .describe(
+                "List of suburbs the tradie is willing to service (null = all)",
+              ),
+            workPhotoUrls: zod
+              .array(zod.string())
+              .nullish()
+              .describe("URLs of work portfolio photos (up to 6)"),
             createdAt: zod.coerce.date(),
           }),
         )
         .optional(),
+      homeownerPhone: zod
+        .string()
+        .nullish()
+        .describe(
+          "Homeowner contact phone — revealed to tradie once they have claimed the job",
+        ),
+      homeownerEmail: zod
+        .string()
+        .nullish()
+        .describe(
+          "Homeowner contact email — revealed to tradie once they have claimed the job",
+        ),
     }),
   );
 
@@ -430,6 +511,18 @@ export const ListJobClaimsResponseItem = zod.object({
   tradieReviewCount: zod.number().nullable(),
   tradieSuburb: zod.string().nullish(),
   tradieAvatarUrl: zod.string().nullish(),
+  tradieEmail: zod
+    .string()
+    .nullish()
+    .describe("Revealed to homeowner on all quotes"),
+  tradiePhone: zod
+    .string()
+    .nullish()
+    .describe("Revealed to homeowner on all quotes"),
+  tradieBio: zod.string().nullish(),
+  tradieIsVerified: zod.boolean().nullish(),
+  tradiePrimaryTrade: zod.string().nullish(),
+  tradieWorkPhotoUrls: zod.array(zod.string()).nullish(),
   status: zod.enum([
     "pending",
     "accepted",
@@ -476,6 +569,18 @@ export const UpdateClaimResponse = zod.object({
   tradieReviewCount: zod.number().nullable(),
   tradieSuburb: zod.string().nullish(),
   tradieAvatarUrl: zod.string().nullish(),
+  tradieEmail: zod
+    .string()
+    .nullish()
+    .describe("Revealed to homeowner on all quotes"),
+  tradiePhone: zod
+    .string()
+    .nullish()
+    .describe("Revealed to homeowner on all quotes"),
+  tradieBio: zod.string().nullish(),
+  tradieIsVerified: zod.boolean().nullish(),
+  tradiePrimaryTrade: zod.string().nullish(),
+  tradieWorkPhotoUrls: zod.array(zod.string()).nullish(),
   status: zod.enum([
     "pending",
     "accepted",
@@ -782,6 +887,20 @@ export const GetAdminDashboardResponse = zod.object({
       isVerified: zod.boolean(),
       primaryTrade: zod.string().nullish(),
       secondaryTrades: zod.array(zod.string()).nullish(),
+      serviceRadius: zod
+        .number()
+        .nullish()
+        .describe("Preferred service radius in km (null = no preference)"),
+      serviceSuburbs: zod
+        .array(zod.string())
+        .nullish()
+        .describe(
+          "List of suburbs the tradie is willing to service (null = all)",
+        ),
+      workPhotoUrls: zod
+        .array(zod.string())
+        .nullish()
+        .describe("URLs of work portfolio photos (up to 6)"),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -802,6 +921,20 @@ export const GetAdminDashboardResponse = zod.object({
       isVerified: zod.boolean(),
       primaryTrade: zod.string().nullish(),
       secondaryTrades: zod.array(zod.string()).nullish(),
+      serviceRadius: zod
+        .number()
+        .nullish()
+        .describe("Preferred service radius in km (null = no preference)"),
+      serviceSuburbs: zod
+        .array(zod.string())
+        .nullish()
+        .describe(
+          "List of suburbs the tradie is willing to service (null = all)",
+        ),
+      workPhotoUrls: zod
+        .array(zod.string())
+        .nullish()
+        .describe("URLs of work portfolio photos (up to 6)"),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -837,6 +970,20 @@ export const AdminListUsersResponse = zod.object({
       isVerified: zod.boolean(),
       primaryTrade: zod.string().nullish(),
       secondaryTrades: zod.array(zod.string()).nullish(),
+      serviceRadius: zod
+        .number()
+        .nullish()
+        .describe("Preferred service radius in km (null = no preference)"),
+      serviceSuburbs: zod
+        .array(zod.string())
+        .nullish()
+        .describe(
+          "List of suburbs the tradie is willing to service (null = all)",
+        ),
+      workPhotoUrls: zod
+        .array(zod.string())
+        .nullish()
+        .describe("URLs of work portfolio photos (up to 6)"),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -875,6 +1022,18 @@ export const AdminUpdateUserResponse = zod.object({
   isVerified: zod.boolean(),
   primaryTrade: zod.string().nullish(),
   secondaryTrades: zod.array(zod.string()).nullish(),
+  serviceRadius: zod
+    .number()
+    .nullish()
+    .describe("Preferred service radius in km (null = no preference)"),
+  serviceSuburbs: zod
+    .array(zod.string())
+    .nullish()
+    .describe("List of suburbs the tradie is willing to service (null = all)"),
+  workPhotoUrls: zod
+    .array(zod.string())
+    .nullish()
+    .describe("URLs of work portfolio photos (up to 6)"),
   createdAt: zod.coerce.date(),
 });
 

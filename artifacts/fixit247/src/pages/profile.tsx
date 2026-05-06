@@ -11,9 +11,121 @@ import {
   getGetTradiedashboardQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { AlertCircle, ChevronLeft, Star, LogOut, Camera, Check } from "lucide-react";
+import { AlertCircle, ChevronLeft, Star, LogOut, Camera, Check, MapPin, X, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SuburbInput } from "@/components/suburb-input";
+import { searchSuburbs } from "@/data/au-suburbs";
+import { AnimatePresence, motion } from "framer-motion";
+
+const SERVICE_RADIUS_OPTIONS = [
+  { label: "No preference (all areas)", value: null },
+  { label: "10 km", value: 10 },
+  { label: "25 km", value: 25 },
+  { label: "50 km", value: 50 },
+  { label: "100 km", value: 100 },
+];
+
+function ServiceSuburbTags({
+  selected,
+  onChange,
+  inputCls,
+}: {
+  selected: string[];
+  onChange: (suburbs: string[]) => void;
+  inputCls: string;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const suggestions = query.length >= 2 ? searchSuburbs(query, 8).filter((s) => !selected.includes(s.suburb)) : [];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const add = (suburb: string) => {
+    if (!selected.includes(suburb)) onChange([...selected, suburb]);
+    setQuery("");
+    setOpen(false);
+  };
+
+  const remove = (suburb: string) => onChange(selected.filter((s) => s !== suburb));
+
+  return (
+    <div className="space-y-2">
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selected.map((s) => (
+            <span
+              key={s}
+              className="flex items-center gap-1.5 h-7 pl-3 pr-2 rounded-lg bg-[#ffc800]/12 border border-[#ffc800]/25 text-[#ffc800] text-xs font-medium"
+            >
+              <MapPin className="h-3 w-3 flex-shrink-0" />
+              {s}
+              <button
+                type="button"
+                onClick={() => remove(s)}
+                className="hover:text-white transition-colors ml-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div ref={ref} className="relative">
+        <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+        <input
+          type="text"
+          value={query}
+          placeholder={selected.length === 0 ? "Type a suburb name to add…" : "Add another suburb…"}
+          autoComplete="off"
+          className={`${inputCls} pl-9`}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
+        />
+        <AnimatePresence>
+          {open && suggestions.length > 0 && (
+            <motion.ul
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.12 }}
+              className="absolute z-50 top-full mt-1 w-full bg-[#1a1510] border border-white/15 rounded-xl shadow-xl overflow-hidden"
+            >
+              {suggestions.map((s) => (
+                <li key={`${s.suburb}-${s.postcode}`}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2.5 text-sm text-white/80 hover:bg-[#ffc800]/10 hover:text-white transition-colors flex items-center justify-between gap-2"
+                    onMouseDown={(e) => { e.preventDefault(); add(s.suburb); }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5 text-[#ffc800] shrink-0" />
+                      <span>{s.suburb}</span>
+                      <span className="text-white/35 text-xs">{s.state}</span>
+                    </span>
+                    <span className="flex items-center gap-1 text-[#ffc800]/60 text-xs">
+                      <Plus className="h-3 w-3" /> Add
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </motion.ul>
+          )}
+        </AnimatePresence>
+      </div>
+      {selected.length === 0 && (
+        <p className="text-xs text-white/30">Leave empty to receive jobs from all areas.</p>
+      )}
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   usePageTitle("My Profile");
@@ -32,6 +144,9 @@ export default function ProfilePage() {
   const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
   const [primaryTrade, setPrimaryTrade] = useState("");
   const [secondaryTrades, setSecondaryTrades] = useState<string[]>([]);
+  const [serviceRadius, setServiceRadius] = useState<number | null>(null);
+  const [serviceSuburbs, setServiceSuburbs] = useState<string[]>([]);
+  const [workPhotoUrls, setWorkPhotoUrls] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
@@ -56,6 +171,11 @@ export default function ProfilePage() {
       setAvatarUrl(me.avatarUrl ?? "");
       setPrimaryTrade((me as { primaryTrade?: string | null }).primaryTrade ?? "");
       setSecondaryTrades((me as { secondaryTrades?: string[] | null }).secondaryTrades ?? []);
+      setServiceRadius((me as { serviceRadius?: number | null }).serviceRadius ?? null);
+      setServiceSuburbs((me as { serviceSuburbs?: string[] | null }).serviceSuburbs ?? []);
+      const photos = (me as { workPhotoUrls?: string[] | null }).workPhotoUrls ?? [];
+      const padded = [...photos, "", "", "", "", "", ""].slice(0, 6);
+      setWorkPhotoUrls(padded);
     }
   }, [me]);
 
@@ -86,6 +206,7 @@ export default function ProfilePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    const filteredPhotos = workPhotoUrls.filter((u) => u.trim().startsWith("http"));
     updateMutation.mutate({
       data: {
         name: name || undefined,
@@ -98,6 +219,9 @@ export default function ProfilePage() {
           skills: selectedSkills,
           primaryTrade: primaryTrade || undefined,
           secondaryTrades: secondaryTrades.length > 0 ? secondaryTrades : [],
+          serviceRadius: serviceRadius ?? null,
+          serviceSuburbs: serviceSuburbs.length > 0 ? serviceSuburbs : null,
+          workPhotoUrls: filteredPhotos.length > 0 ? filteredPhotos : null,
         } : {}),
       },
     });
@@ -357,6 +481,51 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* Service Area (tradie only) */}
+          {isTradie && (
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-bold text-white">Service Area</h2>
+                  <p className="text-xs text-white/40 mt-1">Only receive job notifications for suburbs you service. Leave empty to receive all jobs.</p>
+                </div>
+              </div>
+
+              {/* Radius preference */}
+              <div className="space-y-1.5">
+                <label className={labelCls}>Preferred radius from your location</label>
+                <div className="relative">
+                  <select
+                    value={serviceRadius ?? ""}
+                    onChange={(e) => setServiceRadius(e.target.value === "" ? null : Number(e.target.value))}
+                    className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                  >
+                    {SERVICE_RADIUS_OPTIONS.map((opt) => (
+                      <option
+                        key={opt.label}
+                        value={opt.value ?? ""}
+                        className="bg-[#1a1509] text-white"
+                      >
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+
+              {/* Suburb tags */}
+              <div className="space-y-1.5">
+                <label className={labelCls}>Specific suburbs <span className="text-white/30">(overrides radius)</span></label>
+                <ServiceSuburbTags
+                  selected={serviceSuburbs}
+                  onChange={setServiceSuburbs}
+                  inputCls={inputCls}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Skill categories (tradie only) */}
           {isTradie && (
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
@@ -403,6 +572,47 @@ export default function ProfilePage() {
                   {selectedSkills.length} service{selectedSkills.length !== 1 ? "s" : ""} selected
                 </p>
               )}
+            </div>
+          )}
+
+          {/* Work Photos (tradie only) */}
+          {isTradie && (
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-bold text-white">Work Photos</h2>
+                  <p className="text-xs text-white/40 mt-1">Show homeowners your past work — up to 6 photos. Paste image URLs (e.g. from Imgur).</p>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                  Trust Card
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {workPhotoUrls.map((url, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <label className={labelCls}>Photo {i + 1}</label>
+                    <input
+                      type="url"
+                      className={inputCls}
+                      value={url}
+                      onChange={(e) => {
+                        const updated = [...workPhotoUrls];
+                        updated[i] = e.target.value;
+                        setWorkPhotoUrls(updated);
+                      }}
+                      placeholder="https://i.imgur.com/…"
+                    />
+                    {url && url.startsWith("http") && (
+                      <img
+                        src={url}
+                        alt={`Work sample ${i + 1}`}
+                        className="w-full h-20 object-cover rounded-lg border border-white/8"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

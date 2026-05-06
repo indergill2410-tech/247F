@@ -1170,6 +1170,22 @@ components:
           nullable: true
           items:
             type: string
+        serviceRadius:
+          type: integer
+          nullable: true
+          description: Preferred service radius in km (null = no preference)
+        serviceSuburbs:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: List of suburbs the tradie is willing to service (null = all)
+        workPhotoUrls:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: URLs of work portfolio photos (up to 6)
         createdAt:
           type: string
           format: date-time
@@ -1206,6 +1222,19 @@ components:
           type: string
         secondaryTrades:
           type: array
+          items:
+            type: string
+        serviceRadius:
+          type: integer
+          nullable: true
+        serviceSuburbs:
+          type: array
+          nullable: true
+          items:
+            type: string
+        workPhotoUrls:
+          type: array
+          nullable: true
           items:
             type: string
 
@@ -1356,6 +1385,14 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/User"
+            homeownerPhone:
+              type: string
+              nullable: true
+              description: Homeowner contact phone — revealed to tradie once they have claimed the job
+            homeownerEmail:
+              type: string
+              nullable: true
+              description: Homeowner contact email — revealed to tradie once they have claimed the job
 
     JobListResponse:
       type: object
@@ -1458,6 +1495,28 @@ components:
         tradieAvatarUrl:
           type: string
           nullable: true
+        tradieEmail:
+          type: string
+          nullable: true
+          description: Revealed to homeowner on all quotes
+        tradiePhone:
+          type: string
+          nullable: true
+          description: Revealed to homeowner on all quotes
+        tradieBio:
+          type: string
+          nullable: true
+        tradieIsVerified:
+          type: boolean
+          nullable: true
+        tradiePrimaryTrade:
+          type: string
+          nullable: true
+        tradieWorkPhotoUrls:
+          type: array
+          nullable: true
+          items:
+            type: string
         status:
           type: string
           enum: [pending, accepted, rejected, withdrawn, completed]

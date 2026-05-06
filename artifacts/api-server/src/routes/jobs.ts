@@ -242,7 +242,7 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
 
   // Trigger matching engine asynchronously (does not affect creditCost)
   setImmediate(() => {
-    runMatchingEngine(job.id, categoryId, postcode ?? null).catch(() => {});
+    runMatchingEngine(job.id, categoryId, postcode ?? null, suburb ?? null).catch(() => {});
   });
 
   res.status(201).json(buildJobResponse({ ...job, claimCount: 0 }));
@@ -256,6 +256,8 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  // Use alias to avoid column name collision when selecting homeowner fields
+  const homeownersTable = usersTable;
   const [row] = await db
     .select({
       id: jobsTable.id,
@@ -266,7 +268,9 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
       categoryId: jobsTable.categoryId,
       categoryName: categoriesTable.name,
       homeownerId: jobsTable.homeownerId,
-      homeownerName: usersTable.name,
+      homeownerName: homeownersTable.name,
+      homeownerEmail: homeownersTable.email,
+      homeownerPhone: homeownersTable.phone,
       suburb: jobsTable.suburb,
       postcode: jobsTable.postcode,
       address: jobsTable.address,
@@ -279,7 +283,7 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     })
     .from(jobsTable)
     .leftJoin(categoriesTable, eq(categoriesTable.id, jobsTable.categoryId))
-    .leftJoin(usersTable, eq(usersTable.id, jobsTable.homeownerId))
+    .leftJoin(homeownersTable, eq(homeownersTable.id, jobsTable.homeownerId))
     .where(eq(jobsTable.id, parsed.data.id));
 
   if (!row) {
@@ -288,14 +292,23 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
   }
 
   const user = req.user!;
+  const isJobOwner = user.role === "homeowner" && row.homeownerId === user.userId;
+  const isAdminReq = user.role === "admin";
+  const isTradieReq = user.role === "tradie";
 
-  // Get claims for this job
+  // Get claims for this job with full tradie profile for homeowner/admin enrichment
   const rawClaims = await db
     .select({
       id: claimsTable.id,
       jobId: claimsTable.jobId,
       tradieId: claimsTable.tradieId,
       tradieName: usersTable.name,
+      tradieEmail: usersTable.email,
+      tradiePhone: usersTable.phone,
+      tradieBio: usersTable.bio,
+      tradieIsVerified: usersTable.isVerified,
+      tradiePrimaryTrade: usersTable.primaryTrade,
+      tradieWorkPhotoUrls: usersTable.workPhotoUrls,
       tradieRating: usersTable.rating,
       tradieReviewCount: usersTable.reviewCount,
       tradieSuburb: usersTable.suburb,
@@ -310,30 +323,46 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
     .where(eq(claimsTable.jobId, parsed.data.id))
     .orderBy(desc(claimsTable.createdAt));
 
-  const isJobOwner = user.role === "homeowner" && row.homeownerId === user.userId;
-  const isAdminReq = user.role === "admin";
+  // Build claims array — for homeowner/admin reveal all tradie contact info;
+  // for tradie viewers strip other tradies' contact fields.
+  type ClaimRow = typeof rawClaims[0];
+  type PublicClaim = Omit<ClaimRow, "tradieEmail" | "tradiePhone" | "tradieBio" | "tradieIsVerified" | "tradiePrimaryTrade" | "tradieWorkPhotoUrls"> & {
+    tradieEmail?: string | null;
+    tradiePhone?: string | null;
+    tradieBio?: string | null;
+    tradieIsVerified?: boolean | null;
+    tradiePrimaryTrade?: string | null;
+    tradieWorkPhotoUrls?: string[] | null;
+  };
 
-  let claims: typeof rawClaims & { tradieEmail?: string | null; tradiePhone?: string | null }[] = rawClaims;
+  let claims: PublicClaim[];
 
-  // Enrich accepted claim with contact details for hired jobs (in_progress/completed)
-  if ((isJobOwner || isAdminReq) && ["in_progress", "completed"].includes(row.status)) {
-    const acceptedClaim = rawClaims.find((c) => c.status === "accepted");
-    if (acceptedClaim) {
-      const [tradieContact] = await db
-        .select({ email: usersTable.email, phone: usersTable.phone })
-        .from(usersTable)
-        .where(eq(usersTable.id, acceptedClaim.tradieId));
-      claims = rawClaims.map((c) =>
-        c.id === acceptedClaim.id
-          ? { ...c, tradieEmail: tradieContact?.email ?? null, tradiePhone: tradieContact?.phone ?? null }
-          : c
-      );
-    }
+  if (isJobOwner || isAdminReq) {
+    // Homeowner/admin see full tradie profile on all claims (first-5 contact reveal)
+    claims = rawClaims;
+  } else if (isTradieReq) {
+    // Tradie only sees their own claim details, not other tradies' contact info
+    claims = rawClaims.map((c) => {
+      if (c.tradieId === user.userId) return c;
+      const { tradieEmail: _e, tradiePhone: _p, tradieBio: _b, tradieIsVerified: _v, tradiePrimaryTrade: _t, tradieWorkPhotoUrls: _w, ...pub } = c;
+      return pub;
+    });
+  } else {
+    claims = rawClaims.map(({ tradieEmail: _e, tradiePhone: _p, tradieBio: _b, tradieIsVerified: _v, tradiePrimaryTrade: _t, tradieWorkPhotoUrls: _w, ...pub }) => pub);
+  }
+
+  // For tradie viewers who have a claim on this job, include homeowner contact details
+  const hasClaimed = isTradieReq && rawClaims.some((c) => c.tradieId === user.userId);
+  const extraJobFields: Record<string, string | null> = {};
+  if (hasClaimed) {
+    extraJobFields.homeownerEmail = row.homeownerEmail ?? null;
+    extraJobFields.homeownerPhone = row.homeownerPhone ?? null;
   }
 
   res.status(200).json({
     ...buildJobResponse({ ...row, claimCount: rawClaims.length }),
     claims,
+    ...extraJobFields,
   });
 });
 
