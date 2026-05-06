@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable } from "@workspace/db";
+import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable, creditBalancesTable, creditTransactionsTable } from "@workspace/db";
 import { eq, and, count, inArray, desc, sql } from "drizzle-orm";
 import {
   ClaimJobParams,
@@ -12,7 +12,7 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
-import { deductCredits, getCreditBalance, CREDITS_PER_CLAIM, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
+import { CREDITS_PER_CLAIM, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
 import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/email.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
@@ -171,38 +171,62 @@ router.post("/jobs/:jobId/claims", requireAuth, async (req, res): Promise<void> 
   // Use per-job credit cost if set, otherwise fall back to legacy CREDITS_PER_CLAIM
   const claimCost = job.creditCost ?? CREDITS_PER_CLAIM;
 
-  // Check credit balance before claiming (skip for covered emergency jobs)
-  if (!coveredEmergency) {
-    const creditBalance = await getCreditBalance(tradieId);
-    if (creditBalance < claimCost) {
+  // Atomically check balance, deduct credits, and insert claim in a single transaction.
+  // The SELECT FOR UPDATE locks the credit balance row to prevent race conditions when
+  // multiple claim requests arrive simultaneously for the same tradie.
+  let claim: typeof claimsTable.$inferSelect;
+  try {
+    claim = await db.transaction(async (tx) => {
+      if (!coveredEmergency) {
+        const balanceResult = await tx.execute<{ balance: number }>(
+          sql`SELECT balance FROM credit_balances WHERE user_id = ${tradieId} FOR UPDATE`,
+        );
+        const balance = Number(balanceResult.rows[0]?.balance ?? 0);
+        if (balance < claimCost) {
+          throw Object.assign(new Error("insufficient_credits"), { balance, required: claimCost });
+        }
+
+        await tx
+          .update(creditBalancesTable)
+          .set({ balance: sql`${creditBalancesTable.balance} - ${claimCost}`, updatedAt: sql`NOW()` })
+          .where(eq(creditBalancesTable.userId, tradieId));
+
+        await tx.insert(creditTransactionsTable).values({
+          userId: tradieId,
+          type: "claim_deduct",
+          amount: -claimCost,
+          description: `Claimed job #${jobId}: ${job.title ?? "Job"}`,
+        });
+      }
+
+      const [newClaim] = await tx
+        .insert(claimsTable)
+        .values({
+          jobId,
+          tradieId,
+          status: "pending",
+          message: bodyParsed.data.message ?? null,
+          proposedPrice: bodyParsed.data.proposedPrice ?? null,
+        })
+        .returning();
+
+      if (!newClaim) throw new Error("Failed to create claim");
+      return newClaim;
+    });
+  } catch (err: unknown) {
+    const typed = err as { message?: string; balance?: number; required?: number };
+    if (typed?.message === "insufficient_credits") {
       res.status(402).json({
         error: "insufficient_credits",
-        message: `You need ${claimCost} credits to claim this job. Your balance: ${creditBalance}. Top up at /credits.`,
-        balance: creditBalance,
-        required: claimCost,
+        message: `You need ${typed.required} credits to claim this job. Your balance: ${typed.balance}. Top up at /credits.`,
+        balance: typed.balance,
+        required: typed.required,
       });
       return;
     }
-  }
-
-  const [claim] = await db.insert(claimsTable).values({
-    jobId,
-    tradieId,
-    status: "pending",
-    message: bodyParsed.data.message ?? null,
-    proposedPrice: bodyParsed.data.proposedPrice ?? null,
-  }).returning();
-
-  if (!claim) {
+    logger.error({ err }, "Failed to create claim");
     res.status(500).json({ error: "server_error", message: "Failed to create claim" });
     return;
-  }
-
-  // Deduct credits for the claim (skip for covered emergency jobs)
-  if (!coveredEmergency) {
-    await deductCredits(tradieId, claimCost, `Claimed job #${jobId}: ${job.title ?? "Job"}`).catch((err) =>
-      logger.error({ err }, "Failed to deduct credits for claim")
-    );
   }
 
   await db.insert(notificationsTable).values({
@@ -296,16 +320,47 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
     }
   }
 
-  const [updated] = await db
-    .update(claimsTable)
-    .set({ status: status as typeof claimsTable.$inferSelect["status"], updatedAt: sql`NOW()` })
-    .where(eq(claimsTable.id, claimId))
-    .returning();
+  // Wrap claim status update + job update + conversation creation in a transaction
+  // so partial failures cannot leave job/claim state inconsistent.
+  const [updated] = await db.transaction(async (tx) => {
+    const result = await tx
+      .update(claimsTable)
+      .set({ status: status as typeof claimsTable.$inferSelect["status"], updatedAt: sql`NOW()` })
+      .where(eq(claimsTable.id, claimId))
+      .returning();
 
-  // If accepted: update job to in_progress + auto-create conversation + track emergency callouts
+    if (status === "accepted" && job) {
+      await tx
+        .update(jobsTable)
+        .set({ status: "in_progress", updatedAt: sql`NOW()` })
+        .where(eq(jobsTable.id, jobId));
+
+      const [existingConvo] = await tx
+        .select({ id: conversationsTable.id })
+        .from(conversationsTable)
+        .where(and(eq(conversationsTable.jobId, jobId), eq(conversationsTable.tradieId, claim.tradieId)));
+
+      if (!existingConvo) {
+        await tx.insert(conversationsTable).values({
+          jobId,
+          homeownerId: job.homeownerId,
+          tradieId: claim.tradieId,
+        });
+      }
+    }
+
+    if (status === "completed" && job) {
+      await tx
+        .update(jobsTable)
+        .set({ status: "completed", updatedAt: sql`NOW()` })
+        .where(eq(jobsTable.id, jobId));
+    }
+
+    return result;
+  });
+
+  // If accepted: track emergency callouts + send notifications (outside transaction — non-critical)
   if (status === "accepted" && job) {
-    await db.update(jobsTable).set({ status: "in_progress", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
-
     // Track emergency callout usage: only on the first acceptance transition (claim.status was
     // "pending"), not on duplicate calls to avoid double-counting. Covers covered emergency jobs
     // where the homeowner has an active membership with remaining callouts this year.
@@ -322,25 +377,6 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
           logger.error({ err }, "Failed to increment emergency callout usage")
         );
       }
-    }
-
-    // Create a conversation between homeowner and tradie (idempotent)
-    const [existingConvo] = await db
-      .select({ id: conversationsTable.id })
-      .from(conversationsTable)
-      .where(
-        and(
-          eq(conversationsTable.jobId, jobId),
-          eq(conversationsTable.tradieId, claim.tradieId)
-        )
-      );
-
-    if (!existingConvo) {
-      await db.insert(conversationsTable).values({
-        jobId,
-        homeownerId: job.homeownerId,
-        tradieId: claim.tradieId,
-      }).catch((err) => logger.error({ err }, "Failed to create conversation"));
     }
 
     await db.insert(notificationsTable).values({
@@ -369,9 +405,8 @@ router.put("/jobs/:jobId/claims/:claimId", requireAuth, async (req, res): Promis
       .catch(() => {});
   }
 
-  // If completed: update job + notify
+  // If completed: notify (job status already updated in transaction above)
   if (status === "completed" && job) {
-    await db.update(jobsTable).set({ status: "completed", updatedAt: sql`NOW()` }).where(eq(jobsTable.id, jobId));
     await db.insert(notificationsTable).values({
       userId: claim.tradieId,
       type: "job_completed",

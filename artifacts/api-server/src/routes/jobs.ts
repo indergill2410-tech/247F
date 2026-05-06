@@ -250,7 +250,9 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
 
   // Trigger matching engine asynchronously (does not affect creditCost)
   setImmediate(() => {
-    runMatchingEngine(job.id, categoryId, postcode ?? null, suburb ?? null).catch(() => {});
+    runMatchingEngine(job.id, categoryId, postcode ?? null, suburb ?? null).catch((err) =>
+      logger.error({ err }, "Matching engine failed")
+    );
   });
 
   res.status(201).json(buildJobResponse({ ...job, claimCount: 0 }));

@@ -7,11 +7,12 @@ import { hashPassword, verifyPassword, signToken } from "../lib/auth.js";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { sendCustomerWelcome, sendTradieWelcome } from "../lib/email.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
+import { authRateLimit } from "../app.js";
 
 const router = Router();
 
 // POST /api/auth/register
-router.post("/auth/register", async (req, res): Promise<void> => {
+router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => {
   const parsed = RegisterUserBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "validation_error", message: parsed.error.message });
@@ -65,7 +66,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
 });
 
 // POST /api/auth/login
-router.post("/auth/login", async (req, res): Promise<void> => {
+router.post("/auth/login", authRateLimit, async (req, res): Promise<void> => {
   const parsed = LoginUserBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "validation_error", message: parsed.error.message });

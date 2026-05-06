@@ -1,7 +1,10 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env["SESSION_SECRET"] ?? "fixit247-dev-secret";
+const JWT_SECRET = process.env["SESSION_SECRET"];
+if (!JWT_SECRET) {
+  throw new Error("SESSION_SECRET environment variable is required");
+}
 const TOKEN_EXPIRY = "7d";
 
 export function hashPassword(password: string): string {
