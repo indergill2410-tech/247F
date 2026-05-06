@@ -19,7 +19,7 @@ import {
 import { requireAuth } from "../middlewares/require-auth.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
-import { estimateLatLng } from "../lib/geo.js";
+import { lookupSuburbCoords } from "../lib/geo.js";
 import { estimateCreditCost, BAND_RANGE, type SizeBand } from "../lib/openai.js";
 
 const router = Router();
@@ -220,8 +220,8 @@ router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
     return BAND_RANGE[chosenBand].midpoint;
   });
 
-  // Derive coordinates from postcode so matching engine can use haversine
-  const jobLatLng = estimateLatLng(postcode);
+  // Derive coordinates via canonical suburb lookup so matching engine can use haversine
+  const jobLatLng = lookupSuburbCoords(suburb, postcode);
 
   // Insert with final creditCost — will not change after this point
   const [job] = await db.insert(jobsTable).values({

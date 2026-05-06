@@ -10,7 +10,7 @@ import {
 import { eq, and, count, inArray, sql } from "drizzle-orm";
 import { logger } from "./logger.js";
 import { sendNewJobMatchEmail } from "./email.js";
-import { haversineKm, estimateLatLng } from "./geo.js";
+import { haversineKm, lookupSuburbCoords } from "./geo.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
 const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
@@ -57,14 +57,14 @@ function isInServiceArea(
     let jobLat = jobLatitude;
     let jobLng = jobLongitude;
 
-    // Fall back to postcode-estimated coordinates when stored values are absent
+    // Fall back to canonical suburb lookup when stored coords are absent
     if ((tradieLat == null || tradieLng == null) && tradie.postcode) {
-      const est = estimateLatLng(tradie.postcode);
-      if (est) { tradieLat = est.lat; tradieLng = est.lng; }
+      const found = lookupSuburbCoords(null, tradie.postcode);
+      if (found) { tradieLat = found.lat; tradieLng = found.lng; }
     }
     if ((jobLat == null || jobLng == null) && jobPostcode) {
-      const est = estimateLatLng(jobPostcode);
-      if (est) { jobLat = est.lat; jobLng = est.lng; }
+      const found = lookupSuburbCoords(null, jobPostcode);
+      if (found) { jobLat = found.lat; jobLng = found.lng; }
     }
 
     if (tradieLat != null && tradieLng != null && jobLat != null && jobLng != null) {
