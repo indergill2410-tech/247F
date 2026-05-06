@@ -203,6 +203,7 @@ export default function JobDetailPage() {
     tradieRating: number | null; tradieReviewCount: number;
     tradieSuburb: string | null; status: string;
     message: string | null; proposedPrice: number | null; createdAt: string;
+    tradieEmail?: string | null; tradiePhone?: string | null;
   };
   type JobWithClaims = typeof job & { claims?: Claim[] };
   const jobWithClaims = job as JobWithClaims;
