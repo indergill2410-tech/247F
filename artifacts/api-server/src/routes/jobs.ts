@@ -17,6 +17,7 @@ import {
   DeleteJobParams,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
+import { writeRateLimit } from "../app.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
@@ -185,7 +186,7 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
 });
 
 // POST /api/jobs
-router.post("/jobs", requireAuth, async (req, res): Promise<void> => {
+router.post("/jobs", requireAuth, writeRateLimit, async (req, res): Promise<void> => {
   if (req.user!.role !== "homeowner" && req.user!.role !== "admin") {
     res.status(403).json({ error: "forbidden", message: "Only homeowners can post jobs" });
     return;

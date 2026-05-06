@@ -15,6 +15,7 @@ interface OtpEmailData {
 async function sendViaApi(payload: object): Promise<void> {
   const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
+    signal: AbortSignal.timeout(10_000),
     headers: {
       Authorization: `Bearer ${config.sendgrid.apiKey}`,
       "Content-Type": "application/json",
@@ -41,6 +42,7 @@ async function sendViaHtml(to: string, toName: string | undefined, subject: stri
   };
   const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
+    signal: AbortSignal.timeout(10_000),
     headers: {
       Authorization: `Bearer ${config.sendgrid.apiKey}`,
       "Content-Type": "application/json",
