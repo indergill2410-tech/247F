@@ -6,6 +6,7 @@ import {
   real,
   timestamp,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -33,7 +34,11 @@ export const claimsTable = pgTable("claims", {
   proposedPrice: real("proposed_price"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  jobIdIdx: index("claims_job_id_idx").on(table.jobId),
+  tradieIdIdx: index("claims_tradie_id_idx").on(table.tradieId),
+  tradieStatusIdx: index("claims_tradie_status_idx").on(table.tradieId, table.status),
+}));
 
 export const insertClaimSchema = createInsertSchema(claimsTable).omit({
   id: true,

@@ -6,6 +6,7 @@ import {
   real,
   timestamp,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -49,7 +50,11 @@ export const jobsTable = pgTable("jobs", {
   scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  homeownerIdIdx: index("jobs_homeowner_id_idx").on(table.homeownerId),
+  statusIdx: index("jobs_status_idx").on(table.status),
+  categoryIdIdx: index("jobs_category_id_idx").on(table.categoryId),
+}));
 
 export const insertJobSchema = createInsertSchema(jobsTable).omit({
   id: true,

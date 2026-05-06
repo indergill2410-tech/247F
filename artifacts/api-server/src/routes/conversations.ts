@@ -1,13 +1,17 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
+import { db, pool } from "@workspace/db";
 import { conversationsTable, messagesTable, usersTable, jobsTable, notificationsTable } from "@workspace/db";
-import { eq, and, or, desc, count, sql } from "drizzle-orm";
+import { eq, and, or, desc, count, sql, inArray } from "drizzle-orm";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { logger } from "../lib/logger.js";
 import { broadcastToRoom } from "../lib/ws-manager.js";
 import { sendNewMessageNotification } from "../lib/email.js";
 
 const router = Router();
+
+function sanitizeForEmail(value: string): string {
+  return value.replace(/[\r\n\t]/g, " ").trim();
+}
 
 // GET /api/conversations
 router.get("/conversations", requireAuth, async (req, res): Promise<void> => {
@@ -32,33 +36,43 @@ router.get("/conversations", requireAuth, async (req, res): Promise<void> => {
     .where(or(eq(conversationsTable.homeownerId, userId), eq(conversationsTable.tradieId, userId)))
     .orderBy(desc(conversationsTable.lastMessageAt), desc(conversationsTable.createdAt));
 
-  // Get unread counts and last message for each
-  const results = await Promise.all(
-    convos.map(async (c) => {
-      const [unreadRow] = await db
-        .select({ count: count() })
-        .from(messagesTable)
-        .where(
-          and(
-            eq(messagesTable.conversationId, c.id),
-            eq(messagesTable.isRead, false),
-            // don't count messages you sent
-            sql`${messagesTable.senderId} != ${userId}`
-          )
-        );
-      const [lastMsg] = await db
-        .select({ body: messagesTable.body })
-        .from(messagesTable)
-        .where(eq(messagesTable.conversationId, c.id))
-        .orderBy(desc(messagesTable.createdAt))
-        .limit(1);
-      return {
-        ...c,
-        unreadCount: Number(unreadRow?.count ?? 0),
-        lastMessageBody: lastMsg?.body ?? null,
-      };
-    })
+  if (convos.length === 0) {
+    res.status(200).json([]);
+    return;
+  }
+
+  const convoIds = convos.map((c) => c.id);
+
+  // Batch fetch unread counts for all conversations (1 query instead of N)
+  const unreadRows = await db
+    .select({ conversationId: messagesTable.conversationId, count: count() })
+    .from(messagesTable)
+    .where(
+      and(
+        inArray(messagesTable.conversationId, convoIds),
+        eq(messagesTable.isRead, false),
+        sql`${messagesTable.senderId} != ${userId}`,
+      ),
+    )
+    .groupBy(messagesTable.conversationId);
+
+  // Batch fetch last message per conversation using DISTINCT ON (1 query instead of N)
+  const lastMsgResult = await pool.query<{ conversation_id: number; body: string }>(
+    `SELECT DISTINCT ON (conversation_id) conversation_id, body
+     FROM messages
+     WHERE conversation_id = ANY($1::int[])
+     ORDER BY conversation_id, created_at DESC`,
+    [convoIds],
   );
+
+  const unreadMap = new Map(unreadRows.map((r) => [r.conversationId, Number(r.count)]));
+  const lastMsgMap = new Map(lastMsgResult.rows.map((r) => [r.conversation_id, r.body]));
+
+  const results = convos.map((c) => ({
+    ...c,
+    unreadCount: unreadMap.get(c.id) ?? 0,
+    lastMessageBody: lastMsgMap.get(c.id) ?? null,
+  }));
 
   res.status(200).json(results);
 });
@@ -107,8 +121,8 @@ router.get("/conversations/:id/messages", requireAuth, async (req, res): Promise
       and(
         eq(messagesTable.conversationId, convoId),
         eq(messagesTable.isRead, false),
-        sql`${messagesTable.senderId} != ${userId}`
-      )
+        sql`${messagesTable.senderId} != ${userId}`,
+      ),
     )
     .catch((err) => logger.error({ err }, "Failed to mark messages read"));
 
@@ -164,13 +178,16 @@ router.post("/conversations/:id/messages", requireAuth, async (req, res): Promis
   const [job] = await db.select({ title: jobsTable.title }).from(jobsTable).where(eq(jobsTable.id, convo.jobId));
   const [recipient] = await db.select({ email: usersTable.email, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, recipientId));
 
+  const senderName = sanitizeForEmail(sender?.name ?? "Someone");
+  const jobTitle = sanitizeForEmail(job?.title ?? "a job");
+
   await db
     .insert(notificationsTable)
     .values({
       userId: recipientId,
       type: "new_message",
       title: "New Message",
-      message: `${sender?.name ?? "Someone"} sent you a message about "${job?.title ?? "a job"}"`,
+      message: `${senderName} sent you a message about "${jobTitle}"`,
       jobId: convo.jobId,
     })
     .catch((err) => logger.error({ err }, "Failed to send message notification"));
@@ -180,8 +197,8 @@ router.post("/conversations/:id/messages", requireAuth, async (req, res): Promis
     sendNewMessageNotification({
       recipientEmail: recipient.email,
       recipientName: recipient.name,
-      senderName: sender?.name ?? "Someone",
-      jobTitle: job?.title ?? "a job",
+      senderName,
+      jobTitle,
       conversationId: convoId,
     }).catch(() => {});
   }

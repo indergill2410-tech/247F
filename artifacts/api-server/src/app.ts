@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes/index.js";
@@ -27,6 +27,71 @@ app.use(
   }),
 );
 
+// Security headers
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  next();
+});
+
+// CORS — restrict to known origins in production
+const rawAllowedOrigins = process.env.ALLOWED_ORIGINS ?? "";
+const allowedOrigins = rawAllowedOrigins
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+if (process.env.NODE_ENV !== "production") {
+  allowedOrigins.push("http://localhost:5173", "http://localhost:3000", "http://localhost:4173");
+}
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+  }),
+);
+
+// Simple in-memory rate limiter for auth endpoints (10 req/min per IP)
+const _rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of _rateLimitStore.entries()) {
+    if (entry.resetAt < now) _rateLimitStore.delete(key);
+  }
+}, 60_000);
+
+export function authRateLimit(req: Request, res: Response, next: NextFunction): void {
+  const ip = ((req.headers["x-forwarded-for"] as string) ?? req.ip ?? "unknown")
+    .split(",")[0]
+    .trim();
+  const now = Date.now();
+  const entry = _rateLimitStore.get(ip);
+
+  if (!entry || entry.resetAt < now) {
+    _rateLimitStore.set(ip, { count: 1, resetAt: now + 60_000 });
+    return next();
+  }
+
+  if (entry.count >= 10) {
+    res.status(429).json({ error: "too_many_requests", message: "Too many requests, please try again later" });
+    return;
+  }
+
+  entry.count++;
+  next();
+}
+
 // IMPORTANT: Stripe webhook MUST be registered BEFORE express.json()
 // Stripe needs the raw Buffer body to verify signatures
 app.post(
@@ -42,7 +107,7 @@ app.post(
       const sig = Array.isArray(signature) ? signature[0] : signature;
       await WebhookHandlers.processWebhook(req.body as Buffer, sig);
       res.status(200).json({ received: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error({ err: error }, "Stripe webhook error");
       res.status(400).json({ error: "Webhook processing error" });
     }
@@ -50,7 +115,6 @@ app.post(
 );
 
 // Apply body parsing AFTER the webhook route
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
