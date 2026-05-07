@@ -11,7 +11,7 @@ import {
   ListJobClaimsParams,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
-import { writeRateLimit } from "../app.js";
+import { writeRateLimit } from "../lib/rate-limit.js";
 import { logger } from "../lib/logger.js";
 import { CREDITS_PER_CLAIM, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
 import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/email.js";
