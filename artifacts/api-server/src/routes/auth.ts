@@ -7,7 +7,7 @@ import { hashPassword, verifyPassword, signToken } from "../lib/auth.js";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { sendCustomerWelcome, sendTradieWelcome } from "../lib/email.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
-import { authRateLimit } from "../app.js";
+import { authRateLimit } from "../lib/rate-limit.js";
 
 const router = Router();
 

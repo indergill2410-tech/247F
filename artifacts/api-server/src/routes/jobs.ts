@@ -17,7 +17,7 @@ import {
   DeleteJobParams,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/require-auth.js";
-import { writeRateLimit } from "../app.js";
+import { writeRateLimit } from "../lib/rate-limit.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
