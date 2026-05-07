@@ -3,14 +3,36 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, access } from "node:fs/promises";
+import { execSync } from "node:child_process";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(artifactDir, "../..");
+const frontendDist = path.resolve(repoRoot, "artifacts/fixit247/dist/public");
+
+async function buildFrontend() {
+  // Skip if already built (e.g. by a separate CI step)
+  try {
+    await access(path.join(frontendDist, "index.html"));
+    console.log("Frontend already built, skipping.");
+    return;
+  } catch {
+    // not built yet — build it now
+  }
+  console.log("Building frontend...");
+  execSync("pnpm --filter @workspace/fixit247 build", {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
+  console.log("Frontend build complete.");
+}
 
 async function buildAll() {
+  await buildFrontend();
+
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
