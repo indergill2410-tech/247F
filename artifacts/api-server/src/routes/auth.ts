@@ -21,48 +21,57 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
 
   const { name, email, password, role, phone, suburb, postcode, bio, skills, primaryTrade, secondaryTrades } = parsed.data;
 
-  const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
-  if (existing.length > 0) {
-    res.status(409).json({ error: "conflict", message: "Email already in use" });
-    return;
+  try {
+    const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
+    if (existing.length > 0) {
+      res.status(409).json({ error: "conflict", message: "Email already in use" });
+      return;
+    }
+
+    const passwordHash = hashPassword(password);
+    const [user] = await db.insert(usersTable).values({
+      name,
+      email,
+      passwordHash,
+      role: role as "homeowner" | "tradie",
+      phone: phone ?? null,
+      suburb: suburb ?? null,
+      postcode: postcode ?? null,
+      bio: bio ?? null,
+      primaryTrade: primaryTrade ?? null,
+      secondaryTrades: secondaryTrades ?? null,
+    }).returning();
+
+    if (!user) {
+      res.status(500).json({ error: "server_error", message: "Failed to create user" });
+      return;
+    }
+
+    // Insert tradie skills if provided
+    if (role === "tradie" && skills && skills.length > 0) {
+      await db.insert(tradieSkillsTable).values(
+        skills.map((categoryId) => ({ tradieId: user.id, categoryId }))
+      ).onConflictDoNothing();
+    }
+
+    // Send welcome email (fire-and-forget, never blocks registration)
+    if (role === "tradie") {
+      sendTradieWelcome({ name, email }).catch(() => {});
+    } else {
+      sendCustomerWelcome({ name, email }).catch(() => {});
+    }
+
+    const token = signToken({ userId: user.id, email: user.email, role: user.role });
+    const { passwordHash: _, ...safeUser } = user;
+    res.status(201).json({ user: { ...safeUser, reviewCount: user.reviewCount }, token });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    // Log with enough detail to diagnose DB/schema issues
+    import("../lib/logger.js").then(({ logger }) =>
+      logger.error({ err, email, role }, `Registration error: ${message}`)
+    ).catch(() => {});
+    res.status(500).json({ error: "server_error", message: `Registration failed: ${message}` });
   }
-
-  const passwordHash = hashPassword(password);
-  const [user] = await db.insert(usersTable).values({
-    name,
-    email,
-    passwordHash,
-    role: role as "homeowner" | "tradie",
-    phone: phone ?? null,
-    suburb: suburb ?? null,
-    postcode: postcode ?? null,
-    bio: bio ?? null,
-    primaryTrade: primaryTrade ?? null,
-    secondaryTrades: secondaryTrades ?? null,
-  }).returning();
-
-  if (!user) {
-    res.status(500).json({ error: "server_error", message: "Failed to create user" });
-    return;
-  }
-
-  // Insert tradie skills if provided
-  if (role === "tradie" && skills && skills.length > 0) {
-    await db.insert(tradieSkillsTable).values(
-      skills.map((categoryId) => ({ tradieId: user.id, categoryId }))
-    ).onConflictDoNothing();
-  }
-
-  // Send welcome email (fire-and-forget, never blocks registration)
-  if (role === "tradie") {
-    sendTradieWelcome({ name, email }).catch(() => {});
-  } else {
-    sendCustomerWelcome({ name, email }).catch(() => {});
-  }
-
-  const token = signToken({ userId: user.id, email: user.email, role: user.role });
-  const { passwordHash: _, ...safeUser } = user;
-  res.status(201).json({ user: { ...safeUser, reviewCount: user.reviewCount }, token });
 });
 
 // POST /api/auth/login
