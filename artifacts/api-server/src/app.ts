@@ -100,7 +100,7 @@ app.use("/api", router);
 // Serve the built React frontend for all non-API routes (SPA fallback)
 if (existsSync(FRONTEND_DIST)) {
   app.use(express.static(FRONTEND_DIST));
-  app.get("*", (_req: Request, res: Response) => {
+  app.use((_req: Request, res: Response) => {
     res.sendFile(join(FRONTEND_DIST, "index.html"));
   });
 }
