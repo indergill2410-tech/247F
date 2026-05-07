@@ -1,9 +1,16 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { existsSync } from "fs";
 import router from "./routes/index.js";
 import { WebhookHandlers } from "./webhookHandlers.js";
 import { logger } from "./lib/logger.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Resolved at runtime: works both from dist/ and src/
+const FRONTEND_DIST = join(__dirname, "../../fixit247/dist/public");
 
 const app: Express = express();
 
@@ -89,5 +96,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+// Serve the built React frontend for all non-API routes (SPA fallback)
+if (existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+  app.get("*", (_req: Request, res: Response) => {
+    res.sendFile(join(FRONTEND_DIST, "index.html"));
+  });
+}
 
 export default app;

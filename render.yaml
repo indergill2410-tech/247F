@@ -3,7 +3,7 @@ services:
     name: 247f-api
     runtime: node
     plan: starter
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && node artifacts/api-server/build.mjs
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build && node artifacts/api-server/build.mjs
     startCommand: node artifacts/api-server/dist/index.mjs
     healthCheckPath: /api/health
     envVars:
