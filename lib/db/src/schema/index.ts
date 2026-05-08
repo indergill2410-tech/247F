@@ -6,4 +6,4 @@ export * from "./tradie_skills";
 export * from "./notifications";
 export * from "./conversations";
 export * from "./reviews";
-export * from "./credits";
+export * from "./wallet";
