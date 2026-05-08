@@ -46,7 +46,7 @@ export const jobsTable = pgTable("jobs", {
   imageUrls: text("image_urls").array().notNull().default([]),
   budget: real("budget"),
   sizeBand: sizeBandEnum("size_band"),
-  creditCost: integer("credit_cost"),
+  leadCostCents: integer("lead_cost_cents"),
   scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
