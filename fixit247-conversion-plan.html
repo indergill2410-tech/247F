@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixit 24/7 — Conversion & Monetisation Blueprint</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0b0904;
+    color: #f0ece4;
+    line-height: 1.65;
+    font-size: 14px;
+  }
+
+  /* Cover Page */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px;
+    background: #0b0904;
+    border-bottom: 1px solid rgba(255,200,0,0.2);
+    page-break-after: always;
+  }
+
+  .cover-tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffc800;
+    margin-bottom: 32px;
+    font-weight: 600;
+  }
+
+  .cover h1 {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #ffffff;
+    margin-bottom: 16px;
+  }
+
+  .cover h1 span {
+    color: #ffc800;
+  }
+
+  .cover-sub {
+    font-size: 20px;
+    color: rgba(240,236,228,0.6);
+    max-width: 540px;
+    margin-bottom: 60px;
+    line-height: 1.5;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 32px;
+  }
+
+  .cover-meta div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .cover-meta label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(240,236,228,0.4);
+  }
+
+  .cover-meta span {
+    font-size: 14px;
+    color: #ffc800;
+    font-weight: 600;
+  }
+
+  /* Layout */
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 80px;
+  }
+
+  /* Section breaks */
+  .section-break {
+    page-break-before: always;
+    padding-top: 64px;
+  }
+
+  /* Part headers */
+  .part-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .part-num {
+    width: 40px;
+    height: 40px;
+    background: #ffc800;
+    color: #0b0904;
+    font-weight: 800;
+    font-size: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .part-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  .part-header p {
+    font-size: 13px;
+    color: rgba(240,236,228,0.5);
+    margin-top: 2px;
+  }
+
+  /* Section headers */
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 36px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffc800;
+    margin: 24px 0 10px;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    color: rgba(240,236,228,0.75);
+    margin-bottom: 14px;
+  }
+
+  strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  /* Diagnosis box */
+  .diagnosis {
+    background: rgba(255,200,0,0.07);
+    border: 1px solid rgba(255,200,0,0.25);
+    border-left: 4px solid #ffc800;
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin: 28px 0;
+  }
+
+  .diagnosis h3 {
+    border: none;
+    margin-top: 0;
+    color: #ffc800;
+    font-size: 15px;
+  }
+
+  .diagnosis p {
+    color: rgba(240,236,228,0.8);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0 32px;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: rgba(255,200,0,0.1);
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffc800;
+    border-bottom: 1px solid rgba(255,200,0,0.2);
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(240,236,228,0.75);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td strong { color: #ffffff; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Code / flow blocks */
+  .flow-block {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 24px 28px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: rgba(240,236,228,0.7);
+    line-height: 1.8;
+    margin: 16px 0 28px;
+    white-space: pre-wrap;
+  }
+
+  .flow-block .highlight { color: #ffc800; font-weight: 700; }
+  .flow-block .arrow { color: rgba(255,200,0,0.5); }
+  .flow-block .comment { color: rgba(240,236,228,0.35); }
+
+  /* Stat cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0 32px;
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-card .val {
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffc800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .lbl {
+    font-size: 11px;
+    color: rgba(240,236,228,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Revenue cards */
+  .rev-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0 32px;
+  }
+
+  .rev-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 22px;
+  }
+
+  .rev-card h4 {
+    margin-top: 0;
+    font-size: 13px;
+    color: #ffc800;
+    margin-bottom: 14px;
+  }
+
+  .rev-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 12.5px;
+  }
+
+  .rev-item:last-child { border-bottom: none; }
+
+  .rev-item .price {
+    color: #ffc800;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .rev-item .badge {
+    font-size: 9px;
+    background: rgba(255,200,0,0.15);
+    color: #ffc800;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* Phase cards */
+  .phase-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .phase-num {
+    background: rgba(255,200,0,0.1);
+    border: 1px solid rgba(255,200,0,0.3);
+    color: #ffc800;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+
+  .phase-card h4 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 15px;
+  }
+
+  .phase-card .timeline {
+    font-size: 11px;
+    color: rgba(240,236,228,0.4);
+    margin-left: auto;
+    letter-spacing: 0.5px;
+  }
+
+  .checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(240,236,228,0.7);
+  }
+
+  .checklist li::before {
+    content: "→";
+    color: #ffc800;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-weight: 700;
+  }
+
+  /* Callout */
+  .callout {
+    background: rgba(255,50,50,0.07);
+    border: 1px solid rgba(255,50,50,0.2);
+    border-left: 4px solid #ff4444;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+
+  .callout h4 {
+    color: #ff7777;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(240,236,228,0.7);
+  }
+
+  .callout-green {
+    background: rgba(50,200,100,0.07);
+    border-color: rgba(50,200,100,0.3);
+    border-left-color: #32c864;
+  }
+
+  .callout-green h4 { color: #5de88c; }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 40px 0;
+  }
+
+  /* Hero wireframe */
+  .wireframe {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 20px 0 28px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+
+  .wireframe .wf-bar {
+    background: rgba(255,200,0,0.12);
+    border: 1px solid rgba(255,200,0,0.25);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: #ffc800;
+    font-size: 11px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .wireframe .wf-h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .wireframe .wf-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .wireframe .wf-select {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: rgba(240,236,228,0.6);
+    font-size: 12px;
+    flex: 1;
+  }
+
+  .wireframe .wf-btn {
+    background: #ffc800;
+    color: #0b0904;
+    font-weight: 800;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .wireframe .wf-stars {
+    color: rgba(240,236,228,0.5);
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  .wireframe .wf-stars span { color: #ffc800; }
+
+  .wireframe .wf-divider {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 12px;
+    color: rgba(240,236,228,0.4);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .wireframe .wf-divider a {
+    color: #ffc800;
+    text-decoration: none;
+  }
+
+  /* Print */
+  @media print {
+    body { background: #0b0904; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cover { min-height: auto; padding: 60px; }
+    .section-break { page-break-before: always; }
+    .phase-card { break-inside: avoid; }
+    .stat-grid { break-inside: avoid; }
+    .rev-grid { break-inside: avoid; }
+  }
+
+  /* TOC */
+  .toc {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 32px;
+    margin: 0 0 32px;
+  }
+
+  .toc h3 {
+    border: none;
+    margin-top: 0;
+    color: #ffc800;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .toc ol {
+    margin: 16px 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toc li {
+    font-size: 14px;
+    color: rgba(240,236,228,0.7);
+  }
+
+  .toc li strong {
+    color: #ffffff;
+  }
+
+  .toc .toc-sub {
+    font-size: 12px;
+    color: rgba(240,236,228,0.4);
+    margin-top: 2px;
+  }
+
+  /* Conversion lift table */
+  .lift-row td:last-child { color: #5de88c; font-weight: 700; }
+  .lift-row td:nth-child(3) { color: rgba(240,236,228,0.5); }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="cover-tag">Confidential Strategy Document</div>
+  <h1>Fixit 24/7<br><span>Conversion &amp; Monetisation</span><br>Blueprint</h1>
+  <div class="cover-sub">A world-class psychological audit of every user touchpoint, CTA, and revenue stream — with a phased implementation roadmap.</div>
+  <div class="cover-meta">
+    <div>
+      <label>Document Type</label>
+      <span>Growth Strategy</span>
+    </div>
+    <div>
+      <label>Date</label>
+      <span>May 2026</span>
+    </div>
+    <div>
+      <label>Product</label>
+      <span>fixit247.com.au</span>
+    </div>
+    <div>
+      <label>Prepared By</label>
+      <span>Claude · Anthropic</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="page">
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li>
+        <strong>Fundamental Diagnosis</strong>
+        <div class="toc-sub">Core problems in the current conversion architecture</div>
+      </li>
+      <li>
+        <strong>Psychological Conversion Framework</strong>
+        <div class="toc-sub">8 psychological levers and how they apply to Fixit 24/7</div>
+      </li>
+      <li>
+        <strong>Rebuilt User Funnels</strong>
+        <div class="toc-sub">Homeowner and tradie journeys, step by step</div>
+      </li>
+      <li>
+        <strong>Landing Page Restructure</strong>
+        <div class="toc-sub">Hero wireframe, section reorder, CTA hierarchy</div>
+      </li>
+      <li>
+        <strong>Critical Friction Fixes</strong>
+        <div class="toc-sub">Emergency membership trust bomb, credit opacity, dual signup path</div>
+      </li>
+      <li>
+        <strong>New Monetisation Streams</strong>
+        <div class="toc-sub">Full revenue stack — 12 new opportunities across both sides</div>
+      </li>
+      <li>
+        <strong>Retention &amp; Re-engagement Loops</strong>
+        <div class="toc-sub">Homeowner and tradie lifecycle loops</div>
+      </li>
+      <li>
+        <strong>Conversion Targets &amp; Revenue Model</strong>
+        <div class="toc-sub">Before/after metrics and projected MRR impact</div>
+      </li>
+      <li>
+        <strong>Implementation Roadmap</strong>
+        <div class="toc-sub">4 phases, prioritised by impact vs effort</div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- PART 1: DIAGNOSIS -->
+  <div class="part-header">
+    <div class="part-num">1</div>
+    <div>
+      <h2>Fundamental Diagnosis</h2>
+      <p>What's broken before we talk about fixes</p>
+    </div>
+  </div>
+
+  <div class="diagnosis">
+    <h3>Core Structural Problem</h3>
+    <p>Fixit 24/7 is a <strong>two-sided marketplace with a one-sided revenue model.</strong> Tradies pay (credits + packs). Homeowners are free — with a single upsell path to a $49/month emergency subscription that requires enormous trust to purchase. This creates compounding revenue fragility: if tradie credit revenue softens, there is almost no homeowner revenue to buffer it.</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Problem</th>
+        <th>Current State</th>
+        <th>Conversion Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Dual-audience identity crisis</strong></td>
+        <td>Landing page is 95% homeowner. Tradies get a thin nudge bar halfway down.</td>
+        <td>Tradie bounce rate high</td>
+      </tr>
+      <tr>
+        <td><strong>Emergency membership trust bomb</strong></td>
+        <td>12-month commitment + $200 cancellation fee buried in fine print</td>
+        <td>Kills purchase intent at decision moment</td>
+      </tr>
+      <tr>
+        <td><strong>Credit cost opacity</strong></td>
+        <td>"30 to 800 credits" — 27× range shown to tradies before claiming</td>
+        <td>Paralysis on every claim decision</td>
+      </tr>
+      <tr>
+        <td><strong>Zero social proof near CTA</strong></td>
+        <td>Hero CTA has no adjacent star rating or job count</td>
+        <td>Hesitation at peak intent</td>
+      </tr>
+      <tr>
+        <td><strong>Wrong page section order</strong></td>
+        <td>Plus upsell appears before How It Works — upselling before explaining</td>
+        <td>Confusion &gt; mistrust &gt; exit</td>
+      </tr>
+      <tr>
+        <td><strong>Dual signup path dead-end</strong></td>
+        <td>Wrong role chosen = full re-registration required</td>
+        <td>Silent drop-off in funnel</td>
+      </tr>
+      <tr>
+        <td><strong>72-hour waiting period</strong></td>
+        <td>Emergency member pays $49 and can't use coverage for 3 days</td>
+        <td>Immediate buyer's remorse</td>
+      </tr>
+      <tr>
+        <td><strong>Thin homeowner monetisation</strong></td>
+        <td>One product: emergency membership. No mid-funnel upsells.</td>
+        <td>Low homeowner LTV</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PART 2: PSYCHOLOGY -->
+  <div class="part-header" style="margin-top:48px;">
+    <div class="part-num">2</div>
+    <div>
+      <h2>Psychological Conversion Framework</h2>
+      <p>The 8 levers and exactly how to pull them</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Principle</th>
+        <th>Current State</th>
+        <th>Optimised Application</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Loss Aversion</strong> (Kahneman)</td>
+        <td>Tradies see "claim a job" as a spend</td>
+        <td>"23 jobs near you went unclaimed last week" — frame the cost of inaction</td>
+      </tr>
+      <tr>
+        <td><strong>Social Proof</strong> (Cialdini)</td>
+        <td>3 testimonials, no real numbers, no recency</td>
+        <td>Live ticker: "Burst pipe, Bondi Beach — 4 tradies responded in 18 min"</td>
+      </tr>
+      <tr>
+        <td><strong>Reciprocity</strong></td>
+        <td>Ask for signup before showing any value</td>
+        <td>Show 3 real tradies in their suburb before homeowner registers</td>
+      </tr>
+      <tr>
+        <td><strong>Commitment Escalation</strong></td>
+        <td>Long registration form as first ask</td>
+        <td>"What broke?" 2-tap micro-commit before suburb input</td>
+      </tr>
+      <tr>
+        <td><strong>Anchoring</strong></td>
+        <td>$49/mo shown without cost context</td>
+        <td>"One emergency callout alone costs $180–$400. Plus covers unlimited."</td>
+      </tr>
+      <tr>
+        <td><strong>Scarcity / Urgency</strong></td>
+        <td>No urgency signals anywhere on the page</td>
+        <td>"This job has 3 tradies interested" visible to homeowner in real time</td>
+      </tr>
+      <tr>
+        <td><strong>Authority</strong></td>
+        <td>Text-only "verified" badge, no licence detail</td>
+        <td>Show licence number, ASIC reg, insurance expiry date on tradie profile</td>
+      </tr>
+      <tr>
+        <td><strong>IKEA Effect</strong></td>
+        <td>Register, then build profile separately</td>
+        <td>Let tradies build profile before email confirmation — sunk cost drives completion</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PART 3: FUNNELS -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">3</div>
+    <div>
+      <h2>Rebuilt User Funnels</h2>
+      <p>Every step from stranger to paying customer</p>
+    </div>
+  </div>
+
+  <h3>Homeowner Conversion Funnel</h3>
+  <div class="flow-block"><span class="highlight">AWARENESS</span>     "I need a tradie"
+<span class="arrow">     ↓</span>
+<span class="highlight">MICRO-COMMIT</span>  "What broke?" <span class="comment">→ picks category (no login required)</span>
+<span class="arrow">     ↓</span>
+<span class="highlight">PEEK VALUE</span>    "Here are 3 verified plumbers in your suburb" <span class="comment">(gated behind email only)</span>
+<span class="arrow">     ↓</span>
+<span class="highlight">REGISTER</span>      Name + email + phone. No password yet — magic link sent.
+<span class="arrow">     ↓</span>
+<span class="highlight">POST JOB</span>      Pre-filled from category selection. Only 2 additional fields.
+<span class="arrow">     ↓</span>
+<span class="highlight">SOCIAL PROOF</span>  "2 tradies have seen your job" <span class="comment">(real-time — drives return visit)</span>
+<span class="arrow">     ↓</span>
+<span class="highlight">CONVERSION</span>    They hire → job complete → trigger Plus upsell at <strong>peak satisfaction</strong>
+<span class="arrow">     ↓</span>
+<span class="highlight">RETENTION</span>     "3 months later: your hot water system is 8 years old. Health check?"</div>
+
+  <div class="callout callout-green">
+    <h4>Key Insight</h4>
+    <p>The current flow asks for full registration before showing any value. Every high-converting marketplace (Amazon, Airbnb, Uber) does the opposite. Show value first — ask for commitment second.</p>
+  </div>
+
+  <h3>Tradie Conversion Funnel</h3>
+  <div class="flow-block"><span class="highlight">AWARENESS</span>     "I need more work / business is slow"
+<span class="arrow">     ↓</span>
+<span class="highlight">SOCIAL PROOF</span>  "Dave from Sydney averaged 4 jobs/week in March" <span class="comment">(specific, credible)</span>
+<span class="arrow">     ↓</span>
+<span class="highlight">LOSS FRAME</span>    "23 plumbing jobs in your area posted this week. You missed them."
+<span class="arrow">     ↓</span>
+<span class="highlight">FREE ENTRY</span>    "Sign up free — 1,111 credits waiting for you" <span class="comment">(gift framing, not feature)</span>
+<span class="arrow">     ↓</span>
+<span class="highlight">PROFILE BUILD</span> Progressive — 3 fields only to start. Rest unlocks after first login.
+<span class="arrow">     ↓</span>
+<span class="highlight">FIRST CLAIM</span>   "Here's a nearby job — 45 credits. Most tradies win 1 in 3 claims."
+<span class="arrow">     ↓</span>
+<span class="highlight">WIN TRIGGER</span>   They win → instant "You won! Buy credits to stay active" push notification
+<span class="arrow">     ↓</span>
+<span class="highlight">RETENTION</span>     Monthly: "Your 1,111 credits just landed — 14 jobs in your area this week"
+<span class="arrow">     ↓</span>
+<span class="highlight">UPSELL</span>        "You ran out of credits 3×. Pro subscribers never go dry — upgrade."</div>
+</div>
+
+<!-- PART 4: LANDING PAGE -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">4</div>
+    <div>
+      <h2>Landing Page Restructure</h2>
+      <p>Hero wireframe, section reorder, CTA hierarchy</p>
+    </div>
+  </div>
+
+  <h3>Rebuilt Hero — The Most Valuable Screen in the App</h3>
+  <div class="wireframe">
+    <div class="wf-bar">📡 LIVE · Burst pipe — Newtown, NSW · posted 2 min ago · 3 tradies responding</div>
+    <div class="wf-h1">Get a trusted local tradie<br>to your door today.</div>
+    <div class="wf-input-row">
+      <div class="wf-select">🔧 What broke? ▼</div>
+      <div class="wf-select">📍 Your suburb</div>
+      <div class="wf-btn">Post free →</div>
+    </div>
+    <div class="wf-stars"><span>★★★★★</span> 4.9 from 3,200 completed jobs this month · Licensed &amp; insured tradies only</div>
+    <div class="wf-divider">Are you a tradie? <a>Get 1,111 free credits and start picking up local jobs →</a></div>
+  </div>
+
+  <p><strong>Why this works:</strong> The live ticker creates urgency and social proof in a single element. "What broke?" reduces cognitive load from a blank form to one dropdown selection. Social proof ("4.9 · 3,200 jobs") sits <em>adjacent</em> to the CTA — not below it. The tradie nudge is present but one line — not competing.</p>
+
+  <h3>Reordered Page Sections (Psychological Sequence)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Section</th>
+        <th>Psychological Purpose</th>
+        <th>Change</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Hero + Live Ticker</strong></td><td>Urgency, micro-commit, social proof</td><td>Redesign</td></tr>
+      <tr><td>2</td><td><strong>Stats Strip</strong></td><td>Credibility — 3 numbers: tradies, jobs/mo, avg response time</td><td>New</td></tr>
+      <tr><td>3</td><td><strong>Categories</strong></td><td>Intent identification — "which is my problem?"</td><td>Reorder ↑</td></tr>
+      <tr><td>4</td><td><strong>How It Works (condensed)</strong></td><td>Reduce uncertainty — only 3 steps shown</td><td>Reorder ↑</td></tr>
+      <tr><td>5</td><td><strong>Top 3 FAQs</strong></td><td>Kill objections at the moment they form</td><td>New / Reorder ↑↑</td></tr>
+      <tr><td>6</td><td><strong>Trust Section</strong></td><td>Licence verification, insurance, real tradie photos</td><td>New</td></tr>
+      <tr><td>7</td><td><strong>Tradie Section</strong></td><td>Full-width split — distinct audience, distinct value prop</td><td>Reorder ↑</td></tr>
+      <tr><td>8</td><td><strong>Plus/Emergency Upsell</strong></td><td>Only after trust is built</td><td>Reorder ↓↓ from position 3</td></tr>
+      <tr><td>9</td><td><strong>Emergency CTA (yellow)</strong></td><td>High urgency close</td><td>Stay near bottom</td></tr>
+      <tr><td>10</td><td><strong>Footer</strong></td><td>—</td><td>No change</td></tr>
+    </tbody>
+  </table>
+
+  <h3>CTA Hierarchy</h3>
+  <table>
+    <thead>
+      <tr><th>Priority</th><th>CTA Text</th><th>Audience</th><th>Location</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Primary</strong></td><td>"Post free — tradies respond in &lt;30 min"</td><td>Homeowner</td><td>Hero, yellow button</td></tr>
+      <tr><td><strong>Secondary</strong></td><td>"Get 1,111 free credits — join as a tradie"</td><td>Tradie</td><td>Hero, ghost button</td></tr>
+      <tr><td><strong>Tertiary</strong></td><td>"Get Plus — $49/month"</td><td>Homeowner</td><td>After trust section</td></tr>
+      <tr><td><strong>Utility</strong></td><td>Sign in, How it works, See all categories</td><td>Both</td><td>Text links only — not buttons</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <h4>Critical Rule</h4>
+    <p>Everything below Primary and Secondary should be a <strong>text link</strong>, not a button. Too many yellow buttons on one page trains the eye to ignore all of them. Scarcity of button style = higher perceived importance of each button that uses it.</p>
+  </div>
+</div>
+
+<!-- PART 5: FRICTION FIXES -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">5</div>
+    <div>
+      <h2>Critical Friction Fixes</h2>
+      <p>The exact points where customers are dropping off right now</p>
+    </div>
+  </div>
+
+  <h3>Fix 1 — Emergency Membership: The Trust Bomb</h3>
+  <p>The 12-month commitment + $200 early cancellation fee appears <em>after</em> the user has decided to buy. In psychology, this is a "pattern interrupt" — a sudden jolt of doubt injected at peak purchase intent. This is your single biggest conversion blocker on the emergency page.</p>
+
+  <table>
+    <thead>
+      <tr><th>Current Copy</th><th>Psychological Problem</th><th>Reframe</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>"A$49/month"</td><td>Monthly feels like a large recurring cost</td><td>"Less than $1.65/day"</td></tr>
+      <tr><td>"12-month commitment"</td><td>Sounds like a trap</td><td>"One year of complete peace of mind"</td></tr>
+      <tr><td>"$200 early cancellation fee"</td><td>Triggers loss aversion against purchase</td><td>Remove fee entirely, or rename "Pause fee" and move below fold</td></tr>
+      <tr><td>"72-hour waiting period"</td><td>Buyer's remorse — paid and can't use</td><td>"Activates fully in 72 hrs — add your home details now"</td></tr>
+      <tr><td>"2 callouts per year"</td><td>Sounds limited</td><td>"2 full emergency callouts (valued at $600+)"</td></tr>
+      <tr><td>"Fair use applies"</td><td>Vague, feels like a gotcha</td><td>Replace with specific: "1hr labour + parts up to $300/callout"</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-green">
+    <h4>Highest Impact Option</h4>
+    <p>Offer a <strong>$1 first-month trial</strong>. Conversions will increase dramatically. Your real LTV comes from month 7+ — the $200 cancellation fee recovers less revenue than the trials it kills.</p>
+  </div>
+
+  <h3>Fix 2 — Credit Cost Opacity</h3>
+  <p>Tradies are told claims cost "30 to 800 credits." That is a 27× range. A tradie who doesn't know if a job costs 30 or 800 credits will hesitate on every single claim. Hesitation on every claim compounds into much lower overall platform activity.</p>
+
+  <div class="callout">
+    <h4>Fix Required</h4>
+    <p>Show the <strong>exact credit cost on each job card</strong> before the tradie clicks to claim. "This job: 120 credits · Your balance: 890 credits · Est. value: $280–$450." Specificity kills anxiety. One change, measurable within a week.</p>
+  </div>
+
+  <h3>Fix 3 — Wrong Role = Full Re-registration</h3>
+  <p>If a tradie accidentally signs up as a homeowner (easy to do on a phone), they must completely re-register. This is a silent drop-off event — you'll see it as "registered but never claimed a job" in your analytics. It also creates duplicate accounts that pollute your data.</p>
+  <p><strong>Fix:</strong> Add a role switch inside onboarding. "Actually, I'm a tradie/homeowner" — changes the profile type without forcing re-registration or losing data.</p>
+
+  <h3>Fix 4 — Navbar Clutter</h3>
+  <table>
+    <thead>
+      <tr><th>Current Item</th><th>Problem</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Back/Forward browser buttons</td><td>Redundant — browser already has these</td><td>Remove entirely</td></tr>
+      <tr><td>"Fixit 24/7 Plus" as nav item</td><td>Confuses new visitors who don't know the product</td><td>Replace with "Emergency Cover"</td></tr>
+      <tr><td>5 public nav links</td><td>Hick's Law — too many choices slows decisions</td><td>Reduce to: How it works · For tradies · Sign in · [Post a job]</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Fix 5 — Mobile CTA Gap</h3>
+  <p>On mobile, the primary CTA scrolls out of view almost immediately. There is no persistent conversion mechanism for mobile users who are reading but not yet ready to commit.</p>
+  <p><strong>Fix:</strong> Add a sticky bottom CTA bar on mobile that appears after 30% scroll depth. "Post a job — free" in yellow. Disappears once the user scrolls to the footer. One-line implementation.</p>
+</div>
+
+<!-- PART 6: MONETISATION -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">6</div>
+    <div>
+      <h2>New Monetisation Streams</h2>
+      <p>12 new revenue opportunities across both sides of the marketplace</p>
+    </div>
+  </div>
+
+  <div class="rev-grid">
+    <div class="rev-card">
+      <h4>Homeowner Revenue</h4>
+      <div class="rev-item"><span>Emergency Membership</span><span class="price">A$49/mo <span class="badge">existing</span></span></div>
+      <div class="rev-item"><span>Priority Job Boost</span><span class="price">A$9.99 <span class="badge">new</span></span></div>
+      <div class="rev-item"><span>Job Protection Guarantee</span><span class="price">A$15/job <span class="badge">new</span></span></div>
+      <div class="rev-item"><span>Homeowner Verified Badge</span><span class="price">A$19/yr <span class="badge">new</span></span></div>
+    </div>
+    <div class="rev-card">
+      <h4>Tradie Revenue</h4>
+      <div class="rev-item"><span>Monthly credits (free tier)</span><span class="price">Free <span class="badge">existing</span></span></div>
+      <div class="rev-item"><span>Starter Pack (300cr)</span><span class="price">A$49 <span class="badge">existing</span></span></div>
+      <div class="rev-item"><span>Pro Pack (600cr)</span><span class="price">A$99 <span class="badge">existing</span></span></div>
+      <div class="rev-item"><span>Max Pack (1,111cr)</span><span class="price">A$149 <span class="badge">existing</span></span></div>
+      <div class="rev-item"><span>Tradie Pro Subscription</span><span class="price">A$29/mo <span class="badge">new</span></span></div>
+      <div class="rev-item"><span>Tradie Elite Subscription</span><span class="price">A$79/mo <span class="badge">new</span></span></div>
+      <div class="rev-item"><span>Background Check Badge</span><span class="price">A$39 <span class="badge">new</span></span></div>
+      <div class="rev-item"><span>Promoted Profile</span><span class="price">A$49/wk <span class="badge">new</span></span></div>
+      <div class="rev-item"><span>Trade Business Tier</span><span class="price">A$199/mo <span class="badge">new</span></span></div>
+    </div>
+  </div>
+
+  <h3>Priority Job Boost — A$9.99 per job</h3>
+  <p>Homeowners pay $9.99 to have their job shown as "Priority" — pushed to the top of the tradie job feed with instant push notifications to all matching tradies in the area.</p>
+  <p><strong>Why it converts:</strong> Low-friction one-off payment offered at job posting confirmation (not at registration). Homeowners with a genuine emergency (burst pipe, no hot water) will pay $9.99 without hesitation. Perfect upsell at the moment of highest stress.</p>
+
+  <h3>Tradie Subscription Tiers — A$29 / A$79 per month</h3>
+  <p>The "credits or nothing" model creates anxiety on every claim decision. Subscription tiers remove that anxiety at the top end and provide predictable revenue for the platform.</p>
+  <table>
+    <thead>
+      <tr><th>Tier</th><th>Price</th><th>Credits</th><th>Extra Benefits</th><th>Psychology</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Free</strong></td><td>$0</td><td>1,111/month</td><td>Basic profile</td><td>Broad funnel top</td></tr>
+      <tr><td><strong>Pro</strong></td><td>$29/mo</td><td>2,222/month</td><td>Featured badge, analytics, response time stats</td><td>"I'm serious about this"</td></tr>
+      <tr><td><strong>Elite</strong></td><td>$79/mo</td><td>Unlimited claims</td><td>Top search placement, priority job alerts, verified badge, dedicated support</td><td>Removes per-claim anxiety entirely</td></tr>
+    </tbody>
+  </table>
+  <p><strong>The Elite tier psychological win:</strong> A tradie paying $79/month with unlimited claims will claim more jobs, win more work, earn more, and become your most loyal user. Predictable cost = no anxiety = higher activity = better marketplace liquidity.</p>
+
+  <h3>Job Protection Guarantee — A$15 per job</h3>
+  <p>Platform-backed: if the tradie's work is defective within 30 days, Fixit covers a return visit or partial refund (capped at A$300).</p>
+  <p><strong>Why it converts:</strong> Removes the #1 homeowner objection ("what if they do a bad job?"). Also generates quality data on every tradie that feeds your ranking algorithm. Tradies who consistently trigger claims get ranked lower — creating an automatic quality flywheel.</p>
+
+  <h3>Pricing Anchoring — Emergency Membership</h3>
+  <table>
+    <thead>
+      <tr><th>Frame</th><th>Copy</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Per-day framing</td><td>"Less than $1.65/day — that's less than a coffee"</td></tr>
+      <tr><td>Cost comparison</td><td>"Your next emergency callout alone: $180–$400. Plus covers unlimited."</td></tr>
+      <tr><td>Loss framing</td><td>"Without Plus, a burst pipe at midnight costs you $380 and 3 hours of sleep."</td></tr>
+      <tr><td>Social proof</td><td>"3,200 families across Australia sleep soundly with Plus cover."</td></tr>
+      <tr><td>Value stack</td><td>"Home cover + car cover + 24/7 dispatch + member rates — one membership."</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PART 7: RETENTION -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">7</div>
+    <div>
+      <h2>Retention &amp; Re-engagement Loops</h2>
+      <p>How to keep both sides of the marketplace active and spending</p>
+    </div>
+  </div>
+
+  <h3>Homeowner Retention Loop</h3>
+  <div class="flow-block"><span class="highlight">Job complete</span>
+<span class="arrow">   ↓</span>
+<span class="comment">Review prompt (immediate)</span>
+   "How was [tradie name]?" → 1–5 stars, one tap
+<span class="arrow">   ↓</span>
+<span class="comment">NPS prompt (if 4–5 stars)</span>
+   "Would you recommend Fixit to a neighbour?" → if 9–10, trigger referral
+<span class="arrow">   ↓</span>
+<span class="highlight">Referral offer</span>
+   "Share with a friend — they get their first job free, you get $20 credit"
+<span class="arrow">   ↓</span>
+<span class="comment">3-month re-engagement email</span>
+   "It's been 3 months — is everything still working well? Book a maintenance check."
+<span class="arrow">   ↓</span>
+<span class="comment">Seasonal trigger (automated)</span>
+   "Colder months coming to Sydney — have you had your heating serviced?"
+<span class="arrow">   ↓</span>
+<span class="highlight">Plus upsell trigger</span>
+   "You've posted 2 jobs this year. Your next emergency could cost $400. Plus covers you."</div>
+
+  <h3>Tradie Retention Loop</h3>
+  <div class="flow-block"><span class="comment">Credits running low (under 200 remaining)</span>
+<span class="highlight">Alert:</span> "You have 150 credits left — enough for 1–2 more claims this month"
+<span class="arrow">   ↓</span>
+<span class="comment">Mid-month nudge</span>
+   "Top tradies in your area buy credits on the 15th — be ready for the month-end rush"
+<span class="arrow">   ↓</span>
+<span class="highlight">Monthly renewal email</span>
+   "Your 1,111 credits just dropped. 18 jobs in your area posted this week."
+<span class="arrow">   ↓</span>
+<span class="comment">Win/loss analytics (monthly)</span>
+   "This month: claimed 12, won 4 (33%). Sydney plumber avg: 38%. Tips to improve →"
+<span class="arrow">   ↓</span>
+<span class="highlight">Upgrade trigger</span>
+   "You ran out of credits 3× last month. Pro subscribers never run dry — A$29/mo."
+<span class="arrow">   ↓</span>
+<span class="comment">Slow period outreach</span>
+   "January slow for you? Here are 6 unclaimed jobs near you right now."</div>
+
+  <h3>The Referral Programme</h3>
+  <table>
+    <thead>
+      <tr><th>Audience</th><th>Give</th><th>Get</th><th>Trigger</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Homeowner refers homeowner</strong></td><td>Referred friend gets first job fee-free</td><td>Referrer gets $20 job credit</td><td>Post-5-star review</td></tr>
+      <tr><td><strong>Tradie refers tradie</strong></td><td>New tradie gets 500 bonus credits</td><td>Referrer gets 500 credits when new tradie wins first job</td><td>After first credit purchase</td></tr>
+      <tr><td><strong>Homeowner to emergency</strong></td><td>$10 off first month of Plus</td><td>Referrer gets $10 credit</td><td>After second job posted</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PART 8: METRICS -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">8</div>
+    <div>
+      <h2>Conversion Targets &amp; Revenue Model</h2>
+      <p>Before/after metrics and projected MRR impact</p>
+    </div>
+  </div>
+
+  <h3>Conversion Rate Targets</h3>
+  <table>
+    <thead>
+      <tr><th>Funnel Step</th><th>Current Est.</th><th>Target</th><th>Lift</th></tr>
+    </thead>
+    <tbody class="lift-row">
+      <tr class="lift-row"><td>Landing page → Job post started</td><td>~6%</td><td>14%</td><td>+133%</td></tr>
+      <tr class="lift-row"><td>Job post started → Submitted</td><td>~55%</td><td>72%</td><td>+31%</td></tr>
+      <tr class="lift-row"><td>Tradie signup → First claim (7 days)</td><td>~30%</td><td>55%</td><td>+83%</td></tr>
+      <tr class="lift-row"><td>Emergency page → Purchase</td><td>~3%</td><td>8%</td><td>+167%</td></tr>
+      <tr class="lift-row"><td>Job posted → First tradie response (&lt;30min)</td><td>~60%</td><td>80%</td><td>+33%</td></tr>
+      <tr class="lift-row"><td>Credit depletion → Pack purchase</td><td>~18%</td><td>32%</td><td>+78%</td></tr>
+      <tr class="lift-row"><td>Emergency member → Month 7 retention</td><td>~55%</td><td>70%</td><td>+27%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Revenue Impact Model (Conservative — 1,000 Homeowners + 500 Tradies/Month)</h3>
+  <table>
+    <thead>
+      <tr><th>Revenue Line</th><th>Current MRR</th><th>Target MRR</th><th>Delta</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Emergency membership (homeowner)</td><td>A$1,470</td><td>A$3,920</td><td>+A$2,450</td></tr>
+      <tr><td>Priority Job Boost (new)</td><td>—</td><td>A$1,998</td><td>+A$1,998</td></tr>
+      <tr><td>Job Protection Guarantee (new)</td><td>—</td><td>A$2,250</td><td>+A$2,250</td></tr>
+      <tr><td>Tradie credit packs (existing)</td><td>A$5,880</td><td>A$5,880</td><td>—</td></tr>
+      <tr><td>Tradie Pro subscriptions (new)</td><td>—</td><td>A$1,740</td><td>+A$1,740</td></tr>
+      <tr><td>Tradie Elite subscriptions (new)</td><td>—</td><td>A$1,580</td><td>+A$1,580</td></tr>
+      <tr><td>Promoted profiles (new)</td><td>—</td><td>A$980</td><td>+A$980</td></tr>
+      <tr style="border-top: 2px solid rgba(255,200,0,0.3);">
+        <td><strong>Total MRR</strong></td>
+        <td><strong>A$7,350</strong></td>
+        <td><strong>A$18,348</strong></td>
+        <td><strong>+A$10,998 (+150%)</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="val">+150%</div>
+      <div class="lbl">MRR increase (conservative)</div>
+    </div>
+    <div class="stat-card">
+      <div class="val">+133%</div>
+      <div class="lbl">Landing → job post conversion</div>
+    </div>
+    <div class="stat-card">
+      <div class="val">+167%</div>
+      <div class="lbl">Emergency page conversion</div>
+    </div>
+  </div>
+</div>
+
+<!-- PART 9: ROADMAP -->
+<div class="page section-break">
+  <div class="part-header">
+    <div class="part-num">9</div>
+    <div>
+      <h2>Implementation Roadmap</h2>
+      <p>4 phases, sequenced by impact vs effort</p>
+    </div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-header">
+      <div class="phase-num">Phase 1</div>
+      <h4>Conversion Quick Wins — Pure Frontend</h4>
+      <span class="timeline">Weeks 1–2</span>
+    </div>
+    <ul class="checklist">
+      <li>Reorder landing page sections — move Plus teaser from position 3 to position 8</li>
+      <li>Add live job ticker to hero (hardcoded rotating examples first, live data later)</li>
+      <li>Simplify navbar: remove back/forward buttons, reduce to 3 links + 2 actions</li>
+      <li>Add social proof micro-strip to hero: ★★★★★ 4.9 · 3,200 jobs this month</li>
+      <li>Reframe emergency membership copy on landing and emergency pages (per-day pricing, remove fee language above fold)</li>
+      <li>Show exact credit cost on each job card before claiming</li>
+      <li>Add sticky mobile CTA bar (appears after 30% scroll)</li>
+    </ul>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-header">
+      <div class="phase-num">Phase 2</div>
+      <h4>Funnel Architecture Rebuild</h4>
+      <span class="timeline">Weeks 2–4</span>
+    </div>
+    <ul class="checklist">
+      <li>"What broke?" dropdown as the first hero interaction — micro-commit before suburb input</li>
+      <li>Peek value: show 3 tradies in suburb before requiring registration (email gate only)</li>
+      <li>Add stats strip (3 numbers: active tradies, jobs this month, avg response time)</li>
+      <li>Add role switch inside onboarding — no full re-registration required</li>
+      <li>Move top 3 FAQs to position 5 on landing page (after categories)</li>
+      <li>Tradie secondary CTA as ghost button in hero (not a separate bar)</li>
+    </ul>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-header">
+      <div class="phase-num">Phase 3</div>
+      <h4>New Monetisation Streams</h4>
+      <span class="timeline">Weeks 4–8</span>
+    </div>
+    <ul class="checklist">
+      <li>Priority Job Boost ($9.99) — upsell at job posting confirmation screen</li>
+      <li>Tradie Pro ($29/mo) and Elite ($79/mo) subscription tiers — Stripe + database</li>
+      <li>Job Protection Guarantee ($15/job) — offered at claim confirmation for homeowners</li>
+      <li>Win/loss analytics dashboard for tradies — drives voluntary upgrade to Pro</li>
+      <li>Referral programme — post-review trigger for homeowners, post-purchase trigger for tradies</li>
+    </ul>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-header">
+      <div class="phase-num">Phase 4</div>
+      <h4>Retention &amp; Lifecycle Automation</h4>
+      <span class="timeline">Weeks 8–14</span>
+    </div>
+    <ul class="checklist">
+      <li>Homeowner NPS flow triggered 24hrs after job marked complete</li>
+      <li>Tradie monthly analytics email ("your win rate this month vs. area average")</li>
+      <li>Seasonal re-engagement email campaigns (HVAC before winter, etc.)</li>
+      <li>Credit depletion alert system (under 200 credits → alert → upsell to Pro)</li>
+      <li>Emergency Plus upsell triggered after homeowner's 2nd job posted</li>
+      <li>Background check badge product ($39 one-time) — verifiable trust signal</li>
+      <li>Promoted profiles ($49/week) — self-serve ad unit in category pages</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <div class="diagnosis">
+    <h3>The Single Highest-ROI Action</h3>
+    <p>If you implement only one thing from this document, implement <strong>Phase 1 in full.</strong> The landing page reorder, hero social proof, and emergency copy reframe require zero backend changes and zero new features. They are pure copy and layout improvements that directly address the 8 core problems identified in the diagnosis. Conservative estimate: <strong>+40–60% increase in emergency membership conversion rate</strong> from copy changes alone.</p>
+  </div>
+
+  <div style="margin-top: 56px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center; color: rgba(240,236,228,0.3); font-size: 12px; letter-spacing: 1px;">
+    FIXIT 24/7 · CONVERSION &amp; MONETISATION BLUEPRINT · MAY 2026 · CONFIDENTIAL
+  </div>
+</div>
+
+</body>
+</html>
