@@ -21,7 +21,7 @@ import { useNavHistory } from "@/hooks/use-nav-history";
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
   { label: "Fixit 24/7 Plus", href: "/emergency", highlight: true },
-  { label: "For Tradies", href: "/partner" },
+  { label: "For Tradies", href: "/for-tradies" },
   { label: "About", href: "/about" },
 ];
 

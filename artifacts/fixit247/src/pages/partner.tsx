@@ -1,12 +1,12 @@
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useRef, useEffect } from "react";
+import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
 import {
   MapPin, ChevronRight, ChevronDown, CheckCircle2, Star,
-  MessageCircle, Phone, Search, Wrench, Zap,
-  TrendingUp, HardHat, ShieldCheck, DollarSign, XCircle,
-  BarChart3, Quote,
+  MessageCircle, Phone, Search, Wrench,
+  TrendingUp, HardHat, BarChart3, ChevronLeft,
 } from "lucide-react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -87,63 +87,30 @@ const SCALING_PILLARS = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Dan K.",
-    trade: "Electrician · Sydney, NSW",
-    quote: "I was paying $120+ per lead on other platforms and still losing jobs I had no idea about. Fixit 24/7 shows me the job cost before I commit. Game changer.",
-    rating: 5,
-  },
-  {
-    name: "Marcus T.",
-    trade: "Plumber · Brisbane, QLD",
-    quote: "No commission on jobs I win. No mystery pricing. I started with the $111 free wallet and landed 4 jobs in my first 2 weeks. Stoked.",
-    rating: 5,
-  },
-  {
-    name: "Sarah L.",
-    trade: "HVAC Technician · Melbourne, VIC",
-    quote: "Other apps charge you whether you win the job or not. Here I only spend when I choose to claim a job — and I can see the cost upfront. Makes budgeting easy.",
-    rating: 5,
-  },
-];
-
 const PARTNER_FAQS = [
   {
-    q: "How much does it cost to claim a job?",
-    a: "Lead costs vary by job size and are always shown upfront before you commit — typically $22–$80 per lead. You only pay when you choose to claim. If you win the job, there is zero commission taken by Fixit 24/7.",
+    q: "Who is the Partner With Us programme for?",
+    a: "It's designed for qualified tradies, licensed service professionals, and trade business owners who want to scale beyond just picking up jobs — better systems, local visibility, and a growth strategy.",
   },
   {
-    q: "What is the $111 free wallet credit?",
-    a: "Every new tradie receives $111 in wallet credit on signup — enough to claim several real jobs and test the platform properly. Starter and Pro subscribers receive ongoing monthly credits as part of their plan.",
+    q: "Is this just about getting more leads?",
+    a: "No. More leads are only one part of growth. Scaling also requires better systems, follow-up, customer experience, positioning, team structure, and service-area planning.",
   },
   {
-    q: "Is there a commission on jobs I win?",
-    a: "No. Fixit 24/7 charges a fair, transparent lead fee — that's it. There is no commission, no revenue share, and no hidden fees on jobs you complete.",
+    q: "How can Fixit 24/7 help my business scale?",
+    a: "Fixit 24/7 can help suitable tradies with brand support, local visibility, technology, enquiry handling, marketing guidance, and growth strategy discussions.",
   },
   {
-    q: "How is this different from other lead platforms?",
-    a: "Most platforms charge $80–$200+ per lead whether you win the job or not, and multiple tradies are sent the same lead. On Fixit 24/7, you see the job cost before you commit, leads are fairly priced, and you keep 100% of what you earn.",
+    q: "What support does the programme include?",
+    a: "Support may include brand guidance, technology, marketing direction, customer enquiry systems, onboarding, and growth strategy discussions. Full details are explained during the partner call.",
   },
   {
-    q: "Can I choose which jobs I claim?",
-    a: "Yes. You browse available jobs in your service area, see the lead cost upfront, and choose which ones to claim. You are in full control of your spending.",
+    q: "What happens on the growth call?",
+    a: "Our team will ask about your current business, trade category, service area, job volume, goals, bottlenecks, and whether the Fixit 24/7 partner model may be suitable.",
   },
   {
-    q: "What's included in the Starter and Pro plans?",
-    a: "Starter ($49/mo) includes monthly wallet top-ups, priority job matching, and a verified tradie badge. Pro ($99/mo) adds boosted profile ranking, dedicated support, and higher monthly credit value — making it the best value for active tradies.",
-  },
-  {
-    q: "Can I cancel my subscription anytime?",
-    a: "Yes. Subscriptions are month-to-month with no lock-in. Cancel any time from your dashboard.",
-  },
-  {
-    q: "Who can sign up as a tradie?",
-    a: "Qualified tradies, licensed service professionals, and trade business owners operating in Australia. You'll need a valid licence or registration for regulated trades.",
-  },
-  {
-    q: "Is submitting the growth enquiry form a commitment?",
-    a: "No. It's an expression of interest only. There is no pressure and no commitment at this stage.",
+    q: "Is submitting the form a commitment?",
+    a: "No. It is only an expression of interest. There is no pressure and no commitment at this stage.",
   },
 ];
 
@@ -361,7 +328,7 @@ const EMPTY_FORM: FormState = {
 };
 
 export default function PartnerPage() {
-  usePageTitle("For Tradies");
+  usePageTitle("Partner With Us");
   const formRef = useRef<HTMLElement>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
@@ -425,9 +392,21 @@ export default function PartnerPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
 
+      {/* ─── Back breadcrumb ─── */}
+      <div className="border-b border-white/5 bg-[#0b0904]">
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6 py-3">
+          <Link href="/for-tradies">
+            <span className="inline-flex items-center gap-1.5 text-xs text-white/35 hover:text-white/60 transition-colors cursor-pointer">
+              <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              Back to For Tradies
+            </span>
+          </Link>
+        </div>
+      </div>
+
       {/* ─── Hero ─── */}
       <section
-        className="py-20 sm:py-28 text-center relative overflow-hidden"
+        className="py-20 sm:py-24 text-center relative overflow-hidden"
         style={{ background: "radial-gradient(ellipse at 50% 110%, #2e1f00 0%, #130f06 55%, #070604 100%)" }}
       >
         <div
@@ -442,38 +421,35 @@ export default function PartnerPage() {
           className="container max-w-3xl mx-auto px-4 sm:px-6 relative"
         >
           <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/25 rounded-full px-4 py-1.5 text-xs font-bold text-[#ffc800] uppercase tracking-widest mb-6">
-            <HardHat className="h-3.5 w-3.5" aria-hidden="true" /> For Australian Tradies
+            <HardHat className="h-3.5 w-3.5" aria-hidden="true" /> For tradies ready to scale
           </div>
-
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight mb-5">
-            Stop chasing leads.<br />
-            <span className="text-[#ffc800]">Start choosing jobs.</span>
+            Partner With Fixit 24/7<br />
+            <span className="text-[#ffc800]">and Grow Your Trade Business</span>
           </h1>
-
-          <p className="text-white/65 text-lg leading-relaxed max-w-2xl mx-auto mb-3">
-            Fixit 24/7 connects qualified tradies with homeowners who need help — right now, in your area.
-            Fairly priced leads, zero commission on jobs you win, and <strong className="text-white">$111 free</strong> to get started.
+          <p className="text-white/60 text-lg leading-relaxed max-w-2xl mx-auto mb-4">
+            Already on the platform? This programme is for trade business owners who want to go further — stronger local visibility, better systems, and a more scalable customer pipeline.
           </p>
           <p className="text-white/40 text-sm max-w-xl mx-auto mb-8">
-            No fortune required. No commission taken. No guessing what a lead costs before you commit.
+            Whether you're running a strong six-figure trade business or aiming toward seven-figure growth, our partner model is designed to help you scale with more structure, confidence, and support.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-            <a href="/signup?role=tradie">
-              <button className="h-13 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center justify-center gap-2">
-                Start free — claim your $111 <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </a>
             <button
               onClick={scrollToForm}
-              className="h-13 px-8 rounded-xl border border-white/20 hover:bg-white/8 active:scale-[0.97] text-white font-bold text-[15px] transition-all"
+              className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center justify-center gap-2"
             >
-              Talk to our growth team
+              Book a growth discussion <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
+            <Link href="/for-tradies">
+              <button className="h-12 px-8 rounded-xl border border-white/20 hover:bg-white/8 active:scale-[0.97] text-white font-semibold text-[15px] transition-all">
+                New to Fixit 24/7? Start here
+              </button>
+            </Link>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
-            {["$111 free to start", "No commission on wins", "See job cost before you claim", "Cancel anytime"].map((t) => (
+            {["Built for serious tradies", "No pressure", "Expression of interest only", "Free growth call"].map((t) => (
               <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/45 bg-white/5 rounded-full px-3 py-1">
                 <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
               </span>
@@ -482,369 +458,16 @@ export default function PartnerPage() {
         </motion.div>
       </section>
 
-      {/* ─── Competitor comparison band ─── */}
-      <section className="py-10 bg-[#110d06] border-y border-white/8">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
-          <p className="text-center text-xs font-bold uppercase tracking-widest text-white/30 mb-8">How we're different</p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {/* Other platforms */}
-            <div className="bg-red-500/5 border border-red-500/15 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-red-400/70 mb-4">Other lead platforms</p>
-              <ul className="flex flex-col gap-3">
-                {[
-                  "Charge $80–$200+ per lead — win or lose",
-                  "Multiple tradies sent the same lead",
-                  "Take commission on every job you complete",
-                  "Hidden fees you discover after the fact",
-                  "Leads go stale by the time you're notified",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/50">
-                    <XCircle className="h-4 w-4 text-red-400/60 shrink-0 mt-0.5" aria-hidden="true" /> {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {/* Fixit 24/7 */}
-            <div className="bg-[#ffc800]/5 border border-[#ffc800]/20 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-4">Fixit 24/7</p>
-              <ul className="flex flex-col gap-3">
-                {[
-                  "Fairly priced leads — typically $22–$80",
-                  "See the exact cost before you claim",
-                  "Zero commission on jobs you win — ever",
-                  "No lock-in. Cancel anytime.",
-                  "Real-time jobs matched to your service area",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" /> {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── $111 free wallet card ─── */}
-      <section className="py-14 sm:py-16 bg-[#0b0904] border-b border-white/8">
-        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="bg-white/5 border border-[#ffc800]/20 rounded-2xl p-8 sm:p-10"
-          >
-            <p className="text-[11px] font-black uppercase tracking-widest text-[#ffc800] mb-4">Your welcome gift</p>
-
-            <div className="flex items-center gap-2 mb-5">
-              <span className="inline-flex items-center gap-1.5 bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-3 py-1.5 rounded-full">
-                <Star className="h-3.5 w-3.5" aria-hidden="true" />
-                $111 free — for your first 6 months
-              </span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-2">
-              Start picking up local jobs — no spend required upfront
-            </h2>
-            <p className="text-white/55 text-[15px] mb-7">
-              Every new tradie gets <span className="text-white font-semibold">$111 in wallet credit</span> when they join — that's real money toward real job leads in your area, no strings attached.
-            </p>
-
-            <ul className="flex flex-col gap-3 mb-8" role="list">
-              {[
-                "$111 free credit loaded to your wallet on signup",
-                "Browse available jobs in your suburb right away",
-                "See the lead cost before you spend a cent",
-                "Keep 100% of everything you earn — we take zero commission",
-              ].map((perk) => (
-                <li key={perk} className="flex items-center gap-3 text-[14px] text-white/75">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" aria-hidden="true" />
-                  {perk}
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a href="/signup?role=tradie">
-                <button className="h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
-                  Claim your $111 — join free
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </a>
-              <a href="/#how-it-works">
-                <span className="h-12 px-5 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
-                  See how it works
-                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </span>
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── How lead pricing works ─── */}
+      {/* ─── What partnership means ─── */}
       <section className="py-16 sm:py-20 bg-[#0e0c08]">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Transparent pricing</span>
+            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Beyond jobs</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
-              You see the price. You decide. You win.
-            </h2>
-            <p className="text-white/50 text-[15px] max-w-2xl mx-auto">
-              No surprises. No chasing invoices. No wondering if the lead was worth it. You choose which jobs to claim — and we never touch what you earn.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-5 mb-10">
-            {[
-              {
-                icon: DollarSign,
-                step: "01",
-                title: "Browse jobs in your area",
-                desc: "See new job requests matched to your trade and suburb — with the lead cost displayed right there.",
-              },
-              {
-                icon: ShieldCheck,
-                step: "02",
-                title: "Claim only what you want",
-                desc: "You decide if the job is worth it. Claim it from your wallet balance. Nothing charged until you choose.",
-              },
-              {
-                icon: Zap,
-                step: "03",
-                title: "Win the job, keep it all",
-                desc: "Quote, win, complete. Fixit 24/7 takes zero commission. Your revenue is entirely yours.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-[#ffc800]/20 transition-all"
-              >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 flex items-center justify-center shrink-0">
-                    <item.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
-                  </div>
-                  <span className="text-4xl font-black text-white/8 leading-none mt-1">{item.step}</span>
-                </div>
-                <h3 className="font-bold text-[15px] mb-2">{item.title}</h3>
-                <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl px-6 py-5 text-center">
-            <p className="text-white/70 text-[14px]">
-              Typical lead cost: <span className="text-white font-bold">$22–$80</span> depending on job size — always shown upfront, always your choice.
-              Compare that to platforms charging <span className="line-through text-white/35">$80–$200+</span> whether you win or not.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Subscription tiers ─── */}
-      <section className="py-16 sm:py-20 bg-[#0b0904] border-y border-white/5">
-        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Plans for active tradies</span>
-            <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
-              Scale up as your business grows
-            </h2>
-            <p className="text-white/50 text-[15px] max-w-xl mx-auto">
-              Start free. Upgrade when you're ready. No lock-in.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-5">
-            {/* Free */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0 }}
-              viewport={{ once: true }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col"
-            >
-              <p className="text-xs font-bold uppercase tracking-widest text-white/35 mb-2">Free</p>
-              <div className="mb-1">
-                <span className="text-3xl font-black text-white">$0</span>
-                <span className="text-white/40 text-sm">/mo</span>
-              </div>
-              <p className="text-white/40 text-xs mb-5">$111 welcome credit included</p>
-              <ul className="flex flex-col gap-2.5 mb-6 flex-1">
-                {["$111 wallet on signup", "Browse all local jobs", "Claim at standard rates", "Basic tradie profile"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-white/60">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-white/25 shrink-0" aria-hidden="true" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <a href="/signup?role=tradie">
-                <button className="w-full h-10 rounded-xl border border-white/20 hover:bg-white/8 text-white font-semibold text-sm transition-all">
-                  Get started free
-                </button>
-              </a>
-            </motion.div>
-
-            {/* Starter */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 }}
-              viewport={{ once: true }}
-              className="bg-white/5 border border-white/15 rounded-2xl p-6 flex flex-col"
-            >
-              <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Starter</p>
-              <div className="mb-1">
-                <span className="text-3xl font-black text-white">$49</span>
-                <span className="text-white/40 text-sm">/mo</span>
-              </div>
-              <p className="text-white/40 text-xs mb-5">Best for occasional job flow</p>
-              <ul className="flex flex-col gap-2.5 mb-6 flex-1">
-                {["Monthly wallet top-up", "Priority job matching", "Verified tradie badge", "Standard profile ranking"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-white/65">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-white/30 shrink-0" aria-hidden="true" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <a href="/signup?role=tradie">
-                <button className="w-full h-10 rounded-xl border border-white/20 hover:bg-white/8 text-white font-semibold text-sm transition-all">
-                  Start with Starter
-                </button>
-              </a>
-            </motion.div>
-
-            {/* Pro — highlighted */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.16 }}
-              viewport={{ once: true }}
-              className="bg-[#ffc800]/8 border-2 border-[#ffc800]/40 rounded-2xl p-6 flex flex-col relative"
-            >
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center gap-1 bg-[#ffc800] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
-                  <Star className="h-2.5 w-2.5" aria-hidden="true" /> Most popular
-                </span>
-              </div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-2">Pro</p>
-              <div className="mb-1">
-                <span className="text-3xl font-black text-white">$99</span>
-                <span className="text-white/40 text-sm">/mo</span>
-              </div>
-              <p className="text-[#ffc800]/60 text-xs mb-5">Best value for busy tradies</p>
-              <ul className="flex flex-col gap-2.5 mb-6 flex-1">
-                {[
-                  "Higher monthly wallet top-up",
-                  "Boosted profile ranking",
-                  "Early access to new jobs",
-                  "Dedicated tradie support",
-                  "Priority match notifications",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-white/80">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[#ffc800] shrink-0" aria-hidden="true" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <a href="/signup?role=tradie">
-                <button className="w-full h-10 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-all active:scale-[0.97]">
-                  Start with Pro
-                </button>
-              </a>
-            </motion.div>
-          </div>
-
-          <p className="text-center text-white/25 text-xs mt-6">
-            All plans: zero commission on jobs you win. Cancel anytime.
-          </p>
-        </div>
-      </section>
-
-      {/* ─── Testimonials ─── */}
-      <section className="py-16 sm:py-20 bg-[#0e0c08]">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Tradies on Fixit 24/7</span>
-            <h2 className="text-3xl font-black mt-3 mb-2">What tradies say</h2>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                viewport={{ once: true }}
-                className="bg-white/5 border border-white/8 rounded-2xl p-6"
-              >
-                <Quote className="h-5 w-5 text-[#ffc800]/40 mb-4" aria-hidden="true" />
-                <p className="text-white/70 text-sm leading-relaxed mb-5">{t.quote}</p>
-                <div className="flex items-center gap-0.5 mb-3" aria-label={`${t.rating} out of 5 stars`}>
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="h-3.5 w-3.5 text-[#ffc800] fill-[#ffc800]" aria-hidden="true" />
-                  ))}
-                </div>
-                <p className="font-bold text-[13px] text-white">{t.name}</p>
-                <p className="text-white/35 text-xs">{t.trade}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Who this is for ─── */}
-      <section className="py-12 bg-[#0b0904] border-y border-white/5">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-3">This is for you if…</p>
-              <ul className="flex flex-col gap-2.5">
-                {[
-                  "You're a qualified tradie or licensed service professional",
-                  "You want a steady flow of local jobs without big ad spend",
-                  "You're tired of paying for leads that don't convert",
-                  "You want to know the cost before you commit",
-                  "You want to keep 100% of what you earn",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" /> {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-white/5 border border-white/8 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/35 mb-3">This is not for…</p>
-              <ul className="flex flex-col gap-2.5">
-                {[
-                  "Passive investors with no trade or service experience",
-                  "Anyone looking for guaranteed income or guaranteed leads",
-                  "People not currently active in the trades or home services",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/45">
-                    <span className="text-white/20 shrink-0 mt-0.5 font-bold text-xs">✕</span> {t}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 text-xs text-white/30 leading-relaxed italic">
-                Built for tradies who show up and do the work.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Scaling pillars (condensed) ─── */}
-      <section className="py-16 sm:py-20 bg-[#0e0c08]">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">For ambitious tradies</span>
-            <h2 className="text-2xl sm:text-3xl font-black mt-3 mb-3">
               More than just leads
             </h2>
             <p className="text-white/50 text-[15px] max-w-2xl mx-auto">
-              For tradies who want to grow a real business — not just fill their calendar.
+              Scaling a trade business is not just about getting more calls. It's about building the right brand, systems, team, follow-up process, and local positioning.
             </p>
           </div>
 
@@ -866,14 +489,51 @@ export default function PartnerPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-8 text-center">
-            <button
-              onClick={scrollToForm}
-              className="text-sm text-[#ffc800]/70 hover:text-[#ffc800] font-medium inline-flex items-center gap-1.5 transition-colors"
-            >
-              Want to discuss your growth strategy? Talk to our team <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </button>
+      {/* ─── Who this is for ─── */}
+      <section className="py-12 bg-[#0b0904] border-y border-white/5">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-3">This is for you if…</p>
+              <ul className="flex flex-col gap-2.5">
+                {[
+                  "You're a qualified tradie or licensed service professional",
+                  "You already have an active trade or service business",
+                  "You want to build a more scalable local operation",
+                  "You're serious about growth, not just more jobs",
+                  "You're open to better systems, branding, and support",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/75">
+                    <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-white/5 border border-white/8 rounded-2xl p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-white/35 mb-3">This is not for…</p>
+              <ul className="flex flex-col gap-2.5">
+                {[
+                  "Passive investors with no trade or service experience",
+                  "People looking for guaranteed income or guaranteed leads",
+                  "Anyone not currently active in the trades or home services",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/45">
+                    <span className="text-white/20 shrink-0 mt-0.5 font-bold text-xs">✕</span> {t}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-5 text-xs text-white/30 leading-relaxed italic">
+                Not yet on Fixit 24/7?{" "}
+                <Link href="/for-tradies">
+                  <span className="text-[#ffc800]/50 hover:text-[#ffc800] transition-colors cursor-pointer underline underline-offset-2">
+                    Start here first
+                  </span>
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -882,12 +542,12 @@ export default function PartnerPage() {
       <section ref={formRef} className="py-16 sm:py-20 bg-[#0b0904]" id="partner-form">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Growth discussion</span>
+            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Expression of interest</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
-              Want to talk strategy<br />with our team?
+              Tell us about your<br />trade business
             </h2>
             <p className="text-white/50 text-[15px] max-w-xl mx-auto">
-              Tell us about your trade business and what you're trying to build. Our growth team will reach out for a free no-pressure call.
+              Our team will call you to discuss where you are now, what's holding you back, and how Fixit 24/7 may help you scale.
             </p>
           </div>
 
@@ -899,10 +559,10 @@ export default function PartnerPage() {
               role="alert"
               aria-live="polite"
             >
-              <CheckCircle2 className="h-14 w-14 text-emerald-400 mx-auto mb-5" aria-hidden="true" />
+              <Star className="h-14 w-14 text-[#ffc800] mx-auto mb-5" aria-hidden="true" />
               <h3 className="text-2xl font-black mb-3 text-white">Enquiry received</h3>
               <p className="text-white/60 text-[15px] leading-relaxed max-w-md mx-auto">
-                Thanks — a Fixit 24/7 team member will contact you soon to discuss your trade business, goals, and how we can help.
+                Thanks — a Fixit 24/7 expert will contact you soon to discuss your trade business, growth goals, and next steps.
               </p>
               <p className="text-white/30 text-xs mt-5 leading-relaxed">
                 No pressure. No commitment. Just a conversation.
@@ -1090,7 +750,7 @@ export default function PartnerPage() {
                     required
                   />
                   <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors leading-relaxed">
-                    I agree to be contacted by Fixit 24/7 about tradie opportunities. <span className="text-red-400">*</span>
+                    I agree to be contacted by Fixit 24/7 about trade partner opportunities. <span className="text-red-400">*</span>
                   </span>
                 </label>
                 <FieldError msg={errors.consent} />
@@ -1119,9 +779,8 @@ export default function PartnerPage() {
                 )}
               </button>
 
-              {/* Disclaimer */}
               <p className="text-white/25 text-xs text-center mt-5 leading-relaxed">
-                Submitting this form is an expression of interest only. It does not guarantee approval, territory availability, income, leads, or business results. Growth outcomes depend on your market, experience, execution, team, service quality, and business readiness.
+                Submitting this form is an expression of interest only. It does not guarantee approval, territory availability, income, leads, or business results.
               </p>
             </form>
           )}
@@ -1133,8 +792,8 @@ export default function PartnerPage() {
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Common questions</span>
-            <h2 className="text-3xl font-black mt-3 mb-3">Questions answered</h2>
-            <p className="text-white/50 text-[15px]">Everything you need to know before getting started.</p>
+            <h2 className="text-3xl font-black mt-3 mb-3">Partner questions answered</h2>
+            <p className="text-white/50 text-[15px]">Everything you need to know before reaching out.</p>
           </div>
           <div className="flex flex-col gap-2">
             {PARTNER_FAQS.map((faq, i) => (
@@ -1155,33 +814,26 @@ export default function PartnerPage() {
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <TrendingUp className="h-10 w-10 text-black/25 mx-auto mb-5" aria-hidden="true" />
           <h2 className="text-3xl sm:text-4xl font-black text-black mb-3">
-            Your $111 is waiting.
+            Stop just working more hours.
           </h2>
           <p className="text-black/65 mb-3 text-[15px] max-w-md mx-auto">
-            Join free, claim your welcome credit, and start picking up jobs in your area today. No commission. No lock-in. Fairly priced leads, always.
+            Start building a scalable trade business. Talk to our growth team — no pressure, no commitment.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-            {["$111 free to start", "No commission", "See cost before you claim", "Cancel anytime"].map((t) => (
-              <span key={t} className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/60 bg-black/8 rounded-full px-3 py-1">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> {t}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="/signup?role=tradie">
-              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
-                Claim $111 free — join now <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </a>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <button
               onClick={scrollToForm}
-              className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all"
+              className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2"
             >
-              Talk to our team first
+              Book a growth discussion <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
+            <Link href="/for-tradies">
+              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
+                New to Fixit 24/7? Start here
+              </button>
+            </Link>
           </div>
           <p className="text-black/40 text-xs mt-6 leading-relaxed">
-            Results are not guaranteed. Lead availability depends on your market and service area.
+            Results are not guaranteed. Growth depends on your market, execution, service quality, team, and business readiness.
           </p>
         </div>
       </section>
