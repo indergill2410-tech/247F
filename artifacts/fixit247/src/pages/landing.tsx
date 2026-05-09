@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
 import { Footer } from "@/components/footer";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
@@ -167,7 +168,7 @@ export default function LandingPage() {
   const steps = howRole === "homeowner" ? HOW_IT_WORKS_HOMEOWNER : HOW_IT_WORKS_TRADIE;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0b0904]">
+    <div className="flex flex-col min-h-screen bg-background">
 
       {/* ─── Hero ─── */}
       <section
@@ -184,6 +185,10 @@ export default function LandingPage() {
           }}
           aria-hidden="true"
         />
+
+        <div className="absolute right-4 top-4 z-20 sm:right-6 lg:right-10">
+          <ThemeToggle variant="mini" />
+        </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-16 lg:py-28">
           {/* Left */}
