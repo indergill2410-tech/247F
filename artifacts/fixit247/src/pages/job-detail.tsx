@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   open:        { label: "Open",        cls: "bg-blue-500/15 text-blue-400" },
-  matched:     { label: "Matched",     cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  matched:     { label: "Matched",     cls: "bg-primary/15 text-primary" },
   in_progress: { label: "In Progress", cls: "bg-orange-500/15 text-orange-400" },
   completed:   { label: "Completed",   cls: "bg-emerald-500/15 text-emerald-400" },
   cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
@@ -24,7 +24,7 @@ const URGENCY_MAP: Record<string, { label: string; cls: string; Icon: React.Elem
   standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",         Icon: Briefcase },
 };
 const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "Pending",   cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  pending:   { label: "Pending",   cls: "bg-primary/15 text-primary" },
   accepted:  { label: "Accepted",  cls: "bg-emerald-500/15 text-emerald-400" },
   rejected:  { label: "Rejected",  cls: "bg-red-500/15 text-red-400" },
   withdrawn: { label: "Withdrawn", cls: "bg-white/8 text-white/40" },
@@ -67,7 +67,7 @@ function StarDisplay({ rating, size = "sm" }: { rating: number; size?: "sm" | "m
             <Star className={`${cls} text-white/15`} />
             {(filled || half) && (
               <span className="absolute inset-0 overflow-hidden" style={{ width: filled ? "100%" : "50%" }}>
-                <Star className={`${cls} fill-[#ffc800] text-[#ffc800]`} />
+                <Star className={`${cls} fill-primary text-primary`} />
               </span>
             )}
           </span>
@@ -90,7 +90,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
           onMouseLeave={() => setHovered(0)}
           className="transition-transform hover:scale-110 active:scale-95"
         >
-          <Star className={`h-8 w-8 transition-colors ${s <= (hovered || value) ? "text-[#ffc800] fill-[#ffc800]" : "text-white/15"}`} />
+          <Star className={`h-8 w-8 transition-colors ${s <= (hovered || value) ? "text-primary fill-primary" : "text-white/15"}`} />
         </button>
       ))}
     </div>
@@ -127,9 +127,9 @@ export default function JobDetailPage() {
         refetch();
       },
       onError: (err) => {
-        const errData = err as { data?: { message?: string; error?: string } };
-        const msg = errData?.data?.error === "insufficient_credits"
-          ? "Not enough credits — top up at Credits page."
+        const errData = err as { data?: { message?: string; error?: string; balanceCents?: number; requiredCents?: number } };
+        const msg = errData?.data?.error === "insufficient_funds"
+          ? `Insufficient wallet balance — ${errData.data?.message ?? "top up at Wallet."}`
           : (errData?.data?.message ?? "Failed to claim");
         toast({ title: "Error", description: msg, variant: "destructive" });
       },
@@ -188,7 +188,7 @@ export default function JobDetailPage() {
         <div className="text-white/35">
           <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-30" />
           <p className="text-lg font-bold text-white/50">Job not found</p>
-          <button onClick={() => setLocation("/jobs")} className="mt-4 text-[#ffc800] text-sm hover:underline">← Back to Jobs</button>
+          <button onClick={() => setLocation("/jobs")} className="mt-4 text-primary text-sm hover:underline">← Back to Jobs</button>
         </div>
       </div>
     );
@@ -258,7 +258,7 @@ export default function JobDetailPage() {
                 {claims.length > 0 && (
                   <>
                     <span>·</span>
-                    <span className="text-[#ffc800]/70 font-semibold">{claims.length} tradie{claims.length !== 1 ? "s" : ""} responded</span>
+                    <span className="text-primary/70 font-semibold">{claims.length} tradie{claims.length !== 1 ? "s" : ""} responded</span>
                   </>
                 )}
               </div>
@@ -306,11 +306,11 @@ export default function JobDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#ffc800]/6 border border-[#ffc800]/25 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+            className="bg-primary/6 border border-primary/25 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
           >
             <div className="flex items-center gap-3 flex-1">
-              <div className="h-10 w-10 rounded-xl bg-[#ffc800]/12 flex items-center justify-center flex-shrink-0">
-                <Award className="h-5 w-5 text-[#ffc800]" />
+              <div className="h-10 w-10 rounded-xl bg-primary/12 flex items-center justify-center flex-shrink-0">
+                <Award className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-bold text-white text-sm">
@@ -320,7 +320,7 @@ export default function JobDetailPage() {
               </div>
             </div>
             <button
-              className="h-10 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex-shrink-0 flex items-center gap-2 active:scale-[0.97]"
+              className="h-10 px-5 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors flex-shrink-0 flex items-center gap-2 active:scale-[0.97]"
               onClick={() => setShowReviewForm(true)}
             >
               <Star className="h-4 w-4" /> Rate {revieweeName?.split(" ")[0] ?? "them"}
@@ -335,10 +335,10 @@ export default function JobDetailPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-[#130f07] border border-[#ffc800]/25 rounded-2xl overflow-hidden"
+              className="bg-[#130f07] border border-primary/25 rounded-2xl overflow-hidden"
             >
               <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
-                <Award className="h-4 w-4 text-[#ffc800]" />
+                <Award className="h-4 w-4 text-primary" />
                 <h2 className="font-bold text-white">Rate your experience with {revieweeName}</h2>
               </div>
               <div className="px-6 py-5 space-y-5">
@@ -346,7 +346,7 @@ export default function JobDetailPage() {
                   <p className="text-sm text-white/50 mb-3">Select a rating</p>
                   <StarRating value={reviewRating} onChange={setReviewRating} />
                   {reviewRating > 0 && (
-                    <p className="text-xs text-[#ffc800] mt-2">
+                    <p className="text-xs text-primary mt-2">
                       {["", "Poor", "Fair", "Good", "Very Good", "Excellent!"][reviewRating]}
                     </p>
                   )}
@@ -358,12 +358,12 @@ export default function JobDetailPage() {
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
                     rows={3}
-                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-all resize-none"
                   />
                 </div>
                 <div className="flex gap-3">
                   <button
-                    className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50 active:scale-[0.97]"
+                    className="h-10 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors disabled:opacity-50 active:scale-[0.97]"
                     disabled={reviewRating === 0 || reviewMutation.isPending}
                     onClick={() =>
                       reviewMutation.mutate({
@@ -393,23 +393,23 @@ export default function JobDetailPage() {
           <div className="grid sm:grid-cols-2 gap-3 pt-4 border-t border-white/6">
             {(job.suburb || job.postcode) && (
               <div className="flex items-center gap-2 text-sm text-white/50">
-                <MapPin className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                 {[job.suburb, job.postcode].filter(Boolean).join(", ")}
               </div>
             )}
             {job.budget && (
               <div className="flex items-center gap-2 text-sm text-white/50">
-                <DollarSign className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                <DollarSign className="h-4 w-4 text-primary flex-shrink-0" />
                 Budget: <span className="text-white/70 font-semibold">${job.budget.toLocaleString()}</span>
               </div>
             )}
             <div className="flex items-center gap-2 text-sm text-white/50">
-              <Calendar className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+              <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
               Posted {timeAgo(job.createdAt)}
             </div>
             {job.scheduledFor && (
               <div className="flex items-center gap-2 text-sm text-white/50">
-                <Clock className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                <Clock className="h-4 w-4 text-primary flex-shrink-0" />
                 Scheduled: {new Date(job.scheduledFor).toLocaleDateString("en-AU")}
               </div>
             )}
@@ -439,16 +439,16 @@ export default function JobDetailPage() {
 
         {/* ── TRADIE: CLAIM FORM ── */}
         {canClaim && (
-          <div className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden">
+          <div className="bg-[#130f07] border border-primary/20 rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-[#ffc800]" />
-              <h2 className="font-bold text-[#ffc800]">Claim This Job</h2>
+              <Briefcase className="h-4 w-4 text-primary" />
+              <h2 className="font-bold text-primary">Claim This Job</h2>
             </div>
             {!showClaimForm ? (
               <div className="p-6">
                 <p className="text-sm text-white/45 mb-4">Submit a claim to let the homeowner know you're available and interested.</p>
                 <button
-                  className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors active:scale-[0.98]"
+                  className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors active:scale-[0.98]"
                   onClick={() => setShowClaimForm(true)}
                 >
                   Submit a Claim
@@ -469,7 +469,7 @@ export default function JobDetailPage() {
                     value={claimMessage}
                     onChange={(e) => setClaimMessage(e.target.value)}
                     rows={3}
-                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-all resize-none"
+                    className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-all resize-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -478,7 +478,7 @@ export default function JobDetailPage() {
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm">$</span>
                     <input
                       type="number"
-                      className="w-full bg-white/6 border border-white/10 rounded-xl px-4 pl-7 h-11 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-all"
+                      className="w-full bg-white/6 border border-white/10 rounded-xl px-4 pl-7 h-11 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-all"
                       placeholder={job.budget ? `Homeowner budget: $${job.budget.toLocaleString()}` : "0"}
                       value={proposedPrice}
                       onChange={(e) => setProposedPrice(e.target.value)}
@@ -488,7 +488,7 @@ export default function JobDetailPage() {
                 </div>
                 <div className="flex gap-3">
                   <button
-                    className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors disabled:opacity-50 active:scale-[0.97]"
+                    className="h-10 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors disabled:opacity-50 active:scale-[0.97]"
                     disabled={claimMutation.isPending}
                     onClick={() => claimMutation.mutate({ jobId: job.id, data: { message: claimMessage || undefined, proposedPrice: proposedPrice ? Number(proposedPrice) : undefined } })}
                   >
@@ -520,12 +520,12 @@ export default function JobDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden"
+            className="bg-[#130f07] border border-primary/20 rounded-2xl overflow-hidden"
           >
             <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
-              <Phone className="h-4 w-4 text-[#ffc800]" />
+              <Phone className="h-4 w-4 text-primary" />
               <h2 className="font-bold text-white">Homeowner Contact</h2>
-              <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-[#ffc800]/12 text-[#ffc800] border border-[#ffc800]/20">
+              <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-primary/12 text-primary border border-primary/20">
                 Revealed on Claim
               </span>
             </div>
@@ -539,7 +539,7 @@ export default function JobDetailPage() {
                     href={`mailto:${jobWithClaims.homeownerEmail}`}
                     className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
                   >
-                    <Mail className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    <Mail className="h-4 w-4 text-primary flex-shrink-0" />
                     {jobWithClaims.homeownerEmail}
                   </a>
                 )}
@@ -548,7 +548,7 @@ export default function JobDetailPage() {
                     href={`tel:${jobWithClaims.homeownerPhone}`}
                     className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
                   >
-                    <Phone className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    <Phone className="h-4 w-4 text-primary flex-shrink-0" />
                     {jobWithClaims.homeownerPhone}
                   </a>
                 )}
@@ -562,11 +562,11 @@ export default function JobDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden"
+            className="bg-[#130f07] border border-primary/20 rounded-2xl overflow-hidden"
           >
             <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
-              <h2 className="font-bold text-[#ffc800]">Responding Tradie</h2>
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <h2 className="font-bold text-primary">Responding Tradie</h2>
               {trustCard.isVerified && (
                 <span className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" /> Verified
@@ -579,7 +579,7 @@ export default function JobDetailPage() {
                 {trustCard.avatarUrl ? (
                   <img src={trustCard.avatarUrl} alt={trustCard.displayName} className="w-14 h-14 rounded-2xl object-cover flex-shrink-0" />
                 ) : (
-                  <div className="w-14 h-14 rounded-2xl bg-[#ffc800]/15 text-[#ffc800] font-black text-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary font-black text-xl flex items-center justify-center flex-shrink-0">
                     {initials(trustCard.displayName)}
                   </div>
                 )}
@@ -587,7 +587,7 @@ export default function JobDetailPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-black text-white text-lg leading-none">{trustCard.displayName}</p>
                     {trustCard.primaryTrade && (
-                      <span className="text-[10px] font-black bg-[#ffc800] text-black px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-md">
                         {trustCard.primaryTrade}
                       </span>
                     )}
@@ -596,7 +596,7 @@ export default function JobDetailPage() {
                     {trustCard.rating != null && (
                       <span className="flex items-center gap-1.5">
                         <StarDisplay rating={trustCard.rating} />
-                        <span className="text-[#ffc800] font-semibold">{trustCard.rating.toFixed(1)}</span>
+                        <span className="text-primary font-semibold">{trustCard.rating.toFixed(1)}</span>
                         <span>({trustCard.reviewCount} review{trustCard.reviewCount !== 1 ? "s" : ""})</span>
                       </span>
                     )}
@@ -607,7 +607,7 @@ export default function JobDetailPage() {
                   {(trustCard.secondaryTrades ?? []).length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {(trustCard.secondaryTrades ?? []).map((t) => (
-                        <span key={t} className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800]">{t}</span>
+                        <span key={t} className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary">{t}</span>
                       ))}
                     </div>
                   )}
@@ -618,7 +618,7 @@ export default function JobDetailPage() {
               {(trustCard.message || trustCard.proposedPrice != null) && (
                 <div className="bg-white/4 border border-white/8 rounded-xl p-4 space-y-2">
                   {trustCard.proposedPrice != null && (
-                    <p className="text-sm font-black text-[#ffc800] flex items-center gap-1.5">
+                    <p className="text-sm font-black text-primary flex items-center gap-1.5">
                       <DollarSign className="h-4 w-4" /> Quote: ${trustCard.proposedPrice.toLocaleString()}
                     </p>
                   )}
@@ -684,7 +684,7 @@ export default function JobDetailPage() {
                     {acceptedClaim.tradieRating != null && (
                       <span className="flex items-center gap-1.5 text-xs text-white/50">
                         <StarDisplay rating={acceptedClaim.tradieRating} />
-                        <span className="text-[#ffc800] font-semibold">{acceptedClaim.tradieRating.toFixed(1)}</span>
+                        <span className="text-primary font-semibold">{acceptedClaim.tradieRating.toFixed(1)}</span>
                       </span>
                     )}
                     {acceptedClaim.tradieSuburb && (
@@ -702,7 +702,7 @@ export default function JobDetailPage() {
                     href={`mailto:${(acceptedClaim as { tradieEmail?: string | null }).tradieEmail}`}
                     className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
                   >
-                    <Mail className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    <Mail className="h-4 w-4 text-primary flex-shrink-0" />
                     {(acceptedClaim as { tradieEmail?: string | null }).tradieEmail}
                   </a>
                 )}
@@ -711,7 +711,7 @@ export default function JobDetailPage() {
                     href={`tel:${(acceptedClaim as { tradiePhone?: string | null }).tradiePhone}`}
                     className="flex items-center gap-2.5 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/60 hover:text-white transition-colors"
                   >
-                    <Phone className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                    <Phone className="h-4 w-4 text-primary flex-shrink-0" />
                     {(acceptedClaim as { tradiePhone?: string | null }).tradiePhone}
                   </a>
                 )}
@@ -727,10 +727,10 @@ export default function JobDetailPage() {
         {(isOwner || isAdmin) && (
           <div className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-white/6 flex items-center gap-2">
-              <Users className="h-4 w-4 text-[#ffc800]" />
+              <Users className="h-4 w-4 text-primary" />
               <h2 className="font-bold text-white">Who's Quoting</h2>
               {claims.length > 0 && (
-                <span className="text-[10px] font-bold bg-[#ffc800] text-black px-2 py-0.5 rounded-full ml-1">
+                <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full ml-1">
                   {claims.length}
                 </span>
               )}
@@ -759,7 +759,7 @@ export default function JobDetailPage() {
                             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
+                          <div className="w-12 h-12 rounded-xl bg-primary/15 text-primary font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
                             {initials(claim.tradieName)}
                           </div>
                         )}
@@ -767,7 +767,7 @@ export default function JobDetailPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-bold text-white">{claim.tradieName ?? "Tradie"}</p>
                             {claim.tradiePrimaryTrade && (
-                              <span className="text-[10px] font-black bg-[#ffc800] text-black px-2 py-0.5 rounded-md">
+                              <span className="text-[10px] font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-md">
                                 {claim.tradiePrimaryTrade}
                               </span>
                             )}
@@ -782,7 +782,7 @@ export default function JobDetailPage() {
                             {claim.tradieRating != null && (
                               <span className="flex items-center gap-1.5">
                                 <StarDisplay rating={claim.tradieRating} />
-                                <span className="text-[#ffc800] font-semibold">{claim.tradieRating.toFixed(1)}</span>
+                                <span className="text-primary font-semibold">{claim.tradieRating.toFixed(1)}</span>
                                 {(claim.tradieReviewCount ?? 0) > 0 && (
                                   <span>({claim.tradieReviewCount})</span>
                                 )}
@@ -820,7 +820,7 @@ export default function JobDetailPage() {
                       {(claim.message || claim.proposedPrice != null) && (
                         <div className="mt-3 bg-white/4 border border-white/8 rounded-xl p-3 space-y-1.5">
                           {claim.proposedPrice != null && (
-                            <p className="text-sm font-black text-[#ffc800] flex items-center gap-1.5">
+                            <p className="text-sm font-black text-primary flex items-center gap-1.5">
                               <DollarSign className="h-4 w-4" /> Quoted: ${claim.proposedPrice.toLocaleString()}
                             </p>
                           )}
@@ -837,7 +837,7 @@ export default function JobDetailPage() {
                             href={`mailto:${claim.tradieEmail}`}
                             className="flex items-center gap-2 bg-white/4 border border-white/8 rounded-lg px-3 py-2 text-xs text-white/60 hover:text-white transition-colors"
                           >
-                            <Mail className="h-3.5 w-3.5 text-[#ffc800]" />
+                            <Mail className="h-3.5 w-3.5 text-primary" />
                             {claim.tradieEmail}
                           </a>
                         )}
@@ -846,7 +846,7 @@ export default function JobDetailPage() {
                             href={`tel:${claim.tradiePhone}`}
                             className="flex items-center gap-2 bg-white/4 border border-white/8 rounded-lg px-3 py-2 text-xs text-white/60 hover:text-white transition-colors"
                           >
-                            <Phone className="h-3.5 w-3.5 text-[#ffc800]" />
+                            <Phone className="h-3.5 w-3.5 text-primary" />
                             {claim.tradiePhone}
                           </a>
                         )}

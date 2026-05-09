@@ -37,11 +37,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const returnTo = safeReturnTo(new URLSearchParams(searchString).get("returnTo"));
+  const autosubmit = new URLSearchParams(searchString).get("autosubmit") === "true";
 
   const loginMutation = useLoginUser({
     mutation: {
       onSuccess: (data) => {
         login(data);
+        if (autosubmit) { setLocation("/post-job?autosubmit=true"); return; }
         if (returnTo) { setLocation(returnTo); return; }
         const role = data.user.role;
         if (role === "admin") setLocation("/admin");
@@ -64,7 +66,7 @@ export default function LoginPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-16"
-      style={{ background: "radial-gradient(ellipse at 30% 60%, #1f1808 0%, #0b0904 60%)" }}
+      style={{ background: "var(--app-hero-gradient)" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -75,9 +77,9 @@ export default function LoginPage() {
         {/* Logo */}
         <Link href="/">
           <div className="flex items-center justify-center gap-2 mb-10 cursor-pointer">
-            <Wrench className="h-6 w-6 text-[#ffc800]" />
+            <Wrench className="h-6 w-6 text-primary" />
             <span className="text-2xl font-black text-white tracking-tight">
-              Fixit <span className="text-[#ffc800]">24/7</span>
+              Fixit <span className="text-primary">24/7</span>
             </span>
           </div>
         </Link>
@@ -105,7 +107,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
               />
             </div>
 
@@ -120,7 +122,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-11 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                  className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-11 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
                 />
                 <button
                   type="button"
@@ -135,7 +137,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
+              className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
             >
               {loginMutation.isPending ? "Signing in…" : "Sign in"}
             </button>
@@ -160,8 +162,8 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-white/40">
             Don't have an account?{" "}
-            <Link href={returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}>
-              <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">
+            <Link href={autosubmit ? "/signup?autosubmit=true" : returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}>
+              <span className="text-primary font-semibold hover:opacity-90 cursor-pointer transition-colors">
                 Sign up free
               </span>
             </Link>

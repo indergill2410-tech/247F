@@ -32,7 +32,7 @@ interface CreditsData {
 }
 
 const TX_ICONS: Record<string, { Icon: React.ElementType; cls: string; label: string }> = {
-  signup_grant:     { Icon: Zap,          cls: "text-[#ffc800] bg-[#ffc800]/10", label: "Welcome Grant" },
+  signup_grant:     { Icon: Zap,          cls: "text-primary bg-primary/10", label: "Welcome Grant" },
   monthly_renewal:  { Icon: Clock,        cls: "text-blue-400 bg-blue-500/10",   label: "Monthly Renewal" },
   purchase:         { Icon: CreditCard,   cls: "text-emerald-400 bg-emerald-500/10", label: "Purchase" },
   claim_deduct:     { Icon: Package,      cls: "text-white/40 bg-white/6",       label: "Job Claim" },
@@ -132,7 +132,7 @@ export default function CreditsPage() {
 
   const PACK_HIGHLIGHTS = [
     { credits: "300", color: "border-white/10",       badge: "" },
-    { credits: "600", color: "border-[#ffc800]/30",   badge: "Best Value" },
+    { credits: "600", color: "border-primary/30",   badge: "Best Value" },
   ];
 
   const PACK_SUBTITLES: Record<string, string> = {
@@ -177,8 +177,8 @@ export default function CreditsPage() {
               )}
             </div>
             <div className="flex items-center gap-3">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${balance > 0 ? "bg-[#ffc800]/10" : "bg-orange-500/10"}`}>
-                <Zap className={`h-8 w-8 ${balance > 0 ? "text-[#ffc800]" : "text-orange-400"}`} />
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${balance > 0 ? "bg-primary/10" : "bg-orange-500/10"}`}>
+                <Zap className={`h-8 w-8 ${balance > 0 ? "text-primary" : "text-orange-400"}`} />
               </div>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function CreditsPage() {
               </div>
               <div className="h-2.5 bg-white/6 rounded-full overflow-hidden">
                 <motion.div
-                  className={`h-full rounded-full ${balance > 100 ? "bg-[#ffc800]" : "bg-orange-400"}`}
+                  className={`h-full rounded-full ${balance > 100 ? "bg-primary" : "bg-orange-400"}`}
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min((balance / creditsData.signupGrant) * 100, 100)}%` }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
@@ -232,7 +232,7 @@ export default function CreditsPage() {
           <h2 className="font-bold text-white text-sm mb-4">How credits work</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { icon: Zap, color: "text-[#ffc800] bg-[#ffc800]/10", title: "Free credits every month", desc: "1,111 free credits every month — automatically renewed for every active tradie." },
+              { icon: Zap, color: "text-primary bg-primary/10", title: "Free credits every month", desc: "1,111 free credits every month — automatically renewed for every active tradie." },
               { icon: Package, color: "text-blue-400 bg-blue-500/10", title: "Credit cost varies by job", desc: "Small jobs (a door repaint, a leaking tap) cost 30–60 credits. Large jobs (a full reno, a house repaint) cost up to 800 credits. The cost is shown upfront on every job card, before you claim." },
               { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Credit packs from $49. Credits never expire." },
             ].map(({ icon: Icon, color, title, desc }) => (
@@ -298,7 +298,7 @@ export default function CreditsPage() {
                     className={`bg-[#130f07] border rounded-2xl p-5 flex flex-col relative overflow-hidden ${highlight?.color ?? "border-white/10"}`}
                   >
                     {highlight?.badge && (
-                      <div className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ffc800] text-black">
+                      <div className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
                         {highlight.badge}
                       </div>
                     )}
@@ -313,9 +313,9 @@ export default function CreditsPage() {
                           <p className="text-xs text-white/35">{subtitle}</p>
                         )}
                         <div className="mt-auto pt-4">
-                          <p className="text-xl font-black text-[#ffc800] mb-3">{fmtAud(price.unitAmount)} AUD</p>
+                          <p className="text-xl font-black text-primary mb-3">{fmtAud(price.unitAmount)} AUD</p>
                           <button
-                            className="w-full h-10 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-all active:scale-[0.97] disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="w-full h-10 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-all active:scale-[0.97] disabled:opacity-50 flex items-center justify-center gap-2"
                             disabled={!!purchasing}
                             onClick={() => handleBuy(price.id)}
                           >

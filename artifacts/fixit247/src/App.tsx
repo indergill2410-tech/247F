@@ -2,6 +2,7 @@ import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wo
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "next-themes";
 import { useAuth } from "@/hooks/use-auth";
 import { Navbar } from "@/components/navbar";
 import LandingPage from "@/pages/landing";
@@ -110,12 +111,8 @@ function Router() {
         <Route path="/admin">
           {() => <ProtectedRoute component={AdminDashboard} roles={["admin"]} />}
         </Route>
-        <Route path="/jobs/new">
-          {() => <ProtectedRoute component={PostJobPage} roles={["homeowner", "admin"]} />}
-        </Route>
-        <Route path="/post-job">
-          {() => <ProtectedRoute component={PostJobPage} roles={["homeowner", "admin"]} />}
-        </Route>
+        <Route path="/jobs/new" component={PostJobPage} />
+        <Route path="/post-job" component={PostJobPage} />
         <Route path="/my-jobs">
           {() => <ProtectedRoute component={JobsPage} />}
         </Route>
@@ -160,14 +157,21 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      themes={["dark", "warm"]}
+    >
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

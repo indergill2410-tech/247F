@@ -17,12 +17,13 @@ import {
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useNavHistory } from "@/hooks/use-nav-history";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 const PUBLIC_NAV = [
   { label: "How it works", href: "/how-it-works" },
   { label: "Fixit 24/7 Plus", href: "/emergency", highlight: true },
+  { label: "For Tradies", href: "/for-tradies" },
   { label: "About", href: "/about" },
-  { label: "Partner with us", href: "/partner" },
 ];
 
 // Shorter labels used in the desktop nav to prevent crowding at medium breakpoints
@@ -33,21 +34,21 @@ const DESKTOP_NAV_LABELS: Record<string, string> = {
 function publicNavCls(href: string, location: string) {
   const isActive = location === href;
   return `px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-    isActive ? "bg-white/8 text-white" : "text-white/55 hover:text-white/90 hover:bg-white/5"
+    isActive ? "bg-[color:var(--app-shell-hover)] text-[color:var(--app-shell-strong)]" : "text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)]"
   }`;
 }
 
 function authNavCls(basePath: string, location: string) {
   const isActive = location === basePath || location.startsWith(basePath + "/");
   return `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-    isActive ? "bg-white/8 text-white" : "text-white/55 hover:text-white/90 hover:bg-white/5"
+    isActive ? "bg-[color:var(--app-shell-hover)] text-[color:var(--app-shell-strong)]" : "text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)]"
   }`;
 }
 
 function mobileLinkCls(href: string, location: string) {
   const isActive = location === href || (href !== "/" && location.startsWith(href));
   return `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-    isActive ? "bg-white/8 text-white" : "text-white/60 hover:text-white hover:bg-white/5"
+    isActive ? "bg-[color:var(--app-shell-hover)] text-[color:var(--app-shell-strong)]" : "text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)]"
   }`;
 }
 
@@ -78,7 +79,7 @@ export function Navbar() {
     user?.role === "tradie" ? "/dashboard/tradie" : "/dashboard";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/6 bg-[#0b0904]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0904]/80">
+    <header className="sticky top-0 z-50 w-full border-b border-[color:var(--app-shell-border)] bg-[color:var(--app-shell)]/95 backdrop-blur supports-[backdrop-filter]:bg-[color:var(--app-shell)]/80">
       <div className="container mx-auto px-4 sm:px-6 flex h-16 items-center justify-between gap-4">
 
         {/* Back / Forward + Logo */}
@@ -90,8 +91,8 @@ export function Navbar() {
               aria-label="Go back"
               className={`h-7 w-7 rounded-lg flex items-center justify-center transition-all ${
                 canGoBack
-                  ? "text-white/60 hover:text-white hover:bg-white/8 active:scale-90"
-                  : "text-white/20 cursor-not-allowed"
+                  ? "text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)] active:scale-90"
+                  : "text-[color:var(--app-shell-muted)] opacity-35 cursor-not-allowed"
               }`}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
@@ -102,8 +103,8 @@ export function Navbar() {
               aria-label="Go forward"
               className={`h-7 w-7 rounded-lg flex items-center justify-center transition-all ${
                 canGoForward
-                  ? "text-white/60 hover:text-white hover:bg-white/8 active:scale-90"
-                  : "text-white/20 cursor-not-allowed"
+                  ? "text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)] active:scale-90"
+                  : "text-[color:var(--app-shell-muted)] opacity-35 cursor-not-allowed"
               }`}
             >
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -112,9 +113,9 @@ export function Navbar() {
 
           <Link href="/">
             <span className="flex items-center gap-2 cursor-pointer" aria-label="Fixit 24/7 — home">
-              <Wrench className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
-              <span className="font-black text-xl text-white tracking-tight whitespace-nowrap">
-                Fixit <span className="text-[#ffc800]">24/7</span>
+              <Wrench className="h-5 w-5 text-primary" aria-hidden="true" />
+              <span className="font-black text-xl text-[color:var(--app-shell-strong)] tracking-tight whitespace-nowrap">
+                Fixit <span className="text-primary">24/7</span>
               </span>
             </span>
           </Link>
@@ -128,8 +129,8 @@ export function Navbar() {
                 {item.highlight ? (
                   <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 ${
                     location === item.href
-                      ? "bg-[#ffc800]/15 text-[#ffc800]"
-                      : "text-[#ffc800]/80 hover:text-[#ffc800] hover:bg-[#ffc800]/10"
+                      ? "bg-primary/10 text-primary"
+                      : "text-primary/80 hover:text-primary hover:bg-primary/10"
                   }`}>
                     <Shield className="h-3 w-3" aria-hidden="true" />
                     {DESKTOP_NAV_LABELS[item.href] ?? item.label}
@@ -166,7 +167,7 @@ export function Navbar() {
               <span className={`${authNavCls("/conversations", location)} relative`}>
                 <MessageCircle className="h-4 w-4" aria-hidden="true" /> Messages
                 {unreadMessages > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-[#ffc800] text-black text-[8px] font-black rounded-full flex items-center justify-center px-1">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-primary text-primary-foreground text-[8px] font-black rounded-full flex items-center justify-center px-1">
                     {unreadMessages > 9 ? "9+" : unreadMessages}
                   </span>
                 )}
@@ -193,27 +194,29 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-2 shrink-0">
           {!isAuthenticated ? (
             <>
+              <ThemeToggle />
               <Link href="/login">
-                <span className="text-sm font-medium text-white/60 hover:text-white transition-colors cursor-pointer px-3 py-1.5 rounded-lg hover:bg-white/5">
+                <span className="text-sm font-medium text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] transition-colors cursor-pointer px-3 py-1.5 rounded-lg hover:bg-[color:var(--app-shell-hover)]">
                   Sign in
                 </span>
               </Link>
               <Link href="/signup">
-                <button className="h-9 px-4 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all">
+                <button className="h-9 px-4 rounded-lg bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-sm transition-all">
                   Create account
                 </button>
               </Link>
             </>
           ) : (
             <>
+              <ThemeToggle />
               <Link href="/notifications">
                 <button
-                  className="relative h-9 w-9 rounded-lg text-white/55 hover:text-white hover:bg-white/8 flex items-center justify-center transition-all"
+                  className="relative h-9 w-9 rounded-lg text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)] flex items-center justify-center transition-all"
                   aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
                 >
                   <Bell className="h-4.5 w-4.5" aria-hidden="true" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#ffc800] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-primary text-primary-foreground text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
@@ -221,19 +224,19 @@ export function Navbar() {
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-white/8 transition-all" aria-label="User menu">
+                  <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-[color:var(--app-shell-hover)] transition-all" aria-label="User menu">
                     <Avatar className="h-7 w-7">
-                      <AvatarFallback className="bg-[#ffc800] text-black text-xs font-black">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-black">
                         {user?.name?.charAt(0).toUpperCase() ?? "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden sm:block text-sm font-medium text-white max-w-[100px] truncate">
+                    <span className="hidden sm:block text-sm font-medium text-[color:var(--app-shell-strong)] max-w-[100px] truncate">
                       {user?.name?.split(" ")[0]}
                     </span>
-                    <Badge className="hidden sm:flex bg-white/8 text-white/55 border-none text-[10px] capitalize px-1.5">
+                    <Badge className="hidden sm:flex bg-[color:var(--app-shell-hover)] text-[color:var(--app-shell-muted)] border-none text-[10px] capitalize px-1.5">
                       {user?.role}
                     </Badge>
-                    <ChevronDown className="h-3.5 w-3.5 text-white/35" aria-hidden="true" />
+                    <ChevronDown className="h-3.5 w-3.5 text-[color:var(--app-shell-muted)] opacity-65" aria-hidden="true" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
@@ -247,7 +250,7 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => setLocation("/conversations")}>
                     <MessageCircle className="h-4 w-4 mr-2" /> Messages
                     {unreadMessages > 0 && (
-                      <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">
+                      <Badge className="ml-auto bg-primary text-primary-foreground border-none text-[10px] px-1.5">
                         {unreadMessages}
                       </Badge>
                     )}
@@ -255,7 +258,7 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => setLocation("/notifications")}>
                     <Bell className="h-4 w-4 mr-2" /> Notifications
                     {unreadCount > 0 && (
-                      <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">
+                      <Badge className="ml-auto bg-primary text-primary-foreground border-none text-[10px] px-1.5">
                         {unreadCount}
                       </Badge>
                     )}
@@ -284,21 +287,22 @@ export function Navbar() {
           {isAuthenticated && (
             <Link href="/notifications">
               <button
-                className="relative h-9 w-9 rounded-lg text-white/55 hover:text-white hover:bg-white/8 flex items-center justify-center transition-all"
+                className="relative h-9 w-9 rounded-lg text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)] flex items-center justify-center transition-all"
                 aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
               >
                 <Bell className="h-4.5 w-4.5" aria-hidden="true" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#ffc800] text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-primary text-primary-foreground text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
             </Link>
           )}
+          <ThemeToggle />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="h-9 w-9 rounded-lg text-white/55 hover:text-white hover:bg-white/8 flex items-center justify-center transition-all"
+            className="h-9 w-9 rounded-lg text-[color:var(--app-shell-muted)] hover:text-[color:var(--app-shell-strong)] hover:bg-[color:var(--app-shell-hover)] flex items-center justify-center transition-all"
             aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
@@ -315,7 +319,7 @@ export function Navbar() {
       {menuOpen && (
         <nav
           id="mobile-nav"
-          className="md:hidden border-t border-white/6 bg-[#0b0904]"
+          className="md:hidden border-t border-[color:var(--app-shell-border)] bg-[color:var(--app-shell)]"
           aria-label="Mobile navigation"
         >
           <div className="container mx-auto px-4 py-4 flex flex-col gap-1">
@@ -326,8 +330,8 @@ export function Navbar() {
                     {item.highlight ? (
                       <span className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                         location === item.href
-                          ? "bg-[#ffc800]/12 text-[#ffc800]"
-                          : "text-[#ffc800]/75 hover:text-[#ffc800] hover:bg-[#ffc800]/8"
+                          ? "bg-primary/10 text-primary"
+                          : "text-primary/80 hover:text-primary hover:bg-primary/10"
                       }`}>
                         <Shield className="h-4 w-4" aria-hidden="true" />
                         {item.label}
@@ -337,14 +341,14 @@ export function Navbar() {
                     )}
                   </Link>
                 ))}
-                <div className="mt-3 pt-3 border-t border-white/8 flex flex-col gap-2">
+                <div className="mt-3 pt-3 border-t border-[color:var(--app-shell-border)] flex flex-col gap-2">
                   <Link href="/login">
-                    <span className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-medium text-white/70 border border-white/15 hover:bg-white/5 transition-all cursor-pointer">
+                    <span className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-medium text-[color:var(--app-shell-muted)] border border-[color:var(--app-shell-border)] hover:bg-[color:var(--app-shell-hover)] transition-all cursor-pointer">
                       Sign in
                     </span>
                   </Link>
                   <Link href="/signup">
-                    <span className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-bold bg-[#ffc800] text-black hover:bg-[#e6b800] active:scale-[0.97] transition-all cursor-pointer">
+                    <span className="block w-full text-center px-4 py-2.5 rounded-lg text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer">
                       Create account
                     </span>
                   </Link>
@@ -374,7 +378,7 @@ export function Navbar() {
                   <span className={`${mobileLinkCls("/conversations", location)} relative`}>
                     <MessageCircle className="h-4 w-4" aria-hidden="true" /> Messages
                     {unreadMessages > 0 && (
-                      <Badge className="ml-auto bg-[#ffc800] text-black border-none text-[10px] px-1.5">
+                      <Badge className="ml-auto bg-primary text-primary-foreground border-none text-[10px] px-1.5">
                         {unreadMessages}
                       </Badge>
                     )}
@@ -394,7 +398,7 @@ export function Navbar() {
                     </span>
                   </Link>
                 )}
-                <div className="mt-3 pt-3 border-t border-white/8 flex flex-col gap-1">
+                <div className="mt-3 pt-3 border-t border-[color:var(--app-shell-border)] flex flex-col gap-1">
                   <Link href="/profile">
                     <span className={mobileLinkCls("/profile", location)}>
                       <User className="h-4 w-4" aria-hidden="true" /> Profile

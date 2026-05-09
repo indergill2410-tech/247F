@@ -59,7 +59,7 @@ export default function AboutPage() {
       {/* ─── Hero ─── */}
       <section
         className="py-20 text-center"
-        style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient-bottom)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -67,7 +67,7 @@ export default function AboutPage() {
           transition={{ duration: 0.5 }}
           className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Our story</span>
+          <span className="text-primary text-xs font-bold uppercase tracking-widest">Our story</span>
           <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">Built for real Australians</h1>
           <p className="text-white/55 text-lg leading-relaxed">
             Fixit 24/7 was built with one mission: make it genuinely easy for Australians to find a trustworthy tradie whenever they need one — not tomorrow, not next week, but now.
@@ -79,7 +79,7 @@ export default function AboutPage() {
       <section className="py-16 bg-[#0e0c08]">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Making a difference</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Making a difference</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">How we're helping</h2>
             <p className="text-white/50 text-[15px] max-w-lg mx-auto">
               Fixit 24/7 connects two communities that depend on each other — and makes life genuinely better for both.
@@ -96,8 +96,8 @@ export default function AboutPage() {
               className="bg-white/5 border border-white/8 rounded-3xl p-7 sm:p-8"
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-2xl bg-[#ffc800]/15 border border-[#ffc800]/25 flex items-center justify-center shrink-0">
-                  <Home className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-11 h-11 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+                  <Home className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="font-black text-[17px]">For homeowners</p>
@@ -110,13 +110,13 @@ export default function AboutPage() {
               <ul className="flex flex-col gap-3">
                 {HOMEOWNER_IMPACTS.map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-3 text-sm text-white/75">
-                    <Icon className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
+                    <Icon className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
                     {text}
                   </li>
                 ))}
               </ul>
               <Link href="/signup?role=homeowner">
-                <button className="mt-7 w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all inline-flex items-center justify-center gap-2">
+                <button className="mt-7 w-full h-11 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-sm transition-all inline-flex items-center justify-center gap-2">
                   Post a job free <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </Link>
@@ -131,8 +131,8 @@ export default function AboutPage() {
               className="bg-white/5 border border-white/8 rounded-3xl p-7 sm:p-8"
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-2xl bg-[#ffc800]/15 border border-[#ffc800]/25 flex items-center justify-center shrink-0">
-                  <HardHat className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-11 h-11 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+                  <HardHat className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="font-black text-[17px]">For tradies</p>
@@ -145,7 +145,7 @@ export default function AboutPage() {
               <ul className="flex flex-col gap-3">
                 {TRADIE_IMPACTS.map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-3 text-sm text-white/75">
-                    <Icon className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
+                    <Icon className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
                     {text}
                   </li>
                 ))}
@@ -159,7 +159,7 @@ export default function AboutPage() {
           </div>
 
           {/* Impact numbers strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-10 bg-[#ffc800]/8 border border-[#ffc800]/15 rounded-3xl px-6 py-7 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-10 bg-primary/8 border border-primary/15 rounded-3xl px-6 py-7 text-center">
             {[
               { value: "12,400+", label: "Repairs sorted" },
               { value: "850+", label: "Tradies earning" },
@@ -167,7 +167,7 @@ export default function AboutPage() {
               { value: "4.8 / 5", label: "Homeowner satisfaction" },
             ].map((s) => (
               <div key={s.label}>
-                <p className="text-2xl sm:text-3xl font-black text-[#ffc800]">{s.value}</p>
+                <p className="text-2xl sm:text-3xl font-black text-primary">{s.value}</p>
                 <p className="text-white/50 text-xs sm:text-sm mt-1 font-medium">{s.label}</p>
               </div>
             ))}
@@ -179,7 +179,7 @@ export default function AboutPage() {
       <section className="py-16 bg-[#0b0904]">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           <div className="bg-white/5 border border-white/8 rounded-3xl p-8 sm:p-10">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Our mission</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Our mission</span>
             <p className="text-xl sm:text-2xl font-bold mt-4 leading-relaxed text-white/90">
               "To connect every Australian homeowner with a skilled, verified local tradie — in minutes, not days — while giving tradies a fair, transparent marketplace to grow their business."
             </p>
@@ -201,8 +201,8 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 className="bg-white/5 border border-white/8 rounded-2xl p-6"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 flex items-center justify-center mb-4">
-                  <v.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <v.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <h3 className="font-bold text-[15px] mb-2">{v.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{v.desc}</p>
@@ -226,7 +226,7 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 className="flex flex-col items-center gap-3 text-center"
               >
-                <div className="w-16 h-16 rounded-2xl bg-[#ffc800] flex items-center justify-center text-black font-black text-lg">
+                <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground font-black text-lg">
                   {member.initials}
                 </div>
                 <div>
@@ -240,7 +240,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="py-16 bg-[#ffc800] text-center">
+      <section className="py-16 bg-primary text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <Wrench className="h-10 w-10 text-black/30 mx-auto mb-5" aria-hidden="true" />
           <h2 className="text-3xl font-black text-black mb-3">Join the Fixit community</h2>

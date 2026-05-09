@@ -4,7 +4,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { Wrench, AlertCircle, Home, HardHat, Check, ChevronDown } from "lucide-react";
+import { Wrench, AlertCircle, Home, HardHat, Check, ChevronDown, Gift } from "lucide-react";
 import { SuburbInput } from "@/components/suburb-input";
 
 type Role = "homeowner" | "tradie";
@@ -45,6 +45,7 @@ export default function RegisterPage() {
   const params = new URLSearchParams(search);
   const defaultRole = (params.get("role") as Role) ?? "homeowner";
   const returnTo = safeReturnTo(params.get("returnTo"));
+  const autosubmit = params.get("autosubmit") === "true";
 
   const { login } = useAuth();
   const [role, setRole] = useState<Role>(defaultRole);
@@ -62,6 +63,7 @@ export default function RegisterPage() {
     mutation: {
       onSuccess: (data) => {
         login(data);
+        if (autosubmit) { setLocation("/post-job?autosubmit=true"); return; }
         if (returnTo) { setLocation(returnTo); return; }
         if (data.user.role === "tradie") setLocation("/dashboard/tradie");
         else setLocation("/dashboard");
@@ -104,13 +106,13 @@ export default function RegisterPage() {
     );
   };
 
-  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
+  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all";
   const labelCls = "text-sm font-medium text-white/70";
 
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-16"
-      style={{ background: "radial-gradient(ellipse at 30% 60%, #1f1808 0%, #0b0904 60%)" }}
+      style={{ background: "var(--app-hero-gradient)" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -121,19 +123,25 @@ export default function RegisterPage() {
         {/* Logo */}
         <Link href="/">
           <div className="flex items-center justify-center gap-2 mb-10 cursor-pointer">
-            <Wrench className="h-6 w-6 text-[#ffc800]" />
+            <Wrench className="h-6 w-6 text-primary" />
             <span className="text-2xl font-black text-white tracking-tight">
-              Fixit <span className="text-[#ffc800]">24/7</span>
+              Fixit <span className="text-primary">24/7</span>
             </span>
           </div>
         </Link>
 
         <div className="bg-[#130f07] border border-white/8 rounded-2xl p-8 shadow-2xl">
           <h1 className="text-2xl font-black text-white text-center mb-1">Create account</h1>
-          <p className="text-white/45 text-sm text-center mb-7">Join Australia's fastest-growing repair marketplace</p>
+          <p className="text-white/45 text-sm text-center mb-7">
+            {autosubmit
+              ? "Create a free account to post your job — takes 30 seconds"
+              : role === "tradie"
+                ? "Claim A$111/month in free job lead credits for your first 6 months"
+                : "Join Australia's fastest-growing repair marketplace"}
+          </p>
 
           {/* Role toggle */}
-          <div className="flex bg-white/5 border border-white/8 rounded-xl p-1 mb-6">
+          <div className="flex bg-white/5 border border-white/8 rounded-xl p-1 mb-4">
             {(["homeowner", "tradie"] as Role[]).map((r) => (
               <button
                 key={r}
@@ -141,7 +149,7 @@ export default function RegisterPage() {
                 onClick={() => setRole(r)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${
                   role === r
-                    ? "bg-[#ffc800] text-black shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-white/45 hover:text-white/70"
                 }`}
               >
@@ -150,6 +158,16 @@ export default function RegisterPage() {
               </button>
             ))}
           </div>
+
+          {role === "tradie" && (
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/10 px-4 py-3">
+              <Gift className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-bold text-white">Signup offer: A$111/month in free job lead credits</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-white/50">Use your credits to claim local job leads. First month starts on signup, then renews monthly for your first 6 months.</p>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -199,7 +217,7 @@ export default function RegisterPage() {
                 className="space-y-4 border-t border-white/8 pt-4 mt-2"
               >
                 <div>
-                  <p className="text-sm font-bold text-[#ffc800] mb-0.5">Your Trade Specialisation</p>
+                  <p className="text-sm font-bold text-primary mb-0.5">Your Trade Specialisation</p>
                   <p className="text-xs text-white/40">This helps us match you to the right jobs.</p>
                 </div>
 
@@ -214,7 +232,7 @@ export default function RegisterPage() {
                         setPrimaryTrade(val);
                         setSecondaryTrades((prev) => prev.filter((t) => t !== val));
                       }}
-                      className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                      className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
                       required
                     >
                       <option value="" className="bg-[#1a1509] text-white/50">Select your main trade…</option>
@@ -239,7 +257,7 @@ export default function RegisterPage() {
                           onClick={() => toggleSecondaryTrade(trade)}
                           className={`h-8 px-3 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${
                             selected
-                              ? "bg-[#ffc800]/15 border-[#ffc800]/40 text-[#ffc800]"
+                              ? "bg-primary/15 border-primary/40 text-primary"
                               : "bg-white/4 border-white/8 text-white/45 hover:bg-white/8 hover:text-white/65"
                           }`}
                         >
@@ -259,18 +277,18 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
+              className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
             >
               {registerMutation.isPending
                 ? "Creating account…"
-                : `Create ${role === "homeowner" ? "Homeowner" : "Tradie"} Account`}
+                : role === "tradie" ? "Claim offer & create Tradie Account" : "Create Homeowner Account"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-white/40">
             Already have an account?{" "}
-            <Link href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>
-              <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
+            <Link href={autosubmit ? "/login?autosubmit=true" : returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>
+              <span className="text-primary font-semibold hover:opacity-90 cursor-pointer transition-colors">Sign in</span>
             </Link>
           </p>
         </div>

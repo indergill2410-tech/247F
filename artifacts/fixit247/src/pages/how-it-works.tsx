@@ -46,8 +46,8 @@ const TRADIE_STEPS = [
     icon: HardHat,
     number: "01",
     title: "Sign up free",
-    desc: "Create your tradie account in minutes. No credit card required, no setup fee. Joining Fixit 24/7 is completely free.",
-    detail: "Takes under 3 minutes to get your profile live.",
+    desc: "Create your tradie account in minutes and claim A$111/month in free job lead credits for your first 6 months. No credit card required, no setup fee.",
+    detail: "Takes under 3 minutes to get your profile live and your first month of credits ready.",
   },
   {
     icon: BadgeCheck,
@@ -173,7 +173,7 @@ function AccordionItem({
       >
         <span className="font-semibold text-white text-[15px] leading-snug">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -209,7 +209,7 @@ export default function HowItWorksPage() {
       {/* ─── Hero ─── */}
       <section
         className="py-16 sm:py-20 text-center"
-        style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient-bottom)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -217,7 +217,7 @@ export default function HowItWorksPage() {
           transition={{ duration: 0.5 }}
           className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Simple process</span>
+          <span className="text-primary text-xs font-bold uppercase tracking-widest">Simple process</span>
           <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">
             How Fixit 24/7 works
           </h1>
@@ -239,7 +239,7 @@ export default function HowItWorksPage() {
               onClick={() => setRole("homeowner")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
                 role === "homeowner"
-                  ? "bg-[#ffc800] text-black shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-white/45 hover:text-white/70"
               }`}
             >
@@ -251,7 +251,7 @@ export default function HowItWorksPage() {
               onClick={() => setRole("tradie")}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
                 role === "tradie"
-                  ? "bg-[#ffc800] text-black shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-white/45 hover:text-white/70"
               }`}
             >
@@ -282,8 +282,8 @@ export default function HowItWorksPage() {
                 >
                   {/* Icon + line */}
                   <div className="shrink-0 flex flex-col items-center gap-3">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#ffc800]/10 border border-[#ffc800]/20 flex items-center justify-center">
-                      <step.icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#ffc800]" aria-hidden="true" />
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                      <step.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" aria-hidden="true" />
                     </div>
                     {i < steps.length - 1 && (
                       <div className="w-px bg-white/8 flex-1 min-h-[32px]" aria-hidden="true" />
@@ -292,7 +292,7 @@ export default function HowItWorksPage() {
 
                   {/* Content */}
                   <div className="pb-2 min-w-0">
-                    <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">{step.number}</span>
+                    <span className="text-primary text-xs font-bold uppercase tracking-widest">{step.number}</span>
                     <h3 className="text-lg sm:text-xl font-black mt-1 mb-2">{step.title}</h3>
                     <p className="text-white/60 leading-relaxed mb-2 text-[15px]">{step.desc}</p>
                     <p className="text-white/35 text-sm italic">{step.detail}</p>
@@ -306,7 +306,7 @@ export default function HowItWorksPage() {
           <div className="mt-12 flex flex-col sm:flex-row gap-3 justify-center items-center">
             {role === "homeowner" ? (
               <>
-                <Link href="/register?role=homeowner">
+                <Link href="/signup?role=homeowner">
                   <button className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2">
                     Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -315,12 +315,12 @@ export default function HowItWorksPage() {
               </>
             ) : (
               <>
-                <Link href="/register?role=tradie">
+                <Link href="/signup?role=tradie">
                   <button className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2">
                     Join as a tradie <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
-                <p className="text-white/35 text-sm">Free to join · No credit card required</p>
+                <p className="text-white/35 text-sm">Free to join · A$111/month lead credits for 6 months</p>
               </>
             )}
           </div>
@@ -333,8 +333,8 @@ export default function HowItWorksPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 text-center">
             {TRUST_SIGNALS.map(({ icon: Icon, label }) => (
               <div key={label} className="flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center">
-                  <Icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center">
+                  <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <span className="text-xs font-semibold text-white/60">{label}</span>
               </div>
@@ -347,7 +347,7 @@ export default function HowItWorksPage() {
       <section className="py-16 sm:py-20 bg-[#0b0904]">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Questions answered</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Questions answered</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">Common questions</h2>
             <p className="text-white/50 text-[15px]">
               Everything you need to know before getting started.
@@ -357,7 +357,7 @@ export default function HowItWorksPage() {
           <div className="flex flex-col gap-10">
             {FAQS.map((group) => (
               <div key={group.category}>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-4 flex items-center gap-2">
+                <p className="text-xs font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
                   {group.category === "For homeowners"
                     ? <><Home className="h-3.5 w-3.5" aria-hidden="true" /> {group.category}</>
                     : <><HardHat className="h-3.5 w-3.5" aria-hidden="true" /> {group.category}</>
@@ -384,7 +384,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* ─── Final CTA ─── */}
-      <section className="py-16 sm:py-20 bg-[#ffc800] text-center">
+      <section className="py-16 sm:py-20 bg-primary text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <Clock className="h-10 w-10 text-black/25 mx-auto mb-5" aria-hidden="true" />
           <h2 className="text-3xl sm:text-4xl font-black text-black mb-3">Ready to get started?</h2>

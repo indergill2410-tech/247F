@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   open:        { label: "Open",        cls: "bg-blue-500/15 text-blue-400" },
-  matched:     { label: "Matched",     cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  matched:     { label: "Matched",     cls: "bg-primary/15 text-primary" },
   in_progress: { label: "In Progress", cls: "bg-orange-500/15 text-orange-400" },
   completed:   { label: "Completed",   cls: "bg-emerald-500/15 text-emerald-400" },
   cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
@@ -70,7 +70,7 @@ export default function JobsPage() {
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Claimed!", description: "Job claimed successfully. Credits deducted." });
+        toast({ title: "Claimed!", description: "Job claimed successfully. Wallet deducted." });
         setExpandedClaimJobId(null);
         setClaimMessage("");
         setClaimPrice("");
@@ -78,8 +78,8 @@ export default function JobsPage() {
       },
       onError: (err) => {
         const errData = err as { data?: { message?: string; error?: string } };
-        const msg = errData?.data?.error === "insufficient_credits"
-          ? "Not enough credits — top up at Credits page."
+        const msg = errData?.data?.error === "insufficient_funds"
+          ? (errData?.data?.message ?? "Insufficient wallet balance — top up at Wallet.")
           : (errData?.data?.message ?? "Failed to claim job");
         toast({ title: "Error", description: msg, variant: "destructive" });
       },
@@ -128,7 +128,7 @@ export default function JobsPage() {
           </div>
           {user?.role === "homeowner" && (
             <Link href="/jobs/new">
-              <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+              <button className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors">
                 <Plus className="h-4 w-4" /> Post Job
               </button>
             </Link>
@@ -147,7 +147,7 @@ export default function JobsPage() {
                 onClick={() => setTradeFilter(f)}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
                   tradeFilter === f
-                    ? "bg-[#ffc800] text-black shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-white/45 hover:text-white/70"
                 }`}
               >
@@ -168,7 +168,7 @@ export default function JobsPage() {
                 placeholder="Search title, suburb…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-10 bg-[#130f07] border border-white/8 rounded-xl pl-9 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/40 transition-all"
+                className="w-full h-10 bg-[#130f07] border border-white/8 rounded-xl pl-9 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/40 transition-all"
               />
             </div>
 
@@ -240,7 +240,7 @@ export default function JobsPage() {
                   <button
                     key={chip.key}
                     onClick={chip.clear}
-                    className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-[#ffc800]/12 text-[#ffc800] text-xs font-semibold border border-[#ffc800]/20 hover:bg-[#ffc800]/20 transition-colors"
+                    className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-primary/12 text-primary text-xs font-semibold border border-primary/20 hover:bg-primary/20 transition-colors"
                   >
                     {chip.label}
                     <X className="h-3 w-3" />
@@ -281,7 +281,7 @@ export default function JobsPage() {
                   <p className="font-semibold text-white/50 text-lg">No jobs found</p>
                   <p className="text-sm mt-1 mb-5">Try adjusting your filters</p>
                   {chips.length > 0 && (
-                    <button onClick={clearAll} className="h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors">
+                    <button onClick={clearAll} className="h-9 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-colors">
                       Clear filters
                     </button>
                   )}
@@ -309,7 +309,7 @@ export default function JobsPage() {
                   className={`bg-[#130f07] border rounded-2xl overflow-hidden transition-all ${
                     job.urgency === "emergency"
                       ? "border-red-500/20 hover:border-red-500/35"
-                      : "border-white/6 hover:border-[#ffc800]/20"
+                      : "border-white/6 hover:border-primary/20"
                   }`}
                 >
                   <div className="p-5">
@@ -318,7 +318,7 @@ export default function JobsPage() {
                         {/* Title + badges */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           <Link href={`/jobs/${job.id}`}>
-                            <span className="font-bold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-base leading-tight">
+                            <span className="font-bold text-white hover:text-primary cursor-pointer transition-colors text-base leading-tight">
                               {job.title}
                             </span>
                           </Link>
@@ -334,20 +334,15 @@ export default function JobsPage() {
                             </span>
                           )}
                           {user?.role === "tradie" && (
-                            job.creditCost != null ? (
+                            job.leadCostCents != null ? (
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] flex items-center gap-1">
-                                <Zap className="h-2.5 w-2.5" /> {job.creditCost} credits to claim
+                                <Zap className="h-2.5 w-2.5" /> ${(job.leadCostCents / 100).toFixed(0)} to claim
                               </span>
                             ) : (
                               <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/35">
-                                Credits TBD
+                                Cost TBD
                               </span>
                             )
-                          )}
-                          {user?.role === "tradie" && job.creditCost != null && (
-                            <span className="text-[10px] text-white/30">
-                              Sized to job scope
-                            </span>
                           )}
                         </div>
 
@@ -370,7 +365,7 @@ export default function JobsPage() {
                             </span>
                           )}
                           {(job.claimCount ?? 0) > 0 && (
-                            <span className="text-[#ffc800]/70 font-semibold">
+                            <span className="text-primary/70 font-semibold">
                               {job.claimCount} tradie{(job.claimCount ?? 0) !== 1 ? "s" : ""} responded
                             </span>
                           )}
@@ -390,7 +385,7 @@ export default function JobsPage() {
                             className={`h-9 px-4 rounded-xl font-bold text-xs transition-all ${
                               isExpanded
                                 ? "bg-white/10 text-white/60 border border-white/10"
-                                : "bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black"
+                                : "bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground"
                             }`}
                             onClick={() => handleClaimExpand(job.id)}
                           >
@@ -417,7 +412,7 @@ export default function JobsPage() {
                             <div>
                               <label className="text-xs text-white/40 block mb-1.5">Message to homeowner</label>
                               <textarea
-                                className="w-full bg-[#1d1a12] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 resize-none h-20"
+                                className="w-full bg-[#1d1a12] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 resize-none h-20"
                                 placeholder="Briefly describe your experience and approach…"
                                 value={claimMessage}
                                 onChange={(e) => setClaimMessage(e.target.value)}
@@ -429,7 +424,7 @@ export default function JobsPage() {
                               </label>
                               <input
                                 type="number"
-                                className="w-full bg-[#1d1a12] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 h-10"
+                                className="w-full bg-[#1d1a12] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 h-10"
                                 placeholder="e.g. 250"
                                 value={claimPrice}
                                 onChange={(e) => setClaimPrice(e.target.value)}
@@ -454,7 +449,7 @@ export default function JobsPage() {
                               Cancel
                             </button>
                             <button
-                              className="h-9 px-5 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-all active:scale-[0.97] disabled:opacity-50"
+                              className="h-9 px-5 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-xs transition-all active:scale-[0.97] disabled:opacity-50"
                               disabled={claimMutation.isPending}
                               onClick={() => claimMutation.mutate({ jobId: job.id, data: { message: claimMessage || undefined, proposedPrice: claimPrice ? Number(claimPrice) : undefined } })}
                             >

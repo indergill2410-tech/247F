@@ -271,7 +271,7 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
       budget: jobsTable.budget,
       scheduledFor: jobsTable.scheduledFor,
       createdAt: jobsTable.createdAt,
-      creditCost: jobsTable.creditCost,
+      leadCostCents: jobsTable.leadCostCents,
       sizeBand: jobsTable.sizeBand,
     })
     .from(jobsTable)
@@ -358,7 +358,7 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
       budget: j.budget,
       scheduledFor: j.scheduledFor,
       createdAt: j.createdAt,
-      creditCost: j.creditCost ?? null,
+      leadCostCents: j.leadCostCents ?? null,
       sizeBand: j.sizeBand ?? null,
     })),
   });

@@ -8,6 +8,7 @@ import { requireAuth } from "../middlewares/require-auth.js";
 import { sendCustomerWelcome, sendTradieWelcome } from "../lib/email.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
 import { authRateLimit } from "../lib/rate-limit.js";
+import { grantWalletFunds, WELCOME_GRANT_CENTS } from "../stripeStorage.js";
 
 const router = Router();
 
@@ -52,6 +53,17 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
       await db.insert(tradieSkillsTable).values(
         skills.map((categoryId) => ({ tradieId: user.id, categoryId }))
       ).onConflictDoNothing();
+    }
+
+    // Grant the first month of the A$111 welcome lead-credit offer to new tradies immediately on signup.
+    if (role === "tradie") {
+      (async () => {
+        await grantWalletFunds(user.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome offer — A$111.00 job lead credits for month 1 of 6");
+        await db
+          .update(usersTable)
+          .set({ welcomeGrantMonthsUsed: 1, welcomeGrantStartedAt: sql`NOW()` })
+          .where(eq(usersTable.id, user.id));
+      })().catch(() => {});
     }
 
     // Send welcome email (fire-and-forget, never blocks registration)

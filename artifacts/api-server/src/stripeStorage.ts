@@ -1,15 +1,9 @@
 import { db } from "@workspace/db";
-import { usersTable, creditBalancesTable, creditTransactionsTable } from "@workspace/db";
+import { usersTable, walletBalancesTable, walletTransactionsTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 
-export const CREDITS_PER_CLAIM = 222;
-export const SIGNUP_GRANT = 1111;
-
-export const CREDIT_PACKS = [
-  { name: "Starter Pack", credits: 300, priceAud: 4900, stripeLookup: "credits_300" },
-  { name: "Pro Pack", credits: 600, priceAud: 9900, stripeLookup: "credits_600" },
-  { name: "Max Pack", credits: 1111, priceAud: 14900, stripeLookup: "credits_1111" },
-] as const;
+export const LEAD_COST_CENTS_DEFAULT = 2200; // $22.00 default per lead
+export const WELCOME_GRANT_CENTS = 11100; // A$111.00 monthly welcome job lead credit grant
 
 export async function getUserById(id: number) {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
@@ -83,72 +77,74 @@ export async function incrementEmergencyCallsUsed(userId: number): Promise<void>
     .where(eq(usersTable.id, userId));
 }
 
-export async function getCreditBalance(userId: number): Promise<number> {
-  const [row] = await db.select().from(creditBalancesTable).where(eq(creditBalancesTable.userId, userId));
-  return row?.balance ?? 0;
+export async function getWalletBalance(userId: number): Promise<number> {
+  const [row] = await db.select().from(walletBalancesTable).where(eq(walletBalancesTable.userId, userId));
+  return row?.balanceCents ?? 0;
 }
 
-export async function ensureCreditBalance(userId: number): Promise<void> {
+export async function ensureWalletBalance(userId: number): Promise<void> {
   await db
-    .insert(creditBalancesTable)
-    .values({ userId, balance: 0 })
+    .insert(walletBalancesTable)
+    .values({ userId, balanceCents: 0 })
     .onConflictDoNothing();
 }
 
-export async function grantCredits(
+export async function grantWalletFunds(
   userId: number,
-  amount: number,
-  type: "signup_grant" | "monthly_renewal" | "purchase" | "refund",
+  amountCents: number,
+  type: "welcome_grant" | "subscription_grant" | "refund" | "adjustment",
   description: string,
   stripeSessionId?: string,
 ): Promise<void> {
-  await ensureCreditBalance(userId);
+  await ensureWalletBalance(userId);
   await db
-    .update(creditBalancesTable)
-    .set({ balance: sql`${creditBalancesTable.balance} + ${amount}`, updatedAt: sql`NOW()` })
-    .where(eq(creditBalancesTable.userId, userId));
+    .update(walletBalancesTable)
+    .set({ balanceCents: sql`${walletBalancesTable.balanceCents} + ${amountCents}`, updatedAt: sql`NOW()` })
+    .where(eq(walletBalancesTable.userId, userId));
 
-  await db.insert(creditTransactionsTable).values({
+  await db.insert(walletTransactionsTable).values({
     userId,
     type,
-    amount,
+    amountCents,
     description,
     stripeSessionId: stripeSessionId ?? null,
   });
 }
 
-export async function deductCredits(
+export async function deductWalletFunds(
   userId: number,
-  amount: number,
+  amountCents: number,
   description: string,
-): Promise<{ success: boolean; balance: number }> {
-  await ensureCreditBalance(userId);
-  const current = await getCreditBalance(userId);
-  if (current < amount) {
-    return { success: false, balance: current };
+  jobId?: number,
+): Promise<{ success: boolean; balanceCents: number }> {
+  await ensureWalletBalance(userId);
+  const current = await getWalletBalance(userId);
+  if (current < amountCents) {
+    return { success: false, balanceCents: current };
   }
 
   await db
-    .update(creditBalancesTable)
-    .set({ balance: sql`${creditBalancesTable.balance} - ${amount}`, updatedAt: sql`NOW()` })
-    .where(eq(creditBalancesTable.userId, userId));
+    .update(walletBalancesTable)
+    .set({ balanceCents: sql`${walletBalancesTable.balanceCents} - ${amountCents}`, updatedAt: sql`NOW()` })
+    .where(eq(walletBalancesTable.userId, userId));
 
-  await db.insert(creditTransactionsTable).values({
+  await db.insert(walletTransactionsTable).values({
     userId,
-    type: "claim_deduct",
-    amount: -amount,
+    type: "lead_deduct",
+    amountCents: -amountCents,
     description,
+    jobId: jobId ?? null,
   });
 
-  return { success: true, balance: current - amount };
+  return { success: true, balanceCents: current - amountCents };
 }
 
-export async function getCreditTransactions(userId: number, limit = 20) {
+export async function getWalletTransactions(userId: number, limit = 20) {
   return db
     .select()
-    .from(creditTransactionsTable)
-    .where(eq(creditTransactionsTable.userId, userId))
-    .orderBy(sql`${creditTransactionsTable.createdAt} DESC`)
+    .from(walletTransactionsTable)
+    .where(eq(walletTransactionsTable.userId, userId))
+    .orderBy(sql`${walletTransactionsTable.createdAt} DESC`)
     .limit(limit);
 }
 
@@ -157,9 +153,9 @@ export async function getSubscription(subscriptionId: string) {
   return result.rows[0] ?? null;
 }
 
-export async function runMonthlyRenewal(): Promise<{ renewed: number; skipped: number }> {
+export async function runMonthlyGrant(): Promise<{ renewed: number; skipped: number }> {
   const tradies = await db
-    .select({ id: usersTable.id, name: usersTable.name })
+    .select({ id: usersTable.id, name: usersTable.name, welcomeGrantMonthsUsed: usersTable.welcomeGrantMonthsUsed })
     .from(usersTable)
     .where(eq(usersTable.role, "tradie"));
 
@@ -168,42 +164,44 @@ export async function runMonthlyRenewal(): Promise<{ renewed: number; skipped: n
 
   for (const tradie of tradies) {
     try {
-      await ensureCreditBalance(tradie.id);
+      await ensureWalletBalance(tradie.id);
 
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
-      const recentRenewal = await db
-        .select({ id: creditTransactionsTable.id })
-        .from(creditTransactionsTable)
+      const recentGrant = await db
+        .select({ id: walletTransactionsTable.id })
+        .from(walletTransactionsTable)
         .where(
-          sql`${creditTransactionsTable.userId} = ${tradie.id}
-            AND ${creditTransactionsTable.type} = 'monthly_renewal'
-            AND ${creditTransactionsTable.createdAt} >= ${startOfMonth.toISOString()}`,
+          sql`${walletTransactionsTable.userId} = ${tradie.id}
+            AND ${walletTransactionsTable.type} IN ('welcome_grant', 'subscription_grant')
+            AND ${walletTransactionsTable.createdAt} >= ${startOfMonth.toISOString()}`,
         )
         .limit(1);
 
-      if (recentRenewal.length > 0) {
+      if (recentGrant.length > 0) {
         skipped++;
         continue;
       }
 
-      await db
-        .update(creditBalancesTable)
-        .set({ balance: SIGNUP_GRANT, updatedAt: sql`NOW()` })
-        .where(eq(creditBalancesTable.userId, tradie.id));
-
-      const month = new Date().toLocaleString("en-AU", { month: "long", year: "numeric" });
-      await db.insert(creditTransactionsTable).values({
-        userId: tradie.id,
-        type: "monthly_renewal",
-        amount: SIGNUP_GRANT,
-        description: `Monthly credit renewal — ${SIGNUP_GRANT.toLocaleString()} credits for ${month}`,
-        stripeSessionId: null,
-      });
-
-      renewed++;
+      const monthsUsed = tradie.welcomeGrantMonthsUsed ?? 0;
+      if (monthsUsed < 6) {
+        const month = new Date().toLocaleString("en-AU", { month: "long", year: "numeric" });
+        await grantWalletFunds(
+          tradie.id,
+          WELCOME_GRANT_CENTS,
+          "welcome_grant",
+          `Welcome offer — A$111.00 job lead credits for ${month}`,
+        );
+        await db
+          .update(usersTable)
+          .set({ welcomeGrantMonthsUsed: monthsUsed + 1 })
+          .where(eq(usersTable.id, tradie.id));
+        renewed++;
+      } else {
+        skipped++;
+      }
     } catch {
       skipped++;
     }

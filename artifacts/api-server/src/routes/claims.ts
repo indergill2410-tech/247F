@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable, creditBalancesTable, creditTransactionsTable } from "@workspace/db";
+import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable, walletBalancesTable, walletTransactionsTable } from "@workspace/db";
 import { eq, and, count, inArray, desc, sql } from "drizzle-orm";
 import {
   ClaimJobParams,
@@ -13,7 +13,7 @@ import {
 import { requireAuth } from "../middlewares/require-auth.js";
 import { writeRateLimit } from "../lib/rate-limit.js";
 import { logger } from "../lib/logger.js";
-import { CREDITS_PER_CLAIM, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
+import { LEAD_COST_CENTS_DEFAULT, incrementEmergencyCallsUsed, EMERGENCY_MAX_CALLOUTS } from "../stripeStorage.js";
 import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/email.js";
 
 const MAX_CLAIMS_PER_JOB = 5;
@@ -169,34 +169,35 @@ router.post("/jobs/:jobId/claims", requireAuth, writeRateLimit, async (req, res)
     }
   }
 
-  // Use per-job credit cost if set, otherwise fall back to legacy CREDITS_PER_CLAIM
-  const claimCost = job.creditCost ?? CREDITS_PER_CLAIM;
+  // Use per-job lead cost if set, otherwise fall back to default
+  const claimCostCents = job.leadCostCents ?? LEAD_COST_CENTS_DEFAULT;
 
-  // Atomically check balance, deduct credits, and insert claim in a single transaction.
-  // The SELECT FOR UPDATE locks the credit balance row to prevent race conditions when
+  // Atomically check balance, deduct wallet funds, and insert claim in a single transaction.
+  // The SELECT FOR UPDATE locks the wallet row to prevent race conditions when
   // multiple claim requests arrive simultaneously for the same tradie.
   let claim: typeof claimsTable.$inferSelect;
   try {
     claim = await db.transaction(async (tx) => {
       if (!coveredEmergency) {
-        const balanceResult = await tx.execute<{ balance: number }>(
-          sql`SELECT balance FROM credit_balances WHERE user_id = ${tradieId} FOR UPDATE`,
+        const balanceResult = await tx.execute<{ balance_cents: number }>(
+          sql`SELECT balance_cents FROM wallet_balances WHERE user_id = ${tradieId} FOR UPDATE`,
         );
-        const balance = Number(balanceResult.rows[0]?.balance ?? 0);
-        if (balance < claimCost) {
-          throw Object.assign(new Error("insufficient_credits"), { balance, required: claimCost });
+        const balanceCents = Number(balanceResult.rows[0]?.balance_cents ?? 0);
+        if (balanceCents < claimCostCents) {
+          throw Object.assign(new Error("insufficient_funds"), { balanceCents, required: claimCostCents });
         }
 
         await tx
-          .update(creditBalancesTable)
-          .set({ balance: sql`${creditBalancesTable.balance} - ${claimCost}`, updatedAt: sql`NOW()` })
-          .where(eq(creditBalancesTable.userId, tradieId));
+          .update(walletBalancesTable)
+          .set({ balanceCents: sql`${walletBalancesTable.balanceCents} - ${claimCostCents}`, updatedAt: sql`NOW()` })
+          .where(eq(walletBalancesTable.userId, tradieId));
 
-        await tx.insert(creditTransactionsTable).values({
+        await tx.insert(walletTransactionsTable).values({
           userId: tradieId,
-          type: "claim_deduct",
-          amount: -claimCost,
+          type: "lead_deduct",
+          amountCents: -claimCostCents,
           description: `Claimed job #${jobId}: ${job.title ?? "Job"}`,
+          jobId,
         });
       }
 
@@ -215,13 +216,15 @@ router.post("/jobs/:jobId/claims", requireAuth, writeRateLimit, async (req, res)
       return newClaim;
     });
   } catch (err: unknown) {
-    const typed = err as { message?: string; balance?: number; required?: number };
-    if (typed?.message === "insufficient_credits") {
+    const typed = err as { message?: string; balanceCents?: number; required?: number };
+    if (typed?.message === "insufficient_funds") {
+      const balanceDollars = ((typed.balanceCents ?? 0) / 100).toFixed(2);
+      const requiredDollars = ((typed.required ?? 0) / 100).toFixed(2);
       res.status(402).json({
-        error: "insufficient_credits",
-        message: `You need ${typed.required} credits to claim this job. Your balance: ${typed.balance}. Top up at /credits.`,
-        balance: typed.balance,
-        required: typed.required,
+        error: "insufficient_funds",
+        message: `You need $${requiredDollars} to claim this job. Your balance: $${balanceDollars}. Top up at /wallet.`,
+        balanceCents: typed.balanceCents,
+        requiredCents: typed.required,
       });
       return;
     }
