@@ -251,8 +251,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
           <span className="text-sm text-white/45">Are you a tradie?</span>
           <Link href="/partner">
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-white/65 hover:text-[#ffc800] transition-colors cursor-pointer">
-              Get verified jobs in your area
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-[#ffc800] hover:text-[#ffd740] transition-colors cursor-pointer">
+              Start with $111 free — For Tradies
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </Link>
