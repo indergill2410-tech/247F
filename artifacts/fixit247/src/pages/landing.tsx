@@ -61,7 +61,7 @@ const HOW_IT_WORKS_TRADIE = [
     icon: HardHat,
     step: "01",
     title: "Sign up free",
-    desc: "Create your profile in minutes. No credit card required. Completely free to join.",
+    desc: "Create your profile in minutes and claim A$111/month in free job lead credits for your first 6 months. No credit card required.",
   },
   {
     icon: BadgeCheck,
@@ -255,9 +255,9 @@ export default function LandingPage() {
       <div className="bg-[#0d0b07] border-b border-white/8">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
           <span className="text-sm text-white/45">Are you a tradie?</span>
-          <Link href="/partner">
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-[#ffd740] transition-colors cursor-pointer">
-              Start with $111 free — For Tradies
+          <Link href="/for-tradies">
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer">
+              Claim A$111/month free lead credits — For Tradies
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </Link>

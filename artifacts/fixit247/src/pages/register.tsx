@@ -4,7 +4,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { Wrench, AlertCircle, Home, HardHat, Check, ChevronDown } from "lucide-react";
+import { Wrench, AlertCircle, Home, HardHat, Check, ChevronDown, Gift } from "lucide-react";
 import { SuburbInput } from "@/components/suburb-input";
 
 type Role = "homeowner" | "tradie";
@@ -135,11 +135,13 @@ export default function RegisterPage() {
           <p className="text-white/45 text-sm text-center mb-7">
             {autosubmit
               ? "Create a free account to post your job — takes 30 seconds"
-              : "Join Australia's fastest-growing repair marketplace"}
+              : role === "tradie"
+                ? "Claim A$111/month in free job lead credits for your first 6 months"
+                : "Join Australia's fastest-growing repair marketplace"}
           </p>
 
           {/* Role toggle */}
-          <div className="flex bg-white/5 border border-white/8 rounded-xl p-1 mb-6">
+          <div className="flex bg-white/5 border border-white/8 rounded-xl p-1 mb-4">
             {(["homeowner", "tradie"] as Role[]).map((r) => (
               <button
                 key={r}
@@ -156,6 +158,16 @@ export default function RegisterPage() {
               </button>
             ))}
           </div>
+
+          {role === "tradie" && (
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/10 px-4 py-3">
+              <Gift className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-bold text-white">Signup offer: A$111/month in free job lead credits</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-white/50">Use your credits to claim local job leads. First month starts on signup, then renews monthly for your first 6 months.</p>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -269,7 +281,7 @@ export default function RegisterPage() {
             >
               {registerMutation.isPending
                 ? "Creating account…"
-                : `Create ${role === "homeowner" ? "Homeowner" : "Tradie"} Account`}
+                : role === "tradie" ? "Claim offer & create Tradie Account" : "Create Homeowner Account"}
             </button>
           </form>
 

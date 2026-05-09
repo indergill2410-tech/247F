@@ -55,9 +55,15 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
       ).onConflictDoNothing();
     }
 
-    // Grant $111 welcome wallet to new tradies immediately on signup
+    // Grant the first month of the A$111 welcome lead-credit offer to new tradies immediately on signup.
     if (role === "tradie") {
-      grantWalletFunds(user.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome grant — $111 free to get started").catch(() => {});
+      (async () => {
+        await grantWalletFunds(user.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome offer — A$111.00 job lead credits for month 1 of 6");
+        await db
+          .update(usersTable)
+          .set({ welcomeGrantMonthsUsed: 1, welcomeGrantStartedAt: sql`NOW()` })
+          .where(eq(usersTable.id, user.id));
+      })().catch(() => {});
     }
 
     // Send welcome email (fire-and-forget, never blocks registration)

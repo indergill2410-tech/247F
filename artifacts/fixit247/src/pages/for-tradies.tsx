@@ -53,8 +53,8 @@ const HOW_IT_WORKS = [
   },
   {
     step: "02",
-    title: "Your $111 wallet is ready",
-    desc: "Instantly receive $111 in wallet credit — real money toward real leads in your area. No strings attached.",
+    title: "Claim A$111/month in lead credits",
+    desc: "Sign up and claim A$111/month in free job lead credits for your first 6 months — real budget toward real local jobs.",
   },
   {
     step: "03",
@@ -75,7 +75,7 @@ const PROOF_QUOTES = [
     trade: "Electrician · Sydney, NSW",
   },
   {
-    quote: "No commission on jobs I win. No mystery pricing. I started with the $111 free wallet and landed 4 jobs in my first 2 weeks. Stoked.",
+    quote: "No commission on jobs I win. No mystery pricing. I started with the A$111/month lead credit offer and landed 4 jobs in my first 2 weeks. Stoked.",
     name: "Marcus T.",
     trade: "Plumber · Brisbane, QLD",
   },
@@ -92,8 +92,8 @@ const FAQS = [
     a: "Lead costs vary by job size and are always shown upfront before you commit — typically $22–$80 per lead. You only pay when you choose to claim.",
   },
   {
-    q: "What is the $111 free wallet credit?",
-    a: "Every new tradie receives $111 in wallet credit on signup — enough to claim several real jobs and test the platform without spending a cent of your own money.",
+    q: "What is the A$111/month job lead credit offer?",
+    a: "New tradies can claim A$111/month in free job lead credits for their first 6 months — enough to test real local leads without spending their own money upfront.",
   },
   {
     q: "Is there a commission on jobs I win?",
@@ -149,7 +149,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
 }
 
 export default function ForTradiesPage() {
-  usePageTitle("For Tradies — Start with $111 Free | Fixit 24/7");
+  usePageTitle("For Tradies — Claim A$111/month Free Lead Credits | Fixit 24/7");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -187,14 +187,14 @@ export default function ForTradiesPage() {
               </h1>
 
               <p className="text-lg text-white/60 max-w-md leading-relaxed mb-8">
-                Get <span className="text-white font-semibold">$111 free</span> when you join — real money toward real jobs in your area.
+                Claim <span className="text-white font-semibold">A$111/month in free job lead credits</span> for your first 6 months — real budget toward real jobs in your area.
                 Fairly priced leads, zero commission on jobs you win, and no fortune spent on dead-end ads.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Link href="/signup?role=tradie">
                   <button className="inline-flex items-center justify-center gap-2 h-13 px-7 rounded-xl font-black text-[16px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all">
-                    Claim your $111 — join free
+                    Claim A$111/month — join free
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
@@ -202,7 +202,7 @@ export default function ForTradiesPage() {
 
               <div className="flex flex-wrap gap-3">
                 {[
-                  "$111 free to start",
+                  "A$111/month for 6 months",
                   "No commission on wins",
                   "See job cost before you claim",
                   "Cancel anytime",
@@ -214,7 +214,7 @@ export default function ForTradiesPage() {
               </div>
             </motion.div>
 
-            {/* Right: $111 wallet callout card */}
+            {/* Right: A$111/month lead credit offer card */}
             <motion.div
               className="w-full lg:w-[310px] shrink-0"
               initial={{ opacity: 0, x: 28 }}
@@ -224,16 +224,18 @@ export default function ForTradiesPage() {
               <div className="relative rounded-3xl">
                 <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-primary/30 to-transparent" aria-hidden="true" />
                 <div className="relative bg-[#111008] rounded-3xl p-8 border border-primary/15">
-                  <p className="text-primary text-xs font-bold uppercase tracking-widest mb-5 text-center">Your welcome credit</p>
+                  <p className="text-primary text-xs font-bold uppercase tracking-widest mb-5 text-center">Signup offer</p>
 
                   <div className="text-center mb-6">
-                    <div className="text-6xl font-black text-white leading-none mb-1">$111</div>
-                    <p className="text-white/40 text-sm">free wallet credit on signup</p>
+                    <div className="text-6xl font-black text-white leading-none mb-1">A$111</div>
+                    <p className="text-white/40 text-sm">free job lead credits / month</p>
+                    <p className="text-primary/70 text-xs font-bold mt-1">for your first 6 months</p>
                   </div>
 
                   <div className="space-y-3 mb-7">
                     {[
-                      "Loaded instantly on signup",
+                      "First month loaded on signup",
+                      "Renews monthly for 6 months",
                       "Use to claim local job leads",
                       "See cost before you commit",
                       "Zero commission on jobs won",
@@ -247,13 +249,13 @@ export default function ForTradiesPage() {
 
                   <Link href="/signup?role=tradie">
                     <button className="w-full h-11 rounded-xl font-bold text-[14px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
-                      Claim $111 free
+                      Claim A$111/month free
                       <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </Link>
 
                   <p className="text-center text-[11px] text-white/25 mt-3">
-                    100% free to join — no commitment
+                    Free to join — no credit card required
                   </p>
                 </div>
               </div>
@@ -400,9 +402,9 @@ export default function ForTradiesPage() {
                 <span className="text-3xl font-black text-white">$0</span>
                 <span className="text-white/40 text-sm">/mo</span>
               </div>
-              <p className="text-white/40 text-xs mb-5">$111 welcome credit included</p>
+              <p className="text-white/40 text-xs mb-5">A$111/month lead credits included</p>
               <ul className="flex flex-col gap-2.5 mb-6 flex-1">
-                {["$111 wallet on signup", "Browse all local jobs", "Claim at standard rates", "Basic tradie profile"].map((f) => (
+                {["A$111/month for first 6 months", "Browse all local jobs", "Claim at standard rates", "Basic tradie profile"].map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-white/60">
                     <CheckCircle2 className="h-3.5 w-3.5 text-white/25 shrink-0" aria-hidden="true" /> {f}
                   </li>
@@ -584,7 +586,7 @@ export default function ForTradiesPage() {
           <div className="text-center">
             <Link href="/signup?role=tradie">
               <button className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-black text-[17px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all mb-4">
-                Claim $111 free — join now
+                Claim A$111/month free — join now
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
             </Link>

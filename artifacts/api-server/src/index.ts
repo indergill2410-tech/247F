@@ -94,7 +94,7 @@ async function initStripe() {
     // Backfill in background — don't block startup
     stripeSync.syncBackfill().then(() => logger.info("Stripe data synced")).catch((err: any) => logger.error({ err }, "Stripe backfill error"));
 
-    // Grant welcome wallet funds to any tradies who don't have a wallet row yet
+    // Grant the first month of the welcome lead-credit offer to tradies who do not have a wallet row yet
     await grantWelcomeGrantToNewTradies();
 
     // Ensure the emergency membership product exists in Stripe
@@ -115,7 +115,11 @@ async function grantWelcomeGrantToNewTradies() {
       .where(sql`${usersTable.role} = 'tradie' AND ${walletBalancesTable.userId} IS NULL`);
 
     for (const tradie of tradiesWithNoWallet) {
-      await grantWalletFunds(tradie.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome grant — $111.00 to get started");
+      await grantWalletFunds(tradie.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome offer — A$111.00 job lead credits for month 1 of 6");
+      await db
+        .update(usersTable)
+        .set({ welcomeGrantMonthsUsed: 1, welcomeGrantStartedAt: sql`NOW()` })
+        .where(eq(usersTable.id, tradie.id));
       logger.info({ tradieId: tradie.id, name: tradie.name }, "Granted welcome wallet funds");
     }
 

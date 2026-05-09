@@ -44,8 +44,8 @@ const TRADIE_STEPS = [
     icon: HardHat,
     number: "01",
     title: "Sign up free",
-    desc: "Create your tradie account in minutes. No credit card required, no setup fee. Joining Fixit 24/7 is completely free.",
-    detail: "Takes under 3 minutes to get your profile live.",
+    desc: "Create your tradie account in minutes and claim A$111/month in free job lead credits for your first 6 months. No credit card required, no setup fee.",
+    detail: "Takes under 3 minutes to get your profile live and your first month of credits ready.",
   },
   {
     icon: BadgeCheck,
@@ -315,10 +315,10 @@ export default function HowItWorksPage() {
               <>
                 <Link href="/signup?role=tradie">
                   <button className="h-12 px-8 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-[15px] transition-all inline-flex items-center gap-2">
-                    Join as a tradie <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                    Claim A$111/month free <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
-                <p className="text-white/35 text-sm">Free to join · No credit card required</p>
+                <p className="text-white/35 text-sm">Free to join · A$111/month lead credits for 6 months</p>
               </>
             )}
           </div>
