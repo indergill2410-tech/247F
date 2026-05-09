@@ -70,7 +70,7 @@ export default function JobsPage() {
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Claimed!", description: "Job claimed successfully. Credits deducted." });
+        toast({ title: "Claimed!", description: "Job claimed successfully. Wallet deducted." });
         setExpandedClaimJobId(null);
         setClaimMessage("");
         setClaimPrice("");
@@ -78,8 +78,8 @@ export default function JobsPage() {
       },
       onError: (err) => {
         const errData = err as { data?: { message?: string; error?: string } };
-        const msg = errData?.data?.error === "insufficient_credits"
-          ? "Not enough credits — top up at Credits page."
+        const msg = errData?.data?.error === "insufficient_funds"
+          ? (errData?.data?.message ?? "Insufficient wallet balance — top up at Wallet.")
           : (errData?.data?.message ?? "Failed to claim job");
         toast({ title: "Error", description: msg, variant: "destructive" });
       },
@@ -334,20 +334,15 @@ export default function JobsPage() {
                             </span>
                           )}
                           {user?.role === "tradie" && (
-                            job.creditCost != null ? (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary flex items-center gap-1">
-                                <Zap className="h-2.5 w-2.5" /> {job.creditCost} credits to claim
+                            job.leadCostCents != null ? (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] flex items-center gap-1">
+                                <Zap className="h-2.5 w-2.5" /> ${(job.leadCostCents / 100).toFixed(0)} to claim
                               </span>
                             ) : (
                               <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/35">
-                                Credits TBD
+                                Cost TBD
                               </span>
                             )
-                          )}
-                          {user?.role === "tradie" && job.creditCost != null && (
-                            <span className="text-[10px] text-white/30">
-                              Sized to job scope
-                            </span>
                           )}
                         </div>
 

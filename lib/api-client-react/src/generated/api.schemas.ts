@@ -180,7 +180,7 @@ export interface Job {
   imageUrls: string[];
   budget?: number | null;
   sizeBand?: JobSizeBand;
-  creditCost?: number | null;
+  leadCostCents?: number | null;
   claimCount: number;
   createdAt: string;
   scheduledFor?: string | null;
