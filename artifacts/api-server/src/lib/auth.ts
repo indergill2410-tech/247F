@@ -1,10 +1,11 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env["SESSION_SECRET"];
-if (!JWT_SECRET) {
+const _jwtSecret = process.env["SESSION_SECRET"];
+if (!_jwtSecret) {
   throw new Error("SESSION_SECRET environment variable is required");
 }
+const JWT_SECRET: string = _jwtSecret;
 const TOKEN_EXPIRY = "7d";
 
 export function hashPassword(password: string): string {
