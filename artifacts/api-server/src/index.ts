@@ -4,12 +4,12 @@ import { runMigrations } from "stripe-replit-sync";
 import cron from "node-cron";
 import app from "./app.js";
 import { logger } from "./lib/logger.js";
-import { verifyToken } from "./lib/auth.js";
+import { verifyToken, hashPassword } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
 import { getStripeSync, getUncachableStripeClient } from "./stripeClient.js";
 import { grantWalletFunds, WELCOME_GRANT_CENTS, runMonthlyGrant } from "./stripeStorage.js";
 import { EMERGENCY_PRODUCT_LOOKUP } from "./routes/emergency.js";
-import { db } from "@workspace/db";
+import { db, pool } from "@workspace/db";
 import { usersTable } from "@workspace/db";
 import { eq, isNull, sql } from "drizzle-orm";
 
@@ -23,6 +23,91 @@ const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+async function applySchemaUpdates() {
+  const statements = [
+    `DO $$ BEGIN CREATE TYPE "public"."subscription_tier" AS ENUM ('free','starter','pro'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
+    `DO $$ BEGIN CREATE TYPE "public"."wallet_tx_type" AS ENUM ('welcome_grant','subscription_grant','lead_deduct','refund','adjustment'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
+    `DO $$ BEGIN CREATE TYPE "public"."size_band" AS ENUM ('small','medium','large','premium'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
+    `ALTER TABLE "users"
+       ADD COLUMN IF NOT EXISTS "subscription_tier" "subscription_tier" NOT NULL DEFAULT 'free',
+       ADD COLUMN IF NOT EXISTS "subscription_started_at" timestamp with time zone,
+       ADD COLUMN IF NOT EXISTS "subscription_stripe_sub_id" text,
+       ADD COLUMN IF NOT EXISTS "welcome_grant_months_used" integer NOT NULL DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "welcome_grant_started_at" timestamp with time zone,
+       ADD COLUMN IF NOT EXISTS "free_leads_used_this_month" integer NOT NULL DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "free_leads_month_reset_at" timestamp with time zone`,
+    `ALTER TABLE "jobs" ADD COLUMN IF NOT EXISTS "lead_cost_cents" integer`,
+    `ALTER TABLE "jobs" ADD COLUMN IF NOT EXISTS "size_band" "size_band"`,
+    `CREATE TABLE IF NOT EXISTS "wallet_balances" (
+       "id" serial PRIMARY KEY,
+       "user_id" integer NOT NULL REFERENCES "users"("id") UNIQUE,
+       "balance_cents" integer NOT NULL DEFAULT 0,
+       "updated_at" timestamp with time zone NOT NULL DEFAULT now()
+     )`,
+    `CREATE TABLE IF NOT EXISTS "wallet_transactions" (
+       "id" serial PRIMARY KEY,
+       "user_id" integer NOT NULL REFERENCES "users"("id"),
+       "type" "wallet_tx_type" NOT NULL,
+       "amount_cents" integer NOT NULL,
+       "description" text,
+       "stripe_session_id" text,
+       "job_id" integer REFERENCES "jobs"("id"),
+       "created_at" timestamp with time zone NOT NULL DEFAULT now()
+     )`,
+    `CREATE INDEX IF NOT EXISTS "wallet_transactions_user_id_idx" ON "wallet_transactions" ("user_id")`,
+  ];
+  for (const stmt of statements) {
+    await pool.query(stmt).catch((err: unknown) => {
+      logger.warn({ err, stmt: stmt.slice(0, 80) }, "Schema update statement warning (non-fatal)");
+    });
+  }
+  logger.info("Schema updates applied");
+}
+
+async function seedDemoAccounts() {
+  const demos = [
+    { name: "Alex homeowner", email: "homeowner@fixit247.com", password: "password123", role: "homeowner" as const },
+    { name: "Sam Tradie",     email: "tradie@fixit247.com",    password: "password123", role: "tradie" as const },
+    { name: "Admin",          email: "admin@fixit247.com",     password: "admin123",    role: "admin" as const },
+  ];
+
+  for (const demo of demos) {
+    const existing = await pool.query<{ id: number }>(
+      "SELECT id FROM users WHERE email = $1", [demo.email]
+    );
+    if (existing.rows.length > 0) {
+      const userId = existing.rows[0]!.id;
+      // Ensure tradie has a wallet even if they already existed
+      if (demo.role === "tradie") {
+        await pool.query(
+          `INSERT INTO wallet_balances (user_id, balance_cents) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING`,
+          [userId, WELCOME_GRANT_CENTS]
+        );
+      }
+      continue;
+    }
+    const passwordHash = hashPassword(demo.password);
+    const result = await pool.query<{ id: number }>(
+      `INSERT INTO users (name, email, password_hash, role, is_active)
+       VALUES ($1, $2, $3, $4, true) RETURNING id`,
+      [demo.name, demo.email, passwordHash, demo.role]
+    );
+    const userId = result.rows[0]!.id;
+    if (demo.role === "tradie") {
+      await pool.query(
+        `INSERT INTO wallet_balances (user_id, balance_cents) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING`,
+        [userId, WELCOME_GRANT_CENTS]
+      );
+      await pool.query(
+        `INSERT INTO wallet_transactions (user_id, type, amount_cents, description)
+         VALUES ($1, 'welcome_grant', $2, '$111 welcome credit — free to get started')`,
+        [userId, WELCOME_GRANT_CENTS]
+      );
+    }
+    logger.info({ email: demo.email, role: demo.role }, "Demo account created");
+  }
 }
 
 async function ensureEmergencyProduct() {
@@ -222,17 +307,21 @@ function startMonthlyRenewalCron() {
   logger.info("Monthly wallet grant cron scheduled (1st of each month, midnight AEST)");
 }
 
-// Init Stripe then start listening
-initStripe().then(() => {
-  startMonthlyRenewalCron();
-  httpServer.listen(port, (err?: Error) => {
-    if (err) {
-      logger.error({ err }, "Error listening on port");
-      process.exit(1);
-    }
-    logger.info({ port }, "Server listening");
+// Apply schema updates + seed demo accounts, then init Stripe, then start listening
+applySchemaUpdates()
+  .then(() => seedDemoAccounts())
+  .then(() => initStripe())
+  .then(() => {
+    startMonthlyRenewalCron();
+    httpServer.listen(port, (err?: Error) => {
+      if (err) {
+        logger.error({ err }, "Error listening on port");
+        process.exit(1);
+      }
+      logger.info({ port }, "Server listening");
+    });
+  })
+  .catch((err) => {
+    logger.error({ err }, "Fatal startup error");
+    process.exit(1);
   });
-}).catch((err) => {
-  logger.error({ err }, "Fatal startup error");
-  process.exit(1);
-});
