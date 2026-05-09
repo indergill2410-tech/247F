@@ -1,7 +1,10 @@
+"use client";
+
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
 import { Footer } from "@/components/footer";
@@ -154,14 +157,15 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
 export default function LandingPage() {
   usePageTitle("Fixit 24/7 — Find Trusted Local Tradies, Fast");
   const [suburb, setSuburb] = useState("");
-  const [, setLocation] = useLocation();
+  const router = useRouter();
   const [howRole, setHowRole] = useState<"homeowner" | "tradie">("homeowner");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { data: categories } = useListCategories();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const handleFindTradies = () => {
-    setLocation(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
+    router.push(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
   };
 
   const steps = howRole === "homeowner" ? HOW_IT_WORKS_HOMEOWNER : HOW_IT_WORKS_TRADIE;
@@ -250,9 +254,9 @@ export default function LandingPage() {
       <div className="bg-[#0d0b07] border-b border-white/8">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
           <span className="text-sm text-white/45">Are you a tradie?</span>
-          <Link href="/partner">
+          <Link href="/for-tradies">
             <span className="inline-flex items-center gap-1 text-sm font-medium text-white/65 hover:text-[#ffc800] transition-colors cursor-pointer">
-              Get verified jobs in your area
+              Partner with us to scale your business
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </Link>

@@ -1,6 +1,9 @@
+"use client";
+
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useEffect } from "react";
-import { Link, useSearch } from "wouter";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useGetHomeownerDashboard,
@@ -11,7 +14,7 @@ import {
   useVerifyEmergencySession,
   useCancelEmergencyMembership,
 } from "@workspace/api-client-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
@@ -108,12 +111,11 @@ const ROAD_COVERAGE = [
   { icon: Fuel,       label: "Fuel delivery" },
 ];
 
-function EmergencyMembershipWidget() {
+function PlusMembershipWidget() {
   const { toast } = useToast();
-  const searchString = useSearch();
-  const params = new URLSearchParams(searchString);
-  const emergencyParam = params.get("emergency");
-  const sessionId = params.get("session_id");
+  const searchParams = useSearchParams();
+  const emergencyParam = searchParams.get("emergency");
+  const sessionId = searchParams.get("session_id");
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "emergency">("overview");
 
@@ -124,11 +126,11 @@ function EmergencyMembershipWidget() {
       onSuccess: () => {
         toast({ title: "Fixit 24/7 Plus activated!", description: "You now have priority dispatch and 24/7 emergency cover." });
         refetch();
-        window.history.replaceState({}, "", window.location.pathname);
+        window.history.replaceState({}, "", "/dashboard");
       },
       onError: () => {
         refetch();
-        window.history.replaceState({}, "", window.location.pathname);
+        window.history.replaceState({}, "", "/dashboard");
       },
     },
   });
@@ -237,7 +239,7 @@ function EmergencyMembershipWidget() {
 
           {/* Trust signal */}
           <p className="text-[11px] text-white/25 mt-3">
-            6-month minimum commitment · Cancel anytime after that
+            12-month minimum commitment · Cancel anytime after that
           </p>
         </div>
       </motion.div>
@@ -429,9 +431,9 @@ function EmergencyMembershipWidget() {
                 Your membership will remain active until{" "}
                 <span className="text-white/80 font-semibold">{renewalDateStr ?? "the end of this billing period"}</span>.
                 {" "}Early cancellation terms apply — see your{" "}
-                <a href="/membership-agreement" className="text-[#ffc800]/70 hover:text-[#ffc800] underline underline-offset-2">
+                <Link href="/membership-agreement" className="text-[#ffc800]/70 hover:text-[#ffc800] underline underline-offset-2">
                   Membership Agreement
-                </a>{" "}for details.
+                </Link>{" "}for details.
               </p>
               <div className="flex gap-3">
                 <button
@@ -458,7 +460,8 @@ function EmergencyMembershipWidget() {
 
 export default function HomeownerDashboard() {
   usePageTitle("My Dashboard");
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const { toast } = useToast();
   const { data, isLoading, refetch } = useGetHomeownerDashboard();
   const { data: notifications, isLoading: notifLoading, refetch: refetchNotif } = useListNotifications(
@@ -652,7 +655,7 @@ export default function HomeownerDashboard() {
         </motion.div>
 
         {/* Emergency 24/7 Membership Widget */}
-        <EmergencyMembershipWidget />
+        <PlusMembershipWidget />
 
         {/* Job Pipeline strip */}
         {!isLoading && (data?.totalJobs ?? 0) > 0 && (
