@@ -45,6 +45,7 @@ export default function RegisterPage() {
   const params = new URLSearchParams(search);
   const defaultRole = (params.get("role") as Role) ?? "homeowner";
   const returnTo = safeReturnTo(params.get("returnTo"));
+  const autosubmit = params.get("autosubmit") === "true";
 
   const { login } = useAuth();
   const [role, setRole] = useState<Role>(defaultRole);
@@ -62,6 +63,7 @@ export default function RegisterPage() {
     mutation: {
       onSuccess: (data) => {
         login(data);
+        if (autosubmit) { setLocation("/post-job?autosubmit=true"); return; }
         if (returnTo) { setLocation(returnTo); return; }
         if (data.user.role === "tradie") setLocation("/dashboard/tradie");
         else setLocation("/dashboard");
@@ -130,7 +132,11 @@ export default function RegisterPage() {
 
         <div className="bg-[#130f07] border border-white/8 rounded-2xl p-8 shadow-2xl">
           <h1 className="text-2xl font-black text-white text-center mb-1">Create account</h1>
-          <p className="text-white/45 text-sm text-center mb-7">Join Australia's fastest-growing repair marketplace</p>
+          <p className="text-white/45 text-sm text-center mb-7">
+            {autosubmit
+              ? "Create a free account to post your job — takes 30 seconds"
+              : "Join Australia's fastest-growing repair marketplace"}
+          </p>
 
           {/* Role toggle */}
           <div className="flex bg-white/5 border border-white/8 rounded-xl p-1 mb-6">
@@ -269,7 +275,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-white/40">
             Already have an account?{" "}
-            <Link href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>
+            <Link href={autosubmit ? "/login?autosubmit=true" : returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>
               <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
             </Link>
           </p>
