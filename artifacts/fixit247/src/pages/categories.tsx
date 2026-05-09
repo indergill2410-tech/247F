@@ -30,7 +30,7 @@ export default function CategoriesPage() {
       {/* Hero */}
       <section
         className="py-20 text-center"
-        style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient-bottom)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -38,7 +38,7 @@ export default function CategoriesPage() {
           transition={{ duration: 0.5 }}
           className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">All services</span>
+          <span className="text-primary text-xs font-bold uppercase tracking-widest">All services</span>
           <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">Trade categories</h1>
           <p className="text-white/55 text-lg">
             Whatever needs fixing, we have a verified tradie for it. Browse all 12+ categories below.
@@ -62,17 +62,17 @@ export default function CategoriesPage() {
                   whileHover={{ y: -3 }}
                 >
                   <Link href={`/signup?role=homeowner&category=${cat.id}`}>
-                    <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-[#ffc800]/30 cursor-pointer transition-all h-full">
-                      <div className="w-14 h-14 rounded-2xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center group-hover:bg-[#ffc800]/20 transition-colors">
-                        <Icon className="h-7 w-7 text-[#ffc800]" />
+                    <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-primary/30 cursor-pointer transition-all h-full">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/15 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Icon className="h-7 w-7 text-primary" />
                       </div>
                       <div className="text-center">
-                        <h3 className="font-bold text-sm text-white group-hover:text-[#ffc800] transition-colors">{cat.name}</h3>
+                        <h3 className="font-bold text-sm text-white group-hover:text-primary transition-colors">{cat.name}</h3>
                         {cat.description && (
                           <p className="text-white/35 text-xs mt-1 leading-snug line-clamp-2">{cat.description}</p>
                         )}
                       </div>
-                      <span className="text-[#ffc800]/55 text-xs font-medium group-hover:text-[#ffc800] transition-colors flex items-center gap-1 mt-auto">
+                      <span className="text-primary/55 text-xs font-medium group-hover:text-primary transition-colors flex items-center gap-1 mt-auto">
                         Post a job <ChevronRight className="h-3 w-3" />
                       </span>
                     </div>
@@ -90,7 +90,7 @@ export default function CategoriesPage() {
           <h2 className="text-2xl font-black mb-3">Don't see your category?</h2>
           <p className="text-white/50 mb-7 text-[15px]">Post a general handyman job and describe what you need — our tradies cover almost everything.</p>
           <Link href="/signup?role=homeowner">
-            <button className="h-12 px-8 rounded-xl bg-[#ffc800] text-black font-bold text-[15px] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
+            <button className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold text-[15px] hover:opacity-90 active:scale-[0.97] transition-all">
               Post a job anyway →
             </button>
           </Link>

@@ -40,7 +40,7 @@ function StarFull({ n }: { n: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${i <= n ? "text-[#ffc800] fill-[#ffc800]" : "text-white/15"}`}
+          className={`h-4 w-4 ${i <= n ? "text-primary fill-primary" : "text-white/15"}`}
         />
       ))}
     </div>
@@ -91,7 +91,7 @@ export default function TradieProfilePage() {
       <div className="min-h-screen bg-[#0b0904] flex items-center justify-center">
         <div className="text-center">
           <p className="text-white font-bold text-lg">Tradie not found</p>
-          <button onClick={() => setLocation("/dashboard/admin")} className="mt-4 text-[#ffc800] text-sm hover:underline">
+          <button onClick={() => setLocation("/dashboard/admin")} className="mt-4 text-primary text-sm hover:underline">
             Back to admin
           </button>
         </div>
@@ -117,7 +117,7 @@ export default function TradieProfilePage() {
             {tradie.avatarUrl ? (
               <img src={tradie.avatarUrl} alt={tradie.name} className="w-20 h-20 rounded-2xl object-cover flex-shrink-0" />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-[#ffc800] text-black font-black text-3xl flex items-center justify-center flex-shrink-0">
+              <div className="w-20 h-20 rounded-2xl bg-primary text-primary-foreground font-black text-3xl flex items-center justify-center flex-shrink-0">
                 {initials(tradie.name)}
               </div>
             )}
@@ -143,7 +143,7 @@ export default function TradieProfilePage() {
                 )}
                 {tradie.rating ? (
                   <span className="flex items-center gap-1.5">
-                    <Star className="h-4 w-4 text-[#ffc800] fill-[#ffc800]" />
+                    <Star className="h-4 w-4 text-primary fill-primary" />
                     <span className="font-semibold text-white">{tradie.rating.toFixed(1)}</span>
                     <span>({tradie.reviewCount} review{tradie.reviewCount !== 1 ? "s" : ""})</span>
                   </span>
@@ -158,7 +158,7 @@ export default function TradieProfilePage() {
               {/* Primary trade badge */}
               {(tradie as { primaryTrade?: string | null }).primaryTrade && (
                 <div className="mt-2">
-                  <span className="inline-flex items-center text-xs font-black bg-[#ffc800] text-black px-3 py-1 rounded-xl">
+                  <span className="inline-flex items-center text-xs font-black bg-primary text-primary-foreground px-3 py-1 rounded-xl">
                     {(tradie as { primaryTrade?: string | null }).primaryTrade}
                   </span>
                 </div>
@@ -168,7 +168,7 @@ export default function TradieProfilePage() {
               {((tradie as { secondaryTrades?: string[] | null }).secondaryTrades ?? []).length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {((tradie as { secondaryTrades?: string[] | null }).secondaryTrades ?? []).map((trade) => (
-                    <span key={trade} className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800]">
+                    <span key={trade} className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-primary/10 border border-primary/20 text-primary">
                       {trade}
                     </span>
                   ))}
@@ -194,7 +194,7 @@ export default function TradieProfilePage() {
             {user?.role === "admin" && tradie.phone && (
               <a
                 href={`tel:${tradie.phone}`}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-colors flex-shrink-0"
+                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-colors flex-shrink-0"
               >
                 <Phone className="h-4 w-4" /> Call Tradie
               </a>
@@ -217,12 +217,12 @@ export default function TradieProfilePage() {
             </div>
             <div className="flex flex-wrap gap-5">
               <a href={`mailto:${tradie.email}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
-                <Mail className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                <Mail className="h-4 w-4 text-primary flex-shrink-0" />
                 {tradie.email}
               </a>
               {tradie.phone && (
                 <a href={`tel:${tradie.phone}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
-                  <Phone className="h-4 w-4 text-[#ffc800] flex-shrink-0" />
+                  <Phone className="h-4 w-4 text-primary flex-shrink-0" />
                   {tradie.phone}
                 </a>
               )}
@@ -248,7 +248,7 @@ export default function TradieProfilePage() {
               { label: "Trade skills", value: tradie.categories.length, icon: Briefcase },
             ].map((s) => (
               <div key={s.label} className="bg-[#130f07] border border-white/6 rounded-2xl p-4 text-center">
-                <p className="text-2xl font-black text-[#ffc800]">{s.value}</p>
+                <p className="text-2xl font-black text-primary">{s.value}</p>
                 <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
               </div>
             ))}

@@ -127,7 +127,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
       >
         <span className="font-semibold text-white text-[15px] leading-snug">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -158,7 +158,7 @@ export default function ForTradiesPage() {
       {/* ─── Hero ─── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "radial-gradient(ellipse at 70% 55%, #1a1508 0%, #0e0b05 50%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient)" }}
       >
         <div
           className="absolute inset-0 opacity-[0.035] pointer-events-none"
@@ -177,13 +177,13 @@ export default function ForTradiesPage() {
               transition={{ duration: 0.55 }}
             >
               <div className="inline-flex items-center gap-2 bg-white/6 border border-white/12 rounded-full px-4 py-1.5 text-sm text-white/75 font-medium mb-6">
-                <HardHat className="h-3.5 w-3.5 text-[#ffc800]" aria-hidden="true" />
+                <HardHat className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                 For Australian Tradies
               </div>
 
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6">
                 Stop chasing leads.<br />
-                <span className="text-[#ffc800]">Start choosing jobs.</span>
+                <span className="text-primary">Start choosing jobs.</span>
               </h1>
 
               <p className="text-lg text-white/60 max-w-md leading-relaxed mb-8">
@@ -193,7 +193,7 @@ export default function ForTradiesPage() {
 
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Link href="/signup?role=tradie">
-                  <button className="inline-flex items-center justify-center gap-2 h-13 px-7 rounded-xl font-black text-[16px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
+                  <button className="inline-flex items-center justify-center gap-2 h-13 px-7 rounded-xl font-black text-[16px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all">
                     Claim your $111 — join free
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -208,7 +208,7 @@ export default function ForTradiesPage() {
                   "Cancel anytime",
                 ].map((t) => (
                   <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50 bg-white/5 border border-white/8 rounded-full px-3 py-1.5">
-                    <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
+                    <CheckCircle2 className="h-3 w-3 text-primary" aria-hidden="true" /> {t}
                   </span>
                 ))}
               </div>
@@ -222,9 +222,9 @@ export default function ForTradiesPage() {
               transition={{ duration: 0.55, delay: 0.12 }}
             >
               <div className="relative rounded-3xl">
-                <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/30 to-transparent" aria-hidden="true" />
-                <div className="relative bg-[#111008] rounded-3xl p-8 border border-[#ffc800]/15">
-                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5 text-center">Your welcome credit</p>
+                <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-primary/30 to-transparent" aria-hidden="true" />
+                <div className="relative bg-[#111008] rounded-3xl p-8 border border-primary/15">
+                  <p className="text-primary text-xs font-bold uppercase tracking-widest mb-5 text-center">Your welcome credit</p>
 
                   <div className="text-center mb-6">
                     <div className="text-6xl font-black text-white leading-none mb-1">$111</div>
@@ -239,14 +239,14 @@ export default function ForTradiesPage() {
                       "Zero commission on jobs won",
                     ].map((perk) => (
                       <div key={perk} className="flex items-center gap-2.5 text-[13px] text-white/65">
-                        <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" />
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
                         {perk}
                       </div>
                     ))}
                   </div>
 
                   <Link href="/signup?role=tradie">
-                    <button className="w-full h-11 rounded-xl font-bold text-[14px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
+                    <button className="w-full h-11 rounded-xl font-bold text-[14px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
                       Claim $111 free
                       <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -283,8 +283,8 @@ export default function ForTradiesPage() {
                 ))}
               </ul>
             </div>
-            <div className="bg-[#ffc800]/5 border border-[#ffc800]/20 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-4">Fixit 24/7</p>
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-4">Fixit 24/7</p>
               <ul className="flex flex-col gap-3">
                 {[
                   "Fairly priced leads — typically $22–$80",
@@ -293,7 +293,7 @@ export default function ForTradiesPage() {
                   "No lock-in. Cancel anytime.",
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" /> {t}
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden="true" /> {t}
                   </li>
                 ))}
               </ul>
@@ -306,7 +306,7 @@ export default function ForTradiesPage() {
       <section className="py-20 bg-[#0b0904]">
         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="text-center mb-14">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">What you get</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">What you get</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">Everything a tradie business needs</h2>
             <p className="text-white/45 mt-3 text-[15px] max-w-md mx-auto">
               Free to join. Real local jobs. A platform built around the way tradies actually work.
@@ -321,11 +321,11 @@ export default function ForTradiesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07, duration: 0.35 }}
-                className="bg-white/4 border border-white/8 rounded-2xl p-6 hover:bg-white/6 hover:border-[#ffc800]/20 transition-all"
+                className="bg-white/4 border border-white/8 rounded-2xl p-6 hover:bg-white/6 hover:border-primary/20 transition-all"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center shrink-0">
-                    <b.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
+                    <b.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="font-bold text-[15px]">{b.title}</h3>
                 </div>
@@ -340,7 +340,7 @@ export default function ForTradiesPage() {
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="text-center mb-14">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Getting started</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Getting started</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">How it works for tradies</h2>
             <p className="text-white/45 mt-3 text-[15px]">Up and running in minutes. No paperwork, no waiting.</p>
           </div>
@@ -355,7 +355,7 @@ export default function ForTradiesPage() {
                 transition={{ delay: i * 0.08, duration: 0.38 }}
                 className="flex items-start gap-5 bg-white/4 border border-white/8 rounded-2xl px-6 py-5 hover:bg-white/6 transition-colors"
               >
-                <span className="text-3xl font-black text-[#ffc800]/30 shrink-0 leading-none mt-1 w-8">{s.step}</span>
+                <span className="text-3xl font-black text-primary/30 shrink-0 leading-none mt-1 w-8">{s.step}</span>
                 <div>
                   <h3 className="font-bold text-[15px] mb-1">{s.title}</h3>
                   <p className="text-white/50 text-sm leading-relaxed">{s.desc}</p>
@@ -364,7 +364,7 @@ export default function ForTradiesPage() {
             ))}
           </div>
 
-          <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl px-6 py-5 text-center">
+          <div className="bg-primary/8 border border-primary/20 rounded-2xl px-6 py-5 text-center">
             <p className="text-white/70 text-[14px]">
               Typical lead cost: <span className="text-white font-bold">$22–$80</span> depending on job size — always shown upfront, always your choice.
               Compare that to platforms charging <span className="line-through text-white/35">$80–$200+</span> whether you win or not.
@@ -377,7 +377,7 @@ export default function ForTradiesPage() {
       <section className="py-16 sm:py-20 bg-[#0b0904] border-y border-white/5">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Plans for active tradies</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Plans for active tradies</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
               Scale up as your business grows
             </h2>
@@ -449,19 +449,19 @@ export default function ForTradiesPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.16 }}
               viewport={{ once: true }}
-              className="bg-[#ffc800]/8 border-2 border-[#ffc800]/40 rounded-2xl p-6 flex flex-col relative"
+              className="bg-primary/8 border-2 border-primary/40 rounded-2xl p-6 flex flex-col relative"
             >
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center gap-1 bg-[#ffc800] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
                   <Star className="h-2.5 w-2.5" aria-hidden="true" /> Most popular
                 </span>
               </div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-2">Pro</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">Pro</p>
               <div className="mb-1">
                 <span className="text-3xl font-black text-white">$99</span>
                 <span className="text-white/40 text-sm">/mo</span>
               </div>
-              <p className="text-[#ffc800]/60 text-xs mb-5">Best value for busy tradies</p>
+              <p className="text-primary/60 text-xs mb-5">Best value for busy tradies</p>
               <ul className="flex flex-col gap-2.5 mb-6 flex-1">
                 {[
                   "Higher monthly wallet top-up",
@@ -471,12 +471,12 @@ export default function ForTradiesPage() {
                   "Priority match notifications",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-white/80">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[#ffc800] shrink-0" aria-hidden="true" /> {f}
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" /> {f}
                   </li>
                 ))}
               </ul>
               <Link href="/signup?role=tradie">
-                <button className="w-full h-10 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-all active:scale-[0.97]">
+                <button className="w-full h-10 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-all active:scale-[0.97]">
                   Start with Pro
                 </button>
               </Link>
@@ -493,7 +493,7 @@ export default function ForTradiesPage() {
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="text-center mb-14">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Tradie stories</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Tradie stories</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">What tradies say</h2>
           </div>
 
@@ -507,11 +507,11 @@ export default function ForTradiesPage() {
                 transition={{ delay: i * 0.1, duration: 0.38 }}
                 className="bg-white/4 border border-white/8 rounded-2xl p-6 flex flex-col gap-4"
               >
-                <Quote className="h-5 w-5 text-[#ffc800]/40" aria-hidden="true" />
+                <Quote className="h-5 w-5 text-primary/40" aria-hidden="true" />
                 <p className="text-white/65 text-sm leading-relaxed flex-1">"{q.quote}"</p>
                 <div className="flex gap-0.5 mb-1">
                   {[...Array(5)].map((_, s) => (
-                    <Star key={s} className="h-3.5 w-3.5 fill-[#ffc800] text-[#ffc800]" aria-hidden="true" />
+                    <Star key={s} className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
                   ))}
                 </div>
                 <div>
@@ -534,7 +534,7 @@ export default function ForTradiesPage() {
             viewport={{ once: true }}
             className="bg-white/4 border border-white/10 rounded-2xl p-8 sm:p-10 text-center"
           >
-            <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-xs font-bold text-[#ffc800] uppercase tracking-widest mb-5">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 text-xs font-bold text-primary uppercase tracking-widest mb-5">
               <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" /> For ambitious tradies
             </div>
             <h2 className="text-2xl sm:text-3xl font-black mb-3">
@@ -545,7 +545,7 @@ export default function ForTradiesPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/partner">
-                <button className="h-11 px-7 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[14px] transition-all active:scale-[0.97] inline-flex items-center justify-center gap-2">
+                <button className="h-11 px-7 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[14px] transition-all active:scale-[0.97] inline-flex items-center justify-center gap-2">
                   Learn about partnering <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </Link>
@@ -563,7 +563,7 @@ export default function ForTradiesPage() {
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-3xl">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Common questions</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Common questions</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">Questions from tradies</h2>
             <p className="text-white/45 mt-3 text-[15px]">Everything you need to know before getting started.</p>
           </div>
@@ -583,7 +583,7 @@ export default function ForTradiesPage() {
           {/* Final CTA */}
           <div className="text-center">
             <Link href="/signup?role=tradie">
-              <button className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-black text-[17px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all mb-4">
+              <button className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-black text-[17px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all mb-4">
                 Claim $111 free — join now
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -591,7 +591,7 @@ export default function ForTradiesPage() {
             <p className="text-white/35 text-sm">
               Already have an account?{" "}
               <Link href="/login">
-                <span className="text-[#ffc800]/60 hover:text-[#ffc800] transition-colors cursor-pointer underline underline-offset-2">
+                <span className="text-primary/60 hover:text-primary transition-colors cursor-pointer underline underline-offset-2">
                   Sign in
                 </span>
               </Link>
