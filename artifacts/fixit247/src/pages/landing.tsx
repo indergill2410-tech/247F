@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
 import { Footer } from "@/components/footer";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
   Wrench, Zap, Droplets, Home, TreePine, Wind, Hammer,
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
@@ -60,7 +61,7 @@ const HOW_IT_WORKS_TRADIE = [
     icon: HardHat,
     step: "01",
     title: "Sign up free",
-    desc: "Create your profile in minutes. No credit card required. Completely free to join.",
+    desc: "Create your profile in minutes and claim A$111/month in free job lead credits for your first 6 months. No credit card required.",
   },
   {
     icon: BadgeCheck,
@@ -130,7 +131,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
       >
         <span className="font-semibold text-white text-[15px] leading-snug">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -167,13 +168,13 @@ export default function LandingPage() {
   const steps = howRole === "homeowner" ? HOW_IT_WORKS_HOMEOWNER : HOW_IT_WORKS_TRADIE;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0b0904]">
+    <div className="flex flex-col min-h-screen bg-background">
 
       {/* ─── Hero ─── */}
       <section
         className="relative overflow-hidden text-white"
         style={{
-          background: "radial-gradient(ellipse at 25% 55%, #251d08 0%, #120f06 45%, #070604 100%)",
+          background: "var(--app-hero-gradient)",
           minHeight: "calc(100vh - 64px)",
         }}
       >
@@ -185,6 +186,10 @@ export default function LandingPage() {
           aria-hidden="true"
         />
 
+        <div className="absolute right-4 top-4 z-20 sm:right-6 lg:right-10">
+          <ThemeToggle variant="mini" />
+        </div>
+
         <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-16 lg:py-28">
           {/* Left */}
           <motion.div
@@ -194,14 +199,14 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center gap-2 self-start bg-white/6 border border-white/12 rounded-full px-4 py-1.5 text-sm text-white/70 font-medium backdrop-blur-sm">
-              <Clock className="h-3.5 w-3.5 text-[#ffc800]" aria-hidden="true" />
+              <Clock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               Available 24/7 across Australia
             </div>
 
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
                 From a leaky tap<br />
-                <span className="text-[#ffc800]">to a full reno.</span>
+                <span className="text-primary">to a full reno.</span>
               </h1>
             </div>
 
@@ -219,12 +224,12 @@ export default function LandingPage() {
                   onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
                   placeholder="Your suburb or postcode"
                   aria-label="Enter your suburb to find tradies"
-                  className="w-full bg-white/5 border border-white/12 rounded-xl pl-10 pr-4 h-12 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                  className="w-full bg-white/5 border border-white/12 rounded-xl pl-10 pr-4 h-12 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
                 />
               </div>
               <button
                 onClick={handleFindTradies}
-                className="h-12 px-5 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all shrink-0 whitespace-nowrap"
+                className="h-12 px-5 rounded-xl font-bold text-[15px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all shrink-0 whitespace-nowrap"
               >
                 Post your job for free
               </button>
@@ -238,7 +243,7 @@ export default function LandingPage() {
                 { icon: Star, label: "Rated & reviewed" },
               ].map(({ icon: Icon, label }) => (
                 <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/55 bg-white/5 border border-white/8 rounded-full px-3 py-1.5">
-                  <Icon className="h-3 w-3 text-[#ffc800] shrink-0" aria-hidden="true" /> {label}
+                  <Icon className="h-3 w-3 text-primary shrink-0" aria-hidden="true" /> {label}
                 </span>
               ))}
             </div>
@@ -250,9 +255,9 @@ export default function LandingPage() {
       <div className="bg-[#0d0b07] border-b border-white/8">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
           <span className="text-sm text-white/45">Are you a tradie?</span>
-          <Link href="/partner">
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-[#ffc800] hover:text-[#ffd740] transition-colors cursor-pointer">
-              Start with $111 free — For Tradies
+          <Link href="/for-tradies">
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer">
+              Claim A$111/month free lead credits — For Tradies
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </Link>
@@ -260,12 +265,12 @@ export default function LandingPage() {
       </div>
 
       {/* ─── Fixit 24/7 Plus teaser ─── */}
-      <section className="relative overflow-hidden bg-[#0d0a05] border-y border-[#ffc800]/12 py-12 text-white" aria-label="Fixit 24/7 Plus membership">
+      <section className="relative overflow-hidden bg-[#0d0a05] border-y border-primary/12 py-12 text-white" aria-label="Fixit 24/7 Plus membership">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="flex flex-col sm:flex-row items-center gap-6 justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[#ffc800]/12 border border-[#ffc800]/20 flex items-center justify-center shrink-0">
-                <Shield className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+              <div className="w-11 h-11 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Fixit 24/7 Plus — A$49/mo</p>
@@ -273,7 +278,7 @@ export default function LandingPage() {
               </div>
             </div>
             <Link href="/emergency">
-              <button className="shrink-0 inline-flex items-center gap-2 h-10 px-5 rounded-xl font-bold text-[13px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
+              <button className="shrink-0 inline-flex items-center gap-2 h-10 px-5 rounded-xl font-bold text-[13px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all">
                 Learn more <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </Link>
@@ -285,7 +290,7 @@ export default function LandingPage() {
       <section id="how-it-works" className="py-20 bg-[#0b0904] text-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Simple process</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Simple process</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">How it works</h2>
             <p className="text-white/50 mt-3 max-w-md mx-auto text-[15px]">
               Whether you need a repair sorted or you're a tradie looking for work — we make it simple.
@@ -300,7 +305,7 @@ export default function LandingPage() {
               onClick={() => setHowRole("homeowner")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-bold transition-all ${
                 howRole === "homeowner"
-                  ? "bg-[#ffc800] text-black shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-white/45 hover:text-white/70"
               }`}
             >
@@ -312,7 +317,7 @@ export default function LandingPage() {
               onClick={() => setHowRole("tradie")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-bold transition-all ${
                 howRole === "tradie"
-                  ? "bg-[#ffc800] text-black shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-white/45 hover:text-white/70"
               }`}
             >
@@ -342,8 +347,8 @@ export default function LandingPage() {
                   <span className="absolute top-5 right-5 text-4xl font-black text-white/5 select-none" aria-hidden="true">
                     {item.step}
                   </span>
-                  <div className="w-11 h-11 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/20 flex items-center justify-center mb-4">
-                    <item.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                  <div className="w-11 h-11 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center mb-4">
+                    <item.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="text-[15px] font-bold mb-2">{item.title}</h3>
                   <p className="text-white/50 leading-relaxed text-sm">{item.desc}</p>
@@ -366,7 +371,7 @@ export default function LandingPage() {
       <section id="categories" className="py-20 bg-[#0e0c08] text-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Services</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Services</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">What do you need fixed?</h2>
             <p className="text-white/50 mt-3 text-[15px]">Choose from 12+ trade categories</p>
           </div>
@@ -376,9 +381,9 @@ export default function LandingPage() {
               const label = "name" in cat ? cat.name : (cat as typeof CATEGORIES_DISPLAY[0]).label;
               return (
                 <Link href="/signup?role=homeowner" key={label}>
-                  <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-[#ffc800]/30 cursor-pointer transition-all">
-                    <div className="w-14 h-14 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center group-hover:bg-[#ffc800]/20 transition-colors">
-                      <Icon className="h-7 w-7 text-[#ffc800]" aria-hidden="true" />
+                  <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-primary/30 cursor-pointer transition-all">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Icon className="h-7 w-7 text-primary" aria-hidden="true" />
                     </div>
                     <span className="text-sm font-semibold text-center text-white/80 group-hover:text-white transition-colors">
                       {label}
@@ -406,22 +411,22 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="rounded-2xl border border-[#ffc800]/20 overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #1c1400 0%, #0d0a03 100%)" }}
+            className="rounded-2xl border border-primary/20 overflow-hidden"
+            style={{ background: "var(--app-hero-panel-gradient)" }}
           >
             <div className="p-7 sm:p-8">
               {/* Label row */}
               <div className="flex items-center gap-2 mb-5">
-                <div className="w-7 h-7 rounded-lg bg-[#ffc800]/15 flex items-center justify-center">
-                  <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
+                <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
                 </div>
-                <span className="text-xs font-bold text-[#ffc800] uppercase tracking-wider">Fixit 24/7 Plus</span>
+                <span className="text-xs font-bold text-primary uppercase tracking-wider">Fixit 24/7 Plus</span>
               </div>
 
               {/* Headline */}
               <h2 className="text-2xl sm:text-3xl font-black text-white leading-snug mb-2">
                 Home emergency or car breakdown —{" "}
-                <span className="text-[#ffc800]">one membership covers both.</span>
+                <span className="text-primary">one membership covers both.</span>
               </h2>
               <p className="text-sm text-white/50 mb-6 leading-relaxed">
                 Pipe burst at midnight. Car dead on the highway. One call sorts it — any time, any day.
@@ -431,13 +436,13 @@ export default function LandingPage() {
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-white/4 border border-white/6 rounded-xl p-4">
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Home className="h-3.5 w-3.5 text-[#ffc800]" />
+                    <Home className="h-3.5 w-3.5 text-primary" />
                     <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">At Home</span>
                   </div>
                   <ul className="space-y-2">
                     {["Burst pipes", "Power outages", "Lockouts", "Gas leaks", "Storm damage"].map((i) => (
                       <li key={i} className="flex items-center gap-1.5">
-                        <CheckCircle2 className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                        <CheckCircle2 className="h-3 w-3 text-primary flex-shrink-0" />
                         <span className="text-[12px] text-white/55">{i}</span>
                       </li>
                     ))}
@@ -445,13 +450,13 @@ export default function LandingPage() {
                 </div>
                 <div className="bg-white/4 border border-white/6 rounded-xl p-4">
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Car className="h-3.5 w-3.5 text-[#ffc800]" />
+                    <Car className="h-3.5 w-3.5 text-primary" />
                     <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">On the Road</span>
                   </div>
                   <ul className="space-y-2">
                     {["Car breakdown", "Flat tyres", "Battery jump-start", "Fuel delivery", "Keys locked in"].map((i) => (
                       <li key={i} className="flex items-center gap-1.5">
-                        <CheckCircle2 className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                        <CheckCircle2 className="h-3 w-3 text-primary flex-shrink-0" />
                         <span className="text-[12px] text-white/55">{i}</span>
                       </li>
                     ))}
@@ -467,7 +472,7 @@ export default function LandingPage() {
                   <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
                 </div>
                 <Link href="/emergency">
-                  <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-sm transition-colors whitespace-nowrap">
+                  <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-sm transition-colors whitespace-nowrap">
                     Get Plus — A$49/month
                   </button>
                 </Link>
@@ -485,7 +490,7 @@ export default function LandingPage() {
       <section className="py-20 bg-[#0b0904] text-white">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Questions answered</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Questions answered</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">Common questions</h2>
             <p className="text-white/50 text-[15px]">
               Everything you need to know before getting started.
@@ -515,7 +520,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Emergency CTA ─── */}
-      <section className="py-20 bg-[#ffc800]">
+      <section className="py-20 bg-primary">
         <div className="container mx-auto max-w-2xl px-4 sm:px-6 text-center">
           <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" aria-hidden="true" />
           <h2 className="text-3xl sm:text-4xl font-black text-black">Emergency repair?<br />We're ready now.</h2>

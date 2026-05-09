@@ -21,7 +21,7 @@ const TYPE_CONFIG: Record<string, { Icon: React.ElementType; bg: string; color: 
   new_claim:      { Icon: Hammer,       bg: "bg-blue-500/15",    color: "text-blue-400" },
   claim_accepted: { Icon: CheckCircle2, bg: "bg-emerald-500/15", color: "text-emerald-400" },
   claim_rejected: { Icon: XCircle,      bg: "bg-red-500/15",     color: "text-red-400" },
-  job_completed:  { Icon: PartyPopper,  bg: "bg-[#ffc800]/15",   color: "text-[#ffc800]" },
+  job_completed:  { Icon: PartyPopper,  bg: "bg-primary/15",   color: "text-primary" },
   job_matched:    { Icon: Link2,        bg: "bg-purple-500/15",  color: "text-purple-400" },
   system:         { Icon: Info,         bg: "bg-white/8",        color: "text-white/50" },
 };
@@ -64,8 +64,8 @@ export default function NotificationsPage() {
           </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#ffc800]/15 flex items-center justify-center">
-                <BellRing className="h-4.5 w-4.5 text-[#ffc800]" />
+              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                <BellRing className="h-4.5 w-4.5 text-primary" />
               </div>
               <div>
                 <h1 className="text-2xl font-black text-white">Notifications</h1>
@@ -116,7 +116,7 @@ export default function NotificationsPage() {
                   key={n.id}
                   onClick={() => handleClick(n)}
                   className={`px-6 py-4 flex items-start gap-4 transition-colors ${
-                    !n.isRead ? "bg-[#ffc800]/3" : ""
+                    !n.isRead ? "bg-primary/3" : ""
                   } ${clickable ? "cursor-pointer hover:bg-white/2" : ""}`}
                 >
                   {/* Icon badge */}
@@ -131,12 +131,12 @@ export default function NotificationsPage() {
                       </p>
                       <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                         <span className="text-xs text-white/25 whitespace-nowrap">{timeAgo(n.createdAt)}</span>
-                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-[#ffc800] flex-shrink-0" />}
+                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />}
                       </div>
                     </div>
                     <p className="text-sm text-white/40 mt-0.5 leading-relaxed">{n.message}</p>
                     {n.jobId && (
-                      <span className="text-xs text-[#ffc800]/60 mt-1.5 inline-block hover:text-[#ffc800] transition-colors">
+                      <span className="text-xs text-primary/60 mt-1.5 inline-block hover:text-primary transition-colors">
                         View job →
                       </span>
                     )}

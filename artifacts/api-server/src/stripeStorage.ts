@@ -3,7 +3,7 @@ import { usersTable, walletBalancesTable, walletTransactionsTable } from "@works
 import { eq, sql } from "drizzle-orm";
 
 export const LEAD_COST_CENTS_DEFAULT = 2200; // $22.00 default per lead
-export const WELCOME_GRANT_CENTS = 11100; // $111.00 welcome grant
+export const WELCOME_GRANT_CENTS = 11100; // A$111.00 monthly welcome job lead credit grant
 
 export async function getUserById(id: number) {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
@@ -192,7 +192,7 @@ export async function runMonthlyGrant(): Promise<{ renewed: number; skipped: num
           tradie.id,
           WELCOME_GRANT_CENTS,
           "welcome_grant",
-          `Welcome grant — $111.00 for ${month}`,
+          `Welcome offer — A$111.00 job lead credits for ${month}`,
         );
         await db
           .update(usersTable)

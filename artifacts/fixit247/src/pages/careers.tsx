@@ -55,7 +55,7 @@ export default function CareersPage() {
       {/* Hero */}
       <section
         className="py-20 text-center"
-        style={{ background: "radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient-bottom)" }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -63,7 +63,7 @@ export default function CareersPage() {
           transition={{ duration: 0.5 }}
           className="container max-w-2xl mx-auto px-4 sm:px-6"
         >
-          <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">We are hiring</span>
+          <span className="text-primary text-xs font-bold uppercase tracking-widest">We are hiring</span>
           <h1 className="text-4xl sm:text-5xl font-black mt-3 mb-4 leading-tight">
             Build something<br />Australians rely on
           </h1>
@@ -86,17 +86,17 @@ export default function CareersPage() {
                 transition={{ delay: i * 0.08 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -2 }}
-                className="group bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-[#ffc800]/20 transition-all cursor-pointer"
+                className="group bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-primary/20 transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center shrink-0 group-hover:bg-[#ffc800]/20 transition-colors">
-                    <role.icon className="h-5 w-5 text-[#ffc800]" />
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <role.icon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <h3 className="font-bold text-[15px] group-hover:text-[#ffc800] transition-colors">{role.title}</h3>
-                        <p className="text-[#ffc800]/70 text-xs font-semibold mt-0.5">{role.team}</p>
+                        <h3 className="font-bold text-[15px] group-hover:text-primary transition-colors">{role.title}</h3>
+                        <p className="text-primary/70 text-xs font-semibold mt-0.5">{role.team}</p>
                       </div>
                       <div className="flex flex-wrap gap-2 shrink-0">
                         <span className="bg-white/8 text-white/55 text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -108,7 +108,7 @@ export default function CareersPage() {
                       </div>
                     </div>
                     <p className="text-white/45 text-sm mt-2 leading-relaxed">{role.desc}</p>
-                    <p className="text-[#ffc800] text-sm font-medium mt-3 flex items-center gap-1 group-hover:gap-2 transition-all">
+                    <p className="text-primary text-sm font-medium mt-3 flex items-center gap-1 group-hover:gap-2 transition-all">
                       Apply for this role <ChevronRight className="h-4 w-4" />
                     </p>
                   </div>
@@ -133,7 +133,7 @@ export default function CareersPage() {
                 viewport={{ once: true }}
                 className="bg-white/5 border border-white/8 rounded-xl px-4 py-4 text-sm font-medium text-white/65 text-center leading-snug"
               >
-                <span className="text-[#ffc800] mr-1.5">✦</span>
+                <span className="text-primary mr-1.5">✦</span>
                 {perk}
               </motion.div>
             ))}
@@ -144,16 +144,16 @@ export default function CareersPage() {
       {/* Partner crosslink */}
       <section className="py-12 bg-[#0b0904] border-t border-white/5">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
+          <div className="bg-primary/8 border border-primary/20 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
             <div className="flex-1 text-center sm:text-left">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-1">For tradies</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-1">For tradies</p>
               <h3 className="text-xl font-black text-white mb-2">Running a trade business?</h3>
               <p className="text-white/55 text-sm leading-relaxed">
                 If you're a tradie or trade business owner looking to scale — not just find a job — explore our Trade Partner Program.
               </p>
             </div>
             <Link href="/partner">
-              <button className="shrink-0 h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-sm transition-all inline-flex items-center gap-2">
+              <button className="shrink-0 h-11 px-6 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-sm transition-all inline-flex items-center gap-2">
                 Partner with us <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </Link>
@@ -162,7 +162,7 @@ export default function CareersPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#ffc800] text-center">
+      <section className="py-16 bg-primary text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl font-black text-black mb-3">Don't see your role?</h2>
           <p className="text-black/60 mb-7 text-[15px]">

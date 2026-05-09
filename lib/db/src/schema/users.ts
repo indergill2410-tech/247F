@@ -60,7 +60,7 @@ export const usersTable = pgTable("users", {
   subscriptionTier: subscriptionTierEnum("subscription_tier").notNull().default("free"),
   subscriptionStartedAt: timestamp("subscription_started_at", { withTimezone: true }),
   subscriptionStripeSubId: text("subscription_stripe_sub_id"),
-  // Welcome grant — $111/month for first 6 months, granted automatically
+  // Welcome offer — A$111/month in job lead credits for first 6 months, granted automatically
   welcomeGrantMonthsUsed: integer("welcome_grant_months_used").notNull().default(0),
   welcomeGrantStartedAt: timestamp("welcome_grant_started_at", { withTimezone: true }),
   // Free-tier monthly lead quota (1–2 small leads/month post welcome period)

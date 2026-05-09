@@ -155,6 +155,94 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+/* WARM THEME (user-selectable — soft coffee/copper, minimal yellow backgrounds) */
+.warm {
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 6;
+
+  --elevate-1: rgba(255,255,255, .05);
+  --elevate-2: rgba(255,255,255, .10);
+
+  --background: 24 36% 7%;           /* dark roasted coffee */
+  --foreground: 32 43% 94%;          /* warm cream */
+  --border: 24 24% 18%;
+
+  --card: 24 34% 10%;
+  --card-foreground: 32 43% 94%;
+  --card-border: 24 24% 18%;
+
+  --sidebar: 24 36% 7%;
+  --sidebar-foreground: 32 43% 94%;
+  --sidebar-border: 24 24% 18%;
+  --sidebar-primary: 18 62% 52%;
+  --sidebar-primary-foreground: 32 43% 96%;
+  --sidebar-accent: 24 28% 14%;
+  --sidebar-accent-foreground: 32 43% 94%;
+  --sidebar-ring: 18 62% 52%;
+
+  --popover: 24 34% 10%;
+  --popover-foreground: 32 43% 94%;
+  --popover-border: 24 24% 18%;
+
+  --primary: 18 62% 52%;             /* copper instead of yellow */
+  --primary-foreground: 32 43% 96%;
+
+  --secondary: 24 26% 15%;
+  --secondary-foreground: 32 35% 82%;
+
+  --muted: 24 24% 14%;
+  --muted-foreground: 29 18% 60%;
+
+  --accent: 20 58% 47%;
+  --accent-foreground: 32 43% 96%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+
+  --input: 24 24% 15%;
+  --ring: 18 62% 52%;
+
+  --chart-1: 18 62% 52%;
+  --chart-2: 155 46% 42%;
+  --chart-3: 205 62% 50%;
+  --chart-4: 28 58% 58%;
+  --chart-5: 340 46% 58%;
+
+  --shadow-2xs: 0 1px 2px rgba(0,0,0,0.36);
+  --shadow-xs:  0 1px 3px rgba(0,0,0,0.42);
+  --shadow-sm:  0 2px 6px rgba(0,0,0,0.46);
+  --shadow:     0 4px 12px rgba(0,0,0,0.48);
+  --shadow-md:  0 6px 16px rgba(0,0,0,0.52);
+  --shadow-lg:  0 10px 24px rgba(0,0,0,0.56);
+  --shadow-xl:  0 16px 40px rgba(0,0,0,0.62);
+  --shadow-2xl: 0 24px 64px rgba(0,0,0,0.68);
+}
+
+:root, .dark {
+  --app-shell: #0b0904;
+  --app-shell-muted: rgba(255, 255, 255, .55);
+  --app-shell-strong: #ffffff;
+  --app-shell-border: rgba(255, 255, 255, .06);
+  --app-shell-hover: rgba(255, 255, 255, .05);
+  --app-hero-gradient: radial-gradient(ellipse at 30% 60%, #1e1608 0%, #0e0b05 50%, #070604 100%);
+  --app-hero-gradient-bottom: radial-gradient(ellipse at 50% 100%, #251d08 0%, #0e0c07 60%, #070604 100%);
+  --app-hero-panel-gradient: linear-gradient(135deg, #1c1400 0%, #0d0a03 100%);
+  --app-grid-opacity: .03;
+}
+
+.warm {
+  --app-shell: #160d08;
+  --app-shell-muted: rgba(255, 239, 219, .62);
+  --app-shell-strong: #fff4e8;
+  --app-shell-border: rgba(255, 207, 168, .10);
+  --app-shell-hover: rgba(255, 207, 168, .08);
+  --app-hero-gradient: radial-gradient(ellipse at 28% 58%, #4b2416 0%, #241109 48%, #100804 100%);
+  --app-hero-gradient-bottom: radial-gradient(ellipse at 50% 100%, #4a2616 0%, #221108 56%, #100804 100%);
+  --app-hero-panel-gradient: linear-gradient(135deg, #3a1b0f 0%, #160a05 100%);
+  --app-grid-opacity: .04;
+}
+
 @layer base {
   * {
     @apply border-border;
