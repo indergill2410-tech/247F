@@ -1,11 +1,12 @@
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useRef, useEffect } from "react";
+import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
 import {
   MapPin, ChevronRight, ChevronDown, CheckCircle2, Star,
-  MessageCircle, Layers, Phone, Search, Wrench, Users, Zap,
-  TrendingUp, HardHat, BarChart3, Target, ShieldCheck,
+  MessageCircle, Phone, Search, Wrench,
+  TrendingUp, HardHat, BarChart3, ChevronLeft,
 } from "lucide-react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -70,79 +71,38 @@ const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
 const SCALING_PILLARS = [
   {
-    icon: MapPin,
+    icon: BarChart3,
     title: "Better local visibility",
-    desc: "We help trade businesses build stronger local presence and trust in their service area — so the right customers find you first.",
+    desc: "We help trade businesses build stronger local presence so the right customers find you first — not your competitors.",
   },
   {
     icon: MessageCircle,
-    title: "Professional enquiry handling",
-    desc: "Improve how customer enquiries are captured, followed up, and converted into booked jobs — without the chaos.",
-  },
-  {
-    icon: Layers,
     title: "Growth-focused systems",
-    desc: "We provide structure, onboarding, and repeatable systems to help tradies move beyond scattered daily operations.",
-  },
-  {
-    icon: Star,
-    title: "Brand and marketing support",
-    desc: "Partners benefit from a trusted repair-focused brand, clearer positioning, and practical marketing direction.",
-  },
-  {
-    icon: Zap,
-    title: "Technology-enabled operations",
-    desc: "The platform makes customer connection, messaging, service flow, and follow-up more organised and efficient.",
-  },
-  {
-    icon: Users,
-    title: "Team and service-area growth",
-    desc: "We can help suitable tradies think through team growth, local coverage, and service category expansion.",
+    desc: "Structure, onboarding, and repeatable systems to help tradies move beyond scattered daily operations.",
   },
   {
     icon: Phone,
-    title: "Strategy calls with our experts",
-    desc: "Speak with the Fixit 24/7 growth team about your current business, bottlenecks, service area, and next steps.",
+    title: "Strategy calls with our team",
+    desc: "Speak with the Fixit 24/7 growth team about your current business, bottlenecks, and what's next.",
   },
-];
-
-const BENEFIT_BADGES = [
-  "Scale your local presence",
-  "Improve enquiry conversion",
-  "Build stronger systems",
-  "Strengthen your brand positioning",
-  "Use technology to stay organised",
-  "Get growth guidance from experts",
 ];
 
 const PARTNER_FAQS = [
   {
-    q: "Who can partner with Fixit 24/7?",
-    a: "Our partner model is designed for qualified tradies, licensed service professionals, and trade business owners who want to grow their local service business.",
-  },
-  {
-    q: "Is this for passive investors?",
-    a: "No. Fixit 24/7 is focused on active trade business owners and service professionals who understand the industry.",
-  },
-  {
-    q: "How can Fixit 24/7 help my trade business scale?",
-    a: "Fixit 24/7 can help suitable tradies with brand support, local visibility, technology, enquiry handling, marketing guidance, operating systems, and growth strategy discussions.",
+    q: "Who is the Partner With Us programme for?",
+    a: "It's designed for qualified tradies, licensed service professionals, and trade business owners who want to scale beyond just picking up jobs — better systems, local visibility, and a growth strategy.",
   },
   {
     q: "Is this just about getting more leads?",
-    a: "No. More enquiries are only one part of growth. Scaling also requires better systems, follow-up, customer experience, positioning, team structure, and service-area planning.",
+    a: "No. More leads are only one part of growth. Scaling also requires better systems, follow-up, customer experience, positioning, team structure, and service-area planning.",
   },
   {
-    q: "Can Fixit 24/7 help me move toward seven-figure growth?",
-    a: "The partner model is designed for ambitious tradies who want to build toward larger business growth. Results are not guaranteed and depend on your market, execution, team, service quality, and readiness to scale.",
+    q: "How can Fixit 24/7 help my business scale?",
+    a: "Fixit 24/7 can help suitable tradies with brand support, local visibility, technology, enquiry handling, marketing guidance, and growth strategy discussions.",
   },
   {
-    q: "What support does Fixit 24/7 provide?",
+    q: "What support does the programme include?",
     a: "Support may include brand guidance, technology, marketing direction, customer enquiry systems, onboarding, and growth strategy discussions. Full details are explained during the partner call.",
-  },
-  {
-    q: "Can I choose my service area?",
-    a: "You can express interest in your preferred service area. Availability and suitability will be discussed with our team.",
   },
   {
     q: "What happens on the growth call?",
@@ -432,6 +392,18 @@ export default function PartnerPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#0b0904] text-white">
 
+      {/* ─── Back breadcrumb ─── */}
+      <div className="border-b border-white/5 bg-[#0b0904]">
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6 py-3">
+          <Link href="/for-tradies">
+            <span className="inline-flex items-center gap-1.5 text-xs text-white/35 hover:text-white/60 transition-colors cursor-pointer">
+              <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+              Back to For Tradies
+            </span>
+          </Link>
+        </div>
+      </div>
+
       {/* ─── Hero ─── */}
       <section
         className="py-20 sm:py-24 text-center relative overflow-hidden"
@@ -456,7 +428,7 @@ export default function PartnerPage() {
             <span className="text-[#ffc800]">and Grow Your Trade Business</span>
           </h1>
           <p className="text-white/60 text-lg leading-relaxed max-w-2xl mx-auto mb-4">
-            Fixit 24/7 helps ambitious tradies and trade business owners build stronger local visibility, better systems, and a more scalable customer pipeline.
+            Already on the platform? This programme is for trade business owners who want to go further — stronger local visibility, better systems, and a more scalable customer pipeline.
           </p>
           <p className="text-white/40 text-sm max-w-xl mx-auto mb-8">
             Whether you're running a strong six-figure trade business or aiming toward seven-figure growth, our partner model is designed to help you scale with more structure, confidence, and support.
@@ -469,12 +441,11 @@ export default function PartnerPage() {
             >
               Book a growth discussion <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
-            <button
-              onClick={scrollToForm}
-              className="h-12 px-8 rounded-xl border border-white/20 hover:bg-white/8 active:scale-[0.97] text-white font-bold text-[15px] transition-all"
-            >
-              Talk to our growth team
-            </button>
+            <Link href="/for-tradies">
+              <button className="h-12 px-8 rounded-xl border border-white/20 hover:bg-white/8 active:scale-[0.97] text-white font-semibold text-[15px] transition-all">
+                New to Fixit 24/7? Start here
+              </button>
+            </Link>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
@@ -487,84 +458,26 @@ export default function PartnerPage() {
         </motion.div>
       </section>
 
-      {/* ─── Tradie acquisition card ─── */}
-      <section className="py-14 sm:py-16 bg-[#0b0904] border-b border-white/8">
-        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="bg-white/5 border border-white/10 rounded-2xl p-8 sm:p-10"
-          >
-            <p className="text-[11px] font-black uppercase tracking-widest text-[#ffc800] mb-4">Built for tradies</p>
-
-            <div className="flex items-center gap-2 mb-5">
-              <span className="inline-flex items-center gap-1.5 bg-[#ffc800]/15 text-[#b8920a] border border-[#ffc800]/30 text-xs font-bold px-3 py-1.5 rounded-full">
-                <Star className="h-3.5 w-3.5" aria-hidden="true" />
-                1111 credits / month — free
-              </span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-2">
-              Start picking up jobs and grow your business revenue — join free
-            </h2>
-            <p className="text-white/55 text-[15px] mb-7">
-              Get 1111 free credits every month to unlock jobs and start winning new work.
-            </p>
-
-            <ul className="flex flex-col gap-3 mb-8" role="list">
-              {[
-                "1111 credits renewed every month, automatically",
-                "Use credits to unlock and pick up local jobs",
-                "Grow revenue without heavy ad spend",
-                "Get in front of homeowners already searching",
-              ].map((perk) => (
-                <li key={perk} className="flex items-center gap-3 text-[14px] text-white/75">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" aria-hidden="true" />
-                  {perk}
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a href="/signup?role=tradie">
-                <button className="h-12 px-7 rounded-xl font-bold text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2">
-                  Join free and start picking up jobs
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </a>
-              <a href="/#how-it-works">
-                <span className="h-12 px-5 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-white/55 hover:text-white transition-colors cursor-pointer">
-                  See how tradie credits work
-                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </span>
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── Scaling pillars ─── */}
+      {/* ─── What partnership means ─── */}
       <section className="py-16 sm:py-20 bg-[#0e0c08]">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">How it works</span>
+            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Beyond jobs</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
-              How Fixit 24/7 helps you scale
+              More than just leads
             </h2>
             <p className="text-white/50 text-[15px] max-w-2xl mx-auto">
-              Scaling a trade business is not just about getting more calls. It's about building the right brand, systems, team, follow-up process, customer experience, and local positioning.
+              Scaling a trade business is not just about getting more calls. It's about building the right brand, systems, team, follow-up process, and local positioning.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-3 gap-5">
             {SCALING_PILLARS.map((pillar, i) => (
               <motion.div
                 key={pillar.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07 }}
+                transition={{ delay: i * 0.09 }}
                 viewport={{ once: true }}
                 className="bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-[#ffc800]/20 transition-all"
               >
@@ -574,15 +487,6 @@ export default function PartnerPage() {
                 <h3 className="font-bold text-[15px] mb-2">{pillar.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{pillar.desc}</p>
               </motion.div>
-            ))}
-          </div>
-
-          {/* Benefit chips */}
-          <div className="mt-10 flex flex-wrap gap-3 justify-center">
-            {BENEFIT_BADGES.map((b) => (
-              <span key={b} className="inline-flex items-center gap-2 text-sm font-medium text-white/70 bg-white/5 border border-white/8 rounded-full px-4 py-2">
-                <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0" aria-hidden="true" /> {b}
-              </span>
             ))}
           </div>
         </div>
@@ -622,7 +526,12 @@ export default function PartnerPage() {
                 ))}
               </ul>
               <p className="mt-5 text-xs text-white/30 leading-relaxed italic">
-                Built for tradies, not passive investors.
+                Not yet on Fixit 24/7?{" "}
+                <Link href="/for-tradies">
+                  <span className="text-[#ffc800]/50 hover:text-[#ffc800] transition-colors cursor-pointer underline underline-offset-2">
+                    Start here first
+                  </span>
+                </Link>
               </p>
             </div>
           </div>
@@ -635,10 +544,10 @@ export default function PartnerPage() {
           <div className="text-center mb-10">
             <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Expression of interest</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
-              Interested in partnering<br />with Fixit 24/7?
+              Tell us about your<br />trade business
             </h2>
             <p className="text-white/50 text-[15px] max-w-xl mx-auto">
-              Tell us about your trade business, current stage, service area, and growth goals. Our team will call you to discuss where you are now, what's holding you back, and how Fixit 24/7 may help you scale.
+              Our team will call you to discuss where you are now, what's holding you back, and how Fixit 24/7 may help you scale.
             </p>
           </div>
 
@@ -650,13 +559,13 @@ export default function PartnerPage() {
               role="alert"
               aria-live="polite"
             >
-              <CheckCircle2 className="h-14 w-14 text-emerald-400 mx-auto mb-5" aria-hidden="true" />
+              <Star className="h-14 w-14 text-[#ffc800] mx-auto mb-5" aria-hidden="true" />
               <h3 className="text-2xl font-black mb-3 text-white">Enquiry received</h3>
               <p className="text-white/60 text-[15px] leading-relaxed max-w-md mx-auto">
-                Thanks — a Fixit 24/7 expert will contact you soon to discuss your trade business, growth goals, current bottlenecks, and next steps.
+                Thanks — a Fixit 24/7 expert will contact you soon to discuss your trade business, growth goals, and next steps.
               </p>
               <p className="text-white/30 text-xs mt-5 leading-relaxed">
-                No pressure. No commitment. Just a conversation with our growth team.
+                No pressure. No commitment. Just a conversation.
               </p>
             </motion.div>
           ) : (
@@ -870,16 +779,15 @@ export default function PartnerPage() {
                 )}
               </button>
 
-              {/* Disclaimer */}
               <p className="text-white/25 text-xs text-center mt-5 leading-relaxed">
-                Submitting this form is an expression of interest only. It does not guarantee approval, territory availability, income, leads, or business results. Growth outcomes depend on your market, experience, execution, team, service quality, and business readiness.
+                Submitting this form is an expression of interest only. It does not guarantee approval, territory availability, income, leads, or business results.
               </p>
             </form>
           )}
         </div>
       </section>
 
-      {/* ─── Partner FAQ ─── */}
+      {/* ─── FAQ ─── */}
       <section className="py-16 sm:py-20 bg-[#0e0c08]">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
@@ -911,26 +819,18 @@ export default function PartnerPage() {
           <p className="text-black/65 mb-3 text-[15px] max-w-md mx-auto">
             Start building a scalable trade business. Talk to our growth team — no pressure, no commitment.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-            {["Built for serious tradies", "No credit card", "Expression of interest only", "Free growth call"].map((t) => (
-              <span key={t} className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/60 bg-black/8 rounded-full px-3 py-1">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> {t}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <button
               onClick={scrollToForm}
               className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-2"
             >
               Book a growth discussion <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
-            <button
-              onClick={scrollToForm}
-              className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all"
-            >
-              Talk to our team
-            </button>
+            <Link href="/for-tradies">
+              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
+                New to Fixit 24/7? Start here
+              </button>
+            </Link>
           </div>
           <p className="text-black/40 text-xs mt-6 leading-relaxed">
             Results are not guaranteed. Growth depends on your market, execution, service quality, team, and business readiness.
