@@ -7,7 +7,7 @@ import { logger } from "./lib/logger.js";
 import { verifyToken } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
 import { getStripeSync, getUncachableStripeClient } from "./stripeClient.js";
-import { ensureCreditBalance, grantCredits, getCreditBalance, SIGNUP_GRANT, runMonthlyRenewal } from "./stripeStorage.js";
+import { grantWalletFunds, WELCOME_GRANT_CENTS, runMonthlyGrant } from "./stripeStorage.js";
 import { EMERGENCY_PRODUCT_LOOKUP } from "./routes/emergency.js";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
@@ -94,8 +94,8 @@ async function initStripe() {
     // Backfill in background — don't block startup
     stripeSync.syncBackfill().then(() => logger.info("Stripe data synced")).catch((err: any) => logger.error({ err }, "Stripe backfill error"));
 
-    // Grant signup credits to any tradies who don't have a credit balance row yet
-    await grantSignupCreditsToExistingTradies();
+    // Grant welcome wallet funds to any tradies who don't have a wallet row yet
+    await grantWelcomeGrantToNewTradies();
 
     // Ensure the emergency membership product exists in Stripe
     await ensureEmergencyProduct();
@@ -105,26 +105,25 @@ async function initStripe() {
   }
 }
 
-async function grantSignupCreditsToExistingTradies() {
+async function grantWelcomeGrantToNewTradies() {
   try {
-    const { creditBalancesTable } = await import("@workspace/db");
-    // Find tradies who have no credit balance row
-    const tradiesWithNoCredits = await db
+    const { walletBalancesTable } = await import("@workspace/db");
+    const tradiesWithNoWallet = await db
       .select({ id: usersTable.id, name: usersTable.name })
       .from(usersTable)
-      .leftJoin(creditBalancesTable, eq(creditBalancesTable.userId, usersTable.id))
-      .where(sql`${usersTable.role} = 'tradie' AND ${creditBalancesTable.userId} IS NULL`);
+      .leftJoin(walletBalancesTable, eq(walletBalancesTable.userId, usersTable.id))
+      .where(sql`${usersTable.role} = 'tradie' AND ${walletBalancesTable.userId} IS NULL`);
 
-    for (const tradie of tradiesWithNoCredits) {
-      await grantCredits(tradie.id, SIGNUP_GRANT, "signup_grant", "Welcome bonus — 1,111 free credits to get started");
-      logger.info({ tradieId: tradie.id, name: tradie.name }, "Granted signup credits");
+    for (const tradie of tradiesWithNoWallet) {
+      await grantWalletFunds(tradie.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome grant — $111.00 to get started");
+      logger.info({ tradieId: tradie.id, name: tradie.name }, "Granted welcome wallet funds");
     }
 
-    if (tradiesWithNoCredits.length > 0) {
-      logger.info({ count: tradiesWithNoCredits.length }, "Granted signup credits to existing tradies");
+    if (tradiesWithNoWallet.length > 0) {
+      logger.info({ count: tradiesWithNoWallet.length }, "Granted welcome wallet funds to new tradies");
     }
   } catch (err) {
-    logger.error({ err }, "Failed to grant signup credits to existing tradies");
+    logger.error({ err }, "Failed to grant welcome wallet funds to existing tradies");
   }
 }
 
@@ -208,15 +207,15 @@ wss.on("connection", (ws, payload: ReturnType<typeof verifyToken>) => {
 function startMonthlyRenewalCron() {
   // Run at midnight AEST on the 1st of each month (UTC 14:00 = midnight AEST+10)
   cron.schedule("0 14 1 * *", async () => {
-    logger.info("Running monthly credit renewal...");
+    logger.info("Running monthly wallet grant...");
     try {
-      const result = await runMonthlyRenewal();
-      logger.info(result, "Monthly credit renewal complete");
+      const result = await runMonthlyGrant();
+      logger.info(result, "Monthly wallet grant complete");
     } catch (err) {
-      logger.error({ err }, "Monthly credit renewal failed");
+      logger.error({ err }, "Monthly wallet grant failed");
     }
   });
-  logger.info("Monthly credit renewal cron scheduled (1st of each month, midnight AEST)");
+  logger.info("Monthly wallet grant cron scheduled (1st of each month, midnight AEST)");
 }
 
 // Init Stripe then start listening

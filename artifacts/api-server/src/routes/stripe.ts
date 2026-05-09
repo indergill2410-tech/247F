@@ -4,11 +4,11 @@ import { getUncachableStripeClient, getStripePublishableKey } from "../stripeCli
 import {
   getUserById,
   updateUserStripeCustomerId,
-  getCreditBalance,
-  getCreditTransactions,
-  grantCredits,
-  CREDITS_PER_CLAIM,
-  SIGNUP_GRANT,
+  getWalletBalance,
+  getWalletTransactions,
+  grantWalletFunds,
+  LEAD_COST_CENTS_DEFAULT,
+  WELCOME_GRANT_CENTS,
 } from "../stripeStorage.js";
 import { logger } from "../lib/logger.js";
 
@@ -25,27 +25,27 @@ router.get("/stripe/config", requireAuth, async (_req, res): Promise<void> => {
   }
 });
 
-// GET /api/stripe/credits — get current tradie's credit balance + transactions
+// GET /api/stripe/credits — get current tradie's wallet balance + transactions
 router.get("/stripe/credits", requireAuth, async (req, res): Promise<void> => {
   const user = req.user!;
   if (user.role !== "tradie") {
-    res.status(403).json({ error: "forbidden", message: "Only tradies have credits" });
+    res.status(403).json({ error: "forbidden", message: "Only tradies have a wallet" });
     return;
   }
   try {
-    const [balance, transactions] = await Promise.all([
-      getCreditBalance(user.userId),
-      getCreditTransactions(user.userId, 20),
+    const [balanceCents, transactions] = await Promise.all([
+      getWalletBalance(user.userId),
+      getWalletTransactions(user.userId, 20),
     ]);
     res.json({
-      balance,
-      creditsPerClaim: CREDITS_PER_CLAIM,
-      signupGrant: SIGNUP_GRANT,
+      balanceCents,
+      leadCostCentsDefault: LEAD_COST_CENTS_DEFAULT,
+      welcomeGrantCents: WELCOME_GRANT_CENTS,
       transactions,
     });
   } catch (err) {
-    logger.error({ err }, "Failed to fetch credits");
-    res.status(500).json({ error: "server_error", message: "Failed to fetch credits" });
+    logger.error({ err }, "Failed to fetch wallet");
+    res.status(500).json({ error: "server_error", message: "Failed to fetch wallet" });
   }
 });
 
@@ -182,25 +182,27 @@ router.post("/stripe/verify-session", requireAuth, async (req, res): Promise<voi
     }
 
     // Idempotent: check if this session was already processed
-    const { getCreditTransactions } = await import("../stripeStorage.js");
-    const txs = await getCreditTransactions(user.userId, 100);
+    const { getWalletTransactions: getTxs } = await import("../stripeStorage.js");
+    const txs = await getTxs(user.userId, 100);
     const alreadyProcessed = txs.some((t) => t.stripeSessionId === sessionId);
     if (alreadyProcessed) {
-      const balance = await getCreditBalance(user.userId);
-      res.json({ success: true, creditsAdded: 0, balance, alreadyProcessed: true });
+      const balanceCents = await getWalletBalance(user.userId);
+      res.json({ success: true, creditsAdded: 0, balanceCents, alreadyProcessed: true });
       return;
     }
 
-    await grantCredits(
+    // credits metadata is in cents for the new wallet system (e.g. 4900 = $49.00)
+    const amountCents = credits;
+    await grantWalletFunds(
       user.userId,
-      credits,
-      "purchase",
-      `Purchased ${credits} credits (${product.name})`,
+      amountCents,
+      "refund",
+      `Purchased $${(amountCents / 100).toFixed(2)} wallet funds (${product.name})`,
       sessionId,
     );
 
-    const balance = await getCreditBalance(user.userId);
-    res.json({ success: true, creditsAdded: credits, balance });
+    const balanceCents = await getWalletBalance(user.userId);
+    res.json({ success: true, creditsAdded: amountCents, balanceCents });
   } catch (err) {
     logger.error({ err }, "Failed to verify session");
     res.status(500).json({ error: "server_error", message: "Failed to verify payment" });
