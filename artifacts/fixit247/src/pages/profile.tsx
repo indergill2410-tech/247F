@@ -63,7 +63,7 @@ function ServiceSuburbTags({
           {selected.map((s) => (
             <span
               key={s}
-              className="flex items-center gap-1.5 h-7 pl-3 pr-2 rounded-lg bg-[#ffc800]/12 border border-[#ffc800]/25 text-[#ffc800] text-xs font-medium"
+              className="flex items-center gap-1.5 h-7 pl-3 pr-2 rounded-lg bg-primary/12 border border-primary/25 text-primary text-xs font-medium"
             >
               <MapPin className="h-3 w-3 flex-shrink-0" />
               {s}
@@ -102,15 +102,15 @@ function ServiceSuburbTags({
                 <li key={`${s.suburb}-${s.postcode}`}>
                   <button
                     type="button"
-                    className="w-full text-left px-3 py-2.5 text-sm text-white/80 hover:bg-[#ffc800]/10 hover:text-white transition-colors flex items-center justify-between gap-2"
+                    className="w-full text-left px-3 py-2.5 text-sm text-white/80 hover:bg-primary/10 hover:text-white transition-colors flex items-center justify-between gap-2"
                     onMouseDown={(e) => { e.preventDefault(); add(s.suburb); }}
                   >
                     <span className="flex items-center gap-2">
-                      <MapPin className="h-3.5 w-3.5 text-[#ffc800] shrink-0" />
+                      <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
                       <span>{s.suburb}</span>
                       <span className="text-white/35 text-xs">{s.state}</span>
                     </span>
-                    <span className="flex items-center gap-1 text-[#ffc800]/60 text-xs">
+                    <span className="flex items-center gap-1 text-primary/60 text-xs">
                       <Plus className="h-3 w-3" /> Add
                     </span>
                   </button>
@@ -252,7 +252,7 @@ export default function ProfilePage() {
   const profile = me ?? user;
   const backHref = user?.role === "tradie" ? "/dashboard/tradie" : user?.role === "admin" ? "/admin" : "/dashboard";
 
-  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
+  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all";
   const labelCls = "text-sm font-medium text-white/65";
 
   const avatarInitial = (name?.charAt(0) ?? user?.name?.charAt(0) ?? "U").toUpperCase();
@@ -280,7 +280,7 @@ export default function ProfilePage() {
                   onError={() => setAvatarLoadFailed(true)}
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-[#ffc800] text-black font-black text-2xl flex items-center justify-center flex-shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground font-black text-2xl flex items-center justify-center flex-shrink-0">
                   {avatarInitial}
                 </div>
               )}
@@ -294,7 +294,7 @@ export default function ProfilePage() {
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white/10 text-white/60 capitalize">{user?.role}</span>
                 {user?.rating && (
                   <span className="flex items-center gap-1 text-white/50 text-xs">
-                    <Star className="h-3 w-3 text-[#ffc800] fill-[#ffc800]" />
+                    <Star className="h-3 w-3 text-primary fill-primary" />
                     {user.rating} ({user.reviewCount ?? 0} reviews)
                   </span>
                 )}
@@ -334,7 +334,7 @@ export default function ProfilePage() {
               <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Privacy guide</p>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20">Trust Card</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">Trust Card</span>
                   <span className="text-xs text-white/40">Visible on your Trust Card — shown to homeowners before they hire you</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -375,7 +375,7 @@ export default function ProfilePage() {
             <div className="flex items-start justify-between gap-3">
               <h2 className="font-bold text-white">Location</h2>
               {isTradie && (
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
                   Trust Card
                 </span>
               )}
@@ -398,7 +398,7 @@ export default function ProfilePage() {
             <div className="flex items-start justify-between gap-3">
               <h2 className="font-bold text-white">{isTradie ? "Professional Bio" : "About Me"}</h2>
               {isTradie && (
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
                   Trust Card
                 </span>
               )}
@@ -412,7 +412,7 @@ export default function ProfilePage() {
                   ? "Tell homeowners about your experience, qualifications, and what makes you stand out…"
                   : "Tell us a bit about yourself…"
               }
-              className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none"
+              className="w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all resize-none"
             />
           </div>
 
@@ -424,7 +424,7 @@ export default function ProfilePage() {
                   <h2 className="font-bold text-white">Trade Specialisation</h2>
                   <p className="text-xs text-white/40 mt-1">Shown on your Trust Card and used to match you to jobs.</p>
                 </div>
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
                   Trust Card
                 </span>
               </div>
@@ -440,7 +440,7 @@ export default function ProfilePage() {
                       setPrimaryTrade(val);
                       setSecondaryTrades((prev) => prev.filter((t) => t !== val));
                     }}
-                    className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                    className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
                   >
                     <option value="" className="bg-[#1a1509] text-white/50">Select primary trade…</option>
                     {TRADES.map((t) => (
@@ -464,7 +464,7 @@ export default function ProfilePage() {
                         onClick={() => toggleSecondaryTrade(trade)}
                         className={`h-8 px-3 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${
                           selected
-                            ? "bg-[#ffc800]/15 border-[#ffc800]/40 text-[#ffc800]"
+                            ? "bg-primary/15 border-primary/40 text-primary"
                             : "bg-white/4 border-white/8 text-white/45 hover:bg-white/8 hover:text-white/65"
                         }`}
                       >
@@ -498,7 +498,7 @@ export default function ProfilePage() {
                   <select
                     value={serviceRadius ?? ""}
                     onChange={(e) => setServiceRadius(e.target.value === "" ? null : Number(e.target.value))}
-                    className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                    className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
                   >
                     {SERVICE_RADIUS_OPTIONS.map((opt) => (
                       <option
@@ -534,7 +534,7 @@ export default function ProfilePage() {
                   <h2 className="font-bold text-white">Trade Skills</h2>
                   <p className="text-xs text-white/40 mt-1">Select the trades you offer — this helps match you to the right jobs.</p>
                 </div>
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
                   Trust Card
                 </span>
               </div>
@@ -555,7 +555,7 @@ export default function ProfilePage() {
                         onClick={() => toggleSkill(cat.id)}
                         className={`h-9 px-3.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 border ${
                           selected
-                            ? "bg-[#ffc800]/15 border-[#ffc800]/40 text-[#ffc800]"
+                            ? "bg-primary/15 border-primary/40 text-primary"
                             : "bg-white/4 border-white/8 text-white/50 hover:bg-white/8 hover:text-white/70 hover:border-white/15"
                         }`}
                       >
@@ -583,7 +583,7 @@ export default function ProfilePage() {
                   <h2 className="font-bold text-white">Work Photos</h2>
                   <p className="text-xs text-white/40 mt-1">Show homeowners your past work — up to 6 photos. Paste image URLs (e.g. from Imgur).</p>
                 </div>
-                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#ffc800]/10 text-[#ffc800] border border-[#ffc800]/20 flex-shrink-0">
+                <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
                   Trust Card
                 </span>
               </div>
@@ -619,7 +619,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
+            className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors disabled:opacity-60"
           >
             {updateMutation.isPending ? "Saving…" : "Save Changes"}
           </button>

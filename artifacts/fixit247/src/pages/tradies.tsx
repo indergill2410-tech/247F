@@ -31,7 +31,7 @@ function SuburbFilter({ value, onChange }: { value: string; onChange: (v: string
         onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
         placeholder="Suburb…"
         autoComplete="off"
-        className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+        className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
       />
       <AnimatePresence>
         {open && suggestions.length > 0 && (
@@ -45,11 +45,11 @@ function SuburbFilter({ value, onChange }: { value: string; onChange: (v: string
               <li key={`${s.suburb}-${s.postcode}`}>
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-[#ffc800]/10 hover:text-white transition-colors flex items-center justify-between gap-2"
+                  className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-primary/10 hover:text-white transition-colors flex items-center justify-between gap-2"
                   onMouseDown={(e) => { e.preventDefault(); onChange(s.suburb); setOpen(false); }}
                 >
                   <span className="flex items-center gap-1.5">
-                    <MapPin className="h-3 w-3 text-[#ffc800] shrink-0" />
+                    <MapPin className="h-3 w-3 text-primary shrink-0" />
                     {s.suburb}
                     <span className="text-white/35 text-xs">{s.state}</span>
                   </span>
@@ -86,7 +86,7 @@ function StarRow({ rating, count }: { rating?: number | null; count: number }) {
   if (!rating) return <span className="text-xs text-white/30">No reviews yet</span>;
   return (
     <span className="flex items-center gap-1 text-xs text-white/55">
-      <Star className="h-3 w-3 text-[#ffc800] fill-[#ffc800]" />
+      <Star className="h-3 w-3 text-primary fill-primary" />
       <span className="font-semibold text-white/75">{rating.toFixed(1)}</span>
       <span className="text-white/35">({count} review{count !== 1 ? "s" : ""})</span>
     </span>
@@ -130,7 +130,7 @@ export default function TradiesPage() {
       <div className="border-b border-white/6 bg-[#0f0c06] py-8">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-3 mb-1">
-            <Users className="h-5 w-5 text-[#ffc800]" />
+            <Users className="h-5 w-5 text-primary" />
             <h1 className="text-2xl font-black text-white">Find a Tradie</h1>
           </div>
           <p className="text-white/40 text-sm ml-8">Browse {total > 0 ? `${total} ` : ""}verified local tradespeople</p>
@@ -148,7 +148,7 @@ export default function TradiesPage() {
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search by name or bio…"
-                className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
               />
               {search && (
                 <button onClick={() => onSearchChange("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -167,7 +167,7 @@ export default function TradiesPage() {
               <button
                 onClick={() => setCategoryId(undefined)}
                 className={`h-8 px-3 rounded-xl text-xs font-semibold transition-all border ${
-                  !categoryId ? "bg-[#ffc800] text-black border-[#ffc800]" : "bg-white/4 border-white/8 text-white/50 hover:bg-white/8"
+                  !categoryId ? "bg-primary text-primary-foreground border-primary" : "bg-white/4 border-white/8 text-white/50 hover:bg-white/8"
                 }`}
               >
                 All trades
@@ -178,7 +178,7 @@ export default function TradiesPage() {
                   onClick={() => setCategoryId(categoryId === cat.id ? undefined : cat.id)}
                   className={`h-8 px-3 rounded-xl text-xs font-semibold transition-all border flex items-center gap-1.5 ${
                     categoryId === cat.id
-                      ? "bg-[#ffc800] text-black border-[#ffc800]"
+                      ? "bg-primary text-primary-foreground border-primary"
                       : "bg-white/4 border-white/8 text-white/50 hover:bg-white/8"
                   }`}
                 >
@@ -199,7 +199,7 @@ export default function TradiesPage() {
                   initial={{ scale: 0.85, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   onClick={f.clear}
-                  className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-[#ffc800]/15 text-[#ffc800] border border-[#ffc800]/25 hover:bg-[#ffc800]/25 transition-all"
+                  className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25 hover:bg-primary/25 transition-all"
                 >
                   {f.label} <X className="h-3 w-3" />
                 </motion.button>
@@ -244,18 +244,18 @@ export default function TradiesPage() {
             {tradies.map((tradie) => (
               <motion.div key={tradie.id} variants={item} whileHover={{ y: -2 }}>
                 <Link href={`/tradies/${tradie.id}`}>
-                  <div className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-5 cursor-pointer transition-all h-full flex flex-col group">
+                  <div className="bg-[#130f07] border border-white/6 hover:border-primary/30 rounded-2xl p-5 cursor-pointer transition-all h-full flex flex-col group">
                     <div className="flex items-start gap-3 mb-3">
                       {tradie.avatarUrl ? (
                         <img src={tradie.avatarUrl} alt={tradie.name} className="w-14 h-14 rounded-2xl object-cover flex-shrink-0" />
                       ) : (
-                        <div className="w-14 h-14 rounded-2xl bg-[#ffc800] text-black font-black text-xl flex items-center justify-center flex-shrink-0">
+                        <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground font-black text-xl flex items-center justify-center flex-shrink-0">
                           {initials(tradie.name)}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-bold text-white text-sm group-hover:text-[#ffc800] transition-colors">{tradie.name}</p>
+                          <p className="font-bold text-white text-sm group-hover:text-primary transition-colors">{tradie.name}</p>
                           {tradie.isVerified && (
                             <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400">
                               <ShieldCheck className="h-2.5 w-2.5" /> Verified
@@ -294,7 +294,7 @@ export default function TradiesPage() {
                       <span className="text-xs text-white/30">
                         {tradie.reviewCount} job{tradie.reviewCount !== 1 ? "s" : ""} completed
                       </span>
-                      <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#ffc800] transition-colors" />
+                      <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-primary transition-colors" />
                     </div>
                   </div>
                 </Link>

@@ -24,7 +24,7 @@ const SIZE_BANDS = [
     range: "$30–$60",
     Icon: Wrench,
     border: "border-white/10",
-    active: "border-[#ffc800]/50 bg-[#ffc800]/6",
+    active: "border-primary/50 bg-primary/6",
   },
   {
     value: "medium",
@@ -34,7 +34,7 @@ const SIZE_BANDS = [
     range: "$80–$150",
     Icon: Home,
     border: "border-white/10",
-    active: "border-[#ffc800]/50 bg-[#ffc800]/6",
+    active: "border-primary/50 bg-primary/6",
   },
   {
     value: "large",
@@ -44,7 +44,7 @@ const SIZE_BANDS = [
     range: "$200–$400",
     Icon: Building2,
     border: "border-white/10",
-    active: "border-[#ffc800]/50 bg-[#ffc800]/6",
+    active: "border-primary/50 bg-primary/6",
   },
   {
     value: "premium",
@@ -54,12 +54,12 @@ const SIZE_BANDS = [
     range: "$500–$800",
     Icon: Star,
     border: "border-white/10",
-    active: "border-[#ffc800]/50 bg-[#ffc800]/6",
+    active: "border-primary/50 bg-primary/6",
   },
 ];
 
-const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
-const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none";
+const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all";
+const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all resize-none";
 const labelCls = "text-sm font-medium text-white/65";
 
 const STORAGE_KEY = "fixit247_pending_job";
@@ -194,8 +194,8 @@ export default function PostJobPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           {/* Auto-submitting indicator */}
           {autosubmit && isAuthenticated && (
-            <div className="flex items-center gap-2 text-sm text-[#ffc800] bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-xl px-4 py-3 mb-5">
-              <div className="w-3.5 h-3.5 border-2 border-[#ffc800] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 mb-5">
+              <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />
               Submitting your job…
             </div>
           )}
@@ -256,14 +256,14 @@ export default function PostJobPage() {
                       className="sr-only"
                     />
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${sizeBand === band.value ? "bg-[#ffc800]" : "bg-white/8"}`}>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${sizeBand === band.value ? "bg-primary" : "bg-white/8"}`}>
                         <band.Icon className={`h-3.5 w-3.5 ${sizeBand === band.value ? "text-black" : "text-white/40"}`} />
                       </div>
                       <span className={`font-bold text-sm ${sizeBand === band.value ? "text-white" : "text-white/70"}`}>{band.label}</span>
                     </div>
                     <p className="text-[11px] text-white/40 leading-relaxed">{band.desc}</p>
                     <p className="text-[10px] text-white/25 italic line-clamp-1">{band.examples}</p>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md self-start ${sizeBand === band.value ? "bg-[#ffc800]/15 text-[#ffc800]" : "bg-white/6 text-white/35"}`}>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md self-start ${sizeBand === band.value ? "bg-primary/15 text-primary" : "bg-white/6 text-white/35"}`}>
                       {band.range}
                     </span>
                   </label>
@@ -283,7 +283,7 @@ export default function PostJobPage() {
                     }`}
                   >
                     <input type="radio" name="urgency" value={u.value} checked={urgency === u.value} onChange={(e) => setUrgency(e.target.value)} className="sr-only" />
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${urgency === u.value ? "bg-[#ffc800]" : "bg-white/8"}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${urgency === u.value ? "bg-primary" : "bg-white/8"}`}>
                       <u.Icon className={`h-5 w-5 ${urgency === u.value ? "text-black" : "text-white/40"}`} />
                     </div>
                     <div>
@@ -331,7 +331,7 @@ export default function PostJobPage() {
             {/* CTA — changes based on auth state */}
             {!isAuthenticated && (
               <div className="flex items-start gap-3 text-sm text-white/50 bg-white/4 border border-white/8 rounded-xl px-4 py-3">
-                <UserPlus className="h-4 w-4 flex-shrink-0 mt-0.5 text-[#ffc800]" />
+                <UserPlus className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
                 <span>
                   Create a free account to post your job — takes 30 seconds. Your details will be saved automatically.
                 </span>
@@ -341,7 +341,7 @@ export default function PostJobPage() {
             <button
               type="submit"
               disabled={createMutation.isPending || !sizeBand}
-              className="w-full h-12 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
+              className="w-full h-12 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors disabled:opacity-60"
             >
               {createMutation.isPending
                 ? "Posting job…"

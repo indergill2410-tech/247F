@@ -55,7 +55,7 @@ const ROLE_COLORS: Record<string, string> = {
 
 const JOB_STATUS: Record<string, string> = {
   open: "bg-blue-500/15 text-blue-400",
-  matched: "bg-[#ffc800]/15 text-[#ffc800]",
+  matched: "bg-primary/15 text-primary",
   in_progress: "bg-orange-500/15 text-orange-400",
   completed: "bg-emerald-500/15 text-emerald-400",
   cancelled: "bg-white/8 text-white/40",
@@ -89,7 +89,7 @@ type AdminUser = {
 function UserAvatar({ name, size = "sm" }: { name: string; size?: "sm" | "lg" }) {
   const sz = size === "lg" ? "w-12 h-12 text-base" : "w-8 h-8 text-xs";
   return (
-    <div className={`${sz} rounded-xl bg-[#ffc800] text-black flex items-center justify-center font-black flex-shrink-0`}>
+    <div className={`${sz} rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black flex-shrink-0`}>
       {name.charAt(0).toUpperCase()}
     </div>
   );
@@ -109,7 +109,7 @@ function TradieCard({
   return (
     <motion.div
       variants={item}
-      className="bg-[#0f0c06] border border-white/8 hover:border-[#ffc800]/30 rounded-2xl p-5 transition-colors"
+      className="bg-[#0f0c06] border border-white/8 hover:border-primary/30 rounded-2xl p-5 transition-colors"
     >
       <div className="flex items-start gap-4">
         <UserAvatar name={user.name} size="lg" />
@@ -136,7 +136,7 @@ function TradieCard({
             {user.phone && <span>📞 {user.phone}</span>}
             {(user.reviewCount ?? 0) > 0 && (
               <span className="flex items-center gap-1">
-                <Star className="h-3 w-3 text-[#ffc800]" />
+                <Star className="h-3 w-3 text-primary" />
                 {user.rating?.toFixed(1) ?? "—"} ({user.reviewCount} reviews)
               </span>
             )}
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
     { label: "Total Users",    value: stats?.totalUsers ?? 0,          color: "text-blue-400",    bg: "bg-blue-500/10",    icon: Users },
     { label: "Homeowners",     value: stats?.totalHomeowners ?? 0,     color: "text-indigo-400",  bg: "bg-indigo-500/10",  icon: Users },
     { label: "Tradies",        value: stats?.totalTradies ?? 0,        color: "text-emerald-400", bg: "bg-emerald-500/10", icon: ShieldCheck },
-    { label: "Verified",       value: stats?.verifiedTradies ?? 0,     color: "text-[#ffc800]",   bg: "bg-[#ffc800]/10",   icon: UserCheck },
+    { label: "Verified",       value: stats?.verifiedTradies ?? 0,     color: "text-primary",   bg: "bg-primary/10",   icon: UserCheck },
     { label: "Total Jobs",     value: stats?.totalJobs ?? 0,           color: "text-orange-400",  bg: "bg-orange-500/10",  icon: Briefcase },
     { label: "Categories",     value: stats?.totalCategories ?? 0,     color: "text-purple-400",  bg: "bg-purple-500/10",  icon: Grid3x3 },
     { label: "Open Jobs",      value: stats?.openJobs ?? 0,            color: "text-red-400",     bg: "bg-red-500/10",     icon: TrendingUp },
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
           <TabsList className="bg-[#130f07] border border-white/8 p-1 rounded-xl h-auto gap-1 flex-wrap">
             <TabsTrigger
               value="verification"
-              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-4 py-2 transition-all relative"
+              className="rounded-lg text-white/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold px-4 py-2 transition-all relative"
             >
               <ShieldCheck className="h-4 w-4 mr-1.5" />
               Verify Tradies
@@ -331,19 +331,19 @@ export default function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger
               value="users"
-              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-4 py-2 transition-all"
+              className="rounded-lg text-white/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold px-4 py-2 transition-all"
             >
               <Users className="h-4 w-4 mr-1.5" /> All Users
             </TabsTrigger>
             <TabsTrigger
               value="jobs"
-              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-4 py-2 transition-all"
+              className="rounded-lg text-white/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold px-4 py-2 transition-all"
             >
               <Briefcase className="h-4 w-4 mr-1.5" /> Jobs
             </TabsTrigger>
             <TabsTrigger
               value="credits"
-              className="rounded-lg text-white/50 data-[state=active]:bg-[#ffc800] data-[state=active]:text-black data-[state=active]:font-bold px-4 py-2 transition-all"
+              className="rounded-lg text-white/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-bold px-4 py-2 transition-all"
             >
               <Coins className="h-4 w-4 mr-1.5" /> Credits
             </TabsTrigger>
@@ -402,7 +402,7 @@ export default function AdminDashboard() {
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     placeholder="Search by name or email…"
-                    className="w-full pl-9 pr-4 py-2.5 bg-[#130f07] border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                    className="w-full pl-9 pr-4 py-2.5 bg-[#130f07] border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
                 <div className="flex gap-1.5">
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
                       onClick={() => setRoleFilter(r)}
                       className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all capitalize ${
                         roleFilter === r
-                          ? "bg-[#ffc800] text-black"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-[#130f07] border border-white/8 text-white/50 hover:border-white/20"
                       }`}
                     >
@@ -516,7 +516,7 @@ export default function AdminDashboard() {
                     <Link href={`/jobs/${job.id}`} key={job.id}>
                       <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-white truncate group-hover:text-[#ffc800] transition-colors">
+                          <p className="font-semibold text-sm text-white truncate group-hover:text-primary transition-colors">
                             {job.title}
                           </p>
                           <p className="text-xs text-white/35 mt-0.5">
@@ -532,7 +532,7 @@ export default function AdminDashboard() {
                           <span className={`text-xs font-semibold px-2.5 py-1 rounded-md capitalize ${JOB_STATUS[job.status] ?? "bg-white/8 text-white/40"}`}>
                             {job.status.replace("_", " ")}
                           </span>
-                          <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-[#ffc800] transition-colors" />
+                          <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-primary transition-colors" />
                         </div>
                       </div>
                     </Link>
@@ -557,13 +557,13 @@ export default function AdminDashboard() {
                     value={creditSearch}
                     onChange={(e) => setCreditSearch(e.target.value)}
                     placeholder="Search tradies…"
-                    className="w-full pl-9 pr-4 py-2.5 bg-[#130f07] border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                    className="w-full pl-9 pr-4 py-2.5 bg-[#130f07] border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowGrantForm((v) => !v)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/25 text-[#ffc800] text-sm font-semibold hover:bg-[#ffc800]/25 transition-all"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/15 border border-primary/25 text-primary text-sm font-semibold hover:bg-primary/25 transition-all"
                   >
                     <Gift className="h-4 w-4" /> Grant Credits
                   </button>
@@ -587,10 +587,10 @@ export default function AdminDashboard() {
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl p-5">
+                    <div className="bg-[#130f07] border border-primary/20 rounded-2xl p-5">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-white flex items-center gap-2">
-                          <Gift className="h-4 w-4 text-[#ffc800]" /> Grant Credits to a Tradie
+                          <Gift className="h-4 w-4 text-primary" /> Grant Credits to a Tradie
                         </h3>
                         <button onClick={() => setShowGrantForm(false)}>
                           <X className="h-4 w-4 text-white/40 hover:text-white transition-colors" />
@@ -602,7 +602,7 @@ export default function AdminDashboard() {
                           <select
                             value={grantUserId}
                             onChange={(e) => setGrantUserId(e.target.value)}
-                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
                           >
                             <option value="">Select a tradie…</option>
                             {(creditsData?.tradies ?? []).map((t) => (
@@ -620,7 +620,7 @@ export default function AdminDashboard() {
                             value={grantAmount}
                             onChange={(e) => setGrantAmount(e.target.value)}
                             placeholder="e.g. 100"
-                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 transition-colors"
                           />
                         </div>
                         <div className="space-y-1.5">
@@ -629,7 +629,7 @@ export default function AdminDashboard() {
                             value={grantReason}
                             onChange={(e) => setGrantReason(e.target.value)}
                             placeholder="e.g. Compensation"
-                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 transition-colors"
+                            className="w-full h-10 bg-white/6 border border-white/10 rounded-xl px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 transition-colors"
                           />
                         </div>
                       </div>
@@ -639,7 +639,7 @@ export default function AdminDashboard() {
                           onClick={() => {
                             grantCredits.mutate({ data: { userId: parseInt(grantUserId), amount: parseInt(grantAmount), reason: grantReason || undefined } });
                           }}
-                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-all disabled:opacity-50"
+                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all disabled:opacity-50"
                         >
                           <Gift className="h-4 w-4" />
                           {grantCredits.isPending ? "Granting…" : "Grant Credits"}
@@ -668,7 +668,7 @@ export default function AdminDashboard() {
                         className="flex items-center justify-between px-6 py-3.5 hover:bg-white/2 transition-colors"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-8 h-8 rounded-xl bg-[#ffc800] text-black flex items-center justify-center font-black text-xs flex-shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xs flex-shrink-0">
                             {t.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
@@ -693,7 +693,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => { setGrantUserId(String(t.id)); setShowGrantForm(true); }}
                             title="Grant credits"
-                            className="text-white/30 hover:text-[#ffc800] transition-colors"
+                            className="text-white/30 hover:text-primary transition-colors"
                           >
                             <Gift className="h-4 w-4" />
                           </button>

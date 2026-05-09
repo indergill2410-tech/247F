@@ -117,10 +117,10 @@ const PARTNER_FAQS = [
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
 const INPUT_CLS =
-  "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
+  "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all";
 const LABEL_CLS = "block text-sm font-medium text-white/70 mb-1.5";
 const ERROR_MSG = "text-red-400 text-xs mt-1";
-const SECTION_HDR = "text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-4 mt-8 first:mt-0";
+const SECTION_HDR = "text-xs font-bold uppercase tracking-widest text-primary mb-4 mt-8 first:mt-0";
 
 // ─── SuburbInput ──────────────────────────────────────────────────────────────
 
@@ -179,10 +179,10 @@ function SuburbInput({
                 type="button"
                 role="option"
                 aria-selected={value === s}
-                className="w-full text-left px-4 py-2.5 text-sm text-white/80 hover:bg-[#ffc800]/10 hover:text-white transition-colors flex items-center gap-2"
+                className="w-full text-left px-4 py-2.5 text-sm text-white/80 hover:bg-primary/10 hover:text-white transition-colors flex items-center gap-2"
                 onMouseDown={(e) => { e.preventDefault(); onChange(s); setOpen(false); }}
               >
-                <MapPin className="h-3.5 w-3.5 text-[#ffc800] shrink-0" aria-hidden="true" />
+                <MapPin className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
                 {s}
               </button>
             ))}
@@ -252,11 +252,11 @@ function CategorySelect({
                 role="option"
                 aria-selected={value === c}
                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-2 ${
-                  value === c ? "text-[#ffc800] bg-[#ffc800]/8" : "text-white/80 hover:bg-[#ffc800]/10 hover:text-white"
+                  value === c ? "text-primary bg-primary/8" : "text-white/80 hover:bg-primary/10 hover:text-white"
                 }`}
                 onMouseDown={(e) => { e.preventDefault(); onChange(c); setQuery(c); setOpen(false); }}
               >
-                <Wrench className="h-3.5 w-3.5 text-[#ffc800] shrink-0" aria-hidden="true" />
+                <Wrench className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
                 {c}
               </button>
             ))}
@@ -281,7 +281,7 @@ function AccordionItem({ q, a, isOpen, onToggle }: {
       >
         <span className="font-semibold text-white text-[15px] leading-snug">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -407,7 +407,7 @@ export default function PartnerPage() {
       {/* ─── Hero ─── */}
       <section
         className="py-20 sm:py-24 text-center relative overflow-hidden"
-        style={{ background: "radial-gradient(ellipse at 50% 110%, #2e1f00 0%, #130f06 55%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient-bottom)" }}
       >
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -420,12 +420,12 @@ export default function PartnerPage() {
           transition={{ duration: 0.55 }}
           className="container max-w-3xl mx-auto px-4 sm:px-6 relative"
         >
-          <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/25 rounded-full px-4 py-1.5 text-xs font-bold text-[#ffc800] uppercase tracking-widest mb-6">
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/25 rounded-full px-4 py-1.5 text-xs font-bold text-primary uppercase tracking-widest mb-6">
             <HardHat className="h-3.5 w-3.5" aria-hidden="true" /> For tradies ready to scale
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight mb-5">
             Partner With Fixit 24/7<br />
-            <span className="text-[#ffc800]">and Grow Your Trade Business</span>
+            <span className="text-primary">and Grow Your Trade Business</span>
           </h1>
           <p className="text-white/60 text-lg leading-relaxed max-w-2xl mx-auto mb-4">
             Already on the platform? This programme is for trade business owners who want to go further — stronger local visibility, better systems, and a more scalable customer pipeline.
@@ -437,7 +437,7 @@ export default function PartnerPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
             <button
               onClick={scrollToForm}
-              className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center justify-center gap-2"
+              className="h-12 px-8 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-[15px] transition-all inline-flex items-center justify-center gap-2"
             >
               Book a growth discussion <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -451,7 +451,7 @@ export default function PartnerPage() {
           <div className="flex flex-wrap justify-center gap-3">
             {["Built for serious tradies", "No pressure", "Expression of interest only", "Free growth call"].map((t) => (
               <span key={t} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/45 bg-white/5 rounded-full px-3 py-1">
-                <CheckCircle2 className="h-3 w-3 text-[#ffc800]" aria-hidden="true" /> {t}
+                <CheckCircle2 className="h-3 w-3 text-primary" aria-hidden="true" /> {t}
               </span>
             ))}
           </div>
@@ -462,7 +462,7 @@ export default function PartnerPage() {
       <section className="py-16 sm:py-20 bg-[#0e0c08]">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Beyond jobs</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Beyond jobs</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
               More than just leads
             </h2>
@@ -479,10 +479,10 @@ export default function PartnerPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.09 }}
                 viewport={{ once: true }}
-                className="bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-[#ffc800]/20 transition-all"
+                className="bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 hover:border-primary/20 transition-all"
               >
-                <div className="w-11 h-11 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/20 flex items-center justify-center mb-4">
-                  <pillar.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <pillar.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <h3 className="font-bold text-[15px] mb-2">{pillar.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{pillar.desc}</p>
@@ -496,8 +496,8 @@ export default function PartnerPage() {
       <section className="py-12 bg-[#0b0904] border-y border-white/5">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-[#ffc800]/8 border border-[#ffc800]/20 rounded-2xl p-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#ffc800] mb-3">This is for you if…</p>
+            <div className="bg-primary/8 border border-primary/20 rounded-2xl p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary mb-3">This is for you if…</p>
               <ul className="flex flex-col gap-2.5">
                 {[
                   "You're a qualified tradie or licensed service professional",
@@ -507,7 +507,7 @@ export default function PartnerPage() {
                   "You're open to better systems, branding, and support",
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" /> {t}
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden="true" /> {t}
                   </li>
                 ))}
               </ul>
@@ -528,7 +528,7 @@ export default function PartnerPage() {
               <p className="mt-5 text-xs text-white/30 leading-relaxed italic">
                 Not yet on Fixit 24/7?{" "}
                 <Link href="/for-tradies">
-                  <span className="text-[#ffc800]/50 hover:text-[#ffc800] transition-colors cursor-pointer underline underline-offset-2">
+                  <span className="text-primary/50 hover:text-primary transition-colors cursor-pointer underline underline-offset-2">
                     Start here first
                   </span>
                 </Link>
@@ -542,7 +542,7 @@ export default function PartnerPage() {
       <section ref={formRef} className="py-16 sm:py-20 bg-[#0b0904]" id="partner-form">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Expression of interest</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Expression of interest</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">
               Tell us about your<br />trade business
             </h2>
@@ -559,7 +559,7 @@ export default function PartnerPage() {
               role="alert"
               aria-live="polite"
             >
-              <Star className="h-14 w-14 text-[#ffc800] mx-auto mb-5" aria-hidden="true" />
+              <Star className="h-14 w-14 text-primary mx-auto mb-5" aria-hidden="true" />
               <h3 className="text-2xl font-black mb-3 text-white">Enquiry received</h3>
               <p className="text-white/60 text-[15px] leading-relaxed max-w-md mx-auto">
                 Thanks — a Fixit 24/7 expert will contact you soon to discuss your trade business, growth goals, and next steps.
@@ -706,7 +706,7 @@ export default function PartnerPage() {
                         aria-pressed={active}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                           active
-                            ? "bg-[#ffc800]/20 border-[#ffc800]/50 text-[#ffc800]"
+                            ? "bg-primary/20 border-primary/50 text-primary"
                             : "border-white/12 text-white/50 hover:border-white/25 hover:text-white/75 bg-white/4"
                         }`}
                       >
@@ -745,7 +745,7 @@ export default function PartnerPage() {
                     type="checkbox"
                     checked={form.consent}
                     onChange={(e) => setForm((f) => ({ ...f, consent: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-white/20 accent-[#ffc800] shrink-0"
+                    className="mt-0.5 h-4 w-4 rounded border-white/20 accent-primary shrink-0"
                     aria-describedby={errors.consent ? "consent-err" : undefined}
                     required
                   />
@@ -767,7 +767,7 @@ export default function PartnerPage() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="mt-6 w-full h-12 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                className="mt-6 w-full h-12 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-[15px] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {status === "loading" ? (
                   <>
@@ -791,7 +791,7 @@ export default function PartnerPage() {
       <section className="py-16 sm:py-20 bg-[#0e0c08]">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <span className="text-[#ffc800] text-xs font-bold uppercase tracking-widest">Common questions</span>
+            <span className="text-primary text-xs font-bold uppercase tracking-widest">Common questions</span>
             <h2 className="text-3xl font-black mt-3 mb-3">Partner questions answered</h2>
             <p className="text-white/50 text-[15px]">Everything you need to know before reaching out.</p>
           </div>
@@ -810,7 +810,7 @@ export default function PartnerPage() {
       </section>
 
       {/* ─── Final CTA ─── */}
-      <section className="py-16 sm:py-20 bg-[#ffc800] text-center">
+      <section className="py-16 sm:py-20 bg-primary text-center">
         <div className="container max-w-xl mx-auto px-4 sm:px-6">
           <TrendingUp className="h-10 w-10 text-black/25 mx-auto mb-5" aria-hidden="true" />
           <h2 className="text-3xl sm:text-4xl font-black text-black mb-3">

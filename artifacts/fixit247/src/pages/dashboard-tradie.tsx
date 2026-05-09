@@ -34,7 +34,7 @@ const URGENCY: Record<string, { label: string; cls: string; Icon: React.ElementT
 };
 
 const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
-  pending:   { label: "Pending",   cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  pending:   { label: "Pending",   cls: "bg-primary/15 text-primary" },
   accepted:  { label: "Accepted",  cls: "bg-emerald-500/15 text-emerald-400" },
   rejected:  { label: "Rejected",  cls: "bg-red-500/15 text-red-400" },
   withdrawn: { label: "Withdrawn", cls: "bg-white/8 text-white/40" },
@@ -77,7 +77,7 @@ function StarRow({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }
                 className="absolute inset-0 overflow-hidden"
                 style={{ width: filled ? "100%" : "50%" }}
               >
-                <Star className={`${cls} fill-[#ffc800] text-[#ffc800]`} />
+                <Star className={`${cls} fill-primary text-primary`} />
               </span>
             )}
           </span>
@@ -88,7 +88,7 @@ function StarRow({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }
 }
 
 function ProfileBar({ pct }: { pct: number }) {
-  const color = pct >= 80 ? "bg-emerald-400" : pct >= 60 ? "bg-[#ffc800]" : "bg-orange-400";
+  const color = pct >= 80 ? "bg-emerald-400" : pct >= 60 ? "bg-primary" : "bg-orange-400";
   return (
     <div className="w-full bg-white/8 rounded-full h-2 overflow-hidden">
       <motion.div
@@ -216,8 +216,8 @@ export default function TradieDashboard() {
       label: "Wallet",
       value: walletDisplay,
       icon: Zap,
-      color: walletLow ? "text-orange-400" : "text-[#ffc800]",
-      bg: walletLow ? "bg-orange-500/10" : "bg-[#ffc800]/10",
+      color: walletLow ? "text-orange-400" : "text-primary",
+      bg: walletLow ? "bg-orange-500/10" : "bg-primary/10",
       desc: jobsLeft !== null ? `≈ ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""}` : "loading…",
       href: "/credits",
     },
@@ -233,8 +233,8 @@ export default function TradieDashboard() {
       label: "Pending Responses",
       value: data?.pendingCount ?? 0,
       icon: Clock,
-      color: "text-[#ffc800]",
-      bg: "bg-[#ffc800]/10",
+      color: "text-primary",
+      bg: "bg-primary/10",
       desc: "awaiting decision",
     },
     {
@@ -249,8 +249,8 @@ export default function TradieDashboard() {
       label: "My Rating",
       value: data?.myRating != null ? data.myRating.toFixed(1) : "–",
       icon: Star,
-      color: "text-[#ffc800]",
-      bg: "bg-[#ffc800]/10",
+      color: "text-primary",
+      bg: "bg-primary/10",
       desc: "average score",
     },
     {
@@ -276,7 +276,7 @@ export default function TradieDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Avatar + status dot */}
             <div className="relative flex-shrink-0 self-start sm:self-center">
-              <div className="h-16 w-16 rounded-2xl bg-[#ffc800] flex items-center justify-center shadow-lg shadow-[#ffc800]/20">
+              <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                 <span className="text-2xl font-black text-black tracking-tight">{initials}</span>
               </div>
               {/* Online dot */}
@@ -288,12 +288,12 @@ export default function TradieDashboard() {
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <h1 className="text-xl font-black text-white leading-none">{user?.name ?? firstName}</h1>
                 {(meData as { primaryTrade?: string | null })?.primaryTrade && (
-                  <span className="text-[10px] font-black bg-[#ffc800] text-black px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-black bg-primary text-primary-foreground px-2 py-0.5 rounded-md">
                     {(meData as { primaryTrade?: string | null }).primaryTrade}
                   </span>
                 )}
                 {(meData as { secondaryTrades?: string[] | null })?.secondaryTrades?.map((trade) => (
-                  <span key={trade} className="text-[10px] font-bold bg-[#ffc800]/12 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/15">
+                  <span key={trade} className="text-[10px] font-bold bg-primary/12 text-primary px-2 py-0.5 rounded-md border border-primary/15">
                     {trade}
                   </span>
                 ))}
@@ -303,7 +303,7 @@ export default function TradieDashboard() {
                 {data?.myRating != null ? (
                   <div className="flex items-center gap-1.5">
                     <StarRow rating={data.myRating} size="md" />
-                    <span className="text-sm font-black text-[#ffc800]">{data.myRating.toFixed(1)}</span>
+                    <span className="text-sm font-black text-primary">{data.myRating.toFixed(1)}</span>
                     {(data.myReviewCount ?? 0) > 0 && (
                       <span className="text-xs text-white/35">({data.myReviewCount} review{data.myReviewCount !== 1 ? "s" : ""})</span>
                     )}
@@ -328,7 +328,7 @@ export default function TradieDashboard() {
             {/* Action buttons */}
             <div className="flex gap-2 flex-shrink-0">
               <Link href="/jobs">
-                <button className="h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
+                <button className="h-9 px-4 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-xs transition-colors flex items-center gap-1.5">
                   <Search className="h-3.5 w-3.5" /> Find Jobs
                 </button>
               </Link>
@@ -387,7 +387,7 @@ export default function TradieDashboard() {
           <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Job Pipeline</p>
           <div className="flex items-center gap-2">
             {[
-              { label: "Pending",   value: data?.pendingCount ?? 0,  color: "bg-[#ffc800]" },
+              { label: "Pending",   value: data?.pendingCount ?? 0,  color: "bg-primary" },
               { label: "Accepted",  value: data?.acceptedCount ?? 0, color: "bg-emerald-400" },
               { label: "Completed", value: data?.completedJobs ?? 0, color: "bg-blue-400" },
             ].map((stage, idx) => {
@@ -451,7 +451,7 @@ export default function TradieDashboard() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap mb-1">
                                 <Link href={`/jobs/${claim.jobId}`}>
-                                  <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                                  <span className="font-semibold text-white hover:text-primary cursor-pointer transition-colors text-sm">
                                     {claim.jobTitle ?? `Job #${claim.jobId}`}
                                   </span>
                                 </Link>
@@ -494,7 +494,7 @@ export default function TradieDashboard() {
               <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
                 <h2 className="font-bold text-white">My Recent Claims</h2>
                 <Link href="/jobs">
-                  <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+                  <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
                     All jobs <ChevronRight className="h-3.5 w-3.5" />
                   </span>
                 </Link>
@@ -510,7 +510,7 @@ export default function TradieDashboard() {
                     <p className="text-sm font-medium text-white/40">No claims yet</p>
                     <p className="text-xs mt-1">Start claiming open jobs to grow your business.</p>
                     <Link href="/jobs">
-                      <button className="mt-4 h-9 px-5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors">
+                      <button className="mt-4 h-9 px-5 rounded-lg bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors">
                         Browse Jobs
                       </button>
                     </Link>
@@ -526,7 +526,7 @@ export default function TradieDashboard() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <Link href={`/jobs/${claim.jobId}`}>
-                                <span className="font-semibold text-white hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                                <span className="font-semibold text-white hover:text-primary cursor-pointer transition-colors text-sm">
                                   {claim.jobTitle ?? `Job #${claim.jobId}`}
                                 </span>
                               </Link>
@@ -576,7 +576,7 @@ export default function TradieDashboard() {
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/6">
                 <h2 className="font-bold text-white">Recent Reviews</h2>
                 <Link href="/profile">
-                  <span className="text-xs text-[#ffc800] hover:text-[#e6b800] cursor-pointer transition-colors">
+                  <span className="text-xs text-primary hover:opacity-90 cursor-pointer transition-colors">
                     See all
                   </span>
                 </Link>
@@ -620,7 +620,7 @@ export default function TradieDashboard() {
               >
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-bold text-white text-sm">Profile Strength</h2>
-                  <span className={`text-sm font-black ${pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-[#ffc800]" : "text-orange-400"}`}>
+                  <span className={`text-sm font-black ${pct >= 80 ? "text-emerald-400" : pct >= 60 ? "text-primary" : "text-orange-400"}`}>
                     {pct}%
                   </span>
                 </div>
@@ -641,7 +641,7 @@ export default function TradieDashboard() {
                     ) : (
                       <li key={s.label}>
                         <Link href="/profile">
-                          <div className="flex items-center gap-2 text-xs text-white/55 hover:text-[#ffc800] cursor-pointer transition-colors">
+                          <div className="flex items-center gap-2 text-xs text-white/55 hover:text-primary cursor-pointer transition-colors">
                             <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0" />
                             <span>{s.label}</span>
                           </div>
@@ -670,7 +670,7 @@ export default function TradieDashboard() {
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
             <h2 className="font-bold text-white">Available Jobs</h2>
             <Link href="/jobs">
-              <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+              <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
                 Browse all <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
@@ -698,7 +698,7 @@ export default function TradieDashboard() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
                             <Link href={`/jobs/${job.id}`}>
-                              <span className="font-semibold text-white group-hover:text-[#ffc800] cursor-pointer transition-colors text-sm">
+                              <span className="font-semibold text-white group-hover:text-primary cursor-pointer transition-colors text-sm">
                                 {job.title}
                               </span>
                             </Link>
@@ -734,7 +734,7 @@ export default function TradieDashboard() {
                             className={`h-8 px-4 rounded-lg font-bold text-xs transition-all ${
                               isExpanded
                                 ? "bg-white/10 text-white/60 border border-white/10"
-                                : "bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black"
+                                : "bg-primary hover:opacity-90 active:scale-[0.96] text-primary-foreground"
                             }`}
                             onClick={() => handleClaimExpand(job.id, job.leadCostCents)}
                           >
@@ -767,7 +767,7 @@ export default function TradieDashboard() {
                               <div>
                                 <label className="text-xs text-white/40 block mb-1.5">Message to homeowner</label>
                                 <textarea
-                                  className="w-full bg-[#1d1a12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 resize-none h-20"
+                                  className="w-full bg-[#1d1a12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 resize-none h-20"
                                   placeholder="Briefly describe your experience and approach..."
                                   value={claimMessage}
                                   onChange={(e) => setClaimMessage(e.target.value)}
@@ -780,7 +780,7 @@ export default function TradieDashboard() {
                                 </label>
                                 <input
                                   type="number"
-                                  className="w-full bg-[#1d1a12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffc800]/50 h-10"
+                                  className="w-full bg-[#1d1a12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 h-10"
                                   placeholder="e.g. 250"
                                   value={claimPrice}
                                   onChange={(e) => setClaimPrice(e.target.value)}
@@ -799,7 +799,7 @@ export default function TradieDashboard() {
                                 Cancel
                               </button>
                               <button
-                                className="h-8 px-5 rounded-lg bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-all active:scale-[0.97] disabled:opacity-50"
+                                className="h-8 px-5 rounded-lg bg-primary hover:opacity-90 text-primary-foreground font-bold text-xs transition-all active:scale-[0.97] disabled:opacity-50"
                                 disabled={claimMutation.isPending}
                                 onClick={() => submitClaim(job.id)}
                               >
@@ -833,9 +833,9 @@ export default function TradieDashboard() {
             <Link key={label} href={href}>
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.15 } }}
-                className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-colors group hover:bg-[#1a1508]"
+                className="bg-[#130f07] border border-white/6 hover:border-primary/30 rounded-2xl p-4 cursor-pointer transition-colors group hover:bg-[#1a1508]"
               >
-                <Icon className="h-5 w-5 text-[#ffc800] mb-2.5 group-hover:scale-110 transition-transform" />
+                <Icon className="h-5 w-5 text-primary mb-2.5 group-hover:scale-110 transition-transform" />
                 <p className="text-sm font-bold text-white">{label}</p>
                 <p className="text-xs text-white/35 mt-0.5">{sub}</p>
               </motion.div>
