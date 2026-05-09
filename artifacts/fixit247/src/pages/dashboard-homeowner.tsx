@@ -52,7 +52,7 @@ function StarRow({ rating }: { rating: number }) {
             <Star className="h-3 w-3 text-white/20" />
             {(filled || half) && (
               <span className="absolute inset-0 overflow-hidden" style={{ width: filled ? "100%" : "50%" }}>
-                <Star className="h-3 w-3 fill-[#ffc800] text-[#ffc800]" />
+                <Star className="h-3 w-3 fill-primary text-primary" />
               </span>
             )}
           </span>
@@ -64,7 +64,7 @@ function StarRow({ rating }: { rating: number }) {
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   open:        { label: "Open",        cls: "bg-blue-500/15 text-blue-400" },
-  matched:     { label: "Matched",     cls: "bg-[#ffc800]/15 text-[#ffc800]" },
+  matched:     { label: "Matched",     cls: "bg-primary/15 text-primary" },
   in_progress: { label: "In Progress", cls: "bg-orange-500/15 text-orange-400" },
   completed:   { label: "Completed",   cls: "bg-emerald-500/15 text-emerald-400" },
   cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
@@ -76,7 +76,7 @@ const URGENCY_MAP: Record<string, string> = {
 };
 
 const NOTIF_ICON: Record<string, React.ReactNode> = {
-  claim:    <Bell className="h-3.5 w-3.5 text-[#ffc800]" />,
+  claim:    <Bell className="h-3.5 w-3.5 text-primary" />,
   message:  <MessageSquare className="h-3.5 w-3.5 text-blue-400" />,
   match:    <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />,
   job:      <Briefcase className="h-3.5 w-3.5 text-purple-400" />,
@@ -86,7 +86,7 @@ const NOTIF_ICON: Record<string, React.ReactNode> = {
 function TradieName({ name }: { name: string | null }) {
   const initials = (name ?? "?").split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
   return (
-    <div className="w-9 h-9 rounded-xl bg-[#ffc800]/15 text-[#ffc800] font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
+    <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary font-black text-sm flex items-center justify-center flex-shrink-0 select-none">
       {initials}
     </div>
   );
@@ -165,22 +165,22 @@ function EmergencyMembershipWidget() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-[#ffc800]/20 overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #1c1400 0%, #0d0a03 100%)" }}
+        className="rounded-2xl border border-primary/20 overflow-hidden"
+        style={{ background: "var(--app-hero-panel-gradient)" }}
       >
         <div className="p-6">
           {/* Label row */}
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-[#ffc800]/15 flex items-center justify-center">
-              <ShieldCheck className="h-4 w-4 text-[#ffc800]" />
+            <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4 text-primary" />
             </div>
-            <span className="text-xs font-bold text-[#ffc800] uppercase tracking-wider">Fixit 24/7 Plus</span>
+            <span className="text-xs font-bold text-primary uppercase tracking-wider">Fixit 24/7 Plus</span>
           </div>
 
           {/* Headline — leading USP */}
           <h3 className="text-xl font-black text-white leading-snug mb-1">
             Home emergency or car breakdown —{" "}
-            <span className="text-[#ffc800]">one membership covers both.</span>
+            <span className="text-primary">one membership covers both.</span>
           </h3>
           <p className="text-sm text-white/50 mb-5 leading-relaxed">
             Pipe burst at midnight. Car dead on the highway. One call sorts it — any time, any day.
@@ -191,13 +191,13 @@ function EmergencyMembershipWidget() {
             {/* Home pillar */}
             <div className="bg-white/4 border border-white/6 rounded-xl p-3.5">
               <div className="flex items-center gap-1.5 mb-2.5">
-                <Home className="h-3.5 w-3.5 text-[#ffc800]" />
+                <Home className="h-3.5 w-3.5 text-primary" />
                 <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">At Home</span>
               </div>
               <ul className="space-y-1.5">
                 {["Burst pipes", "Power outages", "Lockouts", "Gas leaks", "Storm damage"].map((i) => (
                   <li key={i} className="flex items-center gap-1.5">
-                    <CheckCircle className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                    <CheckCircle className="h-3 w-3 text-primary flex-shrink-0" />
                     <span className="text-[11px] text-white/55">{i}</span>
                   </li>
                 ))}
@@ -207,13 +207,13 @@ function EmergencyMembershipWidget() {
             {/* Road pillar */}
             <div className="bg-white/4 border border-white/6 rounded-xl p-3.5">
               <div className="flex items-center gap-1.5 mb-2.5">
-                <Car className="h-3.5 w-3.5 text-[#ffc800]" />
+                <Car className="h-3.5 w-3.5 text-primary" />
                 <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">On the Road</span>
               </div>
               <ul className="space-y-1.5">
                 {["Car breakdown", "Flat tyres", "Battery jump-start", "Fuel delivery", "Keys locked in"].map((i) => (
                   <li key={i} className="flex items-center gap-1.5">
-                    <CheckCircle className="h-3 w-3 text-[#ffc800] flex-shrink-0" />
+                    <CheckCircle className="h-3 w-3 text-primary flex-shrink-0" />
                     <span className="text-[11px] text-white/55">{i}</span>
                   </li>
                 ))}
@@ -229,7 +229,7 @@ function EmergencyMembershipWidget() {
               <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
             </div>
             <Link href="/emergency">
-              <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-sm transition-colors whitespace-nowrap">
+              <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-sm transition-colors whitespace-nowrap">
                 Get Plus — A$49/month
               </button>
             </Link>
@@ -255,12 +255,12 @@ function EmergencyMembershipWidget() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-5 ${isCancelling ? "bg-orange-500/6 border-orange-500/20" : "bg-[#ffc800]/6 border-[#ffc800]/25"}`}
+        className={`rounded-2xl border p-5 ${isCancelling ? "bg-orange-500/6 border-orange-500/20" : "bg-primary/6 border-primary/25"}`}
       >
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isCancelling ? "bg-orange-500/15" : "bg-[#ffc800]/15"}`}>
-            <ShieldCheck className={`h-5 w-5 ${isCancelling ? "text-orange-400" : "text-[#ffc800]"}`} />
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isCancelling ? "bg-orange-500/15" : "bg-primary/15"}`}>
+            <ShieldCheck className={`h-5 w-5 ${isCancelling ? "text-orange-400" : "text-primary"}`} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -270,7 +270,7 @@ function EmergencyMembershipWidget() {
                   Cancels {renewalDateStr}
                 </span>
               ) : (
-                <span className="text-[10px] font-bold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/20">
+                <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-md border border-primary/20">
                   Active
                 </span>
               )}
@@ -284,7 +284,7 @@ function EmergencyMembershipWidget() {
 
         {/* Always-visible primary CTA */}
         <Link href="/emergency">
-          <button className="w-full h-10 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-4">
+          <button className="w-full h-10 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-4">
             <Phone className="h-4 w-4" />
             Request Emergency Help
           </button>
@@ -324,7 +324,7 @@ function EmergencyMembershipWidget() {
                 <div className="grid grid-cols-3 gap-2">
                   {HOME_COVERAGE.map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2">
-                      <Icon className="h-4 w-4 text-[#ffc800]" />
+                      <Icon className="h-4 w-4 text-primary" />
                       <span className="text-[10px] text-white/50 text-center leading-tight">{label}</span>
                     </div>
                   ))}
@@ -339,7 +339,7 @@ function EmergencyMembershipWidget() {
                 <div className="grid grid-cols-4 gap-2">
                   {ROAD_COVERAGE.map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2">
-                      <Icon className="h-4 w-4 text-[#ffc800]" />
+                      <Icon className="h-4 w-4 text-primary" />
                       <span className="text-[10px] text-white/50 text-center leading-tight">{label}</span>
                     </div>
                   ))}
@@ -348,7 +348,7 @@ function EmergencyMembershipWidget() {
               {/* Emergency access */}
               <div className="flex items-center justify-between bg-white/4 rounded-xl px-4 py-3">
                 <span className="text-xs text-white/50">Emergency support status</span>
-                <span className="text-sm font-black text-[#ffc800]">Available</span>
+                <span className="text-sm font-black text-primary">Available</span>
               </div>
             </motion.div>
           ) : (
@@ -362,7 +362,7 @@ function EmergencyMembershipWidget() {
             >
               {/* Large request button */}
               <Link href="/emergency">
-                <button className="w-full h-14 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-black text-base transition-colors flex items-center justify-center gap-2">
+                <button className="w-full h-14 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-base transition-colors flex items-center justify-center gap-2">
                   <Phone className="h-5 w-5" />
                   Request Help Now
                 </button>
@@ -375,7 +375,7 @@ function EmergencyMembershipWidget() {
                   { step: "3", text: "Tradie arrives and resolves the problem" },
                 ].map(({ step, text }) => (
                   <div key={step} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#ffc800]/15 text-[#ffc800] text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
                       {step}
                     </div>
                     <span className="text-xs text-white/55">{text}</span>
@@ -426,7 +426,7 @@ function EmergencyMembershipWidget() {
                 Your membership will remain active until{" "}
                 <span className="text-white/80 font-semibold">{renewalDateStr ?? "the end of this billing period"}</span>.
                 {" "}Early cancellation terms apply — see your{" "}
-                <a href="/membership-agreement" className="text-[#ffc800]/70 hover:text-[#ffc800] underline underline-offset-2">
+                <a href="/membership-agreement" className="text-primary/70 hover:text-primary underline underline-offset-2">
                   Membership Agreement
                 </a>{" "}for details.
               </p>
@@ -571,7 +571,7 @@ export default function HomeownerDashboard() {
                   Homeowner
                 </span>
                 {(data?.pendingClaims ?? 0) > 0 && (
-                  <span className="text-[10px] font-bold bg-[#ffc800]/15 text-[#ffc800] px-2 py-0.5 rounded-md border border-[#ffc800]/20 animate-pulse">
+                  <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-md border border-primary/20 animate-pulse">
                     {data!.pendingClaims} response{data!.pendingClaims !== 1 ? "s" : ""} waiting
                   </span>
                 )}
@@ -598,7 +598,7 @@ export default function HomeownerDashboard() {
             {/* Action buttons */}
             <div className="flex gap-2 flex-shrink-0 flex-wrap">
               <Link href="/jobs/new">
-                <button className="h-9 px-4 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-xs transition-colors flex items-center gap-1.5">
+                <button className="h-9 px-4 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-xs transition-colors flex items-center gap-1.5">
                   <Plus className="h-3.5 w-3.5" /> Post a Job
                 </button>
               </Link>
@@ -682,14 +682,14 @@ export default function HomeownerDashboard() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="bg-[#130f07] border border-[#ffc800]/20 rounded-2xl overflow-hidden"
+            className="bg-[#130f07] border border-primary/20 rounded-2xl overflow-hidden"
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
               <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-[#ffc800]" />
+                <Bell className="h-4 w-4 text-primary" />
                 <h2 className="font-bold text-white">Tradies Responding to Your Jobs</h2>
                 {recentClaims.length > 0 && (
-                  <span className="text-[10px] font-bold bg-[#ffc800] text-black px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                     {recentClaims.length}
                   </span>
                 )}
@@ -718,7 +718,7 @@ export default function HomeownerDashboard() {
                             {claim.tradieRating != null && (
                               <div className="flex items-center gap-1">
                                 <StarRow rating={claim.tradieRating} />
-                                <span className="text-[10px] text-[#ffc800] font-bold">{claim.tradieRating.toFixed(1)}</span>
+                                <span className="text-[10px] text-primary font-bold">{claim.tradieRating.toFixed(1)}</span>
                               </div>
                             )}
                             {claim.tradieReviewCount > 0 && (
@@ -736,7 +736,7 @@ export default function HomeownerDashboard() {
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {claim.proposedPrice != null && (
-                            <span className="text-sm font-black text-[#ffc800]">
+                            <span className="text-sm font-black text-primary">
                               ${claim.proposedPrice.toLocaleString()}
                             </span>
                           )}
@@ -828,7 +828,7 @@ export default function HomeownerDashboard() {
               <h2 className="font-bold text-white">My Jobs</h2>
             </div>
             <Link href="/jobs">
-              <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+              <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
@@ -845,7 +845,7 @@ export default function HomeownerDashboard() {
                 <p className="font-semibold text-white/50">No jobs yet</p>
                 <p className="text-sm mt-1">Post your first job to get matched with a tradie</p>
                 <Link href="/jobs/new">
-                  <button className="mt-5 h-9 px-5 rounded-xl bg-[#ffc800] text-black font-bold text-sm hover:bg-[#e6b800] transition-all inline-flex items-center gap-1.5">
+                  <button className="mt-5 h-9 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all inline-flex items-center gap-1.5">
                     <Plus className="h-4 w-4" /> Post a Job
                   </button>
                 </Link>
@@ -859,7 +859,7 @@ export default function HomeownerDashboard() {
                     <div className="flex items-center justify-between px-6 py-4 hover:bg-white/2 cursor-pointer transition-colors group">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-white truncate group-hover:text-[#ffc800] transition-colors text-sm">
+                          <p className="font-semibold text-white truncate group-hover:text-primary transition-colors text-sm">
                             {job.title}
                           </p>
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${st.cls}`}>{st.label}</span>
@@ -873,14 +873,14 @@ export default function HomeownerDashboard() {
                             </span>
                           )}
                           {(job.claimCount ?? 0) > 0 && (
-                            <span className="text-[#ffc800]/70 font-semibold">
+                            <span className="text-primary/70 font-semibold">
                               {job.claimCount} tradie{job.claimCount !== 1 ? "s" : ""} responded
                             </span>
                           )}
                           <span>{timeAgo(job.createdAt)}</span>
                         </div>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-[#ffc800] flex-shrink-0 ml-3 transition-colors" />
+                      <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-primary flex-shrink-0 ml-3 transition-colors" />
                     </div>
                   </Link>
                 );
@@ -895,17 +895,17 @@ export default function HomeownerDashboard() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="bg-gradient-to-br from-[#ffc800]/8 to-[#130f07] border border-[#ffc800]/20 rounded-2xl p-8 text-center"
+            className="bg-gradient-to-br from-primary/8 to-[#130f07] border border-primary/20 rounded-2xl p-8 text-center"
           >
-            <div className="w-14 h-14 bg-[#ffc800]/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Home className="h-7 w-7 text-[#ffc800]" />
+            <div className="w-14 h-14 bg-primary/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Home className="h-7 w-7 text-primary" />
             </div>
             <h3 className="text-lg font-black text-white mb-2">Welcome, {firstName}!</h3>
             <p className="text-white/50 text-sm max-w-xs mx-auto mb-6">
               Get your first home repair sorted in minutes. Post a job and verified local tradies will respond fast.
             </p>
             <Link href="/jobs/new">
-              <button className="h-10 px-6 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-sm transition-all inline-flex items-center gap-2">
+              <button className="h-10 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-all inline-flex items-center gap-2">
                 <Plus className="h-4 w-4" /> Post Your First Job
               </button>
             </Link>
@@ -925,7 +925,7 @@ export default function HomeownerDashboard() {
               <h2 className="font-bold text-white">Recent Activity</h2>
             </div>
             <Link href="/notifications">
-              <span className="text-sm text-[#ffc800] hover:text-[#e6b800] cursor-pointer flex items-center gap-1 transition-colors">
+              <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
@@ -952,12 +952,12 @@ export default function HomeownerDashboard() {
                     <motion.li key={n.id} variants={cardItem}>
                       <Link href={href}>
                         <div
-                          className={`flex items-start gap-3 px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group ${!n.isRead ? "bg-[#ffc800]/2" : ""}`}
+                          className={`flex items-start gap-3 px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group ${!n.isRead ? "bg-primary/2" : ""}`}
                           onClick={() => {
                             if (!n.isRead) markRead.mutate({ id: n.id });
                           }}
                         >
-                          <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center mt-0.5 ${!n.isRead ? "bg-[#ffc800]/10" : "bg-white/5"}`}>
+                          <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center mt-0.5 ${!n.isRead ? "bg-primary/10" : "bg-white/5"}`}>
                             {iconNode}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -969,7 +969,7 @@ export default function HomeownerDashboard() {
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-[10px] text-white/25">{timeAgo(n.createdAt)}</span>
                             {!n.isRead && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#ffc800] flex-shrink-0" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                             )}
                           </div>
                         </div>
@@ -998,9 +998,9 @@ export default function HomeownerDashboard() {
             <Link key={label} href={href}>
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.15 } }}
-                className="bg-[#130f07] border border-white/6 hover:border-[#ffc800]/30 rounded-2xl p-4 cursor-pointer transition-colors group hover:bg-[#1a1508]"
+                className="bg-[#130f07] border border-white/6 hover:border-primary/30 rounded-2xl p-4 cursor-pointer transition-colors group hover:bg-[#1a1508]"
               >
-                <Icon className="h-5 w-5 text-[#ffc800] mb-2.5 group-hover:scale-110 transition-transform" />
+                <Icon className="h-5 w-5 text-primary mb-2.5 group-hover:scale-110 transition-transform" />
                 <p className="text-sm font-bold text-white">{label}</p>
                 <p className="text-xs text-white/35 mt-0.5">{sub}</p>
               </motion.div>

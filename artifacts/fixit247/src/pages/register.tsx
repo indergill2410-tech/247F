@@ -106,13 +106,13 @@ export default function RegisterPage() {
     );
   };
 
-  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all";
+  const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all";
   const labelCls = "text-sm font-medium text-white/70";
 
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-16"
-      style={{ background: "radial-gradient(ellipse at 30% 60%, #1f1808 0%, #0b0904 60%)" }}
+      style={{ background: "var(--app-hero-gradient)" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -123,9 +123,9 @@ export default function RegisterPage() {
         {/* Logo */}
         <Link href="/">
           <div className="flex items-center justify-center gap-2 mb-10 cursor-pointer">
-            <Wrench className="h-6 w-6 text-[#ffc800]" />
+            <Wrench className="h-6 w-6 text-primary" />
             <span className="text-2xl font-black text-white tracking-tight">
-              Fixit <span className="text-[#ffc800]">24/7</span>
+              Fixit <span className="text-primary">24/7</span>
             </span>
           </div>
         </Link>
@@ -147,7 +147,7 @@ export default function RegisterPage() {
                 onClick={() => setRole(r)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${
                   role === r
-                    ? "bg-[#ffc800] text-black shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-white/45 hover:text-white/70"
                 }`}
               >
@@ -205,7 +205,7 @@ export default function RegisterPage() {
                 className="space-y-4 border-t border-white/8 pt-4 mt-2"
               >
                 <div>
-                  <p className="text-sm font-bold text-[#ffc800] mb-0.5">Your Trade Specialisation</p>
+                  <p className="text-sm font-bold text-primary mb-0.5">Your Trade Specialisation</p>
                   <p className="text-xs text-white/40">This helps us match you to the right jobs.</p>
                 </div>
 
@@ -220,7 +220,7 @@ export default function RegisterPage() {
                         setPrimaryTrade(val);
                         setSecondaryTrades((prev) => prev.filter((t) => t !== val));
                       }}
-                      className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all"
+                      className="w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
                       required
                     >
                       <option value="" className="bg-[#1a1509] text-white/50">Select your main trade…</option>
@@ -245,7 +245,7 @@ export default function RegisterPage() {
                           onClick={() => toggleSecondaryTrade(trade)}
                           className={`h-8 px-3 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${
                             selected
-                              ? "bg-[#ffc800]/15 border-[#ffc800]/40 text-[#ffc800]"
+                              ? "bg-primary/15 border-primary/40 text-primary"
                               : "bg-white/4 border-white/8 text-white/45 hover:bg-white/8 hover:text-white/65"
                           }`}
                         >
@@ -265,7 +265,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full h-11 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
+              className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors disabled:opacity-60 mt-2"
             >
               {registerMutation.isPending
                 ? "Creating account…"
@@ -276,7 +276,7 @@ export default function RegisterPage() {
           <p className="mt-6 text-center text-sm text-white/40">
             Already have an account?{" "}
             <Link href={autosubmit ? "/login?autosubmit=true" : returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}>
-              <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">Sign in</span>
+              <span className="text-primary font-semibold hover:opacity-90 cursor-pointer transition-colors">Sign in</span>
             </Link>
           </p>
         </div>

@@ -96,7 +96,7 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
       >
         <span className="font-semibold text-white text-[15px] leading-snug">{q}</span>
         <ChevronDown
-          className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -173,7 +173,7 @@ export default function EmergencyPage() {
       {/* ─── Hero ─── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "radial-gradient(ellipse at 30% 60%, #1e1608 0%, #0e0b05 50%, #070604 100%)" }}
+        style={{ background: "var(--app-hero-gradient)" }}
       >
         <div
           className="absolute inset-0 opacity-[0.035] pointer-events-none"
@@ -188,14 +188,14 @@ export default function EmergencyPage() {
             transition={{ duration: 0.55 }}
             className="flex flex-col items-center gap-7"
           >
-            <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 text-sm text-primary font-semibold">
               <Shield className="h-3.5 w-3.5" aria-hidden="true" />
               Fixit 24/7 Plus
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
               Wherever life happens,<br />
-              <span className="text-[#ffc800]">you're covered.</span>
+              <span className="text-primary">you're covered.</span>
             </h1>
 
             <p className="text-xl text-white/60 max-w-2xl leading-relaxed">
@@ -213,7 +213,7 @@ export default function EmergencyPage() {
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">When you need it most</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">When you need it most</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">Life doesn't wait for a good time</h2>
           </div>
 
@@ -241,10 +241,10 @@ export default function EmergencyPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
-                className="bg-white/4 border border-white/8 rounded-2xl p-7 flex flex-col gap-4 hover:bg-white/6 hover:border-[#ffc800]/20 transition-all"
+                className="bg-white/4 border border-white/8 rounded-2xl p-7 flex flex-col gap-4 hover:bg-white/6 hover:border-primary/20 transition-all"
               >
-                <div className="w-12 h-12 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center">
-                  <m.icon className="h-6 w-6 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center">
+                  <m.icon className="h-6 w-6 text-primary" aria-hidden="true" />
                 </div>
                 <h3 className="font-bold text-[18px]">{m.label}</h3>
                 <p className="text-white/50 text-[14px] leading-relaxed">{m.desc}</p>
@@ -264,9 +264,9 @@ export default function EmergencyPage() {
             transition={{ duration: 0.4 }}
             className="relative rounded-3xl"
           >
-            <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/40 to-[#ffc800]/10" aria-hidden="true" />
-            <div className="relative bg-[#130f07] rounded-3xl p-8 border border-[#ffc800]/20">
-              <p className="text-[#ffc800] text-[11px] font-black uppercase tracking-widest mb-6 text-center">Fixit 24/7 Plus</p>
+            <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-primary/40 to-primary/10" aria-hidden="true" />
+            <div className="relative bg-[#130f07] rounded-3xl p-8 border border-primary/20">
+              <p className="text-primary text-[11px] font-black uppercase tracking-widest mb-6 text-center">Fixit 24/7 Plus</p>
 
               <div className="flex items-end justify-center gap-1 mb-2">
                 <span className="text-white/50 text-xl font-bold self-start mt-2">A$</span>
@@ -283,7 +283,7 @@ export default function EmergencyPage() {
                   "Cancel anytime (see Membership Agreement)",
                 ].map((perk) => (
                   <li key={perk} className="flex items-start gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="h-4 w-4 text-[#ffc800] shrink-0 mt-0.5" aria-hidden="true" />
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
                     {perk}
                   </li>
                 ))}
@@ -297,16 +297,16 @@ export default function EmergencyPage() {
                   type="checkbox"
                   checked={agreementChecked}
                   onChange={(e) => setAgreementChecked(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-[#ffc800] shrink-0"
+                  className="mt-0.5 h-4 w-4 accent-primary shrink-0"
                 />
                 <span className="text-[13px] text-white/55 leading-snug">
                   I have read and agree to the{" "}
                   <Link href="/terms">
-                    <span className="text-[#ffc800]/80 hover:text-[#ffc800] underline underline-offset-2 cursor-pointer">Terms of Service</span>
+                    <span className="text-primary/80 hover:text-primary underline underline-offset-2 cursor-pointer">Terms of Service</span>
                   </Link>
                   {" "}and{" "}
                   <Link href="/membership-agreement">
-                    <span className="text-[#ffc800]/80 hover:text-[#ffc800] underline underline-offset-2 cursor-pointer">Membership Agreement</span>
+                    <span className="text-primary/80 hover:text-primary underline underline-offset-2 cursor-pointer">Membership Agreement</span>
                   </Link>
                   , including the 12-month commitment and cancellation terms.
                 </span>
@@ -315,7 +315,7 @@ export default function EmergencyPage() {
               <button
                 onClick={handleJoin}
                 disabled={checkoutMutation.isPending}
-                className="w-full h-12 rounded-xl font-black text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-xl font-black text-[15px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {checkoutMutation.isPending ? "Loading…" : "Add Plus to my account"}
                 {!checkoutMutation.isPending && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
@@ -333,7 +333,7 @@ export default function EmergencyPage() {
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="text-center mb-14">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Coverage</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Coverage</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">What's included</h2>
             <p className="text-white/45 mt-3 text-[15px] max-w-md mx-auto">
               Genuine emergencies that affect safety, security, or essential services at home — plus car breakdown assistance.
@@ -348,18 +348,18 @@ export default function EmergencyPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07, duration: 0.35 }}
-                className="bg-white/4 border border-white/8 rounded-2xl p-6 hover:bg-white/6 hover:border-[#ffc800]/20 transition-all"
+                className="bg-white/4 border border-white/8 rounded-2xl p-6 hover:bg-white/6 hover:border-primary/20 transition-all"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#ffc800]/10 border border-[#ffc800]/15 flex items-center justify-center shrink-0">
-                    <cat.icon className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
+                    <cat.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="font-bold text-[15px]">{cat.title}</h3>
                 </div>
                 <ul className="space-y-2">
                   {cat.items.map((item) => (
                     <li key={item} className="flex items-start gap-2 text-[13px] text-white/55 leading-relaxed">
-                      <span className="text-[#ffc800]/60 mt-0.5 shrink-0">–</span>
+                      <span className="text-primary/60 mt-0.5 shrink-0">–</span>
                       {item}
                     </li>
                   ))}
@@ -378,7 +378,7 @@ export default function EmergencyPage() {
               >
                 <span className="font-semibold text-white text-[15px]">What we treat as an emergency</span>
                 <ChevronDown
-                  className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${coveredOpen ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${coveredOpen ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
               </button>
@@ -408,7 +408,7 @@ export default function EmergencyPage() {
               >
                 <span className="font-semibold text-white text-[15px]">What's not included</span>
                 <ChevronDown
-                  className={`h-4 w-4 text-[#ffc800] shrink-0 transition-transform duration-200 ${notCoveredOpen ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 text-primary shrink-0 transition-transform duration-200 ${notCoveredOpen ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
               </button>
@@ -450,15 +450,15 @@ export default function EmergencyPage() {
       <section className="py-20 bg-[#0b0904]">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Is it right for you?</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Is it right for you?</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3">Do I need this?</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-[#ffc800]/6 border border-[#ffc800]/20 rounded-2xl p-7">
+            <div className="bg-primary/6 border border-primary/20 rounded-2xl p-7">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-9 h-9 rounded-xl bg-[#ffc800]/15 flex items-center justify-center">
-                  <CheckCircle2 className="h-5 w-5 text-[#ffc800]" aria-hidden="true" />
+                <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <h3 className="font-bold text-[16px]">Plus is a great fit if you…</h3>
               </div>
@@ -470,7 +470,7 @@ export default function EmergencyPage() {
                   "Want to avoid the unpredictable cost of an after-hours call-out.",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-[13px] text-white/70">
-                    <span className="text-[#ffc800] mt-0.5 shrink-0">–</span>
+                    <span className="text-primary mt-0.5 shrink-0">–</span>
                     {item}
                   </li>
                 ))}
@@ -505,7 +505,7 @@ export default function EmergencyPage() {
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-3xl">
           <div className="text-center mb-12">
-            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Details & terms</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Details & terms</span>
             <h2 className="text-3xl sm:text-4xl font-black mt-3 mb-3">Common questions</h2>
             <p className="text-white/45 text-[15px]">
               Everything you need to know, including cover limits and exclusions.
@@ -546,7 +546,7 @@ export default function EmergencyPage() {
             <p className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-3">
               Most months, you won't need us.
             </p>
-            <p className="text-2xl sm:text-3xl font-bold text-[#ffc800] leading-snug">
+            <p className="text-2xl sm:text-3xl font-bold text-primary leading-snug">
               You'll be glad you had us when you did.
             </p>
           </motion.div>
@@ -554,7 +554,7 @@ export default function EmergencyPage() {
           <button
             onClick={handleJoin}
             disabled={checkoutMutation.isPending}
-            className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-black text-[17px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all disabled:opacity-60 mb-6"
+            className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-black text-[17px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-60 mb-6"
           >
             {checkoutMutation.isPending ? "Loading…" : "Add Plus to my account"}
             {!checkoutMutation.isPending && <ChevronRight className="h-5 w-5" aria-hidden="true" />}

@@ -47,9 +47,9 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/">
               <span className="flex items-center gap-2 font-black text-white mb-4 cursor-pointer w-fit">
-                <Wrench className="h-5 w-5 text-[#ffc800]" />
+                <Wrench className="h-5 w-5 text-primary" />
                 <span>
-                  Fixit <span className="text-[#ffc800]">24/7</span>
+                  Fixit <span className="text-primary">24/7</span>
                 </span>
               </span>
             </Link>

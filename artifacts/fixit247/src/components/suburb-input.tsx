@@ -83,11 +83,11 @@ export function SuburbInput({
               <li key={`${s.suburb}-${s.postcode}`} role="option">
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-2.5 text-sm text-white/80 hover:bg-[#ffc800]/10 hover:text-white transition-colors flex items-center justify-between gap-2"
+                  className="w-full text-left px-3 py-2.5 text-sm text-white/80 hover:bg-primary/10 hover:text-white transition-colors flex items-center justify-between gap-2"
                   onMouseDown={(e) => { e.preventDefault(); handleSelect(s); }}
                 >
                   <span className="flex items-center gap-2">
-                    <MapPin className="h-3.5 w-3.5 text-[#ffc800] shrink-0" />
+                    <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span>{s.suburb}</span>
                     <span className="text-white/35 text-xs">{s.state}</span>
                   </span>
