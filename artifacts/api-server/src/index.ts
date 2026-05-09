@@ -8,6 +8,7 @@ import { verifyToken, hashPassword } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
 import { getStripeSync, getUncachableStripeClient } from "./stripeClient.js";
 import { grantWalletFunds, WELCOME_GRANT_CENTS, runMonthlyGrant } from "./stripeStorage.js";
+import { seedDemoAccounts } from "./lib/seed-demo.js";
 import { EMERGENCY_PRODUCT_LOOKUP } from "./routes/emergency.js";
 import { db, pool } from "@workspace/db";
 import { usersTable } from "@workspace/db";
@@ -66,49 +67,6 @@ async function applySchemaUpdates() {
   logger.info("Schema updates applied");
 }
 
-async function seedDemoAccounts() {
-  const demos = [
-    { name: "Alex homeowner", email: "homeowner@fixit247.com", password: "password123", role: "homeowner" as const },
-    { name: "Sam Tradie",     email: "tradie@fixit247.com",    password: "password123", role: "tradie" as const },
-    { name: "Admin",          email: "admin@fixit247.com",     password: "admin123",    role: "admin" as const },
-  ];
-
-  for (const demo of demos) {
-    const existing = await pool.query<{ id: number }>(
-      "SELECT id FROM users WHERE email = $1", [demo.email]
-    );
-    if (existing.rows.length > 0) {
-      const userId = existing.rows[0]!.id;
-      // Ensure tradie has a wallet even if they already existed
-      if (demo.role === "tradie") {
-        await pool.query(
-          `INSERT INTO wallet_balances (user_id, balance_cents) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING`,
-          [userId, WELCOME_GRANT_CENTS]
-        );
-      }
-      continue;
-    }
-    const passwordHash = hashPassword(demo.password);
-    const result = await pool.query<{ id: number }>(
-      `INSERT INTO users (name, email, password_hash, role, is_active)
-       VALUES ($1, $2, $3, $4, true) RETURNING id`,
-      [demo.name, demo.email, passwordHash, demo.role]
-    );
-    const userId = result.rows[0]!.id;
-    if (demo.role === "tradie") {
-      await pool.query(
-        `INSERT INTO wallet_balances (user_id, balance_cents) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING`,
-        [userId, WELCOME_GRANT_CENTS]
-      );
-      await pool.query(
-        `INSERT INTO wallet_transactions (user_id, type, amount_cents, description)
-         VALUES ($1, 'welcome_grant', $2, '$111 welcome credit — free to get started')`,
-        [userId, WELCOME_GRANT_CENTS]
-      );
-    }
-    logger.info({ email: demo.email, role: demo.role }, "Demo account created");
-  }
-}
 
 async function ensureEmergencyProduct() {
   try {
