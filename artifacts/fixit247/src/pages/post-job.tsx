@@ -1,12 +1,13 @@
 import { usePageTitle } from "@/hooks/use-page-title";
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useCreateJob, useListCategories } from "@workspace/api-client-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, ChevronLeft, Zap, Clock, Briefcase, Wrench, Home, Building2, Star } from "lucide-react";
+import { AlertCircle, ChevronLeft, Zap, Clock, Briefcase, Wrench, Home, Building2, Star, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SuburbInput } from "@/components/suburb-input";
+import { useAuth } from "@/hooks/use-auth";
 
 const URGENCIES = [
   { value: "standard",  label: "Standard",  desc: "Non-urgent, flexible timing",        Icon: Briefcase, border: "border-white/10",         active: "border-white/30 bg-white/5" },
@@ -61,26 +62,58 @@ const inputCls = "w-full h-11 bg-white/6 border border-white/10 rounded-xl px-4 
 const textareaCls = "w-full bg-white/6 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#ffc800]/50 focus:bg-white/8 transition-all resize-none";
 const labelCls = "text-sm font-medium text-white/65";
 
+const STORAGE_KEY = "fixit247_pending_job";
+
+interface PendingJob {
+  title: string;
+  description: string;
+  categoryId: string;
+  urgency: string;
+  sizeBand: string;
+  suburb: string;
+  postcode: string;
+  address: string;
+  budget: string;
+}
+
 export default function PostJobPage() {
   usePageTitle("Post a Job");
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const { toast } = useToast();
   const { data: categories } = useListCategories();
+  const { isAuthenticated } = useAuth();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [urgency, setUrgency] = useState("standard");
-  const [sizeBand, setSizeBand] = useState<"small" | "medium" | "large" | "premium" | "">("");
-  const [suburb, setSuburb] = useState("");
-  const [postcode, setPostcode] = useState("");
-  const [address, setAddress] = useState("");
-  const [budget, setBudget] = useState("");
+  const params = new URLSearchParams(search);
+  const autosubmit = params.get("autosubmit") === "true";
+
+  // Restore saved form data if returning from auth
+  const saved: PendingJob | null = (() => {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as PendingJob) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const [title, setTitle] = useState(saved?.title ?? "");
+  const [description, setDescription] = useState(saved?.description ?? "");
+  const [categoryId, setCategoryId] = useState(saved?.categoryId ?? "");
+  const [urgency, setUrgency] = useState(saved?.urgency ?? "standard");
+  const [sizeBand, setSizeBand] = useState<"small" | "medium" | "large" | "premium" | "">(
+    (saved?.sizeBand as "small" | "medium" | "large" | "premium" | "") ?? ""
+  );
+  const [suburb, setSuburb] = useState(saved?.suburb ?? "");
+  const [postcode, setPostcode] = useState(saved?.postcode ?? "");
+  const [address, setAddress] = useState(saved?.address ?? "");
+  const [budget, setBudget] = useState(saved?.budget ?? "");
   const [error, setError] = useState("");
 
   const createMutation = useCreateJob({
     mutation: {
       onSuccess: (job) => {
+        sessionStorage.removeItem(STORAGE_KEY);
         toast({ title: "Job posted!", description: "Your job is now live. Tradies will be notified." });
         setLocation(`/jobs/${job.id}`);
       },
@@ -90,11 +123,43 @@ export default function PostJobPage() {
     },
   });
 
+  // Auto-submit once authenticated and autosubmit flag is set
+  const autosubmitFiredRef = useRef(false);
+  useEffect(() => {
+    if (autosubmit && isAuthenticated && saved && !autosubmitFiredRef.current) {
+      autosubmitFiredRef.current = true;
+      if (!saved.categoryId || !saved.sizeBand) return;
+      createMutation.mutate({
+        data: {
+          title: saved.title,
+          description: saved.description,
+          categoryId: Number(saved.categoryId),
+          urgency: saved.urgency as "standard" | "urgent" | "emergency",
+          sizeBand: saved.sizeBand as "small" | "medium" | "large" | "premium",
+          suburb: saved.suburb || undefined,
+          postcode: saved.postcode || undefined,
+          address: saved.address || undefined,
+          budget: saved.budget ? Number(saved.budget) : undefined,
+        },
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autosubmit, isAuthenticated]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!categoryId) { setError("Please select a category"); return; }
     if (!sizeBand) { setError("Please select a job size"); return; }
+
+    // If not authenticated, save form and redirect to register
+    if (!isAuthenticated) {
+      const pending: PendingJob = { title, description, categoryId, urgency, sizeBand, suburb, postcode, address, budget };
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(pending));
+      setLocation("/register?redirect=%2Fpost-job&autosubmit=true");
+      return;
+    }
+
     createMutation.mutate({
       data: {
         title,
@@ -110,13 +175,15 @@ export default function PostJobPage() {
     });
   };
 
+  const backHref = isAuthenticated ? "/dashboard" : "/";
+
   return (
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
       <div className="border-b border-white/6 bg-[#0f0c06] py-8">
         <div className="container max-w-2xl mx-auto px-4 sm:px-6">
-          <button onClick={() => setLocation("/dashboard")} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
-            <ChevronLeft className="h-4 w-4" /> Back to Dashboard
+          <button onClick={() => setLocation(backHref)} className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors">
+            <ChevronLeft className="h-4 w-4" /> {isAuthenticated ? "Back to Dashboard" : "Back to Home"}
           </button>
           <h1 className="text-2xl font-black text-white">Post a Job</h1>
           <p className="text-white/40 mt-1 text-sm">Tell us what needs fixing and we'll match you with the right tradie.</p>
@@ -125,6 +192,14 @@ export default function PostJobPage() {
 
       <div className="container max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Auto-submitting indicator */}
+          {autosubmit && isAuthenticated && (
+            <div className="flex items-center gap-2 text-sm text-[#ffc800] bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-xl px-4 py-3 mb-5">
+              <div className="w-3.5 h-3.5 border-2 border-[#ffc800] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+              Submitting your job…
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
@@ -253,12 +328,26 @@ export default function PostJobPage() {
               </div>
             </div>
 
+            {/* CTA — changes based on auth state */}
+            {!isAuthenticated && (
+              <div className="flex items-start gap-3 text-sm text-white/50 bg-white/4 border border-white/8 rounded-xl px-4 py-3">
+                <UserPlus className="h-4 w-4 flex-shrink-0 mt-0.5 text-[#ffc800]" />
+                <span>
+                  Create a free account to post your job — takes 30 seconds. Your details will be saved automatically.
+                </span>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={createMutation.isPending || !sizeBand}
               className="w-full h-12 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] text-black font-bold text-[15px] transition-colors disabled:opacity-60"
             >
-              {createMutation.isPending ? "Posting job…" : "Post Job & Get Matched"}
+              {createMutation.isPending
+                ? "Posting job…"
+                : isAuthenticated
+                  ? "Post Job & Get Matched"
+                  : "Post Job — Create Free Account"}
             </button>
           </form>
         </motion.div>

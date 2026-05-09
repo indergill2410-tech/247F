@@ -110,12 +110,8 @@ function Router() {
         <Route path="/admin">
           {() => <ProtectedRoute component={AdminDashboard} roles={["admin"]} />}
         </Route>
-        <Route path="/jobs/new">
-          {() => <ProtectedRoute component={PostJobPage} roles={["homeowner", "admin"]} />}
-        </Route>
-        <Route path="/post-job">
-          {() => <ProtectedRoute component={PostJobPage} roles={["homeowner", "admin"]} />}
-        </Route>
+        <Route path="/jobs/new" component={PostJobPage} />
+        <Route path="/post-job" component={PostJobPage} />
         <Route path="/my-jobs">
           {() => <ProtectedRoute component={JobsPage} />}
         </Route>

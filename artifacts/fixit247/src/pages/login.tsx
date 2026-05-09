@@ -37,11 +37,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const returnTo = safeReturnTo(new URLSearchParams(searchString).get("returnTo"));
+  const autosubmit = new URLSearchParams(searchString).get("autosubmit") === "true";
 
   const loginMutation = useLoginUser({
     mutation: {
       onSuccess: (data) => {
         login(data);
+        if (autosubmit) { setLocation("/post-job?autosubmit=true"); return; }
         if (returnTo) { setLocation(returnTo); return; }
         const role = data.user.role;
         if (role === "admin") setLocation("/admin");
@@ -160,7 +162,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-white/40">
             Don't have an account?{" "}
-            <Link href={returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}>
+            <Link href={autosubmit ? "/signup?autosubmit=true" : returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}>
               <span className="text-[#ffc800] font-semibold hover:text-[#e6b800] cursor-pointer transition-colors">
                 Sign up free
               </span>
