@@ -8,6 +8,7 @@ import { requireAuth } from "../middlewares/require-auth.js";
 import { sendCustomerWelcome, sendTradieWelcome } from "../lib/email.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
 import { authRateLimit } from "../lib/rate-limit.js";
+import { grantWalletFunds, WELCOME_GRANT_CENTS } from "../stripeStorage.js";
 
 const router = Router();
 
@@ -52,6 +53,11 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
       await db.insert(tradieSkillsTable).values(
         skills.map((categoryId) => ({ tradieId: user.id, categoryId }))
       ).onConflictDoNothing();
+    }
+
+    // Grant $111 welcome wallet to new tradies immediately on signup
+    if (role === "tradie") {
+      grantWalletFunds(user.id, WELCOME_GRANT_CENTS, "welcome_grant", "Welcome grant — $111 free to get started").catch(() => {});
     }
 
     // Send welcome email (fire-and-forget, never blocks registration)

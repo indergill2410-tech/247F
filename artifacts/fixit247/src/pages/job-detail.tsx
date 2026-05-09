@@ -127,9 +127,9 @@ export default function JobDetailPage() {
         refetch();
       },
       onError: (err) => {
-        const errData = err as { data?: { message?: string; error?: string } };
-        const msg = errData?.data?.error === "insufficient_credits"
-          ? "Not enough credits — top up at Credits page."
+        const errData = err as { data?: { message?: string; error?: string; balanceCents?: number; requiredCents?: number } };
+        const msg = errData?.data?.error === "insufficient_funds"
+          ? `Insufficient wallet balance — ${errData.data?.message ?? "top up at Wallet."}`
           : (errData?.data?.message ?? "Failed to claim");
         toast({ title: "Error", description: msg, variant: "destructive" });
       },

@@ -108,17 +108,17 @@ export default function TradieDashboard() {
   const { data: meData } = useGetMe();
   const { toast } = useToast();
 
-  // Credit balance
-  const [creditBalance, setCreditBalance] = useState<number | null>(null);
-  // Minimum claim cost (small job = 30 credits) used for conservative "jobsLeft" estimate
-  const MIN_CLAIM_COST = 30;
+  // Wallet balance in cents
+  const [walletCents, setWalletCents] = useState<number | null>(null);
+  // Minimum lead cost in cents (small job ≈ $22) — used for conservative "jobs left" estimate
+  const MIN_LEAD_COST_CENTS = 2200;
 
   useEffect(() => {
     if (!token) return;
     fetch(`${API_BASE}/api/stripe/credits`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => {
-        if (typeof d.balance === "number") setCreditBalance(d.balance);
+        if (typeof d.balanceCents === "number") setWalletCents(d.balanceCents);
       })
       .catch(() => {});
   }, [token]);
@@ -132,35 +132,36 @@ export default function TradieDashboard() {
   const claimMutation = useClaimJob({
     mutation: {
       onSuccess: () => {
-        const cost = pendingClaimCost;
+        const costCents = pendingClaimCost;
+        const costStr = costCents != null ? `$${(costCents / 100).toFixed(2)} deducted.` : "";
         toast({
           title: "Claimed!",
-          description: cost != null
-            ? `${cost} credits deducted. You've successfully claimed this job.`
-            : "You've successfully claimed this job. Credits deducted from your balance.",
+          description: `${costStr} You've successfully claimed this job.`.trim(),
         });
         setExpandedClaimJobId(null);
         setClaimMessage("");
         setClaimPrice("");
         setPendingClaimCost(null);
         refetch();
-        // Refresh credit balance
+        // Refresh wallet balance
         if (token) {
           fetch(`${API_BASE}/api/stripe/credits`, { headers: { Authorization: `Bearer ${token}` } })
             .then((r) => r.json())
-            .then((d) => { if (typeof d.balance === "number") setCreditBalance(d.balance); })
+            .then((d) => { if (typeof d.balanceCents === "number") setWalletCents(d.balanceCents); })
             .catch(() => {});
         }
       },
       onError: (err) => {
-        const errData = err as { data?: { message?: string; error?: string; balance?: number; required?: number } };
-        if (errData?.data?.error === "insufficient_credits") {
+        const errData = err as { data?: { message?: string; error?: string; balanceCents?: number; requiredCents?: number } };
+        if (errData?.data?.error === "insufficient_funds") {
+          const bal = ((errData.data.balanceCents ?? 0) / 100).toFixed(2);
+          const req = ((errData.data.requiredCents ?? MIN_LEAD_COST_CENTS) / 100).toFixed(2);
           toast({
-            title: "Not enough credits",
-            description: `You need ${errData.data.required ?? MIN_CLAIM_COST} credits to claim this job. Your balance: ${errData.data.balance ?? 0}. Top up at Credits.`,
+            title: "Insufficient wallet balance",
+            description: `You need $${req} to claim this job. Your balance: $${bal}. Top up at Wallet.`,
             variant: "destructive",
           });
-          setCreditBalance(errData.data.balance ?? 0);
+          if (errData.data.balanceCents != null) setWalletCents(errData.data.balanceCents);
         } else {
           const msg = errData?.data?.message ?? "Failed to claim job";
           toast({ title: "Error", description: msg, variant: "destructive" });
@@ -206,16 +207,18 @@ export default function TradieDashboard() {
   // Accepted claims sourced directly from dedicated API field (comprehensive, no limit)
   const acceptedClaims = data?.acceptedClaims ?? [];
 
-  const jobsLeft = creditBalance !== null ? Math.floor(creditBalance / MIN_CLAIM_COST) : null;
+  const jobsLeft = walletCents !== null ? Math.floor(walletCents / MIN_LEAD_COST_CENTS) : null;
+  const walletDisplay = walletCents !== null ? `$${(walletCents / 100).toFixed(2)}` : "–";
+  const walletLow = walletCents !== null && walletCents < MIN_LEAD_COST_CENTS;
 
   const stats = [
     {
-      label: "Credits",
-      value: creditBalance !== null ? creditBalance.toLocaleString() : "–",
+      label: "Wallet",
+      value: walletDisplay,
       icon: Zap,
-      color: creditBalance !== null && creditBalance < MIN_CLAIM_COST ? "text-orange-400" : "text-[#ffc800]",
-      bg: creditBalance !== null && creditBalance < MIN_CLAIM_COST ? "bg-orange-500/10" : "bg-[#ffc800]/10",
-      desc: jobsLeft !== null ? `up to ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""}` : "loading…",
+      color: walletLow ? "text-orange-400" : "text-[#ffc800]",
+      bg: walletLow ? "bg-orange-500/10" : "bg-[#ffc800]/10",
+      desc: jobsLeft !== null ? `≈ ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""}` : "loading…",
       href: "/credits",
     },
     {
@@ -353,7 +356,7 @@ export default function TradieDashboard() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs text-white/40 font-medium">{s.label}</p>
-                    {isLoading || ('href' in s && creditBalance === null) ? (
+                    {isLoading || ('href' in s && walletCents === null) ? (
                       <Skeleton className="h-8 w-10 mt-1.5 bg-white/8" />
                     ) : (
                       <p className="text-3xl font-black text-white mt-1">{s.value}</p>
