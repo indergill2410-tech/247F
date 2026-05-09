@@ -21,7 +21,7 @@ import { writeRateLimit } from "../lib/rate-limit.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
-import { estimateCreditCost, BAND_RANGE, type SizeBand } from "../lib/openai.js";
+import { estimateLeadCostCents, BAND_RANGE, type SizeBand } from "../lib/openai.js";
 
 const router = Router();
 
@@ -41,7 +41,7 @@ function buildJobResponse(job: {
   imageUrls: string[] | null;
   budget: number | null;
   sizeBand?: "small" | "medium" | "large" | "premium" | null;
-  creditCost?: number | null;
+  leadCostCents?: number | null;
   scheduledFor: Date | null;
   createdAt: Date;
   categoryName?: string | null;
@@ -64,7 +64,7 @@ function buildJobResponse(job: {
     imageUrls: job.imageUrls,
     budget: job.budget,
     sizeBand: job.sizeBand ?? null,
-    creditCost: job.creditCost ?? null,
+    leadCostCents: job.leadCostCents ?? null,
     claimCount: job.claimCount ?? 0,
     createdAt: job.createdAt,
     scheduledFor: job.scheduledFor,
@@ -94,7 +94,7 @@ router.get("/jobs", requireAuth, async (req, res): Promise<void> => {
       imageUrls: jobsTable.imageUrls,
       budget: jobsTable.budget,
       sizeBand: jobsTable.sizeBand,
-      creditCost: jobsTable.creditCost,
+      leadCostCents: jobsTable.leadCostCents,
       scheduledFor: jobsTable.scheduledFor,
       createdAt: jobsTable.createdAt,
       claimCount: count(claimsTable.id),
@@ -208,8 +208,8 @@ router.post("/jobs", requireAuth, writeRateLimit, async (req, res): Promise<void
 
   const chosenBand = (sizeBand as SizeBand | undefined) ?? "medium";
 
-  // AI credit cost estimation — synchronous so creditCost is final before insert and never changes
-  const creditCost = await estimateCreditCost({
+  // AI lead cost estimation — synchronous so leadCostCents is final before insert and never changes
+  const leadCostCents = await estimateLeadCostCents({
     title,
     description,
     categoryName: category?.name ?? null,
@@ -217,21 +217,21 @@ router.post("/jobs", requireAuth, writeRateLimit, async (req, res): Promise<void
     budget: budget ?? null,
     urgency,
   }).catch((err) => {
-    logger.error({ err }, "Credit cost estimation failed — using band midpoint as final fallback");
+    logger.error({ err }, "Lead cost estimation failed — using band midpoint as final fallback");
     return BAND_RANGE[chosenBand].midpoint;
   });
 
   // Derive coordinates via canonical suburb lookup so matching engine can use haversine
   const jobLatLng = lookupSuburbCoords(suburb, postcode);
 
-  // Insert with final creditCost — will not change after this point
+  // Insert with final leadCostCents — will not change after this point
   const [job] = await db.insert(jobsTable).values({
     title,
     description,
     categoryId,
     urgency: urgency as "standard" | "urgent" | "emergency",
     sizeBand: chosenBand,
-    creditCost,
+    leadCostCents,
     homeownerId: req.user!.userId,
     suburb: suburb ?? null,
     postcode: postcode ?? null,
@@ -249,7 +249,7 @@ router.post("/jobs", requireAuth, writeRateLimit, async (req, res): Promise<void
     return;
   }
 
-  // Trigger matching engine asynchronously (does not affect creditCost)
+  // Trigger matching engine asynchronously (does not affect leadCostCents)
   setImmediate(() => {
     runMatchingEngine(job.id, categoryId, postcode ?? null, suburb ?? null).catch((err) =>
       logger.error({ err }, "Matching engine failed")
@@ -288,7 +288,7 @@ router.get("/jobs/:id", requireAuth, async (req, res): Promise<void> => {
       imageUrls: jobsTable.imageUrls,
       budget: jobsTable.budget,
       sizeBand: jobsTable.sizeBand,
-      creditCost: jobsTable.creditCost,
+      leadCostCents: jobsTable.leadCostCents,
       scheduledFor: jobsTable.scheduledFor,
       createdAt: jobsTable.createdAt,
     })
