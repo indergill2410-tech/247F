@@ -248,7 +248,6 @@ function EmergencyMembershipWidget() {
   const renewalDateStr = membership.renewalDate
     ? new Date(membership.renewalDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
     : null;
-  const callsRemaining = membership.callsRemaining ?? (2 - (membership.callsUsed ?? 0));
   const isCancelling = membership.cancelAtPeriodEnd;
 
   return (
@@ -346,12 +345,10 @@ function EmergencyMembershipWidget() {
                   ))}
                 </div>
               </div>
-              {/* Calls remaining */}
+              {/* Emergency access */}
               <div className="flex items-center justify-between bg-white/4 rounded-xl px-4 py-3">
-                <span className="text-xs text-white/50">Callouts remaining this month</span>
-                <span className={`text-sm font-black ${callsRemaining > 0 ? "text-[#ffc800]" : "text-white/30"}`}>
-                  {callsRemaining} of 2
-                </span>
+                <span className="text-xs text-white/50">Emergency support status</span>
+                <span className="text-sm font-black text-[#ffc800]">Available</span>
               </div>
             </motion.div>
           ) : (

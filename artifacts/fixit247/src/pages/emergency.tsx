@@ -278,7 +278,7 @@ export default function EmergencyPage() {
               <ul className="flex flex-col gap-3 mb-7" role="list">
                 {[
                   "24/7 emergency dispatch — home and roadside",
-                  "Up to 2 covered callouts per membership year",
+                  "Priority support for eligible emergencies",
                   "Member-only rates on any extra work",
                   "Cancel anytime (see Membership Agreement)",
                 ].map((perk) => (
@@ -393,7 +393,7 @@ export default function EmergencyPage() {
                   >
                     <div className="px-5 pb-5 text-white/55 text-sm leading-relaxed space-y-3">
                       <p>Your membership covers situations that affect <strong className="text-white/75">safety, security or essential services</strong> — sudden and unforeseen. Long-term or known issues are excluded.</p>
-                      <p>A 72-hour waiting period applies from first activation. Each covered callout includes up to 1 hour of labour and minor parts, capped at A$300 inc. GST (up to A$600 total per year).</p>
+                      <p>A 72-hour waiting period applies from first activation before emergency support is available.</p>
                     </div>
                   </motion.div>
                 )}
@@ -527,7 +527,6 @@ export default function EmergencyPage() {
           <div className="bg-white/3 border border-white/8 rounded-2xl p-6 text-white/40 text-[12px] leading-relaxed space-y-2">
             <p className="font-semibold text-white/55 text-[13px] mb-3">Membership details & fair use</p>
             <p>A$49/month, billed monthly. 12-month membership commitment applies — see the Membership Agreement for full cancellation and early-exit terms.</p>
-            <p>Includes up to 2 covered emergency callouts per membership year. Each covered callout includes tradie attendance, up to 1 hour of labour and minor parts, capped at A$300 inc. GST per callout (up to A$600 inc. GST total per membership year).</p>
             <p>If more time, parts, or additional work is needed, the tradie will present a clear quote before proceeding. You choose whether to approve and pay any extra through the app.</p>
             <p>Emergencies must be sudden and unforeseen. Long-term issues, known pre-existing faults, and non-urgent work are excluded. A 72-hour waiting period applies from first activation.</p>
             <p>Membership is for eligible emergencies only. Fair use, service limits, and full exclusions apply. Larger non-covered work can still be quoted through the Fixit 24/7 app as standard paid jobs.</p>
