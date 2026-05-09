@@ -21,7 +21,7 @@ const SIZE_BANDS = [
     label: "Small",
     desc: "Minor repairs, quick fixes under 2 hours",
     examples: "Leaking tap, lock change, patch a hole",
-    range: "30–60 credits",
+    range: "$30–$60",
     Icon: Wrench,
     border: "border-white/10",
     active: "border-[#ffc800]/50 bg-[#ffc800]/6",
@@ -31,7 +31,7 @@ const SIZE_BANDS = [
     label: "Medium",
     desc: "Standard jobs, 2–8 hours of work",
     examples: "Ceiling fan install, leaking pipe, paint a room",
-    range: "80–150 credits",
+    range: "$80–$150",
     Icon: Home,
     border: "border-white/10",
     active: "border-[#ffc800]/50 bg-[#ffc800]/6",
@@ -41,7 +41,7 @@ const SIZE_BANDS = [
     label: "Large",
     desc: "Complex jobs, multiple days or trades",
     examples: "Bathroom reno, re-roof, rewire circuits",
-    range: "200–400 credits",
+    range: "$200–$400",
     Icon: Building2,
     border: "border-white/10",
     active: "border-[#ffc800]/50 bg-[#ffc800]/6",
@@ -51,7 +51,7 @@ const SIZE_BANDS = [
     label: "Premium",
     desc: "Major projects, extensive scope",
     examples: "Full kitchen reno, full house rewire, structural repair",
-    range: "500–800 credits",
+    range: "$500–$800",
     Icon: Star,
     border: "border-white/10",
     active: "border-[#ffc800]/50 bg-[#ffc800]/6",
@@ -237,7 +237,7 @@ export default function PostJobPage() {
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
               <div>
                 <h2 className="font-bold text-white">Job Size *</h2>
-                <p className="text-xs text-white/40 mt-1">This helps tradies see the credit cost upfront. The AI will fine-tune it within your chosen range.</p>
+                <p className="text-xs text-white/40 mt-1">This helps tradies see the lead cost upfront. The AI will fine-tune it within your chosen range.</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {SIZE_BANDS.map((band) => (

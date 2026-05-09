@@ -736,7 +736,7 @@ export default function TradieDashboard() {
                                 ? "bg-white/10 text-white/60 border border-white/10"
                                 : "bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.96] text-black"
                             }`}
-                            onClick={() => handleClaimExpand(job.id, job.creditCost)}
+                            onClick={() => handleClaimExpand(job.id, job.leadCostCents)}
                           >
                             {isExpanded ? <X className="h-3.5 w-3.5" /> : "Claim"}
                           </button>
@@ -758,7 +758,7 @@ export default function TradieDashboard() {
                             {pendingClaimCost != null && (
                               <div className="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-lg bg-[#ffc800]/8 border border-[#ffc800]/20">
                                 <Zap className="h-3.5 w-3.5 text-[#ffc800] shrink-0" />
-                                <span className="text-sm font-bold text-[#ffc800]">{pendingClaimCost} credits</span>
+                                <span className="text-sm font-bold text-[#ffc800]">${(pendingClaimCost / 100).toFixed(2)}</span>
                                 <span className="text-xs text-white/50">will be deducted from your balance to claim this job</span>
                               </div>
                             )}
