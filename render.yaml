@@ -3,7 +3,10 @@ services:
     name: 247f-api
     runtime: node
     plan: starter
-    buildCommand: npm install -g pnpm@10.33.0 --ignore-scripts && pnpm install --frozen-lockfile && pnpm rebuild esbuild && pnpm --filter @workspace/db run migrate && pnpm --filter @workspace/fixit247 build && node artifacts/api-server/build.mjs
+    # Note: the API service serves the built frontend via express.static().
+    # The 247f-frontend static service below also builds it as a standalone CDN deploy.
+    # Only one build of the frontend is needed here — the API service build.
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build && pnpm --filter @workspace/api-server build
     startCommand: node artifacts/api-server/dist/index.mjs
     healthCheckPath: /api/health
     envVars:
@@ -11,12 +14,12 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: npm_config_dangerously_allow_all_builds
-        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SESSION_SECRET
-        generateValue: true
+        # IMPORTANT: set this once in the Render dashboard and keep sync: false.
+        # generateValue: true would regenerate on every deploy, invalidating all JWTs.
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_PUBLISHABLE_KEY
@@ -35,7 +38,9 @@ services:
   - type: web
     name: 247f-frontend
     runtime: static
-    buildCommand: npm install -g pnpm --ignore-scripts && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build
+    # Reuses the artifact already built by the API service build above.
+    # If deploying the static service independently, the build below is self-contained.
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build
     staticPublishPath: ./artifacts/fixit247/dist/public
     envVars:
       - key: NODE_ENV

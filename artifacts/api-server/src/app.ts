@@ -7,6 +7,7 @@ import { existsSync } from "fs";
 import router from "./routes/index.js";
 import { WebhookHandlers } from "./webhookHandlers.js";
 import { logger } from "./lib/logger.js";
+import { globalRateLimit } from "./lib/rate-limit.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Resolved at runtime: works both from dist/ and src/
@@ -44,12 +45,16 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Global rate limiter — 200 req/min per IP across all endpoints.
+// Applied before CORS so it fires regardless of origin.
+app.use(globalRateLimit);
+
 // CORS — restrict to known origins in production
 const rawAllowedOrigins = process.env.ALLOWED_ORIGINS ?? "";
 const allowedOrigins = rawAllowedOrigins
   .split(",")
   .map((s) => s.trim())
-  .filter(Boolean);
+  .filter((s) => s.length > 0 && s !== "*"); // explicitly reject wildcard
 
 if (process.env.NODE_ENV !== "production") {
   allowedOrigins.push("http://localhost:5173", "http://localhost:3000", "http://localhost:4173");

@@ -1,6 +1,8 @@
+"use client";
+
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
-import { Link } from "wouter";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
 import {
@@ -305,7 +307,7 @@ export default function HowItWorksPage() {
             {role === "homeowner" ? (
               <>
                 <Link href="/signup?role=homeowner">
-                  <button className="h-12 px-8 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-[15px] transition-all inline-flex items-center gap-2">
+                  <button className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2">
                     Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
@@ -314,8 +316,8 @@ export default function HowItWorksPage() {
             ) : (
               <>
                 <Link href="/signup?role=tradie">
-                  <button className="h-12 px-8 rounded-xl bg-primary hover:opacity-90 active:scale-[0.97] text-primary-foreground font-bold text-[15px] transition-all inline-flex items-center gap-2">
-                    Claim A$111/month free <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  <button className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2">
+                    Join as a tradie <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </Link>
                 <p className="text-white/35 text-sm">Free to join · A$111/month lead credits for 6 months</p>
