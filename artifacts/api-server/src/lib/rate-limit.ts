@@ -7,7 +7,7 @@ function makeRateLimit(maxRequests: number, windowMs: number) {
     for (const [key, entry] of store.entries()) {
       if (entry.resetAt < now) store.delete(key);
     }
-  }, windowMs);
+  }, windowMs).unref();
 
   return function rateLimit(req: Request, res: Response, next: NextFunction): void {
     const ip = ((req.headers["x-forwarded-for"] as string) ?? req.ip ?? "unknown")
@@ -35,3 +35,5 @@ function makeRateLimit(maxRequests: number, windowMs: number) {
 export const authRateLimit = makeRateLimit(10, 60_000);
 // 30 req/min for write endpoints (job posting, claims)
 export const writeRateLimit = makeRateLimit(30, 60_000);
+// 200 req/min global per-IP cap — prevents scraping and DB exhaustion on read endpoints
+export const globalRateLimit = makeRateLimit(200, 60_000);
