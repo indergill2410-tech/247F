@@ -430,7 +430,7 @@ function PlusMembershipWidget() {
                 {" "}Early cancellation terms apply — see your{" "}
                 <a href="/membership-agreement" className="text-[#ffc800]/70 hover:text-[#ffc800] underline underline-offset-2">
                   Membership Agreement
-                </Link>{" "}for details.
+                </a>{" "}for details.
               </p>
               <div className="flex gap-3">
                 <button
