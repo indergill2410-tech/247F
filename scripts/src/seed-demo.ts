@@ -7,7 +7,7 @@
  */
 import pkg from "pg";
 const { Pool } = pkg;
-import * as bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -18,8 +18,10 @@ async function query<T extends Record<string, unknown>>(sql: string, params: unk
   return res.rows as T[];
 }
 
-async function hashPassword(pw: string) {
-  return bcrypt.hash(pw, 10);
+function hashPassword(pw: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(pw, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
 }
 
 async function upsertUser(data: {
@@ -31,11 +33,13 @@ async function upsertUser(data: {
   const existing = await query<{ id: number }>(
     "SELECT id FROM users WHERE email = $1", [data.email]
   );
+  const passwordHash = hashPassword(data.password);
   if (existing.length > 0) {
-    console.log(`  → Skipped (exists): ${data.email}`);
+    // Always refresh the password hash so it matches the current algorithm
+    await query("UPDATE users SET password_hash = $1 WHERE email = $2", [passwordHash, data.email]);
+    console.log(`  → Updated password hash: ${data.email}`);
     return existing[0]!.id;
   }
-  const passwordHash = await hashPassword(data.password);
   const rows = await query<{ id: number }>(
     `INSERT INTO users (name, email, password_hash, role, bio, suburb, postcode, phone,
        rating, review_count, is_verified, primary_trade)
