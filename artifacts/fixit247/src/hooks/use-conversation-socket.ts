@@ -1,6 +1,15 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { useAuth } from "./use-auth";
 
+const VALID_EVENT_TYPES = new Set(["connected", "joined", "message", "typing", "pong"]);
+
+function parseWsEvent(raw: unknown): WsEvent | null {
+  if (!raw || typeof raw !== "object") return null;
+  const obj = raw as Record<string, unknown>;
+  if (!VALID_EVENT_TYPES.has(obj["type"] as string)) return null;
+  return obj as unknown as WsEvent;
+}
+
 export interface WsMessage {
   id: number;
   conversationId: number;
@@ -40,6 +49,7 @@ export function useConversationSocket({
   const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
   const currentConvoRef = useRef<number | null>(null);
+  const seenMessageIdsRef = useRef(new Set<number>());
   const [connected, setConnected] = useState(false);
 
   const clearTimers = useCallback(() => {
@@ -84,9 +94,13 @@ export function useConversationSocket({
 
     ws.onmessage = (event) => {
       try {
-        const evt = JSON.parse(event.data as string) as WsEvent;
+        const evt = parseWsEvent(JSON.parse(event.data as string));
+        if (!evt) return;
         if (evt.type === "message" && evt.message) {
-          onMessage(evt.message);
+          if (!seenMessageIdsRef.current.has(evt.message.id)) {
+            seenMessageIdsRef.current.add(evt.message.id);
+            onMessage(evt.message);
+          }
         } else if (evt.type === "typing" && evt.userId !== undefined) {
           onTyping?.(evt.userId);
         }

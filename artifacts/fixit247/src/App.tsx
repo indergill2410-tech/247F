@@ -1,5 +1,6 @@
 import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from "@tanstack/react-query";
+import { Component, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
@@ -29,6 +30,31 @@ import TradieProfilePage from "@/pages/tradie-profile";
 import EmergencyPage from "@/pages/emergency";
 import ForTradiesPage from "@/pages/for-tradies";
 import NotFound from "@/pages/not-found";
+
+class QueryErrorBoundary extends Component<
+  { children: ReactNode; onReset?: () => void },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch() { this.setState({ hasError: true }); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center p-8">
+          <p className="text-lg font-semibold">Something went wrong loading this page.</p>
+          <button
+            className="px-4 py-2 rounded bg-primary text-primary-foreground text-sm"
+            onClick={() => { this.setState({ hasError: false }); this.props.onReset?.(); }}
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -164,12 +190,18 @@ function App() {
       themes={["dark", "warm"]}
     >
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
+        <QueryErrorResetBoundary>
+          {({ reset }) => (
+            <QueryErrorBoundary onReset={reset}>
+              <TooltipProvider>
+                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                  <Router />
+                </WouterRouter>
+                <Toaster />
+              </TooltipProvider>
+            </QueryErrorBoundary>
+          )}
+        </QueryErrorResetBoundary>
       </QueryClientProvider>
     </ThemeProvider>
   );

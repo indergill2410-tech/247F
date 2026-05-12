@@ -19,12 +19,14 @@ import { sendNewClaimNotification, sendClaimAcceptedNotification } from "../lib/
 const MAX_CLAIMS_PER_JOB = 5;
 const MAX_ACTIVE_JOBS_PER_TRADIE = 11;
 
-/**
- * Categories eligible for covered emergency callouts.
- * Matches the "What we treat as an emergency" section on the landing page.
- * Category IDs from seed: 1=Plumbing, 2=Electrical, 5=Roofing, 7=HVAC (gas/hot water), 12=Locksmith
- */
-const COVERED_EMERGENCY_CATEGORY_IDS = new Set([1, 2, 5, 7, 12]);
+// Category IDs eligible for covered emergency callouts (no tradie credit charge).
+// Defaults: 1=Plumbing, 2=Electrical, 5=Roofing, 7=HVAC, 12=Locksmith (matches seed data).
+// Override via COVERED_EMERGENCY_CATEGORY_IDS env var as a comma-separated list, e.g. "1,2,5,7,12".
+const COVERED_EMERGENCY_CATEGORY_IDS = new Set(
+  process.env.COVERED_EMERGENCY_CATEGORY_IDS
+    ? process.env.COVERED_EMERGENCY_CATEGORY_IDS.split(",").map(Number).filter(Boolean)
+    : [1, 2, 5, 7, 12],
+);
 
 function isCoveredEmergencyJob(job: { urgency: string; categoryId: number }): boolean {
   return job.urgency === "emergency" && COVERED_EMERGENCY_CATEGORY_IDS.has(job.categoryId);

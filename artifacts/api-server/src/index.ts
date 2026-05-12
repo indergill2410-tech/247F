@@ -58,6 +58,7 @@ async function applySchemaUpdates() {
        "created_at" timestamp with time zone NOT NULL DEFAULT now()
      )`,
     `CREATE INDEX IF NOT EXISTS "wallet_transactions_user_id_idx" ON "wallet_transactions" ("user_id")`,
+    `CREATE INDEX IF NOT EXISTS "conversations_job_id_idx" ON "conversations" ("job_id")`,
   ];
   for (const stmt of statements) {
     await pool.query(stmt).catch((err: unknown) => {
@@ -216,6 +217,7 @@ wss.on("connection", (ws, payload: ReturnType<typeof verifyToken>) => {
   logger.info({ userId: payload.userId }, "WS client connected");
 
   ws.on("message", (raw) => {
+    if (Buffer.byteLength(raw as Buffer) > 4096) return;
     try {
       const msg = JSON.parse(raw.toString()) as Record<string, unknown>;
 
@@ -265,12 +267,27 @@ function startMonthlyRenewalCron() {
   logger.info("Monthly wallet grant cron scheduled (1st of each month, midnight AEST)");
 }
 
+function startAnnualEmergencyResetCron() {
+  // Reset emergency callout counters at midnight Jan 1st AEST (Dec 31 14:00 UTC)
+  cron.schedule("0 14 31 12 *", async () => {
+    logger.info("Resetting annual emergency callout counts...");
+    try {
+      await db.update(usersTable).set({ emergencyCallsUsedThisYear: 0 });
+      logger.info("Annual emergency callout reset complete");
+    } catch (err) {
+      logger.error({ err }, "Annual emergency callout reset failed");
+    }
+  });
+  logger.info("Annual emergency callout reset cron scheduled (Jan 1st AEST)");
+}
+
 // Apply schema updates + seed demo accounts, then init Stripe, then start listening
 applySchemaUpdates()
   .then(() => seedDemoAccounts())
   .then(() => initStripe())
   .then(() => {
     startMonthlyRenewalCron();
+    startAnnualEmergencyResetCron();
     httpServer.listen(port, (err?: Error) => {
       if (err) {
         logger.error({ err }, "Error listening on port");

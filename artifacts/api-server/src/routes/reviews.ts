@@ -85,15 +85,17 @@ router.post("/jobs/:jobId/reviews", requireAuth, async (req, res): Promise<void>
     return;
   }
 
-  // Update reviewee's average rating
-  const allReviews = await db
-    .select({ rating: reviewsTable.rating })
+  // Update reviewee's average rating using SQL aggregation — avoids fetching all rows
+  const [agg] = await db
+    .select({
+      avg: sql<number>`ROUND(AVG(${reviewsTable.rating})::numeric, 1)`,
+      count: sql<number>`COUNT(*)`,
+    })
     .from(reviewsTable)
     .where(eq(reviewsTable.revieweeId, Number(revieweeId)));
-  const avg = allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length;
   await db
     .update(usersTable)
-    .set({ rating: Math.round(avg * 10) / 10, reviewCount: allReviews.length, updatedAt: sql`NOW()` })
+    .set({ rating: Number(agg?.avg ?? 0), reviewCount: Number(agg?.count ?? 0), updatedAt: sql`NOW()` })
     .where(eq(usersTable.id, Number(revieweeId)))
     .catch(() => {});
 

@@ -118,25 +118,34 @@ export async function deductWalletFunds(
   jobId?: number,
 ): Promise<{ success: boolean; balanceCents: number }> {
   await ensureWalletBalance(userId);
-  const current = await getWalletBalance(userId);
-  if (current < amountCents) {
-    return { success: false, balanceCents: current };
-  }
 
-  await db
-    .update(walletBalancesTable)
-    .set({ balanceCents: sql`${walletBalancesTable.balanceCents} - ${amountCents}`, updatedAt: sql`NOW()` })
-    .where(eq(walletBalancesTable.userId, userId));
+  // Use SELECT FOR UPDATE inside a transaction to prevent race conditions when
+  // concurrent requests attempt to deduct from the same wallet simultaneously.
+  return await db.transaction(async (tx) => {
+    const balanceResult = await tx.execute<{ balance_cents: number }>(
+      sql`SELECT balance_cents FROM wallet_balances WHERE user_id = ${userId} FOR UPDATE`,
+    );
+    const current = Number(balanceResult.rows[0]?.balance_cents ?? 0);
 
-  await db.insert(walletTransactionsTable).values({
-    userId,
-    type: "lead_deduct",
-    amountCents: -amountCents,
-    description,
-    jobId: jobId ?? null,
+    if (current < amountCents) {
+      return { success: false, balanceCents: current };
+    }
+
+    await tx
+      .update(walletBalancesTable)
+      .set({ balanceCents: sql`${walletBalancesTable.balanceCents} - ${amountCents}`, updatedAt: sql`NOW()` })
+      .where(eq(walletBalancesTable.userId, userId));
+
+    await tx.insert(walletTransactionsTable).values({
+      userId,
+      type: "lead_deduct",
+      amountCents: -amountCents,
+      description,
+      jobId: jobId ?? null,
+    });
+
+    return { success: true, balanceCents: current - amountCents };
   });
-
-  return { success: true, balanceCents: current - amountCents };
 }
 
 export async function getWalletTransactions(userId: number, limit = 20) {

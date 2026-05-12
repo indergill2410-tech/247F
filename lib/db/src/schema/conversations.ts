@@ -12,6 +12,7 @@ export const conversationsTable = pgTable("conversations", {
 }, (table) => ({
   homeownerIdIdx: index("conversations_homeowner_id_idx").on(table.homeownerId),
   tradieIdIdx: index("conversations_tradie_id_idx").on(table.tradieId),
+  jobIdIdx: index("conversations_job_id_idx").on(table.jobId),
 }));
 
 export const messagesTable = pgTable("messages", {
