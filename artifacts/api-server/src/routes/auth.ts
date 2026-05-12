@@ -22,6 +22,11 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
 
   const { name, email, password, role, phone, suburb, postcode, bio, skills, primaryTrade, secondaryTrades } = parsed.data;
 
+  if (password.length < 8) {
+    res.status(400).json({ error: "validation_error", message: "Password must be at least 8 characters" });
+    return;
+  }
+
   try {
     const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
     if (existing.length > 0) {
@@ -80,7 +85,7 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
     const message = err instanceof Error ? err.message : "Unknown error";
     // Log with enough detail to diagnose DB/schema issues
     import("../lib/logger.js").then(({ logger }) =>
-      logger.error({ err, email, role }, `Registration error: ${message}`)
+      logger.error({ err }, `Registration error: ${message}`)
     ).catch(() => {});
     res.status(500).json({ error: "server_error", message: `Registration failed: ${message}` });
   }

@@ -14,6 +14,9 @@ import { logger } from "../lib/logger.js";
 
 const router = Router();
 
+const PACKS_CACHE_TTL_MS = 5 * 60 * 1000;
+let packsCache: { packs: unknown[]; expiresAt: number } | null = null;
+
 // GET /api/stripe/config — returns publishable key for frontend
 router.get("/stripe/config", requireAuth, async (_req, res): Promise<void> => {
   try {
@@ -51,6 +54,11 @@ router.get("/stripe/credits", requireAuth, async (req, res): Promise<void> => {
 
 // GET /api/stripe/packs — list all credit pack products from Stripe API directly
 router.get("/stripe/packs", requireAuth, async (_req, res): Promise<void> => {
+  if (packsCache && Date.now() < packsCache.expiresAt) {
+    res.json({ packs: packsCache.packs });
+    return;
+  }
+
   try {
     const stripe = await getUncachableStripeClient();
 
@@ -86,6 +94,7 @@ router.get("/stripe/packs", requireAuth, async (_req, res): Promise<void> => {
     // Sort by price ascending
     packs.sort((a, b) => (a.prices[0]?.unitAmount ?? 0) - (b.prices[0]?.unitAmount ?? 0));
 
+    packsCache = { packs, expiresAt: Date.now() + PACKS_CACHE_TTL_MS };
     res.json({ packs });
   } catch (err) {
     logger.error({ err }, "Failed to fetch packs");
