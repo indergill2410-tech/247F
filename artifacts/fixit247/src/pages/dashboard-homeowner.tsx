@@ -1,9 +1,6 @@
-"use client";
-
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { Link, useSearch } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useGetHomeownerDashboard,
@@ -14,7 +11,7 @@ import {
   useVerifyEmergencySession,
   useCancelEmergencyMembership,
 } from "@workspace/api-client-react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Plus, Briefcase, Clock, CheckCircle, Bell, ChevronRight, Wrench,
@@ -113,7 +110,8 @@ const ROAD_COVERAGE = [
 
 function PlusMembershipWidget() {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
+  const search = useSearch();
+  const searchParams = new URLSearchParams(search);
   const emergencyParam = searchParams.get("emergency");
   const sessionId = searchParams.get("session_id");
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -230,7 +228,7 @@ function PlusMembershipWidget() {
               <span className="text-sm text-white/40 ml-1">/month</span>
               <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
             </div>
-            <Link href="/emergency">
+            <Link to="/emergency">
               <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-sm transition-colors whitespace-nowrap">
                 Get Plus — A$49/month
               </button>
@@ -285,7 +283,7 @@ function PlusMembershipWidget() {
         </div>
 
         {/* Always-visible primary CTA */}
-        <Link href="/emergency">
+        <Link to="/emergency">
           <button className="w-full h-10 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-4">
             <Phone className="h-4 w-4" />
             Request Emergency Help
@@ -363,7 +361,7 @@ function PlusMembershipWidget() {
               className="space-y-3"
             >
               {/* Large request button */}
-              <Link href="/emergency">
+              <Link to="/emergency">
                 <button className="w-full h-14 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-base transition-colors flex items-center justify-center gap-2">
                   <Phone className="h-5 w-5" />
                   Request Help Now
@@ -457,8 +455,7 @@ function PlusMembershipWidget() {
 
 export default function HomeownerDashboard() {
   usePageTitle("My Dashboard");
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { user } = useAuth();
   const { toast } = useToast();
   const { data, isLoading, refetch } = useGetHomeownerDashboard();
   const { data: notifications, isLoading: notifLoading, refetch: refetchNotif } = useListNotifications(
@@ -600,17 +597,17 @@ export default function HomeownerDashboard() {
 
             {/* Action buttons */}
             <div className="flex gap-2 flex-shrink-0 flex-wrap">
-              <Link href="/jobs/new">
+              <Link to="/jobs/new">
                 <button className="h-9 px-4 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-xs transition-colors flex items-center gap-1.5">
                   <Plus className="h-3.5 w-3.5" /> Post a Job
                 </button>
               </Link>
-              <Link href="/tradies">
+              <Link to="/tradies">
                 <button className="h-9 px-4 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
                   <Users className="h-3.5 w-3.5" /> Find a Tradie
                 </button>
               </Link>
-              <Link href="/profile">
+              <Link to="/profile">
                 <button className="h-9 px-4 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 border border-white/8">
                   <Settings className="h-3.5 w-3.5" /> Profile
                 </button>
@@ -769,13 +766,13 @@ export default function HomeownerDashboard() {
                                 <ThumbsUp className="h-4 w-4" /> Accept {claim.tradieName?.split(" ")[0]}
                               </button>
                               {claim.conversationId ? (
-                                <Link href={`/conversations/${claim.conversationId}`}>
+                                <Link to={`/conversations/${claim.conversationId}`}>
                                   <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
                                     <MessageSquare className="h-4 w-4" /> Message
                                   </button>
                                 </Link>
                               ) : (
-                                <Link href="/conversations">
+                                <Link to="/conversations">
                                   <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
                                     <MessageSquare className="h-4 w-4" /> Message
                                   </button>
@@ -830,7 +827,7 @@ export default function HomeownerDashboard() {
               <Briefcase className="h-4 w-4 text-white/40" />
               <h2 className="font-bold text-white">My Jobs</h2>
             </div>
-            <Link href="/jobs">
+            <Link to="/jobs">
               <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="h-3.5 w-3.5" />
               </span>
@@ -847,7 +844,7 @@ export default function HomeownerDashboard() {
                 <Wrench className="h-10 w-10 mx-auto mb-3 opacity-20" />
                 <p className="font-semibold text-white/50">No jobs yet</p>
                 <p className="text-sm mt-1">Post your first job to get matched with a tradie</p>
-                <Link href="/jobs/new">
+                <Link to="/jobs/new">
                   <button className="mt-5 h-9 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all inline-flex items-center gap-1.5">
                     <Plus className="h-4 w-4" /> Post a Job
                   </button>
@@ -858,7 +855,7 @@ export default function HomeownerDashboard() {
                 const st = STATUS_MAP[job.status] ?? STATUS_MAP.cancelled;
                 const urg = URGENCY_MAP[job.urgency] ?? "bg-white/8 text-white/40";
                 return (
-                  <Link href={`/jobs/${job.id}`} key={job.id}>
+                  <Link to={`/jobs/${job.id}`} key={job.id}>
                     <div className="flex items-center justify-between px-6 py-4 hover:bg-white/2 cursor-pointer transition-colors group">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -907,7 +904,7 @@ export default function HomeownerDashboard() {
             <p className="text-white/50 text-sm max-w-xs mx-auto mb-6">
               Get your first home repair sorted in minutes. Post a job and verified local tradies will respond fast.
             </p>
-            <Link href="/jobs/new">
+            <Link to="/jobs/new">
               <button className="h-10 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-all inline-flex items-center gap-2">
                 <Plus className="h-4 w-4" /> Post Your First Job
               </button>
@@ -927,7 +924,7 @@ export default function HomeownerDashboard() {
               <Info className="h-4 w-4 text-white/40" />
               <h2 className="font-bold text-white">Recent Activity</h2>
             </div>
-            <Link href="/notifications">
+            <Link to="/notifications">
               <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="h-3.5 w-3.5" />
               </span>
@@ -953,7 +950,7 @@ export default function HomeownerDashboard() {
                   const href = n.jobId ? `/jobs/${n.jobId}` : "/notifications";
                   return (
                     <motion.li key={n.id} variants={cardItem}>
-                      <Link href={href}>
+                      <Link to={href}>
                         <div
                           className={`flex items-start gap-3 px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group ${!n.isRead ? "bg-primary/2" : ""}`}
                           onClick={() => {

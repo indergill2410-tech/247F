@@ -1,6 +1,6 @@
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
 import {
@@ -202,7 +202,7 @@ export default function ForTradiesPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                <Link href="/register?role=tradie">
+                <Link to="/register?role=tradie">
                   <button className="inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl font-black text-[15px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
                     Become a Trade Partner
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -255,7 +255,7 @@ export default function ForTradiesPage() {
                     ))}
                   </div>
 
-                  <Link href="/signup?role=tradie">
+                  <Link to="/signup?role=tradie">
                     <button className="w-full h-11 rounded-xl font-bold text-[14px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all inline-flex items-center justify-center gap-1.5">
                       Sign up free
                       <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -428,7 +428,7 @@ export default function ForTradiesPage() {
             <p className="text-white/50 text-[15px] mb-7 max-w-md mx-auto leading-relaxed">
               Join free and use your monthly credits to get in front of homeowners already looking for a tradie in your area.
             </p>
-            <Link href="/signup?role=tradie">
+            <Link to="/signup?role=tradie">
               <button className="inline-flex items-center gap-2 h-13 px-8 rounded-xl font-black text-[16px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">
                 Join free and start picking up jobs
                 <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -462,7 +462,7 @@ export default function ForTradiesPage() {
 
           {/* Final CTA */}
           <div className="text-center">
-            <Link href="/signup?role=tradie">
+            <Link to="/signup?role=tradie">
               <button className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-black text-[17px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all mb-4">
                 Join free and start picking up jobs
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
@@ -470,7 +470,7 @@ export default function ForTradiesPage() {
             </Link>
             <p className="text-white/35 text-sm">
               Already have an account?{" "}
-              <Link href="/login">
+              <Link to="/login">
                 <span className="text-[#ffc800]/60 hover:text-[#ffc800] transition-colors cursor-pointer underline underline-offset-2">
                   Sign in
                 </span>
