@@ -1,8 +1,6 @@
-"use client";
-
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
 import {
@@ -306,19 +304,21 @@ export default function HowItWorksPage() {
           <div className="mt-12 flex flex-col sm:flex-row gap-3 justify-center items-center">
             {role === "homeowner" ? (
               <>
-                <Link href="/signup?role=homeowner">
-                  <button className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2">
-                    Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
+                <Link
+                  href="/signup?role=homeowner"
+                  className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2"
+                >
+                  Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <p className="text-white/35 text-sm">Free to post · No commitment needed</p>
               </>
             ) : (
               <>
-                <Link href="/signup?role=tradie">
-                  <button className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2">
-                    Join as a tradie <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
+                <Link
+                  href="/signup?role=tradie"
+                  className="h-12 px-8 rounded-xl bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] text-black font-bold text-[15px] transition-all inline-flex items-center gap-2"
+                >
+                  Join as a tradie <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <p className="text-white/35 text-sm">Free to join · A$111/month lead credits for 6 months</p>
               </>
@@ -399,15 +399,17 @@ export default function HowItWorksPage() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/signup?role=homeowner">
-              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center gap-2">
-                Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </button>
+            <Link
+              href="/signup?role=homeowner"
+              className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center gap-2"
+            >
+              Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-            <Link href="/signup?role=tradie">
-              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
-                Tradies — join free
-              </button>
+            <Link
+              href="/signup?role=tradie"
+              className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all inline-flex items-center justify-center"
+            >
+              Tradies — join free
             </Link>
           </div>
         </div>
