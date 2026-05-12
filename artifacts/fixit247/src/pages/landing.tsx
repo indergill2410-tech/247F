@@ -1,10 +1,6 @@
-"use client";
-
 import { usePageTitle } from "@/hooks/use-page-title";
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
 import { Footer } from "@/components/footer";
@@ -158,15 +154,13 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
 export default function LandingPage() {
   usePageTitle("Fixit 24/7 — Find Trusted Local Tradies, Fast");
   const [suburb, setSuburb] = useState("");
-  const router = useRouter();
+  const [, navigate] = useLocation();
   const [howRole, setHowRole] = useState<"homeowner" | "tradie">("homeowner");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { data: categories } = useListCategories();
-  const { data: session } = useSession();
-  const user = session?.user;
 
   const handleFindTradies = () => {
-    router.push(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
+    navigate(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
   };
 
   const steps = howRole === "homeowner" ? HOW_IT_WORKS_HOMEOWNER : HOW_IT_WORKS_TRADIE;
@@ -259,7 +253,7 @@ export default function LandingPage() {
       <div className="bg-[#0d0b07] border-b border-white/8">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
           <span className="text-sm text-white/45">Are you a tradie?</span>
-          <Link href="/partner">
+          <Link to="/partner">
             <span className="inline-flex items-center gap-1 text-sm font-medium text-white/65 hover:text-[#ffc800] transition-colors cursor-pointer">
               Get verified jobs in your area
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -281,7 +275,7 @@ export default function LandingPage() {
                 <p className="text-xs text-white/45 mt-0.5">Emergency cover at home and on the road, 24/7 dispatch, member rates.</p>
               </div>
             </div>
-            <Link href="/emergency">
+            <Link to="/emergency">
               <button className="shrink-0 inline-flex items-center gap-2 h-10 px-5 rounded-xl font-bold text-[13px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all">
                 Learn more <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
@@ -362,7 +356,7 @@ export default function LandingPage() {
           </AnimatePresence>
 
           <div className="text-center mt-10">
-            <Link href="/how-it-works">
+            <Link to="/how-it-works">
               <button className="h-11 px-6 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 text-sm font-medium transition-colors inline-flex items-center gap-2">
                 See the full process <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -384,7 +378,7 @@ export default function LandingPage() {
               const Icon = "id" in cat ? (ICON_MAP[(cat as { icon: string }).icon ?? ""] ?? Wrench) : (cat as typeof CATEGORIES_DISPLAY[0]).icon;
               const label = "name" in cat ? cat.name : (cat as typeof CATEGORIES_DISPLAY[0]).label;
               return (
-                <Link href="/signup?role=homeowner" key={label}>
+                <Link to="/signup?role=homeowner" key={label}>
                   <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-primary/30 cursor-pointer transition-all">
                     <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                       <Icon className="h-7 w-7 text-primary" aria-hidden="true" />
@@ -398,7 +392,7 @@ export default function LandingPage() {
             })}
           </div>
           <div className="text-center mt-10">
-            <Link href="/categories">
+            <Link to="/categories">
               <button className="h-11 px-6 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 text-sm font-medium transition-colors">
                 View all categories →
               </button>
@@ -475,7 +469,7 @@ export default function LandingPage() {
                   <span className="text-sm text-white/40 ml-1">/month</span>
                   <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
                 </div>
-                <Link href="/emergency">
+                <Link to="/emergency">
                   <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-sm transition-colors whitespace-nowrap">
                     Get Plus — A$49/month
                   </button>
@@ -514,7 +508,7 @@ export default function LandingPage() {
           </div>
 
           <div className="text-center">
-            <Link href="/how-it-works">
+            <Link to="/how-it-works">
               <button className="h-11 px-6 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 text-sm font-medium transition-colors inline-flex items-center gap-2">
                 See all questions <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -539,12 +533,12 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup?role=homeowner">
+            <Link to="/signup?role=homeowner">
               <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
                 Post emergency job
               </button>
             </Link>
-            <Link href="/login">
+            <Link to="/login">
               <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
                 Sign in
               </button>
