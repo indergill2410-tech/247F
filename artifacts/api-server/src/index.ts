@@ -95,7 +95,7 @@ async function applySchemaUpdates() {
 
 async function ensureEmergencyProduct() {
   try {
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
 
     // Check if the price already exists via lookup key
     const existing = await stripe.prices.list({
@@ -150,12 +150,9 @@ async function initStripe() {
     await runMigrations({ databaseUrl });
     logger.info("Stripe schema ready");
 
-    const stripeSync = await getStripeSync();
+    const stripeSync = getStripeSync();
 
-    const domains = process.env.REPLIT_DOMAINS?.split(",") ?? [];
-    const webhookBaseUrl = domains[0]
-      ? `https://${domains[0]}`
-      : process.env.API_BASE_URL ?? `http://localhost:${port}`;
+    const webhookBaseUrl = process.env.API_BASE_URL ?? `http://localhost:${port}`;
     const webhookResult = await stripeSync.findOrCreateManagedWebhook(`${webhookBaseUrl}/api/stripe/webhook`);
     const syncResult = webhookResult as { webhook?: { url?: string } } | null;
     logger.info({ url: syncResult?.webhook?.url ?? "setup complete" }, "Stripe webhook configured");

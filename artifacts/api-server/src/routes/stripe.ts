@@ -21,7 +21,7 @@ let packsCache: { packs: unknown[]; expiresAt: number } | null = null;
 // GET /api/stripe/config — returns publishable key for frontend
 router.get("/stripe/config", requireAuth, async (_req, res): Promise<void> => {
   try {
-    const publishableKey = await getStripePublishableKey();
+    const publishableKey = getStripePublishableKey();
     res.json({ publishableKey });
   } catch (err) {
     logger.error({ err }, "Failed to get Stripe config");
@@ -61,7 +61,7 @@ router.get("/stripe/packs", requireAuth, async (_req, res): Promise<void> => {
   }
 
   try {
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
 
     const [productsResult, pricesResult] = await Promise.all([
       stripe.products.list({ active: true, limit: 100 }),
@@ -118,7 +118,7 @@ router.post("/stripe/checkout", requireAuth, async (req, res): Promise<void> => 
   }
 
   try {
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
     const dbUser = await getUserById(user.userId);
     if (!dbUser) {
       res.status(404).json({ error: "not_found", message: "User not found" });
@@ -165,7 +165,7 @@ router.post("/stripe/verify-session", requireAuth, async (req, res): Promise<voi
   }
 
   try {
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ["line_items.data.price.product"],
     });
@@ -232,7 +232,7 @@ router.post("/stripe/portal", requireAuth, async (req, res): Promise<void> => {
       res.status(404).json({ error: "not_found", message: "No billing account found" });
       return;
     }
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
     const host = `${req.protocol}://${req.get("host")}`;
     const session = await stripe.billingPortal.sessions.create({
       customer: dbUser.stripeCustomerId,
