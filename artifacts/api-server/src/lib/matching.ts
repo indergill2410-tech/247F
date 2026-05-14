@@ -194,18 +194,20 @@ export async function runMatchingEngine(
       }))
     );
 
-    // Fire-and-forget email notifications
-    for (const tradie of selected) {
-      sendNewJobMatchEmail({
-        tradieEmail: tradie.email,
-        tradieName: tradie.name,
-        jobTitle: jobRow.title,
-        jobId,
-        categoryName: jobRow.categoryName ?? null,
-        urgency: jobRow.urgency,
-        suburb,
-      }).catch(() => {});
-    }
+    // Fire-and-forget email notifications — send concurrently
+    void Promise.all(
+      selected.map((tradie) =>
+        sendNewJobMatchEmail({
+          tradieEmail: tradie.email,
+          tradieName: tradie.name,
+          jobTitle: jobRow.title,
+          jobId,
+          categoryName: jobRow.categoryName ?? null,
+          urgency: jobRow.urgency,
+          suburb,
+        }).catch((err: unknown) => logger.warn({ err, tradieId: tradie.id }, "Job match email failed")),
+      ),
+    );
 
     // Only mark as matched when at least one tradie was notified
     await db

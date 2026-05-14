@@ -1,3 +1,4 @@
+import type Stripe from "stripe";
 import { Router } from "express";
 import { requireAuth } from "../middlewares/require-auth.js";
 import { getUncachableStripeClient, getStripePublishableKey } from "../stripeClient.js";
@@ -182,8 +183,12 @@ router.post("/stripe/verify-session", requireAuth, async (req, res): Promise<voi
 
     // Extract credits from the product metadata
     const lineItem = session.line_items?.data?.[0];
-    const product = lineItem?.price?.product as any;
-    const credits = parseInt(product?.metadata?.credits ?? "0", 10);
+    // price.product is a string ID when not expanded, Stripe.Product when expanded
+    const productObj = lineItem?.price?.product;
+    const productMetadata = typeof productObj === "object" && productObj !== null
+      ? (productObj as Stripe.Product).metadata
+      : undefined;
+    const credits = parseInt(productMetadata?.["credits"] ?? "0", 10);
 
     if (!credits) {
       res.status(400).json({ error: "invalid_product", message: "No credits metadata on product" });
@@ -206,7 +211,7 @@ router.post("/stripe/verify-session", requireAuth, async (req, res): Promise<voi
       user.userId,
       amountCents,
       "refund",
-      `Purchased $${(amountCents / 100).toFixed(2)} wallet funds (${product.name})`,
+      `Purchased $${(amountCents / 100).toFixed(2)} wallet funds`,
       sessionId,
     );
 

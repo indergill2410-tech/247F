@@ -13,6 +13,7 @@ export const conversationsTable = pgTable("conversations", {
   homeownerIdIdx: index("conversations_homeowner_id_idx").on(table.homeownerId),
   tradieIdIdx: index("conversations_tradie_id_idx").on(table.tradieId),
   jobIdIdx: index("conversations_job_id_idx").on(table.jobId),
+  jobTradieIdx: index("conversations_job_tradie_idx").on(table.jobId, table.tradieId),
 }));
 
 export const messagesTable = pgTable("messages", {
