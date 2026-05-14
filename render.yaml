@@ -6,7 +6,7 @@ services:
     # Note: the API service serves the built frontend via express.static().
     # The 247f-frontend static service below also builds it as a standalone CDN deploy.
     # Only one build of the frontend is needed here — the API service build.
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build && pnpm --filter @workspace/api-server build
+    buildCommand: corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build && pnpm --filter @workspace/api-server build
     startCommand: node artifacts/api-server/dist/index.mjs
     healthCheckPath: /api/health
     envVars:
@@ -40,7 +40,7 @@ services:
     runtime: static
     # Reuses the artifact already built by the API service build above.
     # If deploying the static service independently, the build below is self-contained.
-    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build
+    buildCommand: corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/fixit247 build
     staticPublishPath: ./artifacts/fixit247/dist/public
     envVars:
       - key: NODE_ENV
