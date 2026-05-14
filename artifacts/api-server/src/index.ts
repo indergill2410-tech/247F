@@ -152,10 +152,11 @@ async function initStripe() {
 
     const stripeSync = getStripeSync();
 
-    const webhookBaseUrl = process.env.API_BASE_URL ?? `http://localhost:${port}`;
-    const webhookResult = await stripeSync.findOrCreateManagedWebhook(`${webhookBaseUrl}/api/stripe/webhook`);
-    const syncResult = webhookResult as { webhook?: { url?: string } } | null;
-    logger.info({ url: syncResult?.webhook?.url ?? "setup complete" }, "Stripe webhook configured");
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      logger.warn("STRIPE_WEBHOOK_SECRET not set — webhook signature verification disabled");
+    } else {
+      logger.info("Stripe webhook secret configured");
+    }
 
     // Backfill in background — don't block startup
     stripeSync.syncBackfill().then(() => logger.info("Stripe data synced")).catch((err: unknown) => logger.error({ err }, "Stripe backfill error"));
