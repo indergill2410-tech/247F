@@ -125,6 +125,21 @@ export default function TradieDashboard() {
 
   const [claimsFilter, setClaimsFilter] = useState<"all" | "pending" | "accepted" | "rejected">("all");
 
+  // Available jobs filter state
+  const [jobFilterCategory, setJobFilterCategory] = useState<string>("");
+  const [jobFilterUrgency, setJobFilterUrgency] = useState<string>("");
+  const [jobFilterSuburb, setJobFilterSuburb] = useState<string>("");
+  const [jobFilterBudget, setJobFilterBudget] = useState<string>("");
+
+  const filteredAvailableJobs = (data?.availableJobs ?? []).filter((job) => {
+    if (jobFilterCategory && job.categoryName !== jobFilterCategory) return false;
+    if (jobFilterUrgency && job.urgency !== jobFilterUrgency) return false;
+    if (jobFilterSuburb && !(job.suburb?.toLowerCase().includes(jobFilterSuburb.toLowerCase()))) return false;
+    if (jobFilterBudget && job.budget != null && job.budget > Number(jobFilterBudget)) return false;
+    return true;
+  });
+  const availableCategories = [...new Set((data?.availableJobs ?? []).map((j) => j.categoryName).filter(Boolean))];
+
   // Inline claim expansion state: jobId → { message, proposedPrice }
   const [expandedClaimJobId, setExpandedClaimJobId] = useState<number | null>(null);
   const [claimMessage, setClaimMessage] = useState("");
@@ -263,6 +278,16 @@ export default function TradieDashboard() {
       bg: "bg-purple-500/10",
       desc: "from homeowners",
     },
+    {
+      label: "Earned This Month",
+      value: (data as { earningsThisMonth?: number } | undefined)?.earningsThisMonth != null
+        ? `$${((data as { earningsThisMonth?: number }).earningsThisMonth!).toLocaleString()}`
+        : "$0",
+      icon: DollarSign,
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      desc: "completed jobs",
+    },
   ];
 
   return (
@@ -350,7 +375,7 @@ export default function TradieDashboard() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3"
         >
           {stats.map((s) => {
             const card = (
@@ -685,13 +710,60 @@ export default function TradieDashboard() {
           transition={{ delay: 0.6 }}
           className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
-            <h2 className="font-bold text-white">Available Jobs</h2>
-            <Link href="/jobs">
-              <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
-                Browse all <ChevronRight className="h-3.5 w-3.5" />
-              </span>
-            </Link>
+          <div className="px-6 py-4 border-b border-white/6 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-white">Available Jobs</h2>
+              <Link href="/jobs">
+                <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
+                  Browse all <ChevronRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            </div>
+            {/* Filter bar */}
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={jobFilterCategory}
+                onChange={(e) => setJobFilterCategory(e.target.value)}
+                className="h-7 px-2 rounded-lg bg-white/6 border border-white/10 text-xs text-white/70 focus:outline-none focus:border-primary/40 cursor-pointer"
+              >
+                <option value="">All Categories</option>
+                {availableCategories.map((c) => (
+                  <option key={c} value={c!}>{c}</option>
+                ))}
+              </select>
+              <select
+                value={jobFilterUrgency}
+                onChange={(e) => setJobFilterUrgency(e.target.value)}
+                className="h-7 px-2 rounded-lg bg-white/6 border border-white/10 text-xs text-white/70 focus:outline-none focus:border-primary/40 cursor-pointer"
+              >
+                <option value="">All Urgency</option>
+                <option value="emergency">Emergency</option>
+                <option value="urgent">Urgent</option>
+                <option value="standard">Standard</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Suburb..."
+                value={jobFilterSuburb}
+                onChange={(e) => setJobFilterSuburb(e.target.value)}
+                className="h-7 px-2 rounded-lg bg-white/6 border border-white/10 text-xs text-white/70 placeholder:text-white/30 focus:outline-none focus:border-primary/40 w-24"
+              />
+              <input
+                type="number"
+                placeholder="Max budget"
+                value={jobFilterBudget}
+                onChange={(e) => setJobFilterBudget(e.target.value)}
+                className="h-7 px-2 rounded-lg bg-white/6 border border-white/10 text-xs text-white/70 placeholder:text-white/30 focus:outline-none focus:border-primary/40 w-24"
+              />
+              {(jobFilterCategory || jobFilterUrgency || jobFilterSuburb || jobFilterBudget) && (
+                <button
+                  onClick={() => { setJobFilterCategory(""); setJobFilterUrgency(""); setJobFilterSuburb(""); setJobFilterBudget(""); }}
+                  className="h-7 px-2 rounded-lg bg-white/6 border border-white/10 text-xs text-white/50 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" /> Clear
+                </button>
+              )}
+            </div>
           </div>
           <div className="divide-y divide-white/6">
             {isLoading ? (
@@ -704,8 +776,19 @@ export default function TradieDashboard() {
                 <p className="text-sm font-medium text-white/40">No available jobs right now</p>
                 <p className="text-xs mt-1">Check back soon — new jobs are posted regularly.</p>
               </div>
+            ) : !filteredAvailableJobs.length ? (
+              <div className="text-center py-10 text-white/35">
+                <Search className="h-7 w-7 mx-auto mb-2 text-white/15" />
+                <p className="text-sm font-medium text-white/40">No jobs match your filters</p>
+                <button
+                  onClick={() => { setJobFilterCategory(""); setJobFilterUrgency(""); setJobFilterSuburb(""); setJobFilterBudget(""); }}
+                  className="mt-3 text-xs text-primary hover:opacity-80 transition-colors"
+                >
+                  Clear filters
+                </button>
+              </div>
             ) : (
-              data.availableJobs.map((job) => {
+              filteredAvailableJobs.map((job) => {
                 const u = URGENCY[job.urgency] ?? URGENCY.standard;
                 const Icon = u.Icon;
                 const isExpanded = expandedClaimJobId === job.id;
