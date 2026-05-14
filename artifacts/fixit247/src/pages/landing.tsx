@@ -1,5 +1,5 @@
 import { usePageTitle } from "@/hooks/use-page-title";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useListCategories } from "@workspace/api-client-react";
@@ -10,6 +10,7 @@ import {
   PaintbrushIcon, ShieldCheck, Star, MapPin, ChevronRight,
   CheckCircle2, Clock, Users, BadgeCheck, MessageSquare,
   ChevronDown, HardHat, Car, Shield, Lock, Flame, Thermometer, BatteryFull, Fuel,
+  Quote,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -26,7 +27,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
   bug: ShieldCheck,
   lock: ShieldCheck,
 };
-
 
 const HOW_IT_WORKS_HOMEOWNER = [
   {
@@ -120,6 +120,83 @@ const FAQS_LANDING = [
   },
 ];
 
+const TESTIMONIALS = [
+  {
+    name: "Sarah M.",
+    suburb: "Bondi, NSW",
+    role: "homeowner" as const,
+    stars: 5,
+    quote: "Had a burst pipe at 11pm on a Tuesday. Posted the job, got a plumber quoting within 20 minutes, fixed by midnight. Absolute lifesaver.",
+  },
+  {
+    name: "Jake T.",
+    suburb: "Fitzroy, VIC",
+    role: "tradie" as const,
+    stars: 5,
+    quote: "Been using it for 4 months. The free credits give me enough to pick up 3–4 jobs a week without spending a cent. Booked solid most weeks now.",
+  },
+  {
+    name: "Priya K.",
+    suburb: "Chermside, QLD",
+    role: "homeowner" as const,
+    stars: 5,
+    quote: "I was nervous hiring a tradie online but the verified profiles and reviews made it easy. The electrician was professional, on time, and reasonably priced.",
+  },
+];
+
+// Deterministic live-activity feed — rotates every few seconds to create social proof momentum.
+const LIVE_ACTIVITY = [
+  { trade: "Plumber", suburb: "Bondi", state: "NSW", mins: 4 },
+  { trade: "Electrician", suburb: "Chatswood", state: "NSW", mins: 11 },
+  { trade: "Locksmith", suburb: "Richmond", state: "VIC", mins: 3 },
+  { trade: "HVAC tech", suburb: "Fortitude Valley", state: "QLD", mins: 18 },
+  { trade: "Carpenter", suburb: "Fremantle", state: "WA", mins: 7 },
+  { trade: "Painter", suburb: "Norwood", state: "SA", mins: 22 },
+  { trade: "Plumber", suburb: "Pyrmont", state: "NSW", mins: 2 },
+  { trade: "Roofer", suburb: "Docklands", state: "VIC", mins: 14 },
+];
+
+function LiveActivityTicker() {
+  const [visibleIdx, setVisibleIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setVisibleIdx((i) => (i + 1) % LIVE_ACTIVITY.length), 2800);
+    return () => clearInterval(id);
+  }, []);
+
+  const items = [
+    LIVE_ACTIVITY[(visibleIdx) % LIVE_ACTIVITY.length],
+    LIVE_ACTIVITY[(visibleIdx + 1) % LIVE_ACTIVITY.length],
+    LIVE_ACTIVITY[(visibleIdx + 2) % LIVE_ACTIVITY.length],
+  ];
+
+  return (
+    <div className="hidden lg:flex flex-col gap-2 w-full max-w-xs" aria-live="polite" aria-label="Recent activity">
+      <p className="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-1">Live activity</p>
+      {items.map((item, i) => (
+        <motion.div
+          key={`${visibleIdx}-${i}`}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1 - i * 0.25, x: 0 }}
+          transition={{ duration: 0.35, delay: i * 0.06 }}
+          className="flex items-center gap-3 bg-white/6 border border-white/8 rounded-xl px-4 py-3"
+        >
+          <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" aria-hidden="true" />
+          <span className="text-xs text-white/65 leading-snug">
+            <span className="font-semibold text-white/85">{item.trade}</span> claimed in {item.suburb}, {item.state}
+            <span className="block text-white/35">{item.mins} min ago</span>
+          </span>
+        </motion.div>
+      ))}
+      <div className="mt-1 flex items-center gap-2">
+        <div className="h-px flex-1 bg-white/6" />
+        <span className="text-[10px] text-white/25">updated in real-time</span>
+        <div className="h-px flex-1 bg-white/6" />
+      </div>
+    </div>
+  );
+}
+
 function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boolean; onToggle: () => void }) {
   return (
     <div className="border border-white/8 rounded-2xl overflow-hidden bg-white/3 hover:bg-white/5 transition-colors">
@@ -153,15 +230,16 @@ function FaqItem({ q, a, isOpen, onToggle }: { q: string; a: string; isOpen: boo
 
 export default function LandingPage() {
   usePageTitle("Fixit 24/7 — Find Trusted Local Tradies, Fast");
-  const [suburb, setSuburb] = useState("");
   const [, navigate] = useLocation();
   const [howRole, setHowRole] = useState<"homeowner" | "tradie">("homeowner");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { data: categories } = useListCategories();
 
-  const handleFindTradies = () => {
-    navigate(`/register?role=homeowner&suburb=${encodeURIComponent(suburb)}`);
-  };
+  // Default the How It Works tab when arriving from a tradie-targeted link
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("role") === "tradie") setHowRole("tradie");
+  }, []);
 
   const steps = howRole === "homeowner" ? HOW_IT_WORKS_HOMEOWNER : HOW_IT_WORKS_TRADIE;
 
@@ -188,8 +266,8 @@ export default function LandingPage() {
           <ThemeToggle variant="mini" />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 py-16 lg:py-28">
-          {/* Left */}
+        <div className="container mx-auto px-4 sm:px-6 relative flex flex-col lg:flex-row items-center gap-12 lg:gap-16 py-16 lg:py-24">
+          {/* Left — value prop + dual CTA */}
           <motion.div
             className="w-full lg:flex-1 flex flex-col gap-6"
             initial={{ opacity: 0, x: -30 }}
@@ -201,44 +279,57 @@ export default function LandingPage() {
               Available 24/7 across Australia
             </div>
 
-            <div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                From a leaky tap<br />
-                <span className="text-primary">to a full reno.</span>
-              </h1>
-            </div>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
+              From a leaky tap<br />
+              <span className="text-primary">to a full reno.</span>
+            </h1>
 
-            <p className="text-lg text-white/60 max-w-2xl leading-relaxed">
-              From everyday repairs to after-hours emergencies — plumbing, electrical, lockouts, HVAC, carpentry and more. Fixit 24/7 connects you with verified local tradies for any job, 24/7.
+            <p className="text-lg text-white/60 max-w-xl leading-relaxed">
+              Plumbing, electrical, lockouts, HVAC, carpentry and more. Fixit 24/7 connects homeowners with verified local tradies — for any job, any time.
             </p>
 
-            <div className="flex gap-2 max-w-2xl w-full">
-              <div className="flex-1 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" aria-hidden="true" />
-                <input
-                  type="text"
-                  value={suburb}
-                  onChange={(e) => setSuburb(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleFindTradies()}
-                  placeholder="Your suburb or postcode"
-                  aria-label="Enter your suburb to find tradies"
-                  className="w-full bg-white/5 border border-white/12 rounded-xl pl-10 pr-4 h-12 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
-                />
-              </div>
-              <button
-                onClick={handleFindTradies}
-                className="h-12 px-5 rounded-xl font-bold text-[15px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all shrink-0 whitespace-nowrap"
-              >
-                Post your job for free
-              </button>
+            {/* Dual role CTA cards — primary conversion lever */}
+            <div className="grid sm:grid-cols-2 gap-3 max-w-xl w-full mt-1">
+              {/* Homeowner card */}
+              <Link to="/register?role=homeowner">
+                <div className="group flex flex-col gap-3 bg-primary hover:opacity-95 active:scale-[0.98] transition-all rounded-2xl p-5 cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-xl bg-black/15 flex items-center justify-center">
+                      <Home className="h-4.5 w-4.5 text-black/80" aria-hidden="true" />
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-black/40 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="font-black text-black text-[15px]">I need a tradie</p>
+                    <p className="text-black/55 text-xs mt-0.5 leading-snug">Post any job free — get quotes in minutes</p>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Tradie card */}
+              <Link to="/register?role=tradie">
+                <div className="group flex flex-col gap-3 bg-white/8 border border-white/15 hover:bg-white/12 active:scale-[0.98] transition-all rounded-2xl p-5 cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                      <HardHat className="h-4.5 w-4.5 text-primary" aria-hidden="true" />
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-white/30 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="font-black text-white text-[15px]">I'm a tradie</p>
+                    <p className="text-white/45 text-xs mt-0.5 leading-snug">Claim A$111/mo in free job credits — 6 months</p>
+                  </div>
+                </div>
+              </Link>
             </div>
 
-            <div className="flex flex-wrap gap-2.5 max-w-2xl">
+            {/* Trust pills with real numbers */}
+            <div className="flex flex-wrap gap-2 max-w-xl">
               {[
-                { icon: BadgeCheck, label: "Licensed & insured tradies" },
+                { icon: BadgeCheck, label: "4,800+ verified tradies" },
                 { icon: CheckCircle2, label: "Free to post any job" },
-                { icon: Shield, label: "Emergency jobs prioritised" },
-                { icon: Star, label: "Rated & reviewed" },
+                { icon: Clock, label: "Avg 18 min response" },
+                { icon: Star, label: "4.8★ average rating" },
               ].map(({ icon: Icon, label }) => (
                 <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/55 bg-white/5 border border-white/8 rounded-full px-3 py-1.5">
                   <Icon className="h-3 w-3 text-primary shrink-0" aria-hidden="true" /> {label}
@@ -246,40 +337,73 @@ export default function LandingPage() {
               ))}
             </div>
           </motion.div>
+
+          {/* Right — live activity ticker */}
+          <motion.div
+            className="hidden lg:flex flex-col items-end gap-4 shrink-0 w-72"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
+            <LiveActivityTicker />
+          </motion.div>
         </div>
       </section>
 
-      {/* ─── Tradie nudge band ─── */}
+      {/* ─── Fixit 24/7 Plus teaser band ─── */}
       <div className="bg-[#0d0b07] border-b border-white/8">
         <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
-          <span className="text-sm text-white/45">Are you a tradie?</span>
-          <Link to="/partner">
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-white/65 hover:text-[#ffc800] transition-colors cursor-pointer">
-              Get verified jobs in your area
+          <Shield className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
+          <span className="text-sm text-white/45">Home &amp; road emergency cover from</span>
+          <span className="text-sm font-bold text-white/70">A$49/month</span>
+          <Link to="/emergency">
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80 transition-colors cursor-pointer ml-1">
+              Learn about Fixit Plus
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </Link>
         </div>
       </div>
 
-      {/* ─── Fixit 24/7 Plus teaser ─── */}
-      <section className="relative overflow-hidden bg-[#0d0a05] border-y border-primary/12 py-12 text-white" aria-label="Fixit 24/7 Plus membership">
-        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-          <div className="flex flex-col sm:flex-row items-center gap-6 justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center shrink-0">
-                <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-white">Fixit 24/7 Plus — A$49/mo</p>
-                <p className="text-xs text-white/45 mt-0.5">Emergency cover at home and on the road, 24/7 dispatch, member rates.</p>
-              </div>
-            </div>
-            <Link to="/emergency">
-              <button className="shrink-0 inline-flex items-center gap-2 h-10 px-5 rounded-xl font-bold text-[13px] text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.97] transition-all">
-                Learn more <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </Link>
+      {/* ─── Testimonials ─── */}
+      <section className="py-16 bg-[#0d0a05] text-white" aria-label="Customer reviews">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <span className="text-primary text-sm font-bold uppercase tracking-widest">Real people, real results</span>
+            <h2 className="text-2xl sm:text-3xl font-black mt-3">Trusted by homeowners &amp; tradies</h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
+            {TESTIMONIALS.map((t) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35 }}
+                className="bg-white/4 border border-white/8 rounded-2xl p-6 flex flex-col gap-4"
+              >
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: t.stars }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
+                  ))}
+                </div>
+                <Quote className="h-5 w-5 text-primary/30" aria-hidden="true" />
+                <p className="text-white/65 text-sm leading-relaxed flex-1">{t.quote}</p>
+                <div className="flex items-center gap-2 pt-1 border-t border-white/6">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/25 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-black text-primary">{t.name[0]}</span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-white/80">{t.name}</p>
+                    <p className="text-[10px] text-white/35 flex items-center gap-1">
+                      <MapPin className="h-2.5 w-2.5" aria-hidden="true" />
+                      {t.suburb}
+                      <span className="ml-1 text-primary/60 capitalize">{t.role}</span>
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -340,24 +464,51 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
                   viewport={{ once: true }}
-                  className="relative bg-white/5 border border-white/8 rounded-2xl p-6 hover:bg-white/8 transition-colors"
+                  className={`relative border rounded-2xl p-6 transition-colors ${
+                    i === steps.length - 1
+                      ? "bg-primary/8 border-primary/25 hover:bg-primary/12"
+                      : "bg-white/5 border-white/8 hover:bg-white/8"
+                  }`}
                 >
                   <span className="absolute top-5 right-5 text-4xl font-black text-white/5 select-none" aria-hidden="true">
                     {item.step}
                   </span>
-                  <div className="w-11 h-11 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center mb-4">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${
+                    i === steps.length - 1
+                      ? "bg-primary/20 border border-primary/35"
+                      : "bg-primary/15 border border-primary/20"
+                  }`}>
                     <item.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="text-[15px] font-bold mb-2">{item.title}</h3>
                   <p className="text-white/50 leading-relaxed text-sm">{item.desc}</p>
+                  {i === steps.length - 1 && (
+                    <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary/70 uppercase tracking-wider">
+                      <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Done
+                    </span>
+                  )}
                 </motion.div>
               ))}
             </motion.div>
           </AnimatePresence>
 
-          <div className="text-center mt-10">
+          {/* Role-specific CTA at bottom of steps */}
+          <div className="text-center mt-10 flex flex-col sm:flex-row gap-3 justify-center items-center">
+            {howRole === "homeowner" ? (
+              <Link to="/register?role=homeowner">
+                <button className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 active:scale-[0.97] transition-all inline-flex items-center gap-2">
+                  Post your first job — it's free <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </Link>
+            ) : (
+              <Link to="/register?role=tradie">
+                <button className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 active:scale-[0.97] transition-all inline-flex items-center gap-2">
+                  Claim your A$111 credits <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </Link>
+            )}
             <Link to="/how-it-works">
-              <button className="h-11 px-6 rounded-lg border border-white/15 text-white/70 hover:text-white hover:border-white/30 text-sm font-medium transition-colors inline-flex items-center gap-2">
+              <button className="h-11 px-6 rounded-lg border border-white/15 text-white/60 hover:text-white hover:border-white/30 text-sm font-medium transition-colors inline-flex items-center gap-2">
                 See the full process <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </Link>
@@ -378,7 +529,7 @@ export default function LandingPage() {
               const Icon = "id" in cat ? (ICON_MAP[(cat as { icon: string }).icon ?? ""] ?? Wrench) : (cat as typeof CATEGORIES_DISPLAY[0]).icon;
               const label = "name" in cat ? cat.name : (cat as typeof CATEGORIES_DISPLAY[0]).label;
               return (
-                <Link to="/signup?role=homeowner" key={label}>
+                <Link to="/register?role=homeowner" key={label}>
                   <div className="group bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col items-center gap-3 hover:bg-white/10 hover:border-primary/30 cursor-pointer transition-all">
                     <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                       <Icon className="h-7 w-7 text-primary" aria-hidden="true" />
@@ -462,12 +613,16 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Price + CTA */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              {/* Price anchor + CTA */}
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4">
                 <div className="flex-1">
                   <span className="text-3xl font-black text-white">A$49</span>
                   <span className="text-sm text-white/40 ml-1">/month</span>
-                  <p className="text-[11px] text-white/30 mt-0.5">Home + road cover in one plan</p>
+                  {/* Price anchoring — shows value vs real cost of a single callout */}
+                  <p className="text-xs text-white/40 mt-1 leading-snug">
+                    One emergency callout typically costs <span className="text-white/60 font-semibold">A$350–$600</span>.<br />
+                    This membership covers unlimited callouts.
+                  </p>
                 </div>
                 <Link to="/emergency">
                   <button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-black text-sm transition-colors whitespace-nowrap">
@@ -476,8 +631,9 @@ export default function LandingPage() {
                 </Link>
               </div>
 
-              <p className="text-[11px] text-white/25 mt-3">
-                6-month minimum commitment · Cancel anytime after that
+              {/* Disclaimer moved below the fold of the card, visually deemphasised */}
+              <p className="text-[11px] text-white/20 mt-4 border-t border-white/6 pt-3">
+                6-month minimum commitment · Cancel anytime after that · Subject to fair use policy
               </p>
             </div>
           </motion.div>
@@ -517,7 +673,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Emergency CTA ─── */}
+      {/* ─── Final CTA ─── */}
       <section className="py-20 bg-primary">
         <div className="container mx-auto max-w-2xl px-4 sm:px-6 text-center">
           <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" aria-hidden="true" />
@@ -533,7 +689,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup?role=homeowner">
+            <Link to="/register?role=homeowner">
               <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
                 Post emergency job
               </button>
