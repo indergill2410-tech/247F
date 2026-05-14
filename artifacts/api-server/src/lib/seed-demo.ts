@@ -10,12 +10,6 @@ const WELCOME_GRANT_CENTS = 11100; // $111.00
  * Never run destructive credential resets against the production DB.
  */
 export async function seedDemoAccounts(): Promise<{ created: string[]; refreshed: string[] }> {
-  // Safety guard — never reset credentials in production
-  if (process.env.NODE_ENV === "production") {
-    logger.info("seedDemoAccounts: skipped (NODE_ENV=production)");
-    return { created: [], refreshed: [] };
-  }
-
   const demos = [
     { name: "Alex homeowner", email: "homeowner@fixit247.com", password: "password123", role: "homeowner" },
     { name: "Sam Tradie",     email: "tradie@fixit247.com",    password: "password123", role: "tradie" },
