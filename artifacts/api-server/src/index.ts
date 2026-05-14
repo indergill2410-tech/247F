@@ -142,11 +142,14 @@ async function bootstrapSchema() {
       "created_at" timestamp with time zone NOT NULL DEFAULT now(),
       "updated_at" timestamp with time zone NOT NULL DEFAULT now()
     )`,
+    `DO $$ BEGIN CREATE TYPE "public"."lead_tier" AS ENUM ('premium','high','standard','low'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
     `CREATE TABLE IF NOT EXISTS "categories" (
       "id" serial PRIMARY KEY,
       "name" text NOT NULL UNIQUE,
       "icon" text NOT NULL DEFAULT 'wrench',
       "description" text,
+      "lead_tier" "lead_tier" NOT NULL DEFAULT 'standard',
+      "requires_licence" boolean NOT NULL DEFAULT false,
       "created_at" timestamp with time zone NOT NULL DEFAULT now()
     )`,
     `CREATE TABLE IF NOT EXISTS "jobs" (
@@ -261,7 +264,31 @@ async function bootstrapSchema() {
        ADD COLUMN IF NOT EXISTS "welcome_grant_months_used" integer NOT NULL DEFAULT 0,
        ADD COLUMN IF NOT EXISTS "welcome_grant_started_at" timestamp with time zone,
        ADD COLUMN IF NOT EXISTS "free_leads_used_this_month" integer NOT NULL DEFAULT 0,
-       ADD COLUMN IF NOT EXISTS "free_leads_month_reset_at" timestamp with time zone`,
+       ADD COLUMN IF NOT EXISTS "free_leads_month_reset_at" timestamp with time zone,
+       ADD COLUMN IF NOT EXISTS "abn" text,
+       ADD COLUMN IF NOT EXISTS "licence_number" text`,
+    // Backfill new columns on existing categories rows
+    `DO $$ BEGIN CREATE TYPE "public"."lead_tier" AS ENUM ('premium','high','standard','low'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
+    `ALTER TABLE "categories"
+       ADD COLUMN IF NOT EXISTS "lead_tier" "lead_tier" NOT NULL DEFAULT 'standard',
+       ADD COLUMN IF NOT EXISTS "requires_licence" boolean NOT NULL DEFAULT false`,
+    // Seed categories (idempotent — ON CONFLICT updates tier + requires_licence)
+    `INSERT INTO "categories" (id, name, icon, lead_tier, requires_licence) VALUES
+       (1,  'Plumbing',               'droplets',     'premium',  true),
+       (2,  'Electrical',             'zap',           'premium',  true),
+       (3,  'Carpentry',              'hammer',        'high',     false),
+       (4,  'Painting',               'paint-bucket',  'standard', false),
+       (5,  'Roofing',                'home',          'premium',  true),
+       (6,  'Landscaping',            'tree',          'low',      false),
+       (7,  'HVAC / Air Conditioning','wind',          'premium',  true),
+       (8,  'Tiling',                 'layout',        'standard', false),
+       (9,  'Plastering',             'square',        'standard', false),
+       (10, 'Cleaning',               'sparkles',      'low',      false),
+       (11, 'Pest Control',           'bug',           'standard', true),
+       (12, 'Locksmith',              'key',           'high',     false)
+     ON CONFLICT (name) DO UPDATE SET
+       lead_tier = EXCLUDED.lead_tier,
+       requires_licence = EXCLUDED.requires_licence`,
   ];
 
   for (const stmt of statements) {

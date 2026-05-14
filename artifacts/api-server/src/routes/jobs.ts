@@ -21,7 +21,7 @@ import { writeRateLimit } from "../lib/rate-limit.js";
 import { runMatchingEngine } from "../lib/matching.js";
 import { logger } from "../lib/logger.js";
 import { lookupSuburbCoords } from "../lib/geo.js";
-import { estimateLeadCostCents, BAND_RANGE, type SizeBand } from "../lib/openai.js";
+import { estimateLeadCostCents, getBandMidpoint, type SizeBand, type LeadTier } from "../lib/openai.js";
 
 const router = Router();
 
@@ -200,25 +200,27 @@ router.post("/jobs", requireAuth, writeRateLimit, async (req, res): Promise<void
 
   const { title, description, categoryId, urgency, sizeBand, suburb, postcode, address, imageUrls, budget, scheduledFor } = parsed.data;
 
-  // Fetch category name for AI sizing
+  // Fetch category name + lead tier for AI sizing
   const [category] = await db
-    .select({ name: categoriesTable.name })
+    .select({ name: categoriesTable.name, leadTier: categoriesTable.leadTier })
     .from(categoriesTable)
     .where(eq(categoriesTable.id, categoryId));
 
   const chosenBand = (sizeBand as SizeBand | undefined) ?? "medium";
+  const tier = (category?.leadTier ?? "standard") as LeadTier;
 
   // AI lead cost estimation — synchronous so leadCostCents is final before insert and never changes
   const leadCostCents = await estimateLeadCostCents({
     title,
     description,
     categoryName: category?.name ?? null,
+    leadTier: tier,
     sizeBand: chosenBand,
     budget: budget ?? null,
     urgency,
   }).catch((err) => {
     logger.error({ err }, "Lead cost estimation failed — using band midpoint as final fallback");
-    return BAND_RANGE[chosenBand].midpoint;
+    return getBandMidpoint(tier, chosenBand);
   });
 
   // Derive coordinates via canonical suburb lookup so matching engine can use haversine

@@ -148,6 +148,8 @@ export default function ProfilePage() {
   const [serviceRadius, setServiceRadius] = useState<number | null>(null);
   const [serviceSuburbs, setServiceSuburbs] = useState<string[]>([]);
   const [workPhotoUrls, setWorkPhotoUrls] = useState<string[]>(["", "", "", "", "", ""]);
+  const [abn, setAbn] = useState("");
+  const [licenceNumber, setLicenceNumber] = useState("");
   const [error, setError] = useState("");
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
@@ -177,6 +179,8 @@ export default function ProfilePage() {
       const photos = (me as { workPhotoUrls?: string[] | null }).workPhotoUrls ?? [];
       const padded = [...photos, "", "", "", "", "", ""].slice(0, 6);
       setWorkPhotoUrls(padded);
+      setAbn((me as { abn?: string | null }).abn ?? "");
+      setLicenceNumber((me as { licenceNumber?: string | null }).licenceNumber ?? "");
     }
   }, [me]);
 
@@ -223,6 +227,8 @@ export default function ProfilePage() {
           serviceRadius: serviceRadius ?? null,
           serviceSuburbs: serviceSuburbs.length > 0 ? serviceSuburbs : null,
           workPhotoUrls: filteredPhotos.length > 0 ? filteredPhotos : null,
+          abn: abn.trim() || undefined,
+          licenceNumber: licenceNumber.trim() || undefined,
         } : {}),
       },
     });
@@ -530,6 +536,39 @@ export default function ProfilePage() {
                   onChange={setServiceSuburbs}
                   inputCls={inputCls}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* ABN + Licence Verification (tradie only) */}
+          {isTradie && (
+            <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
+              <div>
+                <h2 className="font-bold text-white">Verification</h2>
+                <p className="text-xs text-white/40 mt-1">Your ABN is required to claim any job. A trade licence is required for licensed trades (Plumbing, Electrical, HVAC, Roofing, Pest Control).</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className={labelCls}>ABN <span className="text-red-400">*</span></label>
+                  <input
+                    className={inputCls}
+                    value={abn}
+                    onChange={(e) => setAbn(e.target.value)}
+                    placeholder="12 345 678 901"
+                    maxLength={14}
+                  />
+                  {abn && <p className="text-[11px] text-emerald-400/80">ABN on file — unlocks job claiming</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelCls}>Trade Licence Number</label>
+                  <input
+                    className={inputCls}
+                    value={licenceNumber}
+                    onChange={(e) => setLicenceNumber(e.target.value)}
+                    placeholder="e.g. NSW-PL-001234"
+                  />
+                  {licenceNumber && <p className="text-[11px] text-emerald-400/80">Licence on file — required for licensed trades</p>}
+                </div>
               </div>
             </div>
           )}

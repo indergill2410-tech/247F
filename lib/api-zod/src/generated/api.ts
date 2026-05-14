@@ -72,6 +72,18 @@ export const LoginUserResponse = zod.object({
       .array(zod.string())
       .nullish()
       .describe("URLs of work portfolio photos (up to 6)"),
+    abn: zod
+      .string()
+      .nullish()
+      .describe(
+        "Australian Business Number — required for all tradies before claiming jobs",
+      ),
+    licenceNumber: zod
+      .string()
+      .nullish()
+      .describe(
+        "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+      ),
     createdAt: zod.coerce.date(),
   }),
   token: zod.string(),
@@ -116,6 +128,18 @@ export const GetMeResponse = zod.object({
     .array(zod.string())
     .nullish()
     .describe("URLs of work portfolio photos (up to 6)"),
+  abn: zod
+    .string()
+    .nullish()
+    .describe(
+      "Australian Business Number — required for all tradies before claiming jobs",
+    ),
+  licenceNumber: zod
+    .string()
+    .nullish()
+    .describe(
+      "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+    ),
   createdAt: zod.coerce.date(),
 });
 
@@ -135,6 +159,18 @@ export const UpdateMeBody = zod.object({
   serviceRadius: zod.number().nullish(),
   serviceSuburbs: zod.array(zod.string()).nullish(),
   workPhotoUrls: zod.array(zod.string()).nullish(),
+  abn: zod
+    .string()
+    .nullish()
+    .describe(
+      "Australian Business Number — required for all tradies before claiming jobs",
+    ),
+  licenceNumber: zod
+    .string()
+    .nullish()
+    .describe(
+      "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+    ),
 });
 
 export const UpdateMeResponse = zod.object({
@@ -165,6 +201,18 @@ export const UpdateMeResponse = zod.object({
     .array(zod.string())
     .nullish()
     .describe("URLs of work portfolio photos (up to 6)"),
+  abn: zod
+    .string()
+    .nullish()
+    .describe(
+      "Australian Business Number — required for all tradies before claiming jobs",
+    ),
+  licenceNumber: zod
+    .string()
+    .nullish()
+    .describe(
+      "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+    ),
   createdAt: zod.coerce.date(),
 });
 
@@ -376,6 +424,18 @@ export const GetJobResponse = zod
               .array(zod.string())
               .nullish()
               .describe("URLs of work portfolio photos (up to 6)"),
+            abn: zod
+              .string()
+              .nullish()
+              .describe(
+                "Australian Business Number — required for all tradies before claiming jobs",
+              ),
+            licenceNumber: zod
+              .string()
+              .nullish()
+              .describe(
+                "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+              ),
             createdAt: zod.coerce.date(),
           }),
         )
@@ -901,6 +961,18 @@ export const GetAdminDashboardResponse = zod.object({
         .array(zod.string())
         .nullish()
         .describe("URLs of work portfolio photos (up to 6)"),
+      abn: zod
+        .string()
+        .nullish()
+        .describe(
+          "Australian Business Number — required for all tradies before claiming jobs",
+        ),
+      licenceNumber: zod
+        .string()
+        .nullish()
+        .describe(
+          "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+        ),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -935,6 +1007,18 @@ export const GetAdminDashboardResponse = zod.object({
         .array(zod.string())
         .nullish()
         .describe("URLs of work portfolio photos (up to 6)"),
+      abn: zod
+        .string()
+        .nullish()
+        .describe(
+          "Australian Business Number — required for all tradies before claiming jobs",
+        ),
+      licenceNumber: zod
+        .string()
+        .nullish()
+        .describe(
+          "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+        ),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -984,6 +1068,18 @@ export const AdminListUsersResponse = zod.object({
         .array(zod.string())
         .nullish()
         .describe("URLs of work portfolio photos (up to 6)"),
+      abn: zod
+        .string()
+        .nullish()
+        .describe(
+          "Australian Business Number — required for all tradies before claiming jobs",
+        ),
+      licenceNumber: zod
+        .string()
+        .nullish()
+        .describe(
+          "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+        ),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -1034,6 +1130,18 @@ export const AdminUpdateUserResponse = zod.object({
     .array(zod.string())
     .nullish()
     .describe("URLs of work portfolio photos (up to 6)"),
+  abn: zod
+    .string()
+    .nullish()
+    .describe(
+      "Australian Business Number — required for all tradies before claiming jobs",
+    ),
+  licenceNumber: zod
+    .string()
+    .nullish()
+    .describe(
+      "Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest)",
+    ),
   createdAt: zod.coerce.date(),
 });
 
