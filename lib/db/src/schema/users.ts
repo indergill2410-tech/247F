@@ -56,6 +56,8 @@ export const usersTable = pgTable("users", {
   workPhotoUrls: text("work_photo_urls").array(),
   // Tradie verification — ABN required for free-tier access
   abn: text("abn"),
+  // Trade licence number — required before claiming jobs in licensed trades (plumbing, electrical, HVAC, roofing, pest)
+  licenceNumber: text("licence_number"),
   // Tradie subscription tier (free | starter $49/mo | pro $99/mo)
   subscriptionTier: subscriptionTierEnum("subscription_tier").notNull().default("free"),
   subscriptionStartedAt: timestamp("subscription_started_at", { withTimezone: true }),

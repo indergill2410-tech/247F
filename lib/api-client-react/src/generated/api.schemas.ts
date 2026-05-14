@@ -77,6 +77,10 @@ export interface User {
   serviceSuburbs?: string[] | null;
   /** URLs of work portfolio photos (up to 6) */
   workPhotoUrls?: string[] | null;
+  /** Australian Business Number — required for all tradies before claiming jobs */
+  abn?: string | null;
+  /** Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest) */
+  licenceNumber?: string | null;
   createdAt: string;
 }
 
@@ -98,6 +102,10 @@ export interface UpdateProfileBody {
   serviceRadius?: number | null;
   serviceSuburbs?: string[] | null;
   workPhotoUrls?: string[] | null;
+  /** Australian Business Number — required for all tradies before claiming jobs */
+  abn?: string | null;
+  /** Trade licence number — required for licensed trades (plumbing, electrical, HVAC, roofing, pest) */
+  licenceNumber?: string | null;
 }
 
 export type AdminUpdateUserBodyRole =

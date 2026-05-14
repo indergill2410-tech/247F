@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable, walletBalancesTable, walletTransactionsTable } from "@workspace/db";
+import { claimsTable, jobsTable, usersTable, notificationsTable, conversationsTable, walletBalancesTable, walletTransactionsTable, categoriesTable } from "@workspace/db";
 import { eq, and, count, inArray, desc, sql } from "drizzle-orm";
 import {
   ClaimJobParams,
@@ -151,6 +151,34 @@ router.post("/jobs/:jobId/claims", requireAuth, writeRateLimit, async (req, res)
     .where(and(eq(claimsTable.tradieId, tradieId), inArray(claimsTable.status, ["pending", "accepted"])));
   if (Number(tradieActiveCount?.count ?? 0) >= MAX_ACTIVE_JOBS_PER_TRADIE) {
     res.status(409).json({ error: "conflict", message: `You already have ${MAX_ACTIVE_JOBS_PER_TRADIE} active jobs` });
+    return;
+  }
+
+  // Gate 1: ABN required for all tradies before claiming any job
+  const [tradieProfile] = await db
+    .select({ abn: usersTable.abn, licenceNumber: usersTable.licenceNumber })
+    .from(usersTable)
+    .where(eq(usersTable.id, tradieId));
+
+  if (!tradieProfile?.abn) {
+    res.status(403).json({
+      error: "abn_required",
+      message: "You must add your ABN to your profile before claiming jobs. Go to Settings → Profile.",
+    });
+    return;
+  }
+
+  // Gate 2: Licence number required for licensed trades (plumbing, electrical, HVAC, roofing, pest)
+  const [jobCategory] = await db
+    .select({ requiresLicence: categoriesTable.requiresLicence })
+    .from(categoriesTable)
+    .where(eq(categoriesTable.id, job.categoryId));
+
+  if (jobCategory?.requiresLicence && !tradieProfile.licenceNumber) {
+    res.status(403).json({
+      error: "licence_required",
+      message: "A trade licence number is required to claim jobs in this category. Add your licence in Settings → Profile.",
+    });
     return;
   }
 

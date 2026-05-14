@@ -300,18 +300,27 @@ export default function TradieDashboard() {
               Up to 5 free job leads today — no credit card, no commission, ever.
             </p>
             <div className="space-y-3 mb-6">
-              {[
-                { done: true,  label: "Account created" },
-                { done: false, label: "Complete your profile to unlock more jobs" },
-                { done: false, label: "Claim your first job lead" },
-              ].map(({ done, label }) => (
-                <div key={label} className="flex items-center gap-3">
-                  <span className={`flex-shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${done ? "bg-emerald-500/20 text-emerald-400" : "bg-white/8 text-white/30"}`}>
-                    {done ? "✓" : ""}
-                  </span>
-                  <span className={`text-sm ${done ? "text-white/70 line-through" : "text-white/80"}`}>{label}</span>
-                </div>
-              ))}
+              {(() => {
+                const hasAbn = !!(meData as { abn?: string | null } | undefined)?.abn;
+                const primaryTrade = (meData as { primaryTrade?: string | null } | undefined)?.primaryTrade ?? "";
+                const LICENSED_TRADES = ["Plumbing", "Electrical", "HVAC / Air Conditioning", "Roofing", "Pest Control"];
+                const requiresLicence = LICENSED_TRADES.some((t) => primaryTrade.toLowerCase().includes(t.toLowerCase()));
+                const hasLicence = !!(meData as { licenceNumber?: string | null } | undefined)?.licenceNumber;
+                const steps = [
+                  { done: true,      label: "Account created" },
+                  { done: hasAbn,    label: hasAbn ? "ABN verified" : "Add your ABN — required to claim jobs" },
+                  ...(requiresLicence ? [{ done: hasLicence, label: hasLicence ? "Trade licence on file" : `Add your trade licence — required for ${primaryTrade}` }] : []),
+                  { done: false,     label: "Claim your first job lead" },
+                ];
+                return steps.map(({ done, label }) => (
+                  <div key={label} className="flex items-center gap-3">
+                    <span className={`flex-shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${done ? "bg-emerald-500/20 text-emerald-400" : "bg-white/8 text-white/30"}`}>
+                      {done ? "✓" : ""}
+                    </span>
+                    <span className={`text-sm ${done ? "text-white/70 line-through" : "text-white/80"}`}>{label}</span>
+                  </div>
+                ));
+              })()}
             </div>
             <Link to="/profile">
               <button
