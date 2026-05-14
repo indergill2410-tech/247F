@@ -58,9 +58,14 @@ export default function TradieProfilePage() {
   const { user } = useAuth();
   const tradieId = params?.id ? Number(params.id) : 0;
 
-  const { data: tradie, isLoading, isError } = useGetTradieFullProfile(tradieId, {
-    query: { enabled: !!tradieId && user?.role === "admin", queryKey: ["tradie-full-profile", tradieId] },
+  const canView = !!tradieId && (user?.role === "admin" || user?.role === "homeowner");
+  const { data: tradie, isLoading, isError, error } = useGetTradieFullProfile(tradieId, {
+    query: { enabled: canView, queryKey: ["tradie-full-profile", tradieId] },
   });
+
+  const backHref = user?.role === "admin" ? "/dashboard/admin" : "/dashboard";
+
+  const isForbidden = isError && (error as { status?: number })?.status === 403;
 
   if (isLoading) {
     return (
@@ -87,13 +92,30 @@ export default function TradieProfilePage() {
     );
   }
 
+  if (isForbidden) {
+    return (
+      <div className="min-h-screen bg-[#0b0904] flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="h-14 w-14 rounded-2xl bg-white/6 flex items-center justify-center mx-auto mb-4">
+            <ChevronLeft className="h-7 w-7 text-white/30" />
+          </div>
+          <p className="text-white font-bold text-lg mb-2">Full profile not available</p>
+          <p className="text-white/45 text-sm mb-5">You can only view a tradie's full profile after they've been accepted on one of your jobs.</p>
+          <button onClick={() => setLocation(backHref)} className="text-primary text-sm hover:underline">
+            Back to dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (isError || !tradie) {
     return (
       <div className="min-h-screen bg-[#0b0904] flex items-center justify-center">
         <div className="text-center">
           <p className="text-white font-bold text-lg">Tradie not found</p>
-          <button onClick={() => setLocation("/dashboard/admin")} className="mt-4 text-primary text-sm hover:underline">
-            Back to admin
+          <button onClick={() => setLocation(backHref)} className="mt-4 text-primary text-sm hover:underline">
+            Back
           </button>
         </div>
       </div>
@@ -108,10 +130,10 @@ export default function TradieProfilePage() {
       <div className="border-b border-white/6 bg-[#0f0c06] py-8">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <button
-            onClick={() => setLocation("/dashboard/admin")}
+            onClick={() => setLocation(backHref)}
             className="flex items-center gap-1 text-white/40 hover:text-white text-sm mb-5 transition-colors"
           >
-            <ChevronLeft className="h-4 w-4" /> Back to admin
+            <ChevronLeft className="h-4 w-4" /> {user?.role === "admin" ? "Back to admin" : "Back to dashboard"}
           </button>
 
           <div className="flex items-start gap-5 flex-wrap">

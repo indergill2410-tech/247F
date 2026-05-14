@@ -45,6 +45,24 @@ export class WebhookHandlers {
       return;
     }
 
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerRef = invoice.customer;
+      const customerId = typeof customerRef === 'string' ? customerRef : customerRef?.id ?? null;
+      if (customerId) {
+        const user = await getUserByStripeCustomerId(customerId);
+        if (user) {
+          logger.warn(
+            { userId: user.id, customerId, invoiceId: invoice.id, attemptCount: invoice.attempt_count },
+            'Emergency membership payment failed — membership remains active until subscription is cancelled by Stripe',
+          );
+          // Stripe will retry per the subscription retry schedule and send
+          // customer.subscription.deleted if all retries exhaust — handled below.
+        }
+      }
+      return;
+    }
+
     const subscriptionEvents = [
       'customer.subscription.created',
       'customer.subscription.updated',

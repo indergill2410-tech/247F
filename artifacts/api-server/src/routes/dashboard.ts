@@ -264,6 +264,23 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
       )
     );
 
+  // Total lifetime earnings
+  const [totalEarningsRow] = await db
+    .select({ total: sum(claimsTable.proposedPrice) })
+    .from(claimsTable)
+    .where(and(eq(claimsTable.tradieId, userId), eq(claimsTable.status, "completed")));
+
+  // Count of available job leads (open, not already claimed by this tradie)
+  const [availableLeadsRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(jobsTable)
+    .where(
+      and(
+        eq(jobsTable.status, "open"),
+        sql`${jobsTable.id} NOT IN (SELECT job_id FROM claims WHERE tradie_id = ${userId})`
+      )
+    );
+
   // My skill categories
   const myCategories = await db
     .select({ id: categoriesTable.id, name: categoriesTable.name })
@@ -322,6 +339,8 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
     activeJobs: pendingCount + acceptedCount,
     completedJobs: statusMap["completed"] ?? 0,
     earningsThisMonth: earningsRow?.total ? Number(earningsRow.total) : 0,
+    totalEarnings: totalEarningsRow?.total ? Number(totalEarningsRow.total) : 0,
+    availableLeads: availableLeadsRow?.count ?? 0,
     myRating: me?.rating ?? null,
     myReviewCount: me?.reviewCount ?? 0,
     memberSince: me?.createdAt ?? new Date(),
