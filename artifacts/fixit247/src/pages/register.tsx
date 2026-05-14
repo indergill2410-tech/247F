@@ -185,7 +185,7 @@ export default function RegisterPage() {
                   {autosubmit
                     ? "Create a free account to post your job — takes 30 seconds"
                     : role === "tradie"
-                      ? "Claim A$111/month in free job lead credits for your first 6 months"
+                      ? "Get $111 AUD in free job leads every month — starts immediately"
                       : "Join Australia's fastest-growing repair marketplace"}
                 </p>
 
@@ -212,8 +212,8 @@ export default function RegisterPage() {
                   <div className="mb-5 flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/10 px-4 py-3">
                     <Gift className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                     <div>
-                      <p className="text-sm font-bold text-white">Signup offer: A$111/month free job lead credits</p>
-                      <p className="mt-0.5 text-xs leading-relaxed text-white/50">Starts the moment you create your account. Renews monthly for your first 6 months.</p>
+                      <p className="text-sm font-bold text-white">$111 AUD in free job leads — every month for 6 months</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-white/50">Hits your wallet the moment you join. Each claim costs from $22 — that's up to 5 free leads today. No credit card. No commission. Ever.</p>
                     </div>
                   </div>
                 )}
@@ -397,7 +397,7 @@ export default function RegisterPage() {
                     {registerMutation.isPending
                       ? "Creating account…"
                       : role === "tradie"
-                        ? "Claim credits & create account"
+                        ? "Claim $111 in free leads & join"
                         : "Find my tradie — it's free"}
                   </button>
                 </form>

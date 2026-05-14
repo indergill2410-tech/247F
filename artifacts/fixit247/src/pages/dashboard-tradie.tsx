@@ -124,6 +124,14 @@ export default function TradieDashboard() {
       .catch(() => {});
   }, [token]);
 
+  const [showWelcomeModal, setShowWelcomeModal] = useState(() =>
+    !localStorage.getItem("fixit247_tradie_welcomed")
+  );
+  const dismissWelcomeModal = () => {
+    localStorage.setItem("fixit247_tradie_welcomed", "1");
+    setShowWelcomeModal(false);
+  };
+
   const [claimsFilter, setClaimsFilter] = useState<"all" | "pending" | "accepted" | "rejected">("all");
 
   // Available jobs filter state
@@ -293,6 +301,61 @@ export default function TradieDashboard() {
   ];
 
   return (
+    <>
+    <AnimatePresence>
+      {showWelcomeModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/70 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+            className="bg-[#130f07] border border-white/10 rounded-2xl p-7 max-w-sm w-full shadow-2xl"
+          >
+            <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-primary/15 mx-auto mb-4">
+              <DollarSign className="h-7 w-7 text-primary" />
+            </div>
+            <h2 className="text-xl font-black text-white text-center mb-1">Your $111 wallet is live!</h2>
+            <p className="text-white/55 text-sm text-center mb-5">
+              Up to 5 free job leads today — no credit card, no commission, ever.
+            </p>
+            <div className="space-y-3 mb-6">
+              {[
+                { done: true,  label: "Account created" },
+                { done: false, label: "Complete your profile to unlock more jobs" },
+                { done: false, label: "Claim your first job lead" },
+              ].map(({ done, label }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className={`flex-shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${done ? "bg-emerald-500/20 text-emerald-400" : "bg-white/8 text-white/30"}`}>
+                    {done ? "✓" : ""}
+                  </span>
+                  <span className={`text-sm ${done ? "text-white/70 line-through" : "text-white/80"}`}>{label}</span>
+                </div>
+              ))}
+            </div>
+            <Link to="/profile">
+              <button
+                onClick={dismissWelcomeModal}
+                className="w-full bg-primary text-black font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors mb-2"
+              >
+                Complete my profile →
+              </button>
+            </Link>
+            <button
+              onClick={dismissWelcomeModal}
+              className="w-full text-white/40 text-sm py-2 hover:text-white/60 transition-colors"
+            >
+              Explore dashboard first
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
     <div className="min-h-screen bg-[#0b0904]">
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-0">
         {/* Hero header card */}
@@ -405,6 +468,34 @@ export default function TradieDashboard() {
             );
           })}
         </motion.div>
+
+        {/* Low wallet alert banner */}
+        <AnimatePresence>
+          {walletLow && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+              className="bg-orange-500/10 border border-orange-500/30 rounded-2xl px-5 py-4 flex items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-orange-300">Wallet balance is too low to claim jobs</p>
+                  <p className="text-xs text-white/45 mt-0.5">
+                    You need at least $22 to claim the next job lead. Top up now to keep winning work.
+                  </p>
+                </div>
+              </div>
+              <Link href="/wallet">
+                <button className="flex-shrink-0 bg-orange-500 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-orange-400 transition-colors whitespace-nowrap">
+                  Top up wallet
+                </button>
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Pipeline strip */}
         <motion.div
@@ -607,6 +698,33 @@ export default function TradieDashboard() {
                 )}
               </div>
             </motion.div>
+
+            {/* Post-claim: What happens next card — show when there's at least one pending claim */}
+            {(data?.recentClaims ?? []).some((c) => c.status === "pending") && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-[#130f07] border border-primary/20 rounded-2xl p-5"
+              >
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">What happens next?</p>
+                <div className="space-y-3">
+                  {[
+                    { step: "1", text: "Homeowner reviews your quote alongside other tradies" },
+                    { step: "2", text: "They accept one quote — you'll get an instant notification" },
+                    { step: "3", text: "A chat opens so you can confirm details and book a time" },
+                    { step: "4", text: "Complete the job, collect payment, get a review" },
+                  ].map(({ step, text }) => (
+                    <div key={step} className="flex items-start gap-3">
+                      <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/15 text-primary text-[10px] font-black flex items-center justify-center mt-0.5">
+                        {step}
+                      </span>
+                      <p className="text-sm text-white/60">{text}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Right column: reviews + profile */}
@@ -672,11 +790,11 @@ export default function TradieDashboard() {
                 <ProfileBar pct={pct} />
                 <ul className="mt-3 space-y-2">
                   {[
-                    { done: true,                            label: "Account created" },
-                    { done: !!(meData?.phone ?? user?.phone), label: "Add phone number" },
-                    { done: !!(meData?.bio ?? user?.bio),     label: "Write a bio" },
-                    { done: !!(meData?.suburb ?? user?.suburb), label: "Set your suburb" },
-                    { done: (data?.myCategories?.length ?? 0) > 0, label: "Add your skills" },
+                    { done: true,                            label: "Account created",    unlock: null },
+                    { done: !!(meData?.phone ?? user?.phone), label: "Add phone number",  unlock: "Unlocks ~12 more jobs in your area" },
+                    { done: !!(meData?.bio ?? user?.bio),     label: "Write a bio",        unlock: "Homeowners are 2× more likely to accept" },
+                    { done: !!(meData?.suburb ?? user?.suburb), label: "Set your suburb", unlock: "Required to appear in local search results" },
+                    { done: (data?.myCategories?.length ?? 0) > 0, label: "Add your skills", unlock: "Unlocks all matching job leads for your trades" },
                   ].map((s) =>
                     s.done ? (
                       <li key={s.label} className="flex items-center gap-2 text-xs text-white/30">
@@ -686,9 +804,14 @@ export default function TradieDashboard() {
                     ) : (
                       <li key={s.label}>
                         <Link href="/profile">
-                          <div className="flex items-center gap-2 text-xs text-white/55 hover:text-primary cursor-pointer transition-colors">
-                            <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0" />
-                            <span>{s.label}</span>
+                          <div className="flex items-start gap-2 text-xs cursor-pointer transition-colors group">
+                            <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-white/55 group-hover:text-primary transition-colors">{s.label}</span>
+                              {s.unlock && (
+                                <p className="text-[10px] text-white/30 mt-0.5">{s.unlock}</p>
+                              )}
+                            </div>
                           </div>
                         </Link>
                       </li>
@@ -952,5 +1075,6 @@ export default function TradieDashboard() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

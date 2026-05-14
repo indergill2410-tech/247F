@@ -308,32 +308,54 @@ export async function sendNewJobMatchEmail(opts: {
   categoryName: string | null;
   urgency: string;
   suburb: string | null;
+  leadCostCents?: number;
 }): Promise<void> {
   try {
-    const urgencyBadge =
-      opts.urgency === "emergency"
-        ? '<span style="background:#dc2626;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">EMERGENCY</span>'
-        : opts.urgency === "urgent"
-        ? '<span style="background:#ea580c;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">URGENT</span>'
-        : "";
+    const isEmergency = opts.urgency === "emergency";
+    const isUrgent = opts.urgency === "urgent";
+    const urgencyBadge = isEmergency
+      ? '<span style="background:#dc2626;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">EMERGENCY</span>'
+      : isUrgent
+      ? '<span style="background:#ea580c;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">URGENT</span>'
+      : "";
     const suburbRow = opts.suburb ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">📍 ${opts.suburb}</p>` : "";
+    const categoryRow = opts.categoryName ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">🔧 ${opts.categoryName}</p>` : "";
+    const leadCost = opts.leadCostCents != null ? `$${(opts.leadCostCents / 100).toFixed(0)}` : "$22";
+    const urgencyLine = isEmergency
+      ? `<p style="margin:0 0 12px;color:#f87171;font-size:15px;font-weight:700">⚡ Emergency job — homeowner needs someone now. First tradie to respond wins the work.</p>`
+      : isUrgent
+      ? `<p style="margin:0 0 12px;color:#fb923c;font-size:15px;font-weight:700">🔥 Urgent job — needed within 24 hours. Act fast.</p>`
+      : `<p style="margin:0 0 12px;color:#ccc;font-size:15px">A new job matching your trade just landed in your area. Only up to 5 tradies get to claim it.</p>`;
+    const subject = isEmergency
+      ? `⚡ EMERGENCY job near you: "${opts.jobTitle}" — claim now`
+      : isUrgent
+      ? `🔥 Urgent job match: "${opts.jobTitle}"`
+      : `New job near you: "${opts.jobTitle}" — claim for ${leadCost}`;
     const html = brandedHtml(
-      "New Job Match",
-      `<p style="margin:0 0 16px;color:#ccc;font-size:15px">Hi ${opts.tradieName},</p>
-       <p style="margin:0 0 12px;color:#ccc;font-size:15px">A new job matching your trade has been posted — be one of the first to claim it!</p>
+      "Job Match",
+      `<p style="margin:0 0 12px;color:#ccc;font-size:15px">Hi ${opts.tradieName},</p>
+       ${urgencyLine}
        <div style="background:#1d1a12;border:1px solid #2a2510;border-radius:12px;padding:16px;margin-bottom:20px">
          <div style="margin-bottom:10px">
-           <strong style="color:#fff;font-size:16px">${opts.jobTitle}</strong>${urgencyBadge}
+           <strong style="color:#fff;font-size:17px">${opts.jobTitle}</strong>${urgencyBadge}
          </div>
-         ${opts.categoryName ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">🔧 ${opts.categoryName}</p>` : ""}
+         ${categoryRow}
          ${suburbRow}
        </div>
-       <p style="margin:0 0 20px;color:#aaa;font-size:14px">Act quickly — only the first tradies to claim will be considered.</p>
-       <p style="margin:0">
-         <a href="${config.appUrl}/jobs/${opts.jobId}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">View Job &amp; Claim →</a>
-       </p>`,
+       <div style="background:#1a160a;border:1px solid #2e2a1a;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+         <span style="font-size:22px">💰</span>
+         <div>
+           <p style="margin:0;color:#fff;font-size:14px;font-weight:700">Lead cost: ${leadCost} from your wallet</p>
+           <p style="margin:4px 0 0;color:#aaa;font-size:12px">Only charged if you claim — your wallet renews $111 every month.</p>
+         </div>
+       </div>
+       <p style="margin:0 0 6px;color:#aaa;font-size:13px">⏱ Spots fill fast — only the first 5 tradies can claim this job.</p>
+       <p style="margin:0 0 20px">
+         <a href="${config.appUrl}/jobs/${opts.jobId}" style="display:inline-block;padding:13px 26px;background:#ffc800;color:#000;font-weight:900;font-size:15px;border-radius:10px;text-decoration:none">Claim This Job →</a>
+       </p>
+       <p style="margin:0;color:#666;font-size:12px">You're receiving this because we matched your skills and location. <a href="${config.appUrl}/profile" style="color:#ffc800">Update your preferences</a></p>`,
     );
-    await send({ to: opts.tradieEmail, toName: opts.tradieName, subject: `New job match: "${opts.jobTitle}"`, html });
+    await send({ to: opts.tradieEmail, toName: opts.tradieName, subject, html });
     logger.info({ email: opts.tradieEmail, jobId: opts.jobId }, "Job match email sent");
   } catch (err) {
     logger.error({ err }, "Failed to send job match email");
