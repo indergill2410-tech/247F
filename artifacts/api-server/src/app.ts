@@ -103,11 +103,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// Sentry error handler — must be after routes, before other error handlers
-app.use(Sentry.expressErrorHandler());
-
-// Generic error handler
+// Generic error handler — also captures to Sentry if configured
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  Sentry.captureException(err);
   logger.error({ err }, "Unhandled error");
   res.status(500).json({ error: "Internal server error" });
 });

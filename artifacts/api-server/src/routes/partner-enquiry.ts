@@ -42,7 +42,7 @@ router.post("/partner-enquiry", async (req, res): Promise<void> => {
     return;
   }
 
-  const adminEmail = config.adminEmails[0] ?? config.sendgrid.fromEmail;
+  const adminEmail = config.adminEmails[0] ?? config.resend.fromEmail;
 
   await Promise.all([
     sendPartnerEnquiry({
