@@ -68,7 +68,7 @@ router.post("/emergency/checkout", requireAuth, async (req, res): Promise<void> 
   }
 
   try {
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
     const dbUser = await getUserById(user.userId);
     if (!dbUser) {
       res.status(404).json({ error: "not_found", message: "User not found" });
@@ -138,7 +138,7 @@ router.post("/emergency/verify-session", requireAuth, async (req, res): Promise<
   }
 
   try {
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status !== "paid" && session.status !== "complete") {
@@ -256,7 +256,7 @@ router.post("/emergency/cancel", requireAuth, async (req, res): Promise<void> =>
       return;
     }
 
-    const stripe = await getUncachableStripeClient();
+    const stripe = getUncachableStripeClient();
     const sub: Stripe.Subscription = await stripe.subscriptions.update(status.emergencySubId, {
       cancel_at_period_end: true,
     });
