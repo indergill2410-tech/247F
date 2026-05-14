@@ -18,7 +18,7 @@ const WHY_JOIN = [
   {
     icon: Calendar,
     title: "Fill the gaps in your calendar",
-    body: "Slow weeks happen. Monthly job credits give you a steady way to pick up extra work without committing to anything or paying upfront for leads you might not win.",
+    body: "Slow weeks happen. Your monthly $111 AUD wallet credit gives you a steady way to pick up extra work without committing to anything or paying upfront for leads you might not win.",
   },
   {
     icon: TrendingUp,
@@ -30,8 +30,8 @@ const WHY_JOIN = [
 const BENEFITS = [
   {
     icon: Zap,
-    title: "1,111 free credits every month",
-    desc: "Your monthly credits renew automatically so you always have something to work with. Use them to unlock and claim jobs that suit your trade and location.",
+    title: "$111 free wallet credit every month",
+    desc: "Your $111 AUD wallet credit renews automatically each month so you always have something to work with. Use it to unlock and claim jobs that suit your trade and location.",
   },
   {
     icon: BadgeCheck,
@@ -73,8 +73,8 @@ const HOW_IT_WORKS = [
   },
   {
     step: "03",
-    title: "Receive 1,111 credits every month",
-    desc: "Your monthly credits land automatically. Use them to unlock and claim jobs posted by homeowners actively looking for someone like you.",
+    title: "Receive $111 wallet credit every month",
+    desc: "Your $111 AUD wallet credit lands automatically each month. Use it to unlock and claim jobs posted by homeowners actively looking for someone like you.",
   },
   {
     step: "04",
@@ -85,12 +85,12 @@ const HOW_IT_WORKS = [
 
 const PROOF_QUOTES = [
   {
-    quote: "I was sceptical at first, but within the first week I'd picked up two local jobs I wouldn't have found otherwise. The credits system makes it easy to try without any risk.",
+    quote: "I was sceptical at first, but within the first week I'd picked up two local jobs I wouldn't have found otherwise. The free $111 wallet credit makes it easy to try without any risk.",
     name: "James T.",
     trade: "Plumber · Sydney",
   },
   {
-    quote: "Slow January? I used my credits and stayed busy. It's not magic, but it's a genuinely useful way to keep the pipeline moving when referrals dry up.",
+    quote: "Slow January? I used my monthly wallet credit and stayed busy. It's not magic, but it's a genuinely useful way to keep the pipeline moving when referrals dry up.",
     name: "Sarah M.",
     trade: "Electrician · Melbourne",
   },
@@ -104,15 +104,15 @@ const PROOF_QUOTES = [
 const FAQS = [
   {
     q: "Is it really free to join?",
-    a: "Yes — 100% free to join and build a profile. No credit card, no monthly subscription, no upfront costs. You get 1,111 credits every month at no charge to use on jobs.",
+    a: "Yes — 100% free to join and build a profile. No credit card, no monthly subscription, no upfront costs. You get $111 AUD wallet credit every month at no charge to use on jobs.",
   },
   {
-    q: "What are credits and how do they work?",
-    a: "Credits are your monthly job-claim currency. When you see a job you want, you spend credits to unlock it and make contact with the homeowner. Credits renew every month so you always have a fresh allocation to work with.",
+    q: "How does the wallet credit work?",
+    a: "Your wallet holds real dollar value in AUD. When you see a job you want, you spend from your wallet to unlock it and make contact with the homeowner. Each month you automatically receive a fresh $111 AUD — so you always have funds to work with.",
   },
   {
-    q: "What happens if I run out of credits?",
-    a: "You can top up with additional credits at any time, or simply wait for your next monthly renewal. There's no pressure — you decide how much you want to invest in growing your pipeline.",
+    q: "What happens if I run out of wallet funds?",
+    a: "You can top up your wallet any time with a credit pack, or simply wait for your next monthly $111 renewal. There's no pressure — you decide how much you want to invest in growing your pipeline.",
   },
   {
     q: "Do I have to accept jobs I don't want?",
@@ -212,7 +212,7 @@ export default function ForTradiesPage() {
 
               <div className="flex flex-wrap gap-3">
                 {[
-                  "1,111 credits renewed every month",
+                  "$111 AUD wallet credit every month",
                   "Pick the jobs that suit you",
                   "Free to join — no credit card",
                   "Grow revenue without ad spend",
@@ -234,11 +234,11 @@ export default function ForTradiesPage() {
               <div className="relative rounded-3xl">
                 <div className="absolute -inset-px rounded-3xl bg-gradient-to-b from-[#ffc800]/30 to-transparent" aria-hidden="true" />
                 <div className="relative bg-[#111008] rounded-3xl p-8 border border-[#ffc800]/15">
-                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5 text-center">Monthly credits</p>
+                  <p className="text-[#ffc800] text-xs font-bold uppercase tracking-widest mb-5 text-center">Monthly wallet credit</p>
 
                   <div className="text-center mb-6">
-                    <div className="text-7xl font-black text-white leading-none mb-1">1,111</div>
-                    <p className="text-white/40 text-sm">free credits — every month</p>
+                    <div className="text-7xl font-black text-white leading-none mb-1">$111</div>
+                    <p className="text-white/40 text-sm">AUD free — every month</p>
                   </div>
 
                   <div className="space-y-3 mb-7">
@@ -422,11 +422,11 @@ export default function ForTradiesPage() {
           >
             <div className="inline-flex items-center gap-2 bg-[#ffc800]/10 border border-[#ffc800]/20 rounded-full px-4 py-1.5 text-sm text-[#ffc800] font-semibold mb-5">
               <Zap className="h-3.5 w-3.5" aria-hidden="true" />
-              1,111 credits renewed every month
+              $111 AUD wallet credit renewed every month
             </div>
             <h3 className="text-2xl md:text-3xl font-black mb-4">Start picking up jobs today</h3>
             <p className="text-white/50 text-[15px] mb-7 max-w-md mx-auto leading-relaxed">
-              Join free and use your monthly credits to get in front of homeowners already looking for a tradie in your area.
+              Join free and use your monthly wallet credit to get in front of homeowners already looking for a tradie in your area.
             </p>
             <Link to="/signup?role=tradie">
               <button className="inline-flex items-center gap-2 h-13 px-8 rounded-xl font-black text-[16px] text-black bg-[#ffc800] hover:bg-[#e6b800] active:scale-[0.97] transition-all">

@@ -15,7 +15,7 @@ const PACKS = [
 async function createProducts() {
   try {
     const stripe = await getUncachableStripeClient();
-    console.log('Creating Fixit 24/7 credit pack products in Stripe...');
+    console.log('Creating Fixit 24/7 wallet top-up products in Stripe...');
 
     for (const pack of PACKS) {
       const existing = await stripe.products.search({
@@ -33,7 +33,7 @@ async function createProducts() {
 
       const product = await stripe.products.create({
         name: pack.name,
-        description: `${pack.credits} credits for tradies on Fixit 24/7. Use credits to claim jobs.`,
+        description: `Add $${pack.priceAud / 100} AUD to your Fixit 24/7 wallet. Use wallet funds to claim jobs from homeowners in your area.`,
         metadata: {
           credits: pack.credits,
           platform: 'fixit247',
@@ -52,7 +52,7 @@ async function createProducts() {
       console.log(`  Price: AUD $${pack.priceAud / 100} (${price.id})`);
     }
 
-    console.log('\n✅ All credit packs created successfully!');
+    console.log('\n✅ All wallet top-up packs created successfully!');
     console.log('Webhooks will sync this data to your database automatically.');
   } catch (error: any) {
     console.error('Error creating products:', error.message);

@@ -87,7 +87,7 @@ Key tables and relationships:
 - `users` — single `role` enum (`homeowner` | `tradie` | `admin`); tradie-specific fields inline
 - `jobs` → `claims` → accepted claim triggers auto-creation of `conversations`
 - `messages` — polled every 5s (no persistent WebSocket store)
-- `creditBalances` + `creditTransactions` — tradies get 1,111 credits on signup, spend 222 per claim; monthly reset midnight AEST on the 1st (node-cron)
+- `walletBalances` + `walletTransactions` — tradies get $111 AUD (`WELCOME_GRANT_CENTS = 11100`) on signup, spend $22 default per claim (`LEAD_COST_CENTS_DEFAULT = 2200`); welcome grant renews monthly for 6 months at midnight AEST on the 1st (node-cron); all amounts stored in cents
 - Emergency membership fields on `users` (e.g., `emergency_membership_active`, `emergency_calls_used_this_year`)
 
 ### Stripe Integration
