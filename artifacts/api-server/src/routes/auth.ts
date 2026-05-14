@@ -68,14 +68,26 @@ router.post("/auth/register", authRateLimit, async (req, res): Promise<void> => 
           .update(usersTable)
           .set({ welcomeGrantMonthsUsed: 1, welcomeGrantStartedAt: sql`NOW()` })
           .where(eq(usersTable.id, user.id));
-      })().catch(() => {});
+      })().catch((err: unknown) => {
+        import("../lib/logger.js").then(({ logger }) =>
+          logger.error({ err, userId: user.id }, "Failed to grant welcome wallet funds on signup")
+        ).catch(() => {});
+      });
     }
 
     // Send welcome email (fire-and-forget, never blocks registration)
     if (role === "tradie") {
-      sendTradieWelcome({ name, email }).catch(() => {});
+      sendTradieWelcome({ name, email }).catch((err: unknown) => {
+        import("../lib/logger.js").then(({ logger }) =>
+          logger.error({ err, email }, "Failed to send tradie welcome email")
+        ).catch(() => {});
+      });
     } else {
-      sendCustomerWelcome({ name, email }).catch(() => {});
+      sendCustomerWelcome({ name, email }).catch((err: unknown) => {
+        import("../lib/logger.js").then(({ logger }) =>
+          logger.error({ err, email }, "Failed to send customer welcome email")
+        ).catch(() => {});
+      });
     }
 
     const token = signToken({ userId: user.id, email: user.email, role: user.role });

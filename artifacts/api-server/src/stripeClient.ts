@@ -49,7 +49,8 @@ async function getCredentials(): Promise<{ publishableKey: string; secretKey: st
 
 export async function getUncachableStripeClient(): Promise<Stripe> {
   const { secretKey } = await getCredentials();
-  return new Stripe(secretKey, { apiVersion: '2025-08-27.basil' as any });
+  // Preview API version not yet in Stripe SDK types — cast is intentional
+  return new Stripe(secretKey, { apiVersion: '2025-08-27.basil' as Stripe.LatestApiVersion });
 }
 
 export async function getStripePublishableKey(): Promise<string> {

@@ -164,53 +164,68 @@ export async function getSubscription(subscriptionId: string) {
 
 export async function runMonthlyGrant(): Promise<{ renewed: number; skipped: number }> {
   const tradies = await db
-    .select({ id: usersTable.id, name: usersTable.name, welcomeGrantMonthsUsed: usersTable.welcomeGrantMonthsUsed })
+    .select({ id: usersTable.id, welcomeGrantMonthsUsed: usersTable.welcomeGrantMonthsUsed })
     .from(usersTable)
     .where(eq(usersTable.role, "tradie"));
 
   let renewed = 0;
   let skipped = 0;
 
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const month = new Date().toLocaleString("en-AU", { month: "long", year: "numeric" });
+
   for (const tradie of tradies) {
+    const monthsUsed = tradie.welcomeGrantMonthsUsed ?? 0;
+    if (monthsUsed >= 6) {
+      skipped++;
+      continue;
+    }
+
     try {
-      await ensureWalletBalance(tradie.id);
+      // Wrap check-and-grant atomically to prevent double-grants from concurrent cron runs.
+      const granted = await db.transaction(async (tx) => {
+        const recentGrant = await tx
+          .select({ id: walletTransactionsTable.id })
+          .from(walletTransactionsTable)
+          .where(
+            sql`${walletTransactionsTable.userId} = ${tradie.id}
+              AND ${walletTransactionsTable.type} IN ('welcome_grant', 'subscription_grant')
+              AND ${walletTransactionsTable.createdAt} >= ${startOfMonth.toISOString()}`,
+          )
+          .limit(1);
 
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
+        if (recentGrant.length > 0) return false;
 
-      const recentGrant = await db
-        .select({ id: walletTransactionsTable.id })
-        .from(walletTransactionsTable)
-        .where(
-          sql`${walletTransactionsTable.userId} = ${tradie.id}
-            AND ${walletTransactionsTable.type} IN ('welcome_grant', 'subscription_grant')
-            AND ${walletTransactionsTable.createdAt} >= ${startOfMonth.toISOString()}`,
-        )
-        .limit(1);
+        await tx
+          .insert(walletBalancesTable)
+          .values({ userId: tradie.id, balanceCents: 0 })
+          .onConflictDoNothing();
 
-      if (recentGrant.length > 0) {
-        skipped++;
-        continue;
-      }
+        await tx
+          .update(walletBalancesTable)
+          .set({ balanceCents: sql`${walletBalancesTable.balanceCents} + ${WELCOME_GRANT_CENTS}`, updatedAt: sql`NOW()` })
+          .where(eq(walletBalancesTable.userId, tradie.id));
 
-      const monthsUsed = tradie.welcomeGrantMonthsUsed ?? 0;
-      if (monthsUsed < 6) {
-        const month = new Date().toLocaleString("en-AU", { month: "long", year: "numeric" });
-        await grantWalletFunds(
-          tradie.id,
-          WELCOME_GRANT_CENTS,
-          "welcome_grant",
-          `Welcome offer — A$111.00 job lead credits for ${month}`,
-        );
-        await db
+        await tx.insert(walletTransactionsTable).values({
+          userId: tradie.id,
+          type: "welcome_grant",
+          amountCents: WELCOME_GRANT_CENTS,
+          description: `Welcome offer — A$111.00 job lead credits for ${month}`,
+          stripeSessionId: null,
+        });
+
+        await tx
           .update(usersTable)
           .set({ welcomeGrantMonthsUsed: monthsUsed + 1 })
           .where(eq(usersTable.id, tradie.id));
-        renewed++;
-      } else {
-        skipped++;
-      }
+
+        return true;
+      });
+
+      if (granted) renewed++;
+      else skipped++;
     } catch {
       skipped++;
     }

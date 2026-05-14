@@ -54,6 +54,8 @@ export const jobsTable = pgTable("jobs", {
   homeownerIdIdx: index("jobs_homeowner_id_idx").on(table.homeownerId),
   statusIdx: index("jobs_status_idx").on(table.status),
   categoryIdIdx: index("jobs_category_id_idx").on(table.categoryId),
+  statusCreatedAtIdx: index("jobs_status_created_at_idx").on(table.status, table.createdAt),
+  categoryStatusIdx: index("jobs_category_status_idx").on(table.categoryId, table.status),
 }));
 
 export const insertJobSchema = createInsertSchema(jobsTable).omit({
