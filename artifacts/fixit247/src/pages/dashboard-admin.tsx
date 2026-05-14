@@ -35,6 +35,9 @@ import {
   RefreshCw,
   Gift,
   X,
+  UserPlus,
+  BarChart2,
+  Percent,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -100,18 +103,32 @@ function TradieCard({
   onVerify,
   onReject,
   loading,
+  selected,
+  onToggleSelect,
 }: {
   user: AdminUser;
   onVerify: () => void;
   onReject: () => void;
   loading: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
 }) {
   return (
     <motion.div
       variants={item}
-      className="bg-[#0f0c06] border border-white/8 hover:border-primary/30 rounded-2xl p-5 transition-colors"
+      className={`bg-[#0f0c06] border rounded-2xl p-5 transition-colors ${selected ? "border-primary/50 bg-primary/3" : "border-white/8 hover:border-primary/30"}`}
     >
       <div className="flex items-start gap-4">
+        {onToggleSelect && (
+          <button
+            onClick={onToggleSelect}
+            className={`mt-1 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+              selected ? "bg-primary border-primary" : "border-white/25 hover:border-primary/60"
+            }`}
+          >
+            {selected && <CheckCircle2 className="h-3 w-3 text-black" />}
+          </button>
+        )}
         <UserAvatar name={user.name} size="lg" />
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -183,6 +200,24 @@ export default function AdminDashboard() {
   const [roleFilter, setRoleFilter] = useState<"all" | "homeowner" | "tradie" | "admin">("all");
   const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
   const [verifySearch, setVerifySearch] = useState("");
+  const [selectedTradieIds, setSelectedTradieIds] = useState<Set<number>>(new Set());
+
+  function toggleTradieSelect(id: number) {
+    setSelectedTradieIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function batchVerify() {
+    const ids = [...selectedTradieIds];
+    ids.forEach((id) => {
+      const u = (stats?.pendingTradies as AdminUser[] | undefined)?.find((t) => t.id === id);
+      mutate(id, { isVerified: true }, u ? `${u.name} verified.` : "Tradie verified.");
+    });
+    setSelectedTradieIds(new Set());
+  }
 
   // Credits tab state
   const { data: creditsData, refetch: refetchCredits } = useAdminListCredits({ query: { enabled: activeTab === "credits", queryKey: ["admin-credits"] } });
@@ -321,6 +356,60 @@ export default function AdminDashboard() {
           ))}
         </motion.div>
 
+        {/* 7-day Analytics Row */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+        >
+          {[
+            {
+              label: "New Users (7d)",
+              value: (stats as { newUsers7d?: number } | undefined)?.newUsers7d ?? 0,
+              icon: UserPlus,
+              color: "text-blue-400",
+              bg: "bg-blue-500/10",
+              desc: "signups this week",
+            },
+            {
+              label: "Jobs Posted (7d)",
+              value: (stats as { newJobs7d?: number } | undefined)?.newJobs7d ?? 0,
+              icon: BarChart2,
+              color: "text-orange-400",
+              bg: "bg-orange-500/10",
+              desc: "jobs this week",
+            },
+            {
+              label: "Claim Rate",
+              value: `${(stats as { claimRate?: number } | undefined)?.claimRate ?? 0}%`,
+              icon: Percent,
+              color: "text-emerald-400",
+              bg: "bg-emerald-500/10",
+              desc: "jobs with ≥1 claim",
+            },
+          ].map((s) => (
+            <motion.div
+              key={s.label}
+              variants={item}
+              whileHover={{ y: -2 }}
+              className="bg-[#130f07] border border-white/6 hover:border-white/12 rounded-2xl p-4 flex items-center gap-4 transition-colors"
+            >
+              <div className={`w-10 h-10 ${s.bg} ${s.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                <s.icon className="h-5 w-5" />
+              </div>
+              <div>
+                {statsLoading
+                  ? <Skeleton className="h-7 w-12 mb-1 bg-white/8" />
+                  : <p className="text-2xl font-black text-white">{s.value}</p>
+                }
+                <p className="text-xs text-white/40 leading-tight">{s.label}</p>
+                <p className="text-[10px] text-white/25 mt-0.5">{s.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-[#130f07] border border-white/8 p-1 rounded-xl h-auto gap-1 flex-wrap">
@@ -384,12 +473,25 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                     <h2 className="font-bold text-white">
                       Pending Verification
                       <span className="ml-2 text-white/35 text-sm font-normal">({filteredPendingTradies.length})</span>
                     </h2>
-                    <p className="text-xs text-white/35">Review each tradie before approving</p>
+                    <div className="flex items-center gap-2">
+                      {selectedTradieIds.size > 0 && (
+                        <motion.button
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          onClick={batchVerify}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-xs font-bold hover:bg-emerald-500/25 transition-all"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          Verify {selectedTradieIds.size} selected
+                        </motion.button>
+                      )}
+                      <p className="text-xs text-white/35">Review each tradie before approving</p>
+                    </div>
                   </div>
                   <motion.div
                     variants={container}
@@ -402,6 +504,8 @@ export default function AdminDashboard() {
                         key={u.id}
                         user={u}
                         loading={pendingIds.has(u.id)}
+                        selected={selectedTradieIds.has(u.id)}
+                        onToggleSelect={() => toggleTradieSelect(u.id)}
                         onVerify={() => mutate(u.id, { isVerified: true }, `${u.name} has been verified.`)}
                         onReject={() => mutate(u.id, { isActive: false }, `${u.name} has been suspended.`)}
                       />

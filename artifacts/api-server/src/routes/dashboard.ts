@@ -248,6 +248,22 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
     .orderBy(desc(reviewsTable.createdAt))
     .limit(3);
 
+  // Earnings this calendar month (sum of proposedPrice on completed claims)
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const [earningsRow] = await db
+    .select({ total: sum(claimsTable.proposedPrice) })
+    .from(claimsTable)
+    .leftJoin(jobsTable, eq(jobsTable.id, claimsTable.jobId))
+    .where(
+      and(
+        eq(claimsTable.tradieId, userId),
+        eq(claimsTable.status, "completed"),
+        sql`${claimsTable.createdAt} >= ${monthStart.toISOString()}`
+      )
+    );
+
   // My skill categories
   const myCategories = await db
     .select({ id: categoriesTable.id, name: categoriesTable.name })
@@ -305,6 +321,7 @@ router.get("/dashboard/tradie", requireRole("tradie", "admin"), async (req, res)
     acceptedCount,
     activeJobs: pendingCount + acceptedCount,
     completedJobs: statusMap["completed"] ?? 0,
+    earningsThisMonth: earningsRow?.total ? Number(earningsRow.total) : 0,
     myRating: me?.rating ?? null,
     myReviewCount: me?.reviewCount ?? 0,
     memberSince: me?.createdAt ?? new Date(),
@@ -378,6 +395,18 @@ router.get("/dashboard/admin", requireRole("admin"), async (req, res): Promise<v
     db.select({ total: count() }).from(categoriesTable),
   ]);
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [[newUsers7dRow], [newJobs7dRow], [jobsWithClaimsRow]] = await Promise.all([
+    db.select({ total: count() }).from(usersTable).where(sql`${usersTable.createdAt} >= ${sevenDaysAgo}`),
+    db.select({ total: count() }).from(jobsTable).where(sql`${jobsTable.createdAt} >= ${sevenDaysAgo}`),
+    db.select({ total: count() }).from(jobsTable).where(
+      sql`EXISTS (SELECT 1 FROM claims WHERE claims.job_id = ${jobsTable.id})`
+    ),
+  ]);
+  const claimRate = Number(totalJobsRow?.total ?? 0) > 0
+    ? Math.round((Number(jobsWithClaimsRow?.total ?? 0) / Number(totalJobsRow?.total ?? 0)) * 100)
+    : 0;
+
   const recentJobs = await db
     .select({
       id: jobsTable.id,
@@ -437,6 +466,9 @@ router.get("/dashboard/admin", requireRole("admin"), async (req, res): Promise<v
     openJobs: Number(openJobsRow?.total ?? 0),
     completedJobs: Number(completedJobsRow?.total ?? 0),
     totalCategories: Number(totalCategoriesRow?.total ?? 0),
+    newUsers7d: Number(newUsers7dRow?.total ?? 0),
+    newJobs7d: Number(newJobs7dRow?.total ?? 0),
+    claimRate,
     recentJobs: recentJobs.map((j) => ({
       id: j.id,
       title: j.title,
