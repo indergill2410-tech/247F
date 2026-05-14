@@ -182,6 +182,7 @@ export default function AdminDashboard() {
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "homeowner" | "tradie" | "admin">("all");
   const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
+  const [verifySearch, setVerifySearch] = useState("");
 
   // Credits tab state
   const { data: creditsData, refetch: refetchCredits } = useAdminListCredits({ query: { enabled: activeTab === "credits", queryKey: ["admin-credits"] } });
@@ -251,6 +252,12 @@ export default function AdminDashboard() {
   });
 
   const pendingTradies = (stats?.pendingTradies ?? []) as AdminUser[];
+  const filteredPendingTradies = verifySearch
+    ? pendingTradies.filter((u) =>
+        u.name.toLowerCase().includes(verifySearch.toLowerCase()) ||
+        u.email.toLowerCase().includes(verifySearch.toLowerCase())
+      )
+    : pendingTradies;
   const pendingCount = stats?.pendingVerification ?? 0;
 
   const statCards = [
@@ -352,7 +359,18 @@ export default function AdminDashboard() {
           {/* ── VERIFICATION TAB ── */}
           <TabsContent value="verification" className="mt-4">
             <motion.div key="verification" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }}>
-              {pendingTradies.length === 0 ? (
+              {pendingTradies.length > 0 && (
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                  <input
+                    value={verifySearch}
+                    onChange={(e) => setVerifySearch(e.target.value)}
+                    placeholder="Search pending tradies by name or email…"
+                    className="w-full pl-9 pr-4 py-2.5 bg-[#130f07] border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
+                  />
+                </div>
+              )}
+              {filteredPendingTradies.length === 0 && pendingTradies.length === 0 ? (
                 <div className="bg-[#130f07] border border-white/6 rounded-2xl p-12 text-center">
                   <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <ShieldCheck className="h-8 w-8 text-emerald-400" />
@@ -360,12 +378,16 @@ export default function AdminDashboard() {
                   <p className="text-white font-bold text-lg">All caught up!</p>
                   <p className="text-white/40 text-sm mt-1">No tradies pending verification.</p>
                 </div>
+              ) : filteredPendingTradies.length === 0 ? (
+                <div className="bg-[#130f07] border border-white/6 rounded-2xl p-8 text-center">
+                  <p className="text-white/40 text-sm">No tradies match your search.</p>
+                </div>
               ) : (
                 <>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-bold text-white">
                       Pending Verification
-                      <span className="ml-2 text-white/35 text-sm font-normal">({pendingTradies.length})</span>
+                      <span className="ml-2 text-white/35 text-sm font-normal">({filteredPendingTradies.length})</span>
                     </h2>
                     <p className="text-xs text-white/35">Review each tradie before approving</p>
                   </div>
@@ -375,7 +397,7 @@ export default function AdminDashboard() {
                     animate="show"
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                   >
-                    {pendingTradies.map((u) => (
+                    {filteredPendingTradies.map((u) => (
                       <TradieCard
                         key={u.id}
                         user={u}
@@ -427,7 +449,7 @@ export default function AdminDashboard() {
                   <h2 className="font-bold text-white">All Users</h2>
                   <span className="text-xs text-white/35 font-medium">{filteredUsers.length} shown</span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-white/6">
                   <AnimatePresence>
                     {filteredUsers.map((user) => (
                       <motion.div
@@ -511,7 +533,7 @@ export default function AdminDashboard() {
                   <h2 className="font-bold text-white">All Jobs</h2>
                   <span className="text-xs text-white/35 font-medium">{jobsData?.total ?? 0} total</span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-white/6">
                   {(jobsData?.jobs ?? []).map((job) => (
                     <Link href={`/jobs/${job.id}`} key={job.id}>
                       <div className="flex items-center justify-between px-6 py-3.5 hover:bg-white/2 cursor-pointer transition-colors group">
@@ -656,7 +678,7 @@ export default function AdminDashboard() {
                   <h2 className="font-bold text-white">Tradie Credit Balances</h2>
                   <span className="text-xs text-white/35 font-medium">{filteredCreditTradies.length} tradies</span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-white/6">
                   {filteredCreditTradies.length === 0 ? (
                     <div className="px-6 py-10 text-center text-white/35 text-sm">No tradies found.</div>
                   ) : (

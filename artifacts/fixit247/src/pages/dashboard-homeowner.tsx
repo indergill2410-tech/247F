@@ -67,12 +67,12 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   matched:     { label: "Matched",     cls: "bg-primary/15 text-primary" },
   in_progress: { label: "In Progress", cls: "bg-orange-500/15 text-orange-400" },
   completed:   { label: "Completed",   cls: "bg-emerald-500/15 text-emerald-400" },
-  cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/40" },
+  cancelled:   { label: "Cancelled",   cls: "bg-white/8 text-white/60" },
 };
 const URGENCY_MAP: Record<string, string> = {
   emergency: "bg-red-500/15 text-red-400",
   urgent:    "bg-orange-500/15 text-orange-400",
-  standard:  "bg-white/8 text-white/40",
+  standard:  "bg-white/8 text-white/60",
 };
 
 const NOTIF_ICON: Record<string, React.ReactNode> = {
@@ -461,7 +461,7 @@ export default function HomeownerDashboard() {
   const { data: notifications, isLoading: notifLoading, refetch: refetchNotif } = useListNotifications(
     { limit: 6 } as Parameters<typeof useListNotifications>[0],
   );
-  const [expandedClaim, setExpandedClaim] = useState<number | null>(null);
+  const STALE_HOURS = 48;
 
   const markRead = useMarkNotificationRead({ mutation: { onSuccess: () => refetchNotif() } });
 
@@ -481,7 +481,6 @@ export default function HomeownerDashboard() {
             : "The tradie has been notified.",
         });
         refetch();
-        setExpandedClaim(null);
       },
       onError: () => {
         toast({ title: "Error", description: "Could not update claim.", variant: "destructive" });
@@ -633,7 +632,7 @@ export default function HomeownerDashboard() {
                   <div>
                     <p className="text-xs text-white/40 font-medium">{s.label}</p>
                     {isLoading ? (
-                      <Skeleton className="h-8 w-10 mt-1.5 bg-white/8" />
+                      <Skeleton className="h-7 w-14 mt-1.5 bg-white/8" />
                     ) : (
                       <p className="text-2xl font-black text-white mt-1">{s.value}</p>
                     )}
@@ -696,102 +695,64 @@ export default function HomeownerDashboard() {
               </div>
             </div>
 
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-white/6">
               {isLoading ? (
                 Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="px-6 py-4"><Skeleton className="h-16 w-full bg-white/6" /></div>
+                  <div key={i} className="px-6 py-4"><Skeleton className="h-20 w-full bg-white/6" /></div>
                 ))
               ) : (
                 recentClaims.map((claim) => (
-                  <div key={claim.id}>
-                    <div
-                      className="px-6 py-4 hover:bg-white/2 transition-colors cursor-pointer"
-                      onClick={() => setExpandedClaim(expandedClaim === claim.id ? null : claim.id)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <TradieName name={claim.tradieName} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-white text-sm">
-                              {claim.tradieName ?? "Tradie"}
-                            </span>
-                            {claim.tradieRating != null && (
-                              <div className="flex items-center gap-1">
-                                <StarRow rating={claim.tradieRating} />
-                                <span className="text-[10px] text-primary font-bold">{claim.tradieRating.toFixed(1)}</span>
-                              </div>
-                            )}
-                            {claim.tradieReviewCount > 0 && (
-                              <span className="text-[10px] text-white/30">{claim.tradieReviewCount} review{claim.tradieReviewCount !== 1 ? "s" : ""}</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-white/40 mt-0.5">
-                            For: <span className="text-white/60">{claim.jobTitle ?? `Job #${claim.jobId}`}</span>
-                            <span className="mx-1.5 text-white/15">·</span>
-                            {timeAgo(claim.createdAt)}
-                          </p>
-                          {claim.message && (
-                            <p className="text-sm text-white/55 mt-1.5 line-clamp-2 italic">"{claim.message}"</p>
+                  <div key={claim.id} className="px-6 py-4 hover:bg-white/2 transition-colors">
+                    <div className="flex items-start gap-3 mb-3">
+                      <TradieName name={claim.tradieName} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-white text-sm">{claim.tradieName ?? "Tradie"}</span>
+                          {claim.tradieRating != null && (
+                            <div className="flex items-center gap-1">
+                              <StarRow rating={claim.tradieRating} />
+                              <span className="text-[10px] text-primary font-bold">{claim.tradieRating.toFixed(1)}</span>
+                            </div>
                           )}
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {claim.tradieReviewCount > 0 && (
+                            <span className="text-[10px] text-white/40">{claim.tradieReviewCount} review{claim.tradieReviewCount !== 1 ? "s" : ""}</span>
+                          )}
                           {claim.proposedPrice != null && (
-                            <span className="text-sm font-black text-primary">
-                              ${claim.proposedPrice.toLocaleString()}
-                            </span>
+                            <span className="text-sm font-black text-primary ml-auto">${claim.proposedPrice.toLocaleString()}</span>
                           )}
-                          <ChevronRight className={`h-4 w-4 text-white/25 transition-transform duration-200 ${expandedClaim === claim.id ? "rotate-90" : ""}`} />
                         </div>
+                        <p className="text-xs text-white/40 mt-0.5">
+                          For: <span className="text-white/60">{claim.jobTitle ?? `Job #${claim.jobId}`}</span>
+                          <span className="mx-1.5 text-white/20">·</span>
+                          {timeAgo(claim.createdAt)}
+                        </p>
+                        {claim.message && (
+                          <p className="text-sm text-white/55 mt-1.5 line-clamp-2 italic">"{claim.message}"</p>
+                        )}
                       </div>
                     </div>
-
-                    <AnimatePresence>
-                      {expandedClaim === claim.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-6 pb-5 bg-[#0f0c06] border-t border-white/5">
-                            <div className="pt-4 flex flex-col sm:flex-row gap-3">
-                              <button
-                                onClick={() => {
-                                  updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "accepted" } });
-                                }}
-                                disabled={updateClaimMutation.isPending}
-                                className="flex-1 h-9 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-emerald-500/20 disabled:opacity-50"
-                              >
-                                <ThumbsUp className="h-4 w-4" /> Accept {claim.tradieName?.split(" ")[0]}
-                              </button>
-                              {claim.conversationId ? (
-                                <Link to={`/conversations/${claim.conversationId}`}>
-                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
-                                    <MessageSquare className="h-4 w-4" /> Message
-                                  </button>
-                                </Link>
-                              ) : (
-                                <Link to="/conversations">
-                                  <button className="flex-1 h-9 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-white/8 w-full">
-                                    <MessageSquare className="h-4 w-4" /> Message
-                                  </button>
-                                </Link>
-                              )}
-                              <button
-                                onClick={() => {
-                                  updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "rejected" } });
-                                }}
-                                disabled={updateClaimMutation.isPending}
-                                className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-colors flex items-center justify-center gap-2 border border-red-500/15 disabled:opacity-50"
-                              >
-                                <ThumbsDown className="h-4 w-4" /> Decline
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Actions always visible — no click required */}
+                    <div className="flex gap-2 pl-12">
+                      <button
+                        onClick={() => updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "accepted" } })}
+                        disabled={updateClaimMutation.isPending}
+                        className="flex-1 h-9 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-emerald-500/20 disabled:opacity-50"
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5" /> Accept
+                      </button>
+                      <Link to={claim.conversationId ? `/conversations/${claim.conversationId}` : "/conversations"}>
+                        <button className="h-9 px-4 rounded-xl bg-white/6 hover:bg-white/10 text-white font-semibold text-sm transition-colors flex items-center gap-2 border border-white/8">
+                          <MessageSquare className="h-3.5 w-3.5" /> Message
+                        </button>
+                      </Link>
+                      <button
+                        onClick={() => updateClaimMutation.mutate({ jobId: claim.jobId, claimId: claim.id, data: { status: "rejected" } })}
+                        disabled={updateClaimMutation.isPending}
+                        className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-colors flex items-center gap-2 border border-red-500/15 disabled:opacity-50"
+                      >
+                        <ThumbsDown className="h-3.5 w-3.5" /> Decline
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -834,7 +795,7 @@ export default function HomeownerDashboard() {
             </Link>
           </div>
 
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-white/6">
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
@@ -878,6 +839,9 @@ export default function HomeownerDashboard() {
                             </span>
                           )}
                           <span>{timeAgo(job.createdAt)}</span>
+                          {job.status === "open" && (Date.now() - new Date(job.createdAt).getTime()) > STALE_HOURS * 3600_000 && (job.claimCount ?? 0) === 0 && (
+                            <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">Needs attention</span>
+                          )}
                         </div>
                       </div>
                       <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-primary flex-shrink-0 ml-3 transition-colors" />
@@ -931,7 +895,7 @@ export default function HomeownerDashboard() {
             </Link>
           </div>
 
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-white/6">
             {notifLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="px-6 py-3.5">
