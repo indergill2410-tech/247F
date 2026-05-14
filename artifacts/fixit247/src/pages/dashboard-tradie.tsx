@@ -30,14 +30,14 @@ const API_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const URGENCY: Record<string, { label: string; cls: string; Icon: React.ElementType }> = {
   emergency: { label: "Emergency", cls: "bg-red-500/15 text-red-400",      Icon: Zap },
   urgent:    { label: "Urgent",    cls: "bg-orange-500/15 text-orange-400", Icon: Clock },
-  standard:  { label: "Standard",  cls: "bg-white/8 text-white/40",         Icon: Briefcase },
+  standard:  { label: "Standard",  cls: "bg-white/8 text-white/60",         Icon: Briefcase },
 };
 
 const CLAIM_STATUS: Record<string, { label: string; cls: string }> = {
   pending:   { label: "Pending",   cls: "bg-primary/15 text-primary" },
   accepted:  { label: "Accepted",  cls: "bg-emerald-500/15 text-emerald-400" },
   rejected:  { label: "Rejected",  cls: "bg-red-500/15 text-red-400" },
-  withdrawn: { label: "Withdrawn", cls: "bg-white/8 text-white/40" },
+  withdrawn: { label: "Withdrawn", cls: "bg-white/8 text-white/60" },
   completed: { label: "Completed", cls: "bg-blue-500/15 text-blue-400" },
 };
 
@@ -122,6 +122,8 @@ export default function TradieDashboard() {
       })
       .catch(() => {});
   }, [token]);
+
+  const [claimsFilter, setClaimsFilter] = useState<"all" | "pending" | "accepted" | "rejected">("all");
 
   // Inline claim expansion state: jobId → { message, proposedPrice }
   const [expandedClaimJobId, setExpandedClaimJobId] = useState<number | null>(null);
@@ -436,7 +438,7 @@ export default function TradieDashboard() {
                     In Progress
                   </span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-white/6">
                   {isLoading ? (
                     Array.from({ length: 2 }).map((_, i) => (
                       <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
@@ -491,15 +493,31 @@ export default function TradieDashboard() {
               transition={{ delay: 0.45 }}
               className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
-                <h2 className="font-bold text-white">My Recent Claims</h2>
-                <Link href="/jobs">
-                  <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
-                    All jobs <ChevronRight className="h-3.5 w-3.5" />
-                  </span>
-                </Link>
+              <div className="px-6 py-4 border-b border-white/6">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-bold text-white">My Recent Claims</h2>
+                  <Link href="/jobs">
+                    <span className="text-sm text-primary hover:opacity-90 cursor-pointer flex items-center gap-1 transition-colors">
+                      All jobs <ChevronRight className="h-3.5 w-3.5" />
+                    </span>
+                  </Link>
+                </div>
+                {/* Status filter tabs */}
+                <div className="flex gap-1 bg-white/5 rounded-lg p-0.5">
+                  {(["all", "pending", "accepted", "rejected"] as const).map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setClaimsFilter(f)}
+                      className={`flex-1 py-1 rounded-md text-xs font-semibold transition-all capitalize ${
+                        claimsFilter === f ? "bg-white/12 text-white" : "text-white/40 hover:text-white/65"
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-white/6">
                 {isLoading ? (
                   Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="px-6 py-4"><Skeleton className="h-12 w-full bg-white/6" /></div>
@@ -516,7 +534,7 @@ export default function TradieDashboard() {
                     </Link>
                   </div>
                 ) : (
-                  data.recentClaims.map((claim) => {
+                  data.recentClaims.filter((c) => claimsFilter === "all" || c.status === claimsFilter).map((claim) => {
                     const st = CLAIM_STATUS[claim.status] ?? CLAIM_STATUS.pending;
                     const urg = URGENCY[claim.jobUrgency ?? "standard"] ?? URGENCY.standard;
                     const Icon = urg.Icon;
@@ -581,7 +599,7 @@ export default function TradieDashboard() {
                   </span>
                 </Link>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-white/6">
                 {isLoading ? (
                   Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="px-5 py-4"><Skeleton className="h-14 w-full bg-white/6" /></div>
@@ -675,7 +693,7 @@ export default function TradieDashboard() {
               </span>
             </Link>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-white/6">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="px-6 py-4"><Skeleton className="h-16 w-full bg-white/6" /></div>
@@ -706,8 +724,13 @@ export default function TradieDashboard() {
                               <Icon className="h-2.5 w-2.5" /> {u.label}
                             </span>
                             {job.categoryName && (
-                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/40">
+                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white/6 text-white/60">
                                 {job.categoryName}
+                              </span>
+                            )}
+                            {job.leadCostCents != null && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                                <CreditCard className="h-2.5 w-2.5" /> ${(job.leadCostCents / 100).toFixed(2)} to claim
                               </span>
                             )}
                           </div>
