@@ -1,6 +1,7 @@
 import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Component, type ReactNode } from "react";
+import { Sentry } from "@/lib/sentry";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
@@ -37,7 +38,10 @@ class QueryErrorBoundary extends Component<
 > {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch() { this.setState({ hasError: true }); }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    this.setState({ hasError: true });
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
+  }
   render() {
     if (this.state.hasError) {
       return (

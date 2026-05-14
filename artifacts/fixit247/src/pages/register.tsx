@@ -4,6 +4,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRegisterUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { track, identifyUser } from "@/lib/posthog";
 import {
   Wrench, AlertCircle, Home, HardHat, Check, ChevronDown,
   Gift, ArrowLeft, ChevronRight, Lock, Clock, Shield,
@@ -98,6 +99,8 @@ export default function RegisterPage() {
     mutation: {
       onSuccess: (data) => {
         login(data);
+        identifyUser(data.user.id, { email: data.user.email, role: data.user.role, name: data.user.name });
+        track("user_registered", { role: data.user.role });
         if (autosubmit) { setLocation("/post-job?autosubmit=true"); return; }
         if (returnTo) { setLocation(returnTo); return; }
         if (data.user.role === "tradie") setLocation("/dashboard/tradie");

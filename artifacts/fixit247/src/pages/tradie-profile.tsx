@@ -1,4 +1,5 @@
 import { usePageTitle } from "@/hooks/use-page-title";
+import { JobMap } from "@/components/job-map";
 import { useRoute, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useGetTradieFullProfile } from "@workspace/api-client-react";
@@ -237,6 +238,26 @@ export default function TradieProfilePage() {
             <motion.div variants={item} className="bg-[#130f07] border border-white/6 rounded-2xl p-6">
               <h2 className="font-bold text-white mb-3">About</h2>
               <p className="text-sm text-white/60 leading-relaxed">{tradie.bio}</p>
+            </motion.div>
+          )}
+
+          {/* Service area map — shown when tradie has geocoded location */}
+          {(tradie as unknown as { latitude?: number | null }).latitude != null &&
+           (tradie as unknown as { longitude?: number | null }).longitude != null && (
+            <motion.div variants={item} className="bg-[#130f07] border border-white/6 rounded-2xl p-5 space-y-3">
+              <h2 className="font-bold text-white text-sm">Service Area</h2>
+              <JobMap
+                latitude={(tradie as unknown as { latitude: number }).latitude}
+                longitude={(tradie as unknown as { longitude: number }).longitude}
+                suburb={tradie.suburb}
+                height="180px"
+              />
+              <p className="text-xs text-white/35">
+                Based in {tradie.suburb ?? "your area"}
+                {(tradie as unknown as { serviceRadius?: number | null }).serviceRadius
+                  ? ` · services within ${(tradie as unknown as { serviceRadius: number }).serviceRadius} km`
+                  : ""}
+              </p>
             </motion.div>
           )}
 

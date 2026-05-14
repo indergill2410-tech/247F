@@ -1,4 +1,6 @@
 import { usePageTitle } from "@/hooks/use-page-title";
+import { track } from "@/lib/posthog";
+import { CloudinaryUpload } from "@/components/cloudinary-upload";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
@@ -108,12 +110,14 @@ export default function PostJobPage() {
   const [postcode, setPostcode] = useState(saved?.postcode ?? "");
   const [address, setAddress] = useState(saved?.address ?? "");
   const [budget, setBudget] = useState(saved?.budget ?? "");
+  const [jobPhotos, setJobPhotos] = useState<string[]>([]);
   const [error, setError] = useState("");
 
   const createMutation = useCreateJob({
     mutation: {
       onSuccess: (job) => {
         sessionStorage.removeItem(STORAGE_KEY);
+        track("job_posted", { jobId: job.id, urgency: job.urgency, categoryId: job.categoryId });
         toast({ title: "Job posted!", description: "Your job is now live. Tradies will be notified." });
         setLocation(`/jobs/${job.id}`);
       },
@@ -171,6 +175,7 @@ export default function PostJobPage() {
         postcode: postcode || undefined,
         address: address || undefined,
         budget: budget ? Number(budget) : undefined,
+        imageUrls: jobPhotos.length > 0 ? jobPhotos : undefined,
       },
     });
   };
@@ -327,6 +332,33 @@ export default function PostJobPage() {
                 <p className="text-xs text-white/30">Tradies will use this as a guide for their quotes.</p>
               </div>
             </div>
+
+            {/* Job Photos */}
+            {isAuthenticated && (
+              <div className="space-y-2">
+                <label className={labelCls}>Job Photos <span className="text-white/30 font-normal">(optional)</span></label>
+                <div className="flex flex-wrap gap-2">
+                  {jobPhotos.map((url, i) => (
+                    <div key={i} className="relative group">
+                      <img src={url} alt={`Job photo ${i + 1}`} className="h-16 w-16 object-cover rounded-lg border border-white/10" />
+                      <button
+                        type="button"
+                        onClick={() => setJobPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >×</button>
+                    </div>
+                  ))}
+                  {jobPhotos.length < 4 && (
+                    <CloudinaryUpload
+                      folder="fixit247/jobs"
+                      label="Add photo"
+                      onUploaded={(url) => setJobPhotos((prev) => [...prev, url])}
+                    />
+                  )}
+                </div>
+                <p className="text-xs text-white/30">Upload up to 4 photos to help tradies understand the job.</p>
+              </div>
+            )}
 
             {/* CTA — changes based on auth state */}
             {!isAuthenticated && (

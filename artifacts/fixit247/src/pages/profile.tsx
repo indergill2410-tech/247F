@@ -1,4 +1,5 @@
 import { usePageTitle } from "@/hooks/use-page-title";
+import { CloudinaryUpload } from "@/components/cloudinary-upload";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -317,14 +318,21 @@ export default function ProfilePage() {
             <h2 className="font-bold text-white">Profile Photo</h2>
             <div className="space-y-1.5">
               <label className={labelCls}>Avatar URL</label>
-              <input
-                className={inputCls}
-                type="url"
-                value={avatarUrl}
-                onChange={(e) => { setAvatarUrl(e.target.value); setAvatarLoadFailed(false); }}
-                placeholder="https://example.com/your-photo.jpg"
-              />
-              <p className="text-xs text-white/30">Paste a link to your profile photo (e.g. from Gravatar or LinkedIn).</p>
+              <div className="flex items-center gap-2">
+                <input
+                  className={`${inputCls} flex-1`}
+                  type="url"
+                  value={avatarUrl}
+                  onChange={(e) => { setAvatarUrl(e.target.value); setAvatarLoadFailed(false); }}
+                  placeholder="https://example.com/your-photo.jpg"
+                />
+                <CloudinaryUpload
+                  folder="fixit247/avatars"
+                  label="Upload"
+                  onUploaded={(url) => { setAvatarUrl(url); setAvatarLoadFailed(false); }}
+                />
+              </div>
+              <p className="text-xs text-white/30">Paste a URL or upload directly from your device.</p>
             </div>
           </div>
 
@@ -591,17 +599,28 @@ export default function ProfilePage() {
                 {workPhotoUrls.map((url, i) => (
                   <div key={i} className="space-y-1.5">
                     <label className={labelCls}>Photo {i + 1}</label>
-                    <input
-                      type="url"
-                      className={inputCls}
-                      value={url}
-                      onChange={(e) => {
-                        const updated = [...workPhotoUrls];
-                        updated[i] = e.target.value;
-                        setWorkPhotoUrls(updated);
-                      }}
-                      placeholder="https://i.imgur.com/…"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="url"
+                        className={`${inputCls} flex-1`}
+                        value={url}
+                        onChange={(e) => {
+                          const updated = [...workPhotoUrls];
+                          updated[i] = e.target.value;
+                          setWorkPhotoUrls(updated);
+                        }}
+                        placeholder="https://i.imgur.com/…"
+                      />
+                      <CloudinaryUpload
+                        folder="fixit247/work-photos"
+                        label=""
+                        onUploaded={(uploadedUrl) => {
+                          const updated = [...workPhotoUrls];
+                          updated[i] = uploadedUrl;
+                          setWorkPhotoUrls(updated);
+                        }}
+                      />
+                    </div>
                     {url && url.startsWith("http") && (
                       <img
                         src={url}

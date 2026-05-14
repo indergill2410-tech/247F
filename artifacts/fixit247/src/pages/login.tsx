@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useLoginUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Wrench, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { track, identifyUser } from "@/lib/posthog";
 
 const DEMOS = [
   { label: "Homeowner", email: "homeowner@fixit247.com", pw: "password123" },
@@ -43,6 +44,8 @@ export default function LoginPage() {
     mutation: {
       onSuccess: (data) => {
         login(data);
+        identifyUser(data.user.id, { email: data.user.email, role: data.user.role, name: data.user.name });
+        track("user_logged_in", { role: data.user.role });
         if (autosubmit) { setLocation("/post-job?autosubmit=true"); return; }
         if (returnTo) { setLocation(returnTo); return; }
         const role = data.user.role;
