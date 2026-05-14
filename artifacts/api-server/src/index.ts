@@ -3,13 +3,12 @@ initSentry(); // must be first
 
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
-import { runMigrations } from "stripe-replit-sync";
 import cron from "node-cron";
 import app from "./app.js";
 import { logger } from "./lib/logger.js";
 import { verifyToken, hashPassword } from "./lib/auth.js";
 import { joinRoom, leaveRoom, leaveAllRooms, broadcastToRoom, type AuthedClient } from "./lib/ws-manager.js";
-import { getStripeSync, getUncachableStripeClient } from "./stripeClient.js";
+import { getUncachableStripeClient } from "./stripeClient.js";
 import { grantWalletFunds, WELCOME_GRANT_CENTS, runMonthlyGrant } from "./stripeStorage.js";
 import { seedDemoAccounts } from "./lib/seed-demo.js";
 import { EMERGENCY_PRODUCT_LOOKUP } from "./routes/emergency.js";
@@ -327,20 +326,11 @@ async function initStripe() {
   }
 
   try {
-    logger.info("Initializing Stripe schema...");
-    await runMigrations({ databaseUrl });
-    logger.info("Stripe schema ready");
-
-    const stripeSync = getStripeSync();
-
     if (!process.env.STRIPE_WEBHOOK_SECRET) {
       logger.warn("STRIPE_WEBHOOK_SECRET not set — webhook signature verification disabled");
     } else {
       logger.info("Stripe webhook secret configured");
     }
-
-    // Backfill in background — don't block startup
-    stripeSync.syncBackfill().then(() => logger.info("Stripe data synced")).catch((err: unknown) => logger.error({ err }, "Stripe backfill error"));
 
     // Grant the first month of the welcome lead-credit offer to tradies who do not have a wallet row yet
     await grantWelcomeGrantToNewTradies();

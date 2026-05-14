@@ -26,7 +26,6 @@
     "pino-http": "^10",
     "resend": "^6.12.3",
     "stripe": "^20.0.0",
-    "stripe-replit-sync": "1.0.0",
     "ws": "^8.20.0"
   },
   "devDependencies": {
