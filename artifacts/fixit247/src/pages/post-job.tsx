@@ -3,13 +3,14 @@ import { track } from "@/lib/posthog";
 import { CloudinaryUpload } from "@/components/cloudinary-upload";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useSearch } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCreateJob, useListCategories } from "@workspace/api-client-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, ChevronLeft, Zap, Clock, Briefcase, Wrench, Home, Building2, Star, UserPlus } from "lucide-react";
+import { AlertCircle, ChevronLeft, Zap, Clock, Briefcase, Wrench, Home, Building2, Star, UserPlus, CheckCircle, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SuburbInput } from "@/components/suburb-input";
 import { useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 
 const URGENCIES = [
   { value: "standard",  label: "Standard",  desc: "Non-urgent, flexible timing",        Icon: Briefcase, border: "border-white/10",         active: "border-white/30 bg-white/5" },
@@ -112,14 +113,16 @@ export default function PostJobPage() {
   const [budget, setBudget] = useState(saved?.budget ?? "");
   const [jobPhotos, setJobPhotos] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [successJobId, setSuccessJobId] = useState<number | null>(null);
+  const [showEmergencyUpsell, setShowEmergencyUpsell] = useState(false);
 
   const createMutation = useCreateJob({
     mutation: {
       onSuccess: (job) => {
         sessionStorage.removeItem(STORAGE_KEY);
         track("job_posted", { jobId: job.id, urgency: job.urgency, categoryId: job.categoryId });
-        toast({ title: "Job posted!", description: "Your job is now live. Tradies will be notified." });
-        setLocation(`/jobs/${job.id}`);
+        setSuccessJobId(job.id);
+        if (job.urgency === "emergency") setShowEmergencyUpsell(true);
       },
       onError: (err) => {
         setError((err as { data?: { message?: string } })?.data?.message ?? "Failed to post job");
@@ -182,7 +185,101 @@ export default function PostJobPage() {
 
   const backHref = isAuthenticated ? "/dashboard" : "/";
 
+  // Post-job success screen
+  if (successJobId !== null && !showEmergencyUpsell) {
+    return (
+      <div className="min-h-screen bg-[#0b0904] flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-[#130f07] border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.15, type: "spring", stiffness: 260, damping: 20 }}
+            className="flex items-center justify-center h-16 w-16 rounded-full bg-emerald-500/15 mx-auto mb-4"
+          >
+            <CheckCircle className="h-8 w-8 text-emerald-400" />
+          </motion.div>
+          <h2 className="text-2xl font-black text-white mb-2">Your job is live!</h2>
+          <p className="text-white/55 text-sm mb-1">Tradies in your area are being notified now.</p>
+          <p className="text-white/40 text-xs mb-6">First responses typically arrive within ~20 minutes.</p>
+          {jobPhotos.length === 0 && (
+            <div className="bg-primary/8 border border-primary/20 rounded-xl p-3 mb-6 text-left">
+              <p className="text-primary text-xs font-semibold mb-0.5">Tip: Add photos</p>
+              <p className="text-white/50 text-xs">Jobs with photos get 3× more responses. You can add them from the job detail page.</p>
+            </div>
+          )}
+          <Link to={`/jobs/${successJobId}`}>
+            <button className="w-full bg-primary text-black font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors mb-3">
+              View job & quotes →
+            </button>
+          </Link>
+          <Link to="/post-job">
+            <button
+              onClick={() => { setSuccessJobId(null); setShowEmergencyUpsell(false); }}
+              className="w-full text-white/40 text-sm py-2 hover:text-white/60 transition-colors"
+            >
+              Post another job
+            </button>
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
+    <>
+    <AnimatePresence>
+      {showEmergencyUpsell && successJobId !== null && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/70 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+            className="bg-[#130f07] border border-white/10 rounded-2xl p-7 max-w-sm w-full shadow-2xl"
+          >
+            <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-red-500/15 mx-auto mb-4">
+              <Shield className="h-7 w-7 text-red-400" />
+            </div>
+            <h2 className="text-xl font-black text-white text-center mb-1">Emergency job posted!</h2>
+            <p className="text-white/55 text-sm text-center mb-4">
+              Protect yourself with <span className="text-primary font-bold">Fixit 24/7 Plus</span> — unlimited emergency call-outs, 24/7 priority support, and $0 excess on urgent jobs.
+            </p>
+            <ul className="space-y-2 mb-5">
+              {["Unlimited emergency call-outs per year", "Priority tradie matching (avg 8 min)", "Dedicated support hotline, 24/7", "$49 AUD/month — cancel anytime"].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-white/70">
+                  <CheckCircle className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link to="/emergency-membership">
+              <button
+                onClick={() => setShowEmergencyUpsell(false)}
+                className="w-full bg-primary text-black font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors mb-2"
+              >
+                Get Fixit 24/7 Plus — $49/mo
+              </button>
+            </Link>
+            <button
+              onClick={() => setShowEmergencyUpsell(false)}
+              className="w-full text-white/40 text-sm py-2 hover:text-white/60 transition-colors"
+            >
+              No thanks, view my job
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
     <div className="min-h-screen bg-[#0b0904]">
       {/* Header */}
       <div className="border-b border-white/6 bg-[#0f0c06] py-8">
@@ -242,7 +339,7 @@ export default function PostJobPage() {
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
               <div>
                 <h2 className="font-bold text-white">Job Size *</h2>
-                <p className="text-xs text-white/40 mt-1">This helps tradies see the lead cost upfront. The AI will fine-tune it within your chosen range.</p>
+                <p className="text-xs text-white/40 mt-1">This sets the lead cost tradies see upfront. The actual cost is fine-tuned within your chosen range.</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {SIZE_BANDS.map((band) => (
@@ -385,5 +482,6 @@ export default function PostJobPage() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

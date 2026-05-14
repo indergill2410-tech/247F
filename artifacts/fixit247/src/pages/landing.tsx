@@ -60,7 +60,7 @@ const HOW_IT_WORKS_TRADIE = [
     icon: HardHat,
     step: "01",
     title: "Sign up free",
-    desc: "Create your profile in minutes and claim A$111/month in free job lead credits for your first 6 months. No credit card required.",
+    desc: "Create your profile in minutes and receive $111 AUD in free job leads every month for your first 6 months. No credit card, no commission, no lock-in.",
   },
   {
     icon: BadgeCheck,
@@ -100,11 +100,11 @@ const FAQS_LANDING = [
   },
   {
     q: "Are the tradies verified?",
-    a: "Every tradie on Fixit 24/7 has a verified profile with identity checks, licence verification, and publicly visible ratings from past jobs.",
+    a: "All tradies complete our verification process — identity checks, licence verification, and trade confirmation — before they can claim jobs. You'll also see their public ratings from past work.",
   },
   {
     q: "How quickly will I hear back?",
-    a: "Most jobs receive their first tradie response within 30 minutes. Emergency jobs are automatically prioritised.",
+    a: "Most jobs receive their first tradie response within 20 minutes. Emergency jobs are automatically prioritised and pushed to the top of the tradie feed.",
   },
   {
     q: "Can I choose which tradie I hire?",
@@ -133,7 +133,7 @@ const TESTIMONIALS = [
     suburb: "Fitzroy, VIC",
     role: "tradie" as const,
     stars: 5,
-    quote: "Been using it for 4 months. The free credits give me enough to pick up 3–4 jobs a week without spending a cent. Booked solid most weeks now.",
+    quote: "Been using it for 4 months. The free $111 wallet credit gives me enough to pick up 3–4 jobs a week without spending a cent. Booked solid most weeks now.",
   },
   {
     name: "Priya K.",
@@ -317,7 +317,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <p className="font-black text-white text-[15px]">I'm a tradie</p>
-                    <p className="text-white/45 text-xs mt-0.5 leading-snug">Claim A$111/mo in free job credits — 6 months</p>
+                    <p className="text-white/45 text-xs mt-0.5 leading-snug">$111 AUD in free job leads — every month for 6 months</p>
                   </div>
                 </div>
               </Link>
@@ -326,9 +326,9 @@ export default function LandingPage() {
             {/* Trust pills with real numbers */}
             <div className="flex flex-wrap gap-2 max-w-xl">
               {[
-                { icon: BadgeCheck, label: "4,800+ verified tradies" },
-                { icon: CheckCircle2, label: "Free to post any job" },
-                { icon: Clock, label: "Avg 18 min response" },
+                { icon: BadgeCheck, label: "4,800+ licence-verified tradies" },
+                { icon: CheckCircle2, label: "Free to post — no commission" },
+                { icon: Clock, label: "First response ~20 min" },
                 { icon: Star, label: "4.8★ average rating" },
               ].map(({ icon: Icon, label }) => (
                 <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/55 bg-white/5 border border-white/8 rounded-full px-3 py-1.5">
@@ -503,7 +503,7 @@ export default function LandingPage() {
             ) : (
               <Link to="/register?role=tradie">
                 <button className="h-11 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 active:scale-[0.97] transition-all inline-flex items-center gap-2">
-                  Claim your A$111 credits <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  Get $111 in free job leads <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </Link>
             )}

@@ -439,6 +439,54 @@ export default function ForTradiesPage() {
         </div>
       </section>
 
+      {/* ─── Competitor contrast ─── */}
+      <section className="py-20 bg-[#0b0904]">
+        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+          <div className="text-center mb-12">
+            <span className="text-[#ffc800] text-sm font-bold uppercase tracking-widest">Why tradies switch</span>
+            <h2 className="text-3xl sm:text-4xl font-black mt-3">Why tradies leave Airtasker &amp; Hippo for Fixit 24/7</h2>
+            <p className="text-white/45 mt-3 text-[15px] max-w-xl mx-auto">We built this platform because the old ones were bleeding tradies dry. Here's the difference.</p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left text-white/40 font-semibold pb-4 pr-6 text-xs uppercase tracking-wider w-1/3"></th>
+                  <th className="pb-4 pr-6 text-center">
+                    <span className="bg-[#ffc800]/10 border border-[#ffc800]/30 text-[#ffc800] font-black px-3 py-1.5 rounded-lg text-sm">Fixit 24/7</span>
+                  </th>
+                  <th className="pb-4 pr-6 text-center text-white/30 font-semibold text-sm">Airtasker</th>
+                  <th className="pb-4 text-center text-white/30 font-semibold text-sm">Hippo</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/6">
+                {[
+                  { feature: "Commission on jobs", fixit: "0% — ever", air: "15–20%", hippo: "10–20%" },
+                  { feature: "Monthly wallet credit", fixit: "$111 free leads", air: "None", hippo: "None" },
+                  { feature: "Lead cost", fixit: "From $22 (flat)", air: "% of job price", hippo: "% of job price" },
+                  { feature: "Verified licence check", fixit: "Yes — required", air: "Optional", hippo: "Optional" },
+                  { feature: "Emergency jobs", fixit: "Priority matching", air: "No prioritisation", hippo: "No prioritisation" },
+                  { feature: "Max tradies per job", fixit: "5 (less competition)", air: "Unlimited", hippo: "Unlimited" },
+                  { feature: "Payout speed", fixit: "Direct from homeowner", air: "Via platform", hippo: "Via platform" },
+                ].map(({ feature, fixit, air, hippo }) => (
+                  <tr key={feature} className="group">
+                    <td className="py-3.5 pr-6 text-white/55 font-medium">{feature}</td>
+                    <td className="py-3.5 pr-6 text-center">
+                      <span className="text-[#ffc800] font-bold">{fixit}</span>
+                    </td>
+                    <td className="py-3.5 pr-6 text-center text-white/30">{air}</td>
+                    <td className="py-3.5 text-center text-white/30">{hippo}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="text-center text-white/30 text-xs mt-8">Competitor information is approximate and based on publicly available pricing as of 2025.</p>
+        </div>
+      </section>
+
       {/* ─── FAQ ─── */}
       <section className="py-20 bg-[#0d0a05]">
         <div className="container mx-auto px-4 sm:px-6 max-w-3xl">

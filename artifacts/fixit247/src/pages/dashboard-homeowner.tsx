@@ -458,6 +458,14 @@ export default function HomeownerDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data, isLoading, refetch } = useGetHomeownerDashboard();
+
+  const [showWelcomeModal, setShowWelcomeModal] = useState(() =>
+    !localStorage.getItem("fixit247_homeowner_welcomed")
+  );
+  const dismissWelcomeModal = () => {
+    localStorage.setItem("fixit247_homeowner_welcomed", "1");
+    setShowWelcomeModal(false);
+  };
   const { data: notifications, isLoading: notifLoading, refetch: refetchNotif } = useListNotifications(
     { limit: 6 } as Parameters<typeof useListNotifications>[0],
   );
@@ -534,6 +542,10 @@ export default function HomeownerDashboard() {
   const recentClaims = data?.recentClaims ?? [];
   const recentJobs = data?.recentJobs ?? [];
   const recentNotifs = (notifications ?? []).slice(0, 6);
+  const staleZeroResponseJobs = recentJobs.filter(
+    (j) => j.status === "open" && (j.claimCount ?? 0) === 0 &&
+      (Date.now() - new Date(j.createdAt).getTime()) > STALE_HOURS * 3_600_000
+  );
 
   const initials = (user?.name ?? "H")
     .split(" ")
@@ -544,6 +556,61 @@ export default function HomeownerDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
+
+      {/* ─── Welcome modal (first login only) ─── */}
+      <AnimatePresence>
+        {showWelcomeModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/70 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.25 }}
+              className="bg-[#130f07] border border-white/10 rounded-2xl p-7 max-w-sm w-full shadow-2xl"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center mb-5">
+                <Home className="h-6 w-6 text-primary" />
+              </div>
+              <h2 className="text-xl font-black text-white mb-1">Welcome to Fixit 24/7</h2>
+              <p className="text-sm text-white/50 mb-6 leading-relaxed">You're 3 steps away from getting your first job sorted.</p>
+              <div className="space-y-3 mb-7">
+                {[
+                  { done: true,  text: "Account created" },
+                  { done: false, text: "Post your first job — takes 90 seconds" },
+                  { done: false, text: "Get your first quote (most jobs: ~20 min)" },
+                ].map(({ done, text }) => (
+                  <div key={text} className="flex items-center gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-emerald-400" : "border-2 border-white/20"}`}>
+                      {done && <CheckCircle className="h-4 w-4 text-black" />}
+                    </div>
+                    <span className={`text-sm ${done ? "text-white/40 line-through" : "text-white/80"}`}>{text}</span>
+                  </div>
+                ))}
+              </div>
+              <Link to="/post-job">
+                <button
+                  onClick={dismissWelcomeModal}
+                  className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm transition-colors"
+                >
+                  Post your first job →
+                </button>
+              </Link>
+              <button
+                onClick={dismissWelcomeModal}
+                className="w-full mt-3 text-xs text-white/30 hover:text-white/50 transition-colors"
+              >
+                Explore dashboard first
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-0">
         {/* Hero card */}
         <motion.div
@@ -775,6 +842,42 @@ export default function HomeownerDashboard() {
             </p>
           </motion.div>
         )}
+
+        {/* Zero-response escalation banner */}
+        <AnimatePresence>
+          {staleZeroResponseJobs.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="bg-amber-500/10 border border-amber-500/30 rounded-2xl px-5 py-4"
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-amber-300 mb-0.5">
+                    {staleZeroResponseJobs.length === 1
+                      ? `"${staleZeroResponseJobs[0].title}" hasn't had a response in 48 hours`
+                      : `${staleZeroResponseJobs.length} jobs haven't had a response in 48 hours`}
+                  </p>
+                  <p className="text-xs text-white/45 mb-3">
+                    Jobs with more detail and photos get 3× more responses. Try editing your job description or adding a photo.
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    {staleZeroResponseJobs.slice(0, 2).map((j) => (
+                      <Link key={j.id} to={`/jobs/${j.id}`}>
+                        <button className="text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-3 py-1.5 rounded-lg transition-colors border border-amber-500/20">
+                          Edit "{j.title}" →
+                        </button>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* My Jobs */}
         <motion.div
