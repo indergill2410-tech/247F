@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
+import { JobMapFuzzy } from "@/components/job-map";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetJob, useClaimJob, useUpdateClaim, useDeleteJob, useListJobReviews, useCreateReview, useGetTradieTrustCard, getGetTradieTrustCardQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -414,6 +415,20 @@ export default function JobDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Map — shown when geocoded coords are available */}
+          {(job as unknown as { latitude?: number | null }).latitude != null &&
+           (job as unknown as { longitude?: number | null }).longitude != null && (
+            <div className="pt-3 border-t border-white/6">
+              <JobMapFuzzy
+                latitude={(job as unknown as { latitude: number }).latitude}
+                longitude={(job as unknown as { longitude: number }).longitude}
+                suburb={job.suburb}
+                height="200px"
+              />
+              <p className="text-[10px] text-white/25 mt-1.5 text-center">Approximate location — exact address shared after booking</p>
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2 pt-3 border-t border-white/6">

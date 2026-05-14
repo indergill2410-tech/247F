@@ -1,4 +1,5 @@
 import { usePageTitle } from "@/hooks/use-page-title";
+import { track } from "@/lib/posthog";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -151,6 +152,7 @@ export default function TradieDashboard() {
       onSuccess: () => {
         const costCents = pendingClaimCost;
         const costStr = costCents != null ? `$${(costCents / 100).toFixed(2)} deducted.` : "";
+        track("job_claimed", { leadCostCents: costCents });
         toast({
           title: "Claimed!",
           description: `${costStr} You've successfully claimed this job.`.trim(),

@@ -44,6 +44,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "@types/mapbox-gl": "^3.5.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -75,6 +76,10 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@sentry/react": "^10.53.1",
+    "mapbox-gl": "^3.23.1",
+    "posthog-js": "^1.373.4",
+    "react-map-gl": "^8.1.1",
     "zustand": "^5.0.12"
   }
 }

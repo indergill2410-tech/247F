@@ -13,6 +13,7 @@ import stripeRouter from "./stripe.js";
 import tradiesRouter from "./tradies.js";
 import partnerEnquiryRouter from "./partner-enquiry.js";
 import emergencyRouter from "./emergency.js";
+import uploadsRouter from "./uploads.js";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(stripeRouter);
 router.use(tradiesRouter);
 router.use(partnerEnquiryRouter);
 router.use(emergencyRouter);
+router.use("/uploads", uploadsRouter);
 
 export default router;

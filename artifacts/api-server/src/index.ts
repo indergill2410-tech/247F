@@ -1,3 +1,6 @@
+import { initSentry } from "./lib/sentry.js";
+initSentry(); // must be first
+
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { runMigrations } from "stripe-replit-sync";
@@ -39,6 +42,10 @@ const OPTIONAL_ENV_VARS = [
   "STRIPE_PUBLISHABLE_KEY",
   "SENDGRID_API_KEY",
   "OPENAI_API_KEY",
+  "SENTRY_DSN",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ] as const;
 
 for (const key of OPTIONAL_ENV_VARS) {

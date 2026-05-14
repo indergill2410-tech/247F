@@ -8,6 +8,7 @@ import router from "./routes/index.js";
 import { WebhookHandlers } from "./webhookHandlers.js";
 import { logger } from "./lib/logger.js";
 import { globalRateLimit } from "./lib/rate-limit.js";
+import { Sentry } from "./lib/sentry.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Resolved at runtime: works both from dist/ and src/
@@ -101,6 +102,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+// Sentry error handler — must be after routes, before other error handlers
+app.use(Sentry.expressErrorHandler());
+
+// Generic error handler
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  logger.error({ err }, "Unhandled error");
+  res.status(500).json({ error: "Internal server error" });
+});
 
 // Serve the built React frontend for all non-API routes (SPA fallback)
 if (existsSync(FRONTEND_DIST)) {

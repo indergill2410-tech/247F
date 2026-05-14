@@ -1,3 +1,10 @@
+import { initSentry } from "./lib/sentry";
+import { initPostHog } from "./lib/posthog";
+
+// Init monitoring before anything else
+initSentry();
+initPostHog();
+
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
