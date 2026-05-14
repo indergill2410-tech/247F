@@ -25,18 +25,19 @@ interface CreditTx {
 }
 
 interface CreditsData {
-  balance: number;
-  creditsPerClaim: number;
-  signupGrant: number;
+  balanceCents: number;
+  leadCostCentsDefault: number;
+  welcomeGrantCents: number;
   transactions: CreditTx[];
 }
 
 const TX_ICONS: Record<string, { Icon: React.ElementType; cls: string; label: string }> = {
-  signup_grant:     { Icon: Zap,          cls: "text-primary bg-primary/10", label: "Welcome Grant" },
-  monthly_renewal:  { Icon: Clock,        cls: "text-blue-400 bg-blue-500/10",   label: "Monthly Renewal" },
-  purchase:         { Icon: CreditCard,   cls: "text-emerald-400 bg-emerald-500/10", label: "Purchase" },
-  claim_deduct:     { Icon: Package,      cls: "text-white/40 bg-white/6",       label: "Job Claim" },
-  refund:           { Icon: CheckCircle,  cls: "text-emerald-400 bg-emerald-500/10", label: "Refund" },
+  welcome_grant:      { Icon: Zap,         cls: "text-primary bg-primary/10",           label: "Welcome Grant" },
+  subscription_grant: { Icon: Clock,       cls: "text-blue-400 bg-blue-500/10",         label: "Monthly Renewal" },
+  purchase:           { Icon: CreditCard,  cls: "text-emerald-400 bg-emerald-500/10",   label: "Top-up Purchase" },
+  lead_deduct:        { Icon: Package,     cls: "text-white/40 bg-white/6",             label: "Job Claim" },
+  refund:             { Icon: CheckCircle, cls: "text-emerald-400 bg-emerald-500/10",   label: "Refund" },
+  adjustment:         { Icon: CreditCard,  cls: "text-blue-400 bg-blue-500/10",         label: "Adjustment" },
 };
 
 function formatDate(d: string) {
@@ -74,7 +75,7 @@ export default function CreditsPage() {
         .then((r) => r.json())
         .then((data) => {
           if (data.success && !data.alreadyProcessed) {
-            toast({ title: "Credits added!", description: `${data.creditsAdded} credits have been added to your account.` });
+            toast({ title: "Funds added!", description: `$${((data.creditsAdded ?? 0) / 100).toFixed(0)} AUD has been added to your wallet.` });
           } else if (data.alreadyProcessed) {
             toast({ title: "Already processed", description: "This payment was already applied to your account." });
           }
@@ -99,7 +100,7 @@ export default function CreditsPage() {
         setCreditsData(credits);
         setPacks(packsData.packs ?? []);
       })
-      .catch(() => toast({ title: "Failed to load credits", variant: "destructive" }))
+      .catch(() => toast({ title: "Failed to load wallet", variant: "destructive" }))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -125,19 +126,18 @@ export default function CreditsPage() {
     }
   }
 
-  const balance = creditsData?.balance ?? 0;
-  // Min claim cost is 30 (small job) — used for optimistic "max claims" estimate
-  const MIN_CLAIM_COST = 30;
-  const jobsLeft = Math.floor(balance / MIN_CLAIM_COST);
+  const balanceCents = creditsData?.balanceCents ?? 0;
+  const leadCostCents = creditsData?.leadCostCentsDefault ?? 2200;
+  const jobsLeft = Math.floor(balanceCents / leadCostCents);
 
   const PACK_HIGHLIGHTS = [
-    { credits: "300", color: "border-white/10",       badge: "" },
+    { credits: "300", color: "border-white/10",     badge: "" },
     { credits: "600", color: "border-primary/30",   badge: "Best Value" },
   ];
 
   const PACK_SUBTITLES: Record<string, string> = {
-    "300": "≈ 5–10 small jobs, or 2–3 medium jobs",
-    "600": "≈ 10–20 small jobs, or 4–6 medium jobs · best value",
+    "300": "≈ 2 job claims at the standard $22 rate",
+    "600": "≈ 4–5 job claims · best value",
   };
 
   return (
@@ -146,8 +146,8 @@ export default function CreditsPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-          <h1 className="text-2xl font-black text-white">Credits</h1>
-          <p className="text-sm text-white/40 mt-1">Use credits to claim jobs. Cost varies by job size — from 30 to 800 credits.</p>
+          <h1 className="text-2xl font-black text-white">Wallet</h1>
+          <p className="text-sm text-white/40 mt-1">Use your wallet balance to claim jobs. Cost varies by job size — from $22 for small jobs.</p>
         </motion.div>
 
         {/* Balance card */}
@@ -159,26 +159,26 @@ export default function CreditsPage() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-1">Your Balance</p>
+              <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-1">Wallet Balance</p>
               {loading ? (
                 <div className="h-12 w-28 bg-white/6 rounded-xl animate-pulse" />
               ) : (
                 <div className="flex items-end gap-3">
-                  <span className="text-5xl font-black text-white">{balance.toLocaleString()}</span>
-                  <span className="text-lg text-white/40 font-semibold pb-1">credits</span>
+                  <span className="text-5xl font-black text-white">{fmtAud(balanceCents)}</span>
+                  <span className="text-lg text-white/40 font-semibold pb-1">AUD</span>
                 </div>
               )}
               {!loading && (
-                <p className={`text-sm mt-2 font-semibold ${balance > 0 ? "text-emerald-400" : "text-orange-400"}`}>
-                  {balance > 0
+                <p className={`text-sm mt-2 font-semibold ${balanceCents > 0 ? "text-emerald-400" : "text-orange-400"}`}>
+                  {balanceCents > 0
                     ? `Up to ${jobsLeft} claim${jobsLeft !== 1 ? "s" : ""} (varies by job size)`
-                    : "No credits — top up to claim jobs"}
+                    : "No funds — top up your wallet to claim jobs"}
                 </p>
               )}
             </div>
             <div className="flex items-center gap-3">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${balance > 0 ? "bg-primary/10" : "bg-orange-500/10"}`}>
-                <Zap className={`h-8 w-8 ${balance > 0 ? "text-primary" : "text-orange-400"}`} />
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${balanceCents > 0 ? "bg-primary/10" : "bg-orange-500/10"}`}>
+                <Zap className={`h-8 w-8 ${balanceCents > 0 ? "text-primary" : "text-orange-400"}`} />
               </div>
             </div>
           </div>
@@ -187,14 +187,14 @@ export default function CreditsPage() {
           {!loading && creditsData && (
             <div className="mt-5">
               <div className="flex justify-between text-xs text-white/30 mb-2">
-                <span>0</span>
-                <span>{creditsData.signupGrant.toLocaleString()} (full month)</span>
+                <span>$0</span>
+                <span>{fmtAud(creditsData.welcomeGrantCents)} (full month)</span>
               </div>
               <div className="h-2.5 bg-white/6 rounded-full overflow-hidden">
                 <motion.div
-                  className={`h-full rounded-full ${balance > 100 ? "bg-primary" : "bg-orange-400"}`}
+                  className={`h-full rounded-full ${balanceCents > 0 ? "bg-primary" : "bg-orange-400"}`}
                   initial={{ width: 0 }}
-                  animate={{ width: `${Math.min((balance / creditsData.signupGrant) * 100, 100)}%` }}
+                  animate={{ width: `${Math.min((balanceCents / creditsData.welcomeGrantCents) * 100, 100)}%` }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                 />
               </div>
@@ -204,7 +204,7 @@ export default function CreditsPage() {
 
         {/* Alert: low credits */}
         <AnimatePresence>
-          {!loading && balance < MIN_CLAIM_COST && (
+          {!loading && balanceCents < leadCostCents && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -213,9 +213,9 @@ export default function CreditsPage() {
             >
               <AlertTriangle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-orange-300">You're out of credits</p>
+                <p className="text-sm font-bold text-orange-300">Your wallet is empty</p>
                 <p className="text-xs text-orange-300/70 mt-0.5">
-                  You need at least 30 credits to claim a job. Purchase a pack below to keep working.
+                  You need at least ${(leadCostCents / 100).toFixed(0)} AUD to claim a job. Top up your wallet below to keep working.
                 </p>
               </div>
             </motion.div>
@@ -229,12 +229,12 @@ export default function CreditsPage() {
           transition={{ delay: 0.2 }}
           className="bg-[#130f07] border border-white/6 rounded-2xl p-5"
         >
-          <h2 className="font-bold text-white text-sm mb-4">How credits work</h2>
+          <h2 className="font-bold text-white text-sm mb-4">How your wallet works</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { icon: Zap, color: "text-primary bg-primary/10", title: "Free credits every month", desc: "1,111 free credits every month — automatically renewed for every active tradie." },
-              { icon: Package, color: "text-blue-400 bg-blue-500/10", title: "Credit cost varies by job", desc: "Small jobs (a door repaint, a leaking tap) cost 30–60 credits. Large jobs (a full reno, a house repaint) cost up to 800 credits. The cost is shown upfront on every job card, before you claim." },
-              { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Credit packs from $49. Credits never expire." },
+              { icon: Zap, color: "text-primary bg-primary/10", title: "$111 AUD free every month", desc: "$111 AUD wallet credit — automatically renewed on the 1st of each month for every active tradie." },
+              { icon: Package, color: "text-blue-400 bg-blue-500/10", title: "Cost varies by job size", desc: "Small jobs start from $22. Larger jobs cost more. The exact cost is shown upfront on every job card before you claim — no surprises." },
+              { icon: CreditCard, color: "text-emerald-400 bg-emerald-500/10", title: "Top up anytime", desc: "Wallet top-up packs from $49 AUD. Funds never expire." },
             ].map(({ icon: Icon, color, title, desc }) => (
               <div key={title} className="flex gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
@@ -257,7 +257,7 @@ export default function CreditsPage() {
             transition={{ delay: 0.3 }}
             className="font-bold text-white text-sm mb-4"
           >
-            Top up your credits
+            Top up your wallet
           </motion.h2>
 
           {loading ? (
@@ -303,8 +303,8 @@ export default function CreditsPage() {
                       </div>
                     )}
                     <div className="mb-4">
-                      <p className="text-3xl font-black text-white">{Number(credits).toLocaleString()}</p>
-                      <p className="text-xs text-white/40 mt-0.5">credits</p>
+                      <p className="text-3xl font-black text-white">{price ? fmtAud(price.unitAmount ?? 0) : "—"}</p>
+                      <p className="text-xs text-white/40 mt-0.5">AUD added to wallet</p>
                     </div>
                     <p className="text-sm font-semibold text-white/70 mb-1">{pack.name.replace("Fixit 247 ", "")}</p>
                     {price && (
@@ -347,7 +347,7 @@ export default function CreditsPage() {
           className="bg-[#130f07] border border-white/6 rounded-2xl overflow-hidden"
         >
           <div className="px-6 py-4 border-b border-white/6">
-            <h2 className="font-bold text-white">Credit History</h2>
+            <h2 className="font-bold text-white">Wallet History</h2>
           </div>
           <div className="divide-y divide-white/5">
             {loading ? (
@@ -379,7 +379,7 @@ export default function CreditsPage() {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className={`text-sm font-bold ${isPositive ? "text-emerald-400" : "text-white/50"}`}>
-                        {isPositive ? "+" : ""}{tx.amount.toLocaleString()}
+                        {isPositive ? "+" : "−"}${(Math.abs(tx.amount) / 100).toFixed(0)}
                       </p>
                       <p className="text-[10px] text-white/25">{formatDate(tx.createdAt)}</p>
                     </div>

@@ -85,14 +85,14 @@ export async function sendTradieWelcome(data: { name: string; email: string }): 
   try {
     const html = brandedHtml(
       `Welcome aboard, ${data.name}!`,
-      `<p style="margin:0 0 12px;color:#ccc;font-size:15px">Your Fixit 24/7 tradie account is live. You start with <strong style="color:#ffc800">1,111 free credits</strong> to claim your first jobs.</p>
+      `<p style="margin:0 0 12px;color:#ccc;font-size:15px">Your Fixit 24/7 tradie account is live. You start with <strong style="color:#ffc800">$111 AUD free wallet credit</strong> to claim your first jobs — no credit card required.</p>
        <p style="margin:0 0 12px;color:#ccc;font-size:15px">Complete your profile and add your trade skills so homeowners can find you when they post jobs in your area.</p>
        <p style="margin:0 0 20px;color:#ccc;font-size:15px">Once our team verifies your account, your verified badge will appear on your profile.</p>
        <p style="margin:0">
          <a href="${config.appUrl}/dashboard/tradie" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Go to Dashboard →</a>
        </p>`,
     );
-    await send({ to: data.email, toName: data.name, subject: "Welcome to Fixit 24/7 — your credits are ready!", html });
+    await send({ to: data.email, toName: data.name, subject: "Welcome to Fixit 24/7 — your $111 wallet credit is ready!", html });
     logger.info({ email: data.email }, "Tradie welcome email sent");
   } catch (err) {
     logger.error({ err, email: data.email }, "Failed to send tradie welcome email");
