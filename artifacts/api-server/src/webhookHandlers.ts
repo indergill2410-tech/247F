@@ -1,4 +1,4 @@
-import { getStripeSync } from './stripeClient.js';
+import { getUncachableStripeClient } from './stripeClient.js';
 import {
   getUserByStripeCustomerId,
   setEmergencyMembership,
@@ -16,11 +16,23 @@ export class WebhookHandlers {
         'Ensure webhook route is registered BEFORE app.use(express.json()).'
       );
     }
-    const sync = getStripeSync();
-    await sync.processWebhook(payload, signature);
+
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      logger.warn('STRIPE_WEBHOOK_SECRET not set — skipping signature verification');
+      return;
+    }
+
+    const stripe = getUncachableStripeClient();
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    } catch (err) {
+      logger.error({ err }, 'Stripe webhook signature verification failed');
+      throw err;
+    }
 
     try {
-      const event = JSON.parse(payload.toString()) as Stripe.Event;
       await WebhookHandlers.handleEmergencyEvent(event);
     } catch (err) {
       logger.warn({ err }, 'Failed to process emergency webhook event (non-fatal)');
@@ -89,11 +101,9 @@ export class WebhookHandlers {
     const user = await getUserByStripeCustomerId(customerId);
     if (!user) return;
 
-    // In Stripe v20 the subscription reference lives under invoice.parent
     const subRef = invoice.parent?.subscription_details?.subscription;
     const subscriptionId = typeof subRef === 'string' ? subRef : (subRef as Stripe.Subscription | null)?.id ?? null;
 
-    // Only handle invoices tied to the user's stored emergency subscription
     const currentStatus = await getEmergencyMembershipStatus(user.id);
     const isEmergency =
       subscriptionId !== null &&
@@ -108,9 +118,6 @@ export class WebhookHandlers {
       ? new Date(firstLine.period.end * 1000)
       : null;
 
-    // Reset callsUsed only when crossing the membership YEAR boundary (not every monthly cycle).
-    // emergencyMembershipStartedAt tracks the start of the current membership year;
-    // we advance it by one year each time we cross the boundary.
     let shouldResetCalls = false;
     let newYearStart: Date | undefined = undefined;
     if (isRenewal && currentStatus?.emergencyMembershipStartedAt && renewalDate) {

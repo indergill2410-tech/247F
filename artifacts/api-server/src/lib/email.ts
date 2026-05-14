@@ -1,70 +1,33 @@
+import { Resend } from "resend";
 import { config } from "../config/index.js";
 import { logger } from "./logger.js";
 
-interface WelcomeEmailData {
-  name: string;
-  email: string;
+let _resend: Resend | null = null;
+
+function getResend(): Resend | null {
+  if (!config.resend.enabled) return null;
+  if (!_resend) _resend = new Resend(config.resend.apiKey);
+  return _resend;
 }
 
-interface OtpEmailData {
-  name: string;
-  email: string;
-  otp: string;
-}
-
-async function sendViaApi(payload: object): Promise<void> {
-  const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
-    method: "POST",
-    signal: AbortSignal.timeout(10_000),
-    headers: {
-      Authorization: `Bearer ${config.sendgrid.apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`SendGrid error ${res.status}: ${text}`);
-  }
-}
-
-async function sendViaHtml(to: string, toName: string | undefined, subject: string, html: string): Promise<void> {
-  if (!config.sendgrid.enabled) {
-    logger.warn({ to }, "Email skipped — SendGrid not configured");
+async function send(opts: {
+  to: string;
+  toName?: string;
+  subject: string;
+  html: string;
+}): Promise<void> {
+  const client = getResend();
+  if (!client) {
+    logger.warn({ to: opts.to }, "Email skipped — Resend not configured");
     return;
   }
-  const body: Record<string, unknown> = {
-    personalizations: [{ to: [toName ? { email: to, name: toName } : { email: to }] }],
-    from: { email: config.sendgrid.fromEmail, name: "Fixit 24/7" },
-    subject,
-    content: [{ type: "text/html", value: html }],
-  };
-  const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
-    method: "POST",
-    signal: AbortSignal.timeout(10_000),
-    headers: {
-      Authorization: `Bearer ${config.sendgrid.apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
+  const { error } = await client.emails.send({
+    from: `Fixit 24/7 <${config.resend.fromEmail}>`,
+    to: opts.toName ? `${opts.toName} <${opts.to}>` : opts.to,
+    subject: opts.subject,
+    html: opts.html,
   });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`SendGrid HTML email error ${res.status}: ${text}`);
-  }
-}
-
-function guard(templateId: string, label: string): boolean {
-  if (!config.sendgrid.enabled) {
-    logger.warn({ label }, "Email skipped — SendGrid not configured");
-    return false;
-  }
-  if (!templateId) {
-    logger.warn({ label }, "Email skipped — template ID not configured");
-    return false;
-  }
-  return true;
+  if (error) throw new Error(`Resend error: ${error.message}`);
 }
 
 function brandedHtml(title: string, body: string): string {
@@ -101,45 +64,53 @@ function brandedHtml(title: string, body: string): string {
 </html>`;
 }
 
-export async function sendCustomerWelcome(data: WelcomeEmailData): Promise<void> {
-  const tid = config.sendgrid.templates.customerWelcome;
-  if (!guard(tid, "customerWelcome")) return;
+export async function sendCustomerWelcome(data: { name: string; email: string }): Promise<void> {
   try {
-    await sendViaApi({
-      personalizations: [{ to: [{ email: data.email }], dynamic_template_data: { name: data.name } }],
-      from: { email: config.sendgrid.fromEmail, name: "Fixit 24/7" },
-      template_id: tid,
-    });
+    const html = brandedHtml(
+      `Welcome to Fixit 24/7, ${data.name}!`,
+      `<p style="margin:0 0 12px;color:#ccc;font-size:15px">Thanks for joining — you can now post jobs and get matched with verified local tradies in minutes.</p>
+       <p style="margin:0 0 20px;color:#ccc;font-size:15px">When you're ready, post your first job and we'll notify nearby tradies right away.</p>
+       <p style="margin:0">
+         <a href="${config.appUrl}/post-job" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Post Your First Job →</a>
+       </p>`,
+    );
+    await send({ to: data.email, toName: data.name, subject: "Welcome to Fixit 24/7!", html });
     logger.info({ email: data.email }, "Customer welcome email sent");
   } catch (err) {
     logger.error({ err, email: data.email }, "Failed to send customer welcome email");
   }
 }
 
-export async function sendTradieWelcome(data: WelcomeEmailData): Promise<void> {
-  const tid = config.sendgrid.templates.tradieWelcome;
-  if (!guard(tid, "tradieWelcome")) return;
+export async function sendTradieWelcome(data: { name: string; email: string }): Promise<void> {
   try {
-    await sendViaApi({
-      personalizations: [{ to: [{ email: data.email }], dynamic_template_data: { name: data.name } }],
-      from: { email: config.sendgrid.fromEmail, name: "Fixit 24/7" },
-      template_id: tid,
-    });
+    const html = brandedHtml(
+      `Welcome aboard, ${data.name}!`,
+      `<p style="margin:0 0 12px;color:#ccc;font-size:15px">Your Fixit 24/7 tradie account is live. You start with <strong style="color:#ffc800">1,111 free credits</strong> to claim your first jobs.</p>
+       <p style="margin:0 0 12px;color:#ccc;font-size:15px">Complete your profile and add your trade skills so homeowners can find you when they post jobs in your area.</p>
+       <p style="margin:0 0 20px;color:#ccc;font-size:15px">Once our team verifies your account, your verified badge will appear on your profile.</p>
+       <p style="margin:0">
+         <a href="${config.appUrl}/dashboard/tradie" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Go to Dashboard →</a>
+       </p>`,
+    );
+    await send({ to: data.email, toName: data.name, subject: "Welcome to Fixit 24/7 — your credits are ready!", html });
     logger.info({ email: data.email }, "Tradie welcome email sent");
   } catch (err) {
     logger.error({ err, email: data.email }, "Failed to send tradie welcome email");
   }
 }
 
-export async function sendOtp(data: OtpEmailData): Promise<void> {
-  const tid = config.sendgrid.templates.otp;
-  if (!guard(tid, "otp")) return;
+export async function sendOtp(data: { name: string; email: string; otp: string }): Promise<void> {
   try {
-    await sendViaApi({
-      personalizations: [{ to: [{ email: data.email }], dynamic_template_data: { name: data.name, otp: data.otp } }],
-      from: { email: config.sendgrid.fromEmail, name: "Fixit 24/7" },
-      template_id: tid,
-    });
+    const html = brandedHtml(
+      "Your One-Time Passcode",
+      `<p style="margin:0 0 16px;color:#ccc;font-size:15px">Hi ${data.name},</p>
+       <p style="margin:0 0 20px;color:#ccc;font-size:15px">Here is your one-time passcode. It expires in 10 minutes.</p>
+       <div style="background:#1d1a12;border:1px solid #2a2510;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+         <span style="font-size:36px;font-weight:900;letter-spacing:8px;color:#ffc800">${data.otp}</span>
+       </div>
+       <p style="margin:0;color:#777;font-size:13px">If you didn't request this, you can safely ignore this email.</p>`,
+    );
+    await send({ to: data.email, toName: data.name, subject: `${data.otp} — your Fixit 24/7 passcode`, html });
     logger.info({ email: data.email }, "OTP email sent");
   } catch (err) {
     logger.error({ err, email: data.email }, "Failed to send OTP email");
@@ -171,7 +142,7 @@ export async function sendNewClaimNotification(opts: {
          <a href="${config.appUrl}/jobs/${opts.jobId}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Review Their Offer →</a>
        </p>`,
     );
-    await sendViaHtml(opts.homeownerEmail, opts.homeownerName, `New claim on "${opts.jobTitle}"`, html);
+    await send({ to: opts.homeownerEmail, toName: opts.homeownerName, subject: `New claim on "${opts.jobTitle}"`, html });
     logger.info({ email: opts.homeownerEmail, jobId: opts.jobId }, "New claim notification sent");
   } catch (err) {
     logger.error({ err }, "Failed to send new claim notification");
@@ -195,7 +166,7 @@ export async function sendClaimAcceptedNotification(opts: {
          <a href="${config.appUrl}/conversations" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Open Conversation →</a>
        </p>`,
     );
-    await sendViaHtml(opts.tradieEmail, opts.tradieName, `Claim accepted for "${opts.jobTitle}"`, html);
+    await send({ to: opts.tradieEmail, toName: opts.tradieName, subject: `Claim accepted for "${opts.jobTitle}"`, html });
     logger.info({ email: opts.tradieEmail, jobId: opts.jobId }, "Claim accepted notification sent");
   } catch (err) {
     logger.error({ err }, "Failed to send claim accepted notification");
@@ -218,7 +189,7 @@ export async function sendNewMessageNotification(opts: {
          <a href="${config.appUrl}/conversations/${opts.conversationId}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Read Message →</a>
        </p>`,
     );
-    await sendViaHtml(opts.recipientEmail, opts.recipientName, `New message from ${opts.senderName}`, html);
+    await send({ to: opts.recipientEmail, toName: opts.recipientName, subject: `New message from ${opts.senderName}`, html });
     logger.info({ email: opts.recipientEmail, conversationId: opts.conversationId }, "New message notification sent");
   } catch (err) {
     logger.error({ err }, "Failed to send new message notification");
@@ -249,7 +220,7 @@ export async function sendReviewReceivedNotification(opts: {
          <a href="${config.appUrl}/profile" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">View My Profile →</a>
        </p>`,
     );
-    await sendViaHtml(opts.tradieEmail, opts.tradieName, `New ${opts.rating}-star review from ${opts.reviewerName}`, html);
+    await send({ to: opts.tradieEmail, toName: opts.tradieName, subject: `New ${opts.rating}-star review from ${opts.reviewerName}`, html });
     logger.info({ email: opts.tradieEmail }, "Review notification sent");
   } catch (err) {
     logger.error({ err }, "Failed to send review notification");
@@ -286,17 +257,14 @@ export async function sendPartnerEnquiry(opts: {
       `<p style="margin:0 0 16px;color:#ccc;font-size:15px">A tradie submitted a partner enquiry via the website.</p>
        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #1d1a12;border-radius:8px;overflow:hidden;margin-bottom:20px">${rows}</table>`,
     );
-    await sendViaHtml(opts.adminEmail, "Fixit 24/7 Admin", "New Partner Enquiry", html);
+    await send({ to: opts.adminEmail, subject: "New Partner Enquiry", html });
     logger.info({ fromEmail: opts.email }, "Partner enquiry admin notification sent");
   } catch (err) {
     logger.error({ err }, "Failed to send partner enquiry admin email");
   }
 }
 
-export async function sendPartnerEnquiryConfirmation(opts: {
-  email: string;
-  name: string;
-}): Promise<void> {
+export async function sendPartnerEnquiryConfirmation(opts: { email: string; name: string }): Promise<void> {
   try {
     const html = brandedHtml(
       "Thanks for Your Enquiry!",
@@ -307,17 +275,14 @@ export async function sendPartnerEnquiryConfirmation(opts: {
          <a href="${config.appUrl}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Explore Fixit 24/7 →</a>
        </p>`,
     );
-    await sendViaHtml(opts.email, opts.name, "We received your partner enquiry — Fixit 24/7", html);
+    await send({ to: opts.email, toName: opts.name, subject: "We received your partner enquiry — Fixit 24/7", html });
     logger.info({ email: opts.email }, "Partner enquiry confirmation sent");
   } catch (err) {
     logger.error({ err }, "Failed to send partner enquiry confirmation");
   }
 }
 
-export async function sendTradieVerifiedEmail(opts: {
-  email: string;
-  name: string;
-}): Promise<void> {
+export async function sendTradieVerifiedEmail(opts: { email: string; name: string }): Promise<void> {
   try {
     const html = brandedHtml(
       "You're Verified! 🎉",
@@ -328,7 +293,7 @@ export async function sendTradieVerifiedEmail(opts: {
          <a href="${config.appUrl}/jobs" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Browse Open Jobs →</a>
        </p>`,
     );
-    await sendViaHtml(opts.email, opts.name, "You're verified on Fixit 24/7 — start claiming jobs!", html);
+    await send({ to: opts.email, toName: opts.name, subject: "You're verified on Fixit 24/7 — start claiming jobs!", html });
     logger.info({ email: opts.email }, "Tradie verified email sent");
   } catch (err) {
     logger.error({ err }, "Failed to send tradie verified email");
@@ -351,9 +316,7 @@ export async function sendNewJobMatchEmail(opts: {
         : opts.urgency === "urgent"
         ? '<span style="background:#ea580c;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px">URGENT</span>'
         : "";
-    const suburbRow = opts.suburb
-      ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">📍 ${opts.suburb}</p>`
-      : "";
+    const suburbRow = opts.suburb ? `<p style="margin:0 0 6px;color:#aaa;font-size:14px">📍 ${opts.suburb}</p>` : "";
     const html = brandedHtml(
       "New Job Match",
       `<p style="margin:0 0 16px;color:#ccc;font-size:15px">Hi ${opts.tradieName},</p>
@@ -370,17 +333,14 @@ export async function sendNewJobMatchEmail(opts: {
          <a href="${config.appUrl}/jobs/${opts.jobId}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">View Job &amp; Claim →</a>
        </p>`,
     );
-    await sendViaHtml(opts.tradieEmail, opts.tradieName, `New job match: "${opts.jobTitle}"`, html);
+    await send({ to: opts.tradieEmail, toName: opts.tradieName, subject: `New job match: "${opts.jobTitle}"`, html });
     logger.info({ email: opts.tradieEmail, jobId: opts.jobId }, "Job match email sent");
   } catch (err) {
     logger.error({ err }, "Failed to send job match email");
   }
 }
 
-export async function sendTradieSuspendedEmail(opts: {
-  email: string;
-  name: string;
-}): Promise<void> {
+export async function sendTradieSuspendedEmail(opts: { email: string; name: string }): Promise<void> {
   try {
     const html = brandedHtml(
       "Account Status Update",
@@ -388,10 +348,10 @@ export async function sendTradieSuspendedEmail(opts: {
        <p style="margin:0 0 12px;color:#ccc;font-size:15px">Your Fixit 24/7 account has been <strong style="color:#fff">temporarily suspended</strong> by our moderation team.</p>
        <p style="margin:0 0 20px;color:#ccc;font-size:15px">If you believe this is an error, please contact us and we'll review your account as soon as possible.</p>
        <p style="margin:0">
-         <a href="mailto:${config.sendgrid.fromEmail}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Contact Support</a>
+         <a href="mailto:${config.resend.fromEmail}" style="display:inline-block;padding:11px 22px;background:#ffc800;color:#000;font-weight:800;font-size:14px;border-radius:10px;text-decoration:none">Contact Support</a>
        </p>`,
     );
-    await sendViaHtml(opts.email, opts.name, "Your Fixit 24/7 account status has changed", html);
+    await send({ to: opts.email, toName: opts.name, subject: "Your Fixit 24/7 account status has changed", html });
     logger.info({ email: opts.email }, "Tradie suspended email sent");
   } catch (err) {
     logger.error({ err }, "Failed to send tradie suspended email");

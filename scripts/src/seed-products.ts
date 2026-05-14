@@ -1,4 +1,10 @@
-import { getUncachableStripeClient } from './stripeClient';
+import Stripe from 'stripe';
+
+function getUncachableStripeClient(): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error('STRIPE_SECRET_KEY not set');
+  return new Stripe(key, { apiVersion: '2025-08-27.basil' as Stripe.LatestApiVersion });
+}
 
 const PACKS = [
   { name: 'Fixit 247 Starter Pack', credits: '300', priceAud: 4900 },
