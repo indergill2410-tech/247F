@@ -1300,11 +1300,14 @@ components:
           nullable: true
         jobCount:
           type: integer
+        requiresLicence:
+          type: boolean
       required:
         - id
         - name
         - icon
         - jobCount
+        - requiresLicence
 
     CreateCategoryBody:
       type: object

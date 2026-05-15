@@ -137,6 +137,7 @@ export interface Category {
   icon: string;
   description?: string | null;
   jobCount: number;
+  requiresLicence: boolean;
 }
 
 export interface CreateCategoryBody {

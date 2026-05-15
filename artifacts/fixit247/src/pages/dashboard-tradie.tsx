@@ -3,7 +3,7 @@ import { track } from "@/lib/posthog";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetTradiedashboard, useClaimJob, useGetMe } from "@workspace/api-client-react";
+import { useGetTradiedashboard, useClaimJob, useGetMe, useListCategories } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -107,6 +107,7 @@ export default function TradieDashboard() {
   const { user, token } = useAuth();
   const { data, isLoading, refetch } = useGetTradiedashboard();
   const { data: meData } = useGetMe();
+  const { data: categories } = useListCategories();
   const { toast } = useToast();
 
   // Wallet balance in cents
@@ -303,8 +304,8 @@ export default function TradieDashboard() {
               {(() => {
                 const hasAbn = !!(meData as { abn?: string | null } | undefined)?.abn;
                 const primaryTrade = (meData as { primaryTrade?: string | null } | undefined)?.primaryTrade ?? "";
-                const LICENSED_TRADES = ["Plumbing", "Electrical", "HVAC / Air Conditioning", "Roofing", "Pest Control"];
-                const requiresLicence = LICENSED_TRADES.some((t) => primaryTrade.toLowerCase().includes(t.toLowerCase()));
+                const primaryCategory = categories?.find((c) => c.name.toLowerCase() === primaryTrade.toLowerCase());
+                const requiresLicence = primaryCategory?.requiresLicence ?? false;
                 const hasLicence = !!(meData as { licenceNumber?: string | null } | undefined)?.licenceNumber;
                 const steps = [
                   { done: true,      label: "Account created" },
@@ -1135,6 +1136,25 @@ export default function TradieDashboard() {
                                 <span className="text-sm font-bold text-[#ffc800]">${(pendingClaimCost / 100).toFixed(2)}</span>
                                 <span className="text-xs text-[#a89070]">will be deducted from your balance to claim this job</span>
                               </div>
+                            )}
+                            {/* Pre-claim verification warnings */}
+                            {!(meData as { abn?: string | null } | undefined)?.abn && (
+                              <Link href="/profile">
+                                <div className="flex items-center gap-2 mb-3 px-3 py-2.5 rounded-lg bg-orange-500/10 border border-orange-500/25 cursor-pointer hover:bg-orange-500/15 transition-colors">
+                                  <AlertCircle className="h-3.5 w-3.5 text-orange-400 shrink-0" />
+                                  <span className="text-xs text-orange-300">ABN required before claiming — <span className="font-bold underline">add it in your profile</span></span>
+                                </div>
+                              </Link>
+                            )}
+                            {(meData as { abn?: string | null } | undefined)?.abn &&
+                              !(meData as { licenceNumber?: string | null } | undefined)?.licenceNumber &&
+                              categories?.find((c) => c.name === job.categoryName)?.requiresLicence && (
+                              <Link href="/profile">
+                                <div className="flex items-center gap-2 mb-3 px-3 py-2.5 rounded-lg bg-orange-500/10 border border-orange-500/25 cursor-pointer hover:bg-orange-500/15 transition-colors">
+                                  <AlertCircle className="h-3.5 w-3.5 text-orange-400 shrink-0" />
+                                  <span className="text-xs text-orange-300">Trade licence required for {job.categoryName} — <span className="font-bold underline">add it in your profile</span></span>
+                                </div>
+                              </Link>
                             )}
                             <p className="text-xs font-semibold text-[#a89070] mb-3">Claim details (optional)</p>
                             <div className="grid sm:grid-cols-2 gap-3">

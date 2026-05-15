@@ -15,6 +15,7 @@ router.get("/categories", async (_req, res): Promise<void> => {
       name: categoriesTable.name,
       icon: categoriesTable.icon,
       description: categoriesTable.description,
+      requiresLicence: categoriesTable.requiresLicence,
       jobCount: count(jobsTable.id),
     })
     .from(categoriesTable)

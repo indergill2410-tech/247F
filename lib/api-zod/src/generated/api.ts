@@ -225,6 +225,7 @@ export const ListCategoriesResponseItem = zod.object({
   icon: zod.string(),
   description: zod.string().nullish(),
   jobCount: zod.number(),
+  requiresLicence: zod.boolean(),
 });
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
 
