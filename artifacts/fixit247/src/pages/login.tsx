@@ -149,7 +149,7 @@ export default function LoginPage() {
           {/* Demo accounts */}
           <div className="mt-6 border-t border-white/8 pt-6">
             <p className="text-xs text-white/35 text-center mb-3 uppercase tracking-wider font-medium">Demo accounts</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {DEMOS.map((d) => (
                 <button
                   key={d.label}

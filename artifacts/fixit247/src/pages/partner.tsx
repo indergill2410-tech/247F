@@ -304,9 +304,9 @@ function AccordionItem({ q, a, isOpen, onToggle }: {
 
 // ─── FieldError ───────────────────────────────────────────────────────────────
 
-function FieldError({ msg }: { msg?: string }) {
+function FieldError({ msg, id }: { msg?: string; id?: string }) {
   if (!msg) return null;
-  return <p className={ERROR_MSG} role="alert">{msg}</p>;
+  return <p id={id} className={ERROR_MSG} role="alert">{msg}</p>;
 }
 
 // ─── Partner page ─────────────────────────────────────────────────────────────
@@ -582,14 +582,14 @@ export default function PartnerPage() {
                   <input id="name" type="text" autoComplete="name" required placeholder="Jane Smith"
                     value={form.name} onChange={(e) => set("name")(e.target.value)}
                     className={INPUT_CLS} aria-describedby={errors.name ? "name-err" : undefined} />
-                  <FieldError msg={errors.name} />
+                  <FieldError msg={errors.name} id="name-err" />
                 </div>
                 <div>
                   <label htmlFor="phone" className={LABEL_CLS}>Phone <span className="text-red-400">*</span></label>
                   <input id="phone" type="tel" autoComplete="tel" required placeholder="04xx xxx xxx"
                     value={form.phone} onChange={(e) => set("phone")(e.target.value)}
                     className={INPUT_CLS} aria-describedby={errors.phone ? "phone-err" : undefined} />
-                  <FieldError msg={errors.phone} />
+                  <FieldError msg={errors.phone} id="phone-err" />
                 </div>
               </div>
               <div className="mt-4">
@@ -597,7 +597,7 @@ export default function PartnerPage() {
                 <input id="email" type="email" autoComplete="email" required placeholder="you@example.com"
                   value={form.email} onChange={(e) => set("email")(e.target.value)}
                   className={INPUT_CLS} aria-describedby={errors.email ? "email-err" : undefined} />
-                <FieldError msg={errors.email} />
+                <FieldError msg={errors.email} id="email-err" />
               </div>
 
               {/* Trade business */}

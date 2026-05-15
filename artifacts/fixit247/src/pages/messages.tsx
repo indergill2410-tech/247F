@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useListConversations } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageCircle, Briefcase, ChevronRight, Clock } from "lucide-react";
+import { MessageCircle, Briefcase, ChevronRight, Clock, AlertCircle } from "lucide-react";
 
 function timeAgo(dateStr: string | null | undefined): string {
   if (!dateStr) return "";
@@ -21,7 +21,7 @@ function timeAgo(dateStr: string | null | undefined): string {
 export default function MessagesPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-  const { data: conversations, isLoading } = useListConversations();
+  const { data: conversations, isLoading, isError } = useListConversations();
 
   return (
     <div className="min-h-screen bg-[#0b0904]">
@@ -45,6 +45,12 @@ export default function MessagesPage() {
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-20 w-full rounded-2xl bg-white/5" />
             ))}
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <AlertCircle className="h-10 w-10 text-red-400/60 mb-3" />
+            <p className="text-white/50 font-medium">Failed to load conversations</p>
+            <p className="text-white/30 text-sm mt-1">Check your connection and try again.</p>
           </div>
         ) : !conversations?.length ? (
           <motion.div

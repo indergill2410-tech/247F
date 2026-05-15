@@ -5,7 +5,8 @@ import { useListMessages, useSendMessage, useListConversations } from "@workspac
 import { useAuth } from "@/hooks/use-auth";
 import { useConversationSocket, type WsMessage } from "@/hooks/use-conversation-socket";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, Send, Briefcase, Wifi, WifiOff } from "lucide-react";
+import { ChevronLeft, Send, Briefcase, Wifi, WifiOff, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 function formatTime(dateStr: string): string {
   const d = new Date(dateStr);
@@ -29,9 +30,10 @@ export default function MessageThreadPage() {
   const { data: conversations } = useListConversations();
   const convo = conversations?.find((c) => c.id === convoId);
 
+  const { toast } = useToast();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: messages, isLoading, refetch } = useListMessages(convoId, {
-    query: { enabled: !isNaN(convoId), refetchInterval: 30000 } as any,
+  const { data: messages, isLoading, isError, refetch } = useListMessages(convoId, {
+    query: { enabled: !isNaN(convoId), refetchInterval: 5000 } as any,
   });
 
   // Local optimistic messages pushed via WebSocket
@@ -73,6 +75,9 @@ export default function MessageThreadPage() {
         setBody("");
         refetch();
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+      },
+      onError: () => {
+        toast({ title: "Failed to send", description: "Could not send message. Please try again.", variant: "destructive" });
       },
     },
   });
@@ -151,6 +156,12 @@ export default function MessageThreadPage() {
                   <Skeleton className="h-12 w-56 rounded-2xl bg-white/5" />
                 </div>
               ))}
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <AlertCircle className="h-8 w-8 text-red-400/60 mb-3" />
+              <p className="text-white/50 font-medium">Failed to load messages</p>
+              <p className="text-white/30 text-sm mt-1">Check your connection and try again.</p>
             </div>
           ) : !allMessages.length ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">

@@ -32,7 +32,7 @@ export default function NotificationsPage() {
   usePageTitle("Notifications");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { data: notifications, isLoading, refetch } = useListNotifications();
+  const { data: notifications, isLoading, isError, refetch } = useListNotifications();
 
   const markRead = useMarkNotificationRead({ mutation: { onSuccess: () => refetch() } });
   const markAllRead = useMarkAllNotificationsRead({
@@ -100,6 +100,12 @@ export default function NotificationsPage() {
                 </div>
               </div>
             ))
+          ) : isError ? (
+            <div className="text-center py-16 text-white/30">
+              <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-400/60" />
+              <p className="font-semibold text-white/45">Failed to load notifications</p>
+              <p className="text-sm mt-1">Check your connection and try again.</p>
+            </div>
           ) : !(notifications ?? []).length ? (
             <div className="text-center py-16 text-white/30">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-20" />

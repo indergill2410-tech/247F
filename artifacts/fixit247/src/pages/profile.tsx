@@ -370,8 +370,8 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="space-y-1.5">
-              <label className={labelCls}>Full Name</label>
-              <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" />
+              <label htmlFor="profile-name" className={labelCls}>Full Name</label>
+              <input id="profile-name" className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" />
             </div>
             <div className="space-y-1.5">
               <label className={labelCls}>Email</label>
@@ -379,8 +379,8 @@ export default function ProfilePage() {
               <p className="text-xs text-white/30">Email cannot be changed.</p>
             </div>
             <div className="space-y-1.5">
-              <label className={labelCls}>Phone</label>
-              <input className={inputCls} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="04xx xxx xxx" />
+              <label htmlFor="profile-phone" className={labelCls}>Phone</label>
+              <input id="profile-phone" className={inputCls} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="04xx xxx xxx" />
             </div>
           </div>
 
@@ -634,7 +634,7 @@ export default function ProfilePage() {
                   Trust Card
                 </span>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {workPhotoUrls.map((url, i) => (
                   <div key={i} className="space-y-1.5">
                     <label className={labelCls}>Photo {i + 1}</label>

@@ -321,7 +321,7 @@ function PlusMembershipWidget() {
                   <Home className="h-3 w-3 text-white/30" />
                   <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">At Home</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {HOME_COVERAGE.map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2">
                       <Icon className="h-4 w-4 text-primary" />
@@ -336,7 +336,7 @@ function PlusMembershipWidget() {
                   <Car className="h-3 w-3 text-white/30" />
                   <span className="text-[10px] font-semibold text-white/30 uppercase tracking-wider">On the Road</span>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {ROAD_COVERAGE.map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-1.5 bg-white/4 rounded-xl p-2">
                       <Icon className="h-4 w-4 text-primary" />
@@ -723,7 +723,7 @@ export default function HomeownerDashboard() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="grid grid-cols-3 gap-3"
+            className="grid grid-cols-3 gap-2 sm:gap-3"
           >
             {[
               { label: "Open",        value: data?.openJobs ?? 0,        color: "text-sky-400",      bg: "bg-sky-500/8 border-sky-500/15",      dot: "bg-sky-400" },

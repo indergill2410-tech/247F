@@ -690,7 +690,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register?role=homeowner">
-              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
+              <button className="h-12 px-8 rounded-xl bg-black dark:bg-black/80 text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all">
                 Post emergency job
               </button>
             </Link>
