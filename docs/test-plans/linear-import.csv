@@ -1,0 +1,28 @@
+Title,Description,Priority,Labels,Status,Estimate (days)
+"[TP-001] Landing Page Layout Audit","Verify hero section, CTAs, footer links, mobile layout, and dark mode on /. Covers unauthenticated and authenticated (role-based) views.",Medium,"layout-audit,public,responsive",Todo,0.5
+"[TP-002] Login Page Layout Audit","Verify form fields, demo credentials section, validation errors, role-based redirect after login, and navbar hidden state.",High,"layout-audit,auth,responsive",Todo,0.5
+"[TP-003] Register Page Layout Audit","Verify role selector, tradie-specific conditional fields, validation, registration success redirect, and navbar hidden state.",High,"layout-audit,auth,responsive",Todo,0.5
+"[TP-004] How It Works Page Layout Audit","Verify step-by-step sections, images/icons, CTA buttons, and mobile single-column layout.",Low,"layout-audit,public,responsive",Todo,0.25
+"[TP-005] Emergency Page Layout Audit","Verify pricing card, Stripe CTA, membership badge for active members, and mobile layout.",Medium,"layout-audit,public,responsive,stripe",Todo,0.5
+"[TP-006] For Tradies Page Layout Audit","Verify hero, value propositions, Sign Up CTA, and mobile single-column layout.",Low,"layout-audit,public,responsive",Todo,0.25
+"[TP-007] Categories Page Layout Audit","Verify category grid, icons/images, click behaviour, and mobile grid collapse.",Low,"layout-audit,public,responsive",Todo,0.25
+"[TP-008] About / Careers / Partner Pages Layout Audit","Verify content, images, forms/CTAs, and mobile layout for three informational pages.",Low,"layout-audit,public,responsive",Todo,0.25
+"[TP-009] 404 Not Found Page Layout Audit","Verify 404 renders (not blank), Go Home CTA, and navbar presence.",Low,"layout-audit,public",Todo,0.25
+"[TP-010] Navbar Layout & Behaviour Audit","Verify role-specific links, notification badge, theme toggle, mobile hamburger menu, sign out, and hidden state on auth pages.",Critical,"layout-audit,navigation,responsive,all-roles",Todo,1.0
+"[TP-011] Homeowner Dashboard Layout Audit","Verify summary stats, recent jobs, Post a Job CTA, mobile stacking, and dark mode.",High,"layout-audit,homeowner,dashboard,responsive",Todo,0.5
+"[TP-012] Post Job Form Layout Audit","Verify multi-step wizard, category dropdown, AI assist, photo upload, suburb autocomplete, urgency selector, validation, and mobile usability.",High,"layout-audit,homeowner,jobs,responsive",Todo,1.0
+"[TP-013] Jobs List Layout Audit","Verify role-filtered lists, status filters, empty state, job card links, and mobile single-column layout.",High,"layout-audit,jobs,responsive,all-roles",Todo,0.5
+"[TP-014] Job Detail Layout Audit","Verify metadata, photo gallery, claim CTA, lead cost deduction, claim list, accept claim flow, map, and mobile stacking.",Critical,"layout-audit,jobs,homeowner,tradie,responsive",Todo,1.0
+"[TP-015] Find Tradies Layout Audit","Verify tradie grid, category/location filters, rating sort, empty state, and mobile layout.",Medium,"layout-audit,homeowner,tradies,responsive",Todo,0.5
+"[TP-016] Tradie Dashboard Layout Audit","Verify wallet balance, welcome grant, available jobs, active claims, earnings summary, and mobile layout.",High,"layout-audit,tradie,dashboard,responsive",Todo,0.5
+"[TP-017] Credits Page Layout Audit","Verify three credit packages, wallet balance display, transaction history, Stripe trigger, access control, and mobile layout.",High,"layout-audit,tradie,credits,responsive,stripe",Todo,0.5
+"[TP-018] Admin Dashboard Layout Audit","Verify user management table, suspend/activate, job moderation, credit system panel, access control, and mobile horizontal scroll.",High,"layout-audit,admin,dashboard,responsive",Todo,1.0
+"[TP-019] Tradie Profile Admin View Layout Audit","Verify admin access to /tradies/:id, profile fields, and redirect for non-admin users.",Medium,"layout-audit,admin,tradies",Todo,0.5
+"[TP-020] Messages List Layout Audit","Verify conversation cards, unread highlight, empty state, navigation, and mobile tap targets.",High,"layout-audit,messaging,responsive,all-roles",Todo,0.5
+"[TP-021] Message Thread Layout Audit","Verify message history order, sender alignment, send-and-clear, 5s poll, job context card, and mobile chat UI.",High,"layout-audit,messaging,responsive,all-roles",Todo,0.5
+"[TP-022] Profile Edit Layout Audit","Verify avatar upload, editable fields, role-specific field visibility, save confirmation, and mobile form layout.",Medium,"layout-audit,profile,responsive,all-roles",Todo,0.5
+"[TP-023] Notifications Layout Audit","Verify notification list, unread highlight, mark-as-read, mark-all-read, empty state, and mobile tap targets.",Medium,"layout-audit,notifications,responsive,all-roles",Todo,0.5
+"[TP-024] Responsive Design — Cross-Page Audit","Verify no horizontal scroll on any page at 375px/768px, table scrolling within containers, 44px tap targets, and grid breakpoint transitions.",Critical,"layout-audit,responsive,all-pages",Todo,2.0
+"[TP-025] Dark / Light Mode — Cross-Page Audit","Verify theme toggle persistence, text contrast ≥ 4.5:1, icon visibility, form input styling, and toast readability in both modes.",High,"layout-audit,dark-mode,all-pages",Todo,1.0
+"[TP-026] Role-Based Access Control Audit","Verify all redirect rules: unauthenticated to login, cross-role dashboard access, homeowner to credits, non-admin to admin/tradie-profile.",Critical,"layout-audit,security,rbac,all-roles",Todo,0.5
+"[TP-027] Accessibility Audit","Verify alt attributes, form label associations, keyboard tab order, modal focus trap, aria-describedby on errors, and non-colour state indicators.",High,"layout-audit,accessibility,a11y,all-pages",Todo,2.0
