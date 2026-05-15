@@ -131,13 +131,15 @@ export default function CreditsPage() {
   const jobsLeft = Math.floor(balanceCents / leadCostCents);
 
   const PACK_HIGHLIGHTS = [
-    { credits: "300", color: "border-white/10",     badge: "" },
-    { credits: "600", color: "border-primary/30",   badge: "Best Value" },
+    { credits: "300", color: "border-white/10",   badge: "" },
+    { credits: "600", color: "border-primary/30", badge: "Best Value" },
+    { credits: "900", color: "border-white/10",   badge: "Pro" },
   ];
 
   const PACK_SUBTITLES: Record<string, string> = {
     "300": "≈ 2 job claims at the standard $22 rate",
     "600": "≈ 4–5 job claims · best value",
+    "900": "≈ 7–8 job claims · maximum reach",
   };
 
   return (
@@ -277,13 +279,9 @@ export default function CreditsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="grid sm:grid-cols-2 gap-4"
+              className="grid sm:grid-cols-3 gap-4"
             >
               {packs
-                .filter((pack) => {
-                  const credits = pack.metadata?.credits ?? "0";
-                  return credits === "300" || credits === "600";
-                })
                 .map((pack) => {
                 const credits = pack.metadata?.credits ?? "0";
                 const price = pack.prices[0];

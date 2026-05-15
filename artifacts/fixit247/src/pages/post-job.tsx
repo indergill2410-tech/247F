@@ -440,8 +440,9 @@ export default function PostJobPage() {
                       <img src={url} alt={`Job photo ${i + 1}`} className="h-16 w-16 object-cover rounded-lg border border-white/10" />
                       <button
                         type="button"
+                        aria-label={`Remove photo ${i + 1}`}
                         onClick={() => setJobPhotos((prev) => prev.filter((_, idx) => idx !== i))}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >×</button>
                     </div>
                   ))}

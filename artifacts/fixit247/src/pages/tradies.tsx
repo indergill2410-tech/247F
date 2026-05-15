@@ -151,7 +151,7 @@ export default function TradiesPage() {
                 className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-primary/50 transition-colors"
               />
               {search && (
-                <button onClick={() => onSearchChange("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <button aria-label="Clear search" onClick={() => onSearchChange("")} className="absolute right-3 top-1/2 -translate-y-1/2">
                   <X className="h-3.5 w-3.5 text-white/30 hover:text-white/60" />
                 </button>
               )}

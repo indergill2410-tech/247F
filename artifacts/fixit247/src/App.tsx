@@ -73,7 +73,10 @@ function ProtectedRoute({ component: Component, roles }: { component: React.Comp
   const { isAuthenticated, user } = useAuth();
   const [location] = useLocation();
   if (!isAuthenticated) return <Redirect to={`/login?returnTo=${encodeURIComponent(location)}`} />;
-  if (roles && user && !roles.includes(user.role)) return <Redirect to="/" />;
+  if (roles && user && !roles.includes(user.role)) {
+    const dest = user.role === "tradie" ? "/dashboard/tradie" : user.role === "admin" ? "/dashboard/admin" : "/dashboard";
+    return <Redirect to={dest} />;
+  }
   return <Component />;
 }
 
@@ -141,8 +144,12 @@ function Router() {
         <Route path="/admin">
           {() => <ProtectedRoute component={AdminDashboard} roles={["admin"]} />}
         </Route>
-        <Route path="/jobs/new" component={PostJobPage} />
-        <Route path="/post-job" component={PostJobPage} />
+        <Route path="/jobs/new">
+          {() => <ProtectedRoute component={PostJobPage} />}
+        </Route>
+        <Route path="/post-job">
+          {() => <ProtectedRoute component={PostJobPage} />}
+        </Route>
         <Route path="/my-jobs">
           {() => <ProtectedRoute component={JobsPage} />}
         </Route>
