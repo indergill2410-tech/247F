@@ -313,12 +313,12 @@ export default function PostJobPage() {
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-5">
               <h2 className="font-bold text-white">Job Details</h2>
               <div className="space-y-1.5">
-                <label className={labelCls}>Job Title *</label>
-                <input className={inputCls} placeholder="e.g. Leaking kitchen tap needs fixing" value={title} onChange={(e) => setTitle(e.target.value)} required />
+                <label htmlFor="job-title" className={labelCls}>Job Title *</label>
+                <input id="job-title" className={inputCls} placeholder="e.g. Leaking kitchen tap needs fixing" value={title} onChange={(e) => setTitle(e.target.value)} required />
               </div>
               <div className="space-y-1.5">
-                <label className={labelCls}>Description *</label>
-                <textarea className={textareaCls} rows={4} placeholder="Describe the problem in detail. What needs to be done? Any special requirements?" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                <label htmlFor="job-description" className={labelCls}>Description *</label>
+                <textarea id="job-description" className={textareaCls} rows={4} placeholder="Describe the problem in detail. What needs to be done? Any special requirements?" value={description} onChange={(e) => setDescription(e.target.value)} required />
               </div>
               <div className="space-y-1.5">
                 <label className={labelCls}>Category *</label>
@@ -341,7 +341,7 @@ export default function PostJobPage() {
                 <h2 className="font-bold text-white">Job Size *</h2>
                 <p className="text-xs text-white/40 mt-1">This sets the lead cost tradies see upfront. The actual cost is fine-tuned within your chosen range.</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SIZE_BANDS.map((band) => (
                   <label
                     key={band.value}
@@ -401,8 +401,8 @@ export default function PostJobPage() {
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-4">
               <h2 className="font-bold text-white">Location</h2>
               <div className="space-y-1.5">
-                <label className={labelCls}>Street Address <span className="text-white/30">(optional)</span></label>
-                <input className={inputCls} placeholder="123 Main St" value={address} onChange={(e) => setAddress(e.target.value)} />
+                <label htmlFor="job-address" className={labelCls}>Street Address <span className="text-white/30">(optional)</span></label>
+                <input id="job-address" className={inputCls} placeholder="123 Main St" value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
               <SuburbInput
                 suburb={suburb}
@@ -421,10 +421,10 @@ export default function PostJobPage() {
             <div className="bg-[#130f07] border border-white/6 rounded-2xl p-6 space-y-3">
               <h2 className="font-bold text-white">Budget <span className="text-white/35 font-normal text-sm">(optional)</span></h2>
               <div className="space-y-1.5">
-                <label className={labelCls}>Estimated Budget (AUD)</label>
+                <label htmlFor="job-budget" className={labelCls}>Estimated Budget (AUD)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium text-sm">$</span>
-                  <input className={`${inputCls} pl-8`} type="number" placeholder="0" value={budget} onChange={(e) => setBudget(e.target.value)} min="0" />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium text-sm" aria-hidden="true">$</span>
+                  <input id="job-budget" className={`${inputCls} pl-8`} type="number" placeholder="0" value={budget} onChange={(e) => setBudget(e.target.value)} min="0" />
                 </div>
                 <p className="text-xs text-white/30">Tradies will use this as a guide for their quotes.</p>
               </div>

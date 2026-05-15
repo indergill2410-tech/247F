@@ -142,9 +142,10 @@ export default function TradiesPage() {
         <div className="bg-[#130f07] border border-white/6 rounded-2xl p-4 space-y-3">
           <div className="flex gap-3 flex-wrap">
             {/* Search */}
-            <div className="relative flex-1 min-w-[200px]">
+            <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
               <input
+                aria-label="Search tradies"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search by name or bio…"

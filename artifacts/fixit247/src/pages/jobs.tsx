@@ -165,6 +165,7 @@ export default function JobsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
               <input
                 type="text"
+                aria-label="Search jobs"
                 placeholder="Search title, suburb…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

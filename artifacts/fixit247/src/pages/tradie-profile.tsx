@@ -284,7 +284,7 @@ export default function TradieProfilePage() {
           )}
 
           {/* Stats row */}
-          <motion.div variants={item} className="grid grid-cols-3 gap-3">
+          <motion.div variants={item} className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               { label: "Reviews", value: tradie.reviewCount, icon: Star },
               { label: "Rating", value: tradie.rating ? tradie.rating.toFixed(1) : "—", icon: Star },

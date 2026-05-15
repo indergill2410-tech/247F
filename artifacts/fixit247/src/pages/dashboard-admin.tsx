@@ -522,9 +522,10 @@ export default function AdminDashboard() {
 
               {/* Search + Filter */}
               <div className="flex gap-3 mb-4 flex-wrap">
-                <div className="relative flex-1 min-w-[200px]">
+                <div className="relative flex-1 min-w-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
                   <input
+                    aria-label="Search users"
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     placeholder="Search by name or email…"
@@ -677,9 +678,10 @@ export default function AdminDashboard() {
 
               {/* Actions bar */}
               <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="relative flex-1 min-w-[200px] max-w-xs">
+                <div className="relative flex-1 min-w-0 max-w-xs">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
                   <input
+                    aria-label="Search credits"
                     value={creditSearch}
                     onChange={(e) => setCreditSearch(e.target.value)}
                     placeholder="Search tradies…"

@@ -398,12 +398,12 @@ export default function HowItWorksPage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/signup?role=homeowner">
-              <button className="h-12 px-8 rounded-xl bg-black text-white font-bold text-[15px] hover:bg-[#1a1a1a] active:scale-[0.97] transition-all inline-flex items-center gap-2">
+              <button className="h-12 px-8 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-[15px] hover:bg-[#1a1a1a] dark:hover:bg-white/90 active:scale-[0.97] transition-all inline-flex items-center gap-2">
                 Post a job <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </Link>
             <Link to="/signup?role=tradie">
-              <button className="h-12 px-8 rounded-xl border-2 border-black text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
+              <button className="h-12 px-8 rounded-xl border-2 border-black dark:border-black/70 text-black font-bold text-[15px] hover:bg-black/10 active:scale-[0.97] transition-all">
                 Tradies — join free
               </button>
             </Link>
