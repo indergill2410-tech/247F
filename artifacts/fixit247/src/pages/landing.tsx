@@ -71,8 +71,8 @@ const HOW_IT_WORKS_TRADIE = [
   {
     icon: Wrench,
     step: "03",
-    title: "Receive local jobs",
-    desc: "Get notified of relevant jobs in your area that match your skills and location.",
+    title: "Jobs come to you",
+    desc: "Get instant notifications for relevant jobs in your area that match your skills — no searching required.",
   },
   {
     icon: Clock,
@@ -172,7 +172,7 @@ function LiveActivityTicker() {
 
   return (
     <div className="hidden lg:flex flex-col gap-2 w-full max-w-xs" aria-live="polite" aria-label="Recent activity">
-      <p className="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-1">Live activity</p>
+      <p className="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-1">Tradies active right now</p>
       {items.map((item, i) => (
         <motion.div
           key={`${visibleIdx}-${i}`}
@@ -280,12 +280,12 @@ export default function LandingPage() {
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-              From a leaky tap<br />
-              <span className="text-primary">to a full reno.</span>
+              Your home, fixed<br />
+              <span className="text-primary">in hours — not days.</span>
             </h1>
 
             <p className="text-lg text-white/60 max-w-xl leading-relaxed">
-              Plumbing, electrical, lockouts, HVAC, carpentry and more. Fixit 24/7 connects homeowners with verified local tradies — for any job, any time.
+              Verified local tradies claim your job in minutes. You choose who, when, and for how much. Plumbing, electrical, locksmith, HVAC, carpentry and more.
             </p>
 
             {/* Dual role CTA cards — primary conversion lever */}
@@ -300,8 +300,8 @@ export default function LandingPage() {
                     <ChevronRight className="h-4 w-4 text-black/40 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-black text-black text-[15px]">I need a tradie</p>
-                    <p className="text-black/55 text-xs mt-0.5 leading-snug">Post any job free — get quotes in minutes</p>
+                    <p className="font-black text-black text-[15px]">Get quotes in 20 min</p>
+                    <p className="text-black/55 text-xs mt-0.5 leading-snug">Post free · No commitment · You choose</p>
                   </div>
                 </div>
               </Link>
@@ -317,7 +317,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <p className="font-black text-white text-[15px]">I'm a tradie</p>
-                    <p className="text-white/45 text-xs mt-0.5 leading-snug">$111 AUD in free job leads — every month for 6 months</p>
+                    <p className="text-white/45 text-xs mt-0.5 leading-snug">$111 free credit on join · No commission. Ever.</p>
                   </div>
                 </div>
               </Link>
@@ -327,9 +327,9 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-2 max-w-xl">
               {[
                 { icon: BadgeCheck, label: "4,800+ licence-verified tradies" },
-                { icon: CheckCircle2, label: "Free to post — no commission" },
+                { icon: CheckCircle2, label: "Free to post — no commission. Ever." },
                 { icon: Clock, label: "First response ~20 min" },
-                { icon: Star, label: "4.8★ average rating" },
+                { icon: Star, label: "4.8★ · 12,000+ jobs completed" },
               ].map(({ icon: Icon, label }) => (
                 <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/55 bg-white/5 border border-white/8 rounded-full px-3 py-1.5">
                   <Icon className="h-3 w-3 text-primary shrink-0" aria-hidden="true" /> {label}
@@ -362,6 +362,25 @@ export default function LandingPage() {
               <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
           </Link>
+        </div>
+      </div>
+
+      {/* ─── Stats bar ─── */}
+      <div className="bg-[#100d07] border-y border-white/6 py-6">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+            {[
+              { value: "4,800+", label: "Verified tradies" },
+              { value: "12,000+", label: "Jobs completed" },
+              { value: "4.8★", label: "Average rating" },
+              { value: "~20 min", label: "First response" },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <p className="text-2xl font-black text-white">{value}</p>
+                <p className="text-xs text-white/40 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -677,9 +696,9 @@ export default function LandingPage() {
       <section className="py-20 bg-primary">
         <div className="container mx-auto max-w-2xl px-4 sm:px-6 text-center">
           <Clock className="h-14 w-14 text-black/30 mx-auto mb-6" aria-hidden="true" />
-          <h2 className="text-3xl sm:text-4xl font-black text-black">Emergency repair?<br />We're ready now.</h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-black">Need it fixed today?<br />Tradies are ready now.</h2>
           <p className="text-black/60 mt-5 text-lg max-w-md mx-auto">
-            Burst pipe at 2am? Power outage on a Sunday? Our tradies are on call 24 hours a day, 7 days a week.
+            Burst pipe at 2am? Power out on a Sunday? Post a job in 2 minutes and get your first quote in under 20.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 mt-6 mb-8">
             {["Free to post", "No commitment needed", "Verified local tradies", "Direct messaging"].map((t) => (

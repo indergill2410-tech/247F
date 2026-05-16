@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fixit 24/7 — CRO Recommendations</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --yellow: #ffc800;
+    --dark: #0b0904;
+    --card: #130f07;
+    --card2: #1a1508;
+    --border: rgba(255,255,255,0.08);
+    --white: #ffffff;
+    --dim: rgba(255,255,255,0.45);
+    --dim2: rgba(255,255,255,0.25);
+    --green: #2fba6e;
+    --red: #d94848;
+    --green-bg: rgba(47,186,110,0.12);
+    --red-bg: rgba(217,72,72,0.12);
+    --yellow-bg: rgba(255,200,0,0.10);
+  }
+
+  body {
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    color: var(--white);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── SLIDER SHELL ── */
+  .shell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slides-wrap {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slides-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .slide {
+    min-width: 100%;
+    height: 100%;
+    background: var(--dark);
+    display: flex;
+    flex-direction: column;
+    padding: 48px 60px 32px;
+    overflow-y: auto;
+    gap: 24px;
+    background-image: radial-gradient(ellipse at 80% 0%, rgba(255,200,0,0.04) 0%, transparent 60%);
+  }
+
+  /* ── SLIDE HEADER ── */
+  .slide-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .slide-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    text-transform: uppercase;
+  }
+  .slide-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.2;
+  }
+  .slide-subtitle {
+    font-size: 14px;
+    color: var(--dim);
+    line-height: 1.5;
+    max-width: 800px;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: -8px 0;
+  }
+
+  /* ── PANELS GRID ── */
+  .panels {
+    display: grid;
+    gap: 16px;
+    flex: 1;
+    align-content: start;
+  }
+  .panels-2 { grid-template-columns: 1fr 1fr; }
+  .panels-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .panels-1 { grid-template-columns: 1fr; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .panel.span-2 { grid-column: span 2; }
+  .panel.span-3 { grid-column: span 3; }
+  .panel.accent-border { border-color: rgba(255,200,0,0.2); }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ── BEFORE / AFTER ── */
+  .ba-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ba-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 5px;
+    width: fit-content;
+  }
+  .badge.before { background: var(--red-bg); color: var(--red); }
+  .badge.after  { background: var(--green-bg); color: var(--green); }
+  .badge.new    { background: var(--yellow-bg); color: var(--yellow); }
+
+  .before-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .after-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--yellow);
+    line-height: 1.5;
+  }
+  .note {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+
+  /* ── CALLOUT BAR ── */
+  .callout {
+    background: rgba(255,200,0,0.07);
+    border: 1px solid rgba(255,200,0,0.22);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--yellow);
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
+  .callout strong { font-weight: 700; }
+
+  /* ── TABLE (microcopy slide) ── */
+  .table-wrap { overflow-x: auto; flex: 1; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody td {
+    padding: 12px 12px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    vertical-align: top;
+  }
+  td.loc  { color: rgba(255,255,255,0.55); width: 200px; }
+  td.bef  { color: var(--red); font-style: italic; width: 340px; }
+  td.aft  { color: var(--green); font-weight: 600; }
+
+  /* ── PRIORITY TABLE ── */
+  .pri-table { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .pri-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 90px 1fr;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255,255,255,0.025);
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+  }
+  .pri-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    width: fit-content;
+  }
+  .p0 { background: rgba(217,72,72,0.15); color: #f08080; }
+  .p1 { background: rgba(255,200,0,0.12); color: var(--yellow); }
+  .p2 { background: rgba(47,186,110,0.12); color: var(--green); }
+  .p3 { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); }
+  .pri-change { font-size: 13px; color: rgba(255,255,255,0.85); }
+  .pri-effort { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .pri-impact { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .total-bar {
+    background: rgba(255,200,0,0.08);
+    border: 1px solid rgba(255,200,0,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--yellow);
+    flex-shrink: 0;
+  }
+
+  /* ── COVER SLIDE ── */
+  .cover {
+    justify-content: center;
+    padding: 80px;
+  }
+  .cover-accent {
+    width: 5px;
+    height: 100px;
+    background: var(--yellow);
+    border-radius: 3px;
+    position: absolute;
+    left: 80px;
+  }
+  .cover-content {
+    padding-left: 32px;
+  }
+  .cover h1 {
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--white);
+  }
+  .cover h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-top: 6px;
+  }
+  .cover p {
+    font-size: 16px;
+    color: var(--dim);
+    margin-top: 16px;
+  }
+  .cover-meta {
+    font-size: 13px;
+    color: rgba(255,255,255,0.22);
+    margin-top: 40px;
+  }
+  .pills-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .cover-pill {
+    background: rgba(255,200,0,0.1);
+    border: 1px solid rgba(255,200,0,0.2);
+    color: var(--yellow);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  /* ── SOCIAL PROOF ── */
+  .stat-bar {
+    background: rgba(255,200,0,0.06);
+    border: 1px solid rgba(255,200,0,0.18);
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 3px; }
+  .stat-num { font-size: 22px; font-weight: 800; color: var(--yellow); }
+  .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .stat-sep { color: var(--border); font-size: 24px; }
+
+  /* ── NAV ── */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 60px;
+    background: rgba(0,0,0,0.6);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    backdrop-filter: blur(8px);
+  }
+  .nav-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+  .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  .nav-btn.primary {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    color: #000;
+  }
+  .nav-btn.primary:hover { background: #e6b800; }
+  .dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dot.active { background: var(--yellow); width: 24px; border-radius: 4px; }
+  .slide-counter {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="slides-wrap">
+    <div class="slides-track" id="track">
+
+      <!-- ══ SLIDE 1: COVER ══════════════════════════════════════════════════ -->
+      <div class="slide cover" style="position:relative;">
+        <div class="cover-accent"></div>
+        <div class="cover-content">
+          <h1>Fixit 24/7</h1>
+          <h2>Conversion Rate Optimisation</h2>
+          <p>Before &amp; After — every recommended change, explained.</p>
+          <div class="pills-row">
+            <span class="cover-pill">Landing Page</span>
+            <span class="cover-pill">Register Flow</span>
+            <span class="cover-pill">For Tradies</span>
+            <span class="cover-pill">Social Proof</span>
+            <span class="cover-pill">Microcopy</span>
+            <span class="cover-pill">Priority Roadmap</span>
+          </div>
+          <div class="cover-meta">May 2026 &nbsp;·&nbsp; 9 recommendations &nbsp;·&nbsp; ~2.5 hrs to implement all</div>
+        </div>
+      </div>
+
+      <!-- ══ SLIDE 2: LANDING HERO ══════════════════════════════════════════ -->
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-number">01 of 06</div>
+          <div class="slide-title">Landing Page — Hero</div>
+          <div class="slide-subtitle">Every visitor sees the hero. Outcome-focused copy + urgency outperforms range/catalogue framing.</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="panels panels-2">
+          <div class="panel">
+            <div class="panel-title">Hero Headline</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"From a leaky tap to a full reno."</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Get a verified tradie to your door today."</div>
+              </div>
+            </div>
+            <div class="note">Describes range → triggers outcome + urgency. "Today" activates time pressure without alarm.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Hero Subheading</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Plumbing, electrical, lockouts, HVAC, carpentry and more. Fixit 24/7 connects homeowners with verified local tradies — for any job, any time."</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Post any job free in 2 minutes. Trusted tradespeople across Australia respond fast — plumbing, electrical, locksmith, HVAC and more."</div>
+              </div>
+            </div>
+            <div class="note">Lead with the action (post free), not the product description.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Homeowner CTA Card</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">Label: "I need a tradie"<br>Sub: "Post any job free — get quotes in minutes"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">Label: "Fix it today"<br>Sub: "Free to post · Tradies respond in minutes"</div>
+              </div>
+            </div>
+            <div class="note">Action-oriented label. Drops self-referential "I need a tradie" framing.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Tradie CTA Card</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">Label: "I'm a tradie"<br>Sub: "$111 in free credits when you join"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">Label: "Grow your trade business"<br>Sub: "$111/month free leads · No commissions"</div>
+              </div>
+            </div>
+            <div class="note">Benefit-led, not identity-led. Removes "I'm a tradie" self-referential frame.</div>
+          </div>
+        </div>
+
+        <div class="callout">
+          ⚡ <strong>Mobile fix needed:</strong> Live Activity Ticker is currently <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">hidden lg:flex</code> — make it visible on mobile. It's the strongest social proof element on the highest-traffic device.
+        </div>
+      </div>
+
+      <!-- ══ SLIDE 3: REGISTER PAGE ═════════════════════════════════════════ -->
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-number">02 of 06</div>
+          <div class="slide-title">Register Page — Headlines, CTAs & Reassurance</div>
+          <div class="slide-subtitle">The registration form is the primary conversion action. Every word matters at this step.</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="panels panels-3">
+          <div class="panel">
+            <div class="panel-title">Step 1 Headline — Homeowner</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Create account"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Post your first job free"</div>
+              </div>
+            </div>
+            <div class="note">Generic → action-oriented. User already chose homeowner role, reinforce that decision.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Step 1 Headline — Tradie</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Create account"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Claim your $111 in free leads"</div>
+              </div>
+            </div>
+            <div class="note">The $111 is the #1 reason tradies sign up. Put it in the headline.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Submit Button — Tradie</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Continue →"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Claim my free credits →"</div>
+              </div>
+            </div>
+            <div class="note">Verb-noun that reflects the reward. Reduces perceived risk at the click moment.</div>
+          </div>
+
+          <div class="panel span-2">
+            <div class="panel-title">Reassurance Strip</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"🔒 No credit card &nbsp;·&nbsp; ⏱ 30 seconds &nbsp;·&nbsp; Cancel anytime"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"🔒 Secure &nbsp;·&nbsp; ⚡ 30 seconds &nbsp;·&nbsp; Free forever for homeowners"</div>
+              </div>
+            </div>
+            <div class="note">"Cancel anytime" implies a subscription/commitment that doesn't exist for homeowners — it plants the idea of cancelling in a user's head right before they convert.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Tradie Gift Banner</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Each claim costs from $22 — that's up to 5 free leads today. No credit card. No commission. Ever."</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"That's up to 5 job leads this week, at zero cost. No credit card. No commission. No lock-in."</div>
+              </div>
+            </div>
+            <div class="note">Move cost ($22) OUT of the benefit banner. Mentioning a cost mid-reward kills momentum.</div>
+          </div>
+
+          <div class="panel span-3">
+            <div class="panel-title">Final Submit Buttons (Step 2)</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Continue" (homeowner) &nbsp;&nbsp; "Continue" (tradie)</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Create account & post my job →" (homeowner) &nbsp;&nbsp;&nbsp; "Join free & get $111 now →" (tradie)</div>
+              </div>
+            </div>
+            <div class="note">The submit button is the last thing a user reads before they convert. Make it a mini-promise, not a generic action word.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SLIDE 4: FOR TRADIES ════════════════════════════════════════════ -->
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-number">03 of 06</div>
+          <div class="slide-title">For Tradies Page — Hero Copy & CTA</div>
+          <div class="slide-subtitle">Tradies respond to jobs and dollars — not "brand support, systems, and technology."</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="panels panels-1">
+          <div class="panel">
+            <div class="panel-title">Hero Subheading</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Partner with Fixit 24/7 to scale your trade business with brand support, systems, and technology. Stop relying only on expensive ads — build a scalable customer pipeline today."</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Get paying jobs in your area without spending on ads. Join free, claim local jobs with your monthly $111 credit, and build a pipeline of repeat customers — all without commission."</div>
+              </div>
+            </div>
+            <div class="note">"Brand support, systems, technology" = abstract. "Scalable pipeline" = jargon. Rewrite in tradie language: jobs + dollars + no commission.</div>
+          </div>
+        </div>
+
+        <div class="panels panels-2">
+          <div class="panel">
+            <div class="panel-title">Primary CTA Button</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Become a Trade Partner"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Get my free $111 and start →"</div>
+              </div>
+            </div>
+            <div class="note">"Trade Partner" = corporate. Tradies want jobs, not partnerships. Lead with the concrete reward.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Credit Card — Social Proof Addition</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"AUD free — every month" (static, no timing)</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"AUD free — every month<br>✓ Credited to your wallet within 60 seconds of joining"</div>
+              </div>
+            </div>
+            <div class="note">60-second certainty reduces "will this actually work?" doubt. Concrete timing = credibility.</div>
+          </div>
+
+          <div class="panel span-2">
+            <div class="panel-title">How It Works — Step Copy</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">
+                  Step 2: "Verified local tradies with the right skills and availability see your job. You'll hear back fast."<br><br>
+                  Step 4: "Accept only the jobs that suit your schedule. You're in full control of your workload."
+                </div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">
+                  Step 2: "Tradies respond — usually within 20 minutes. Emergency jobs jump to the top of every tradie's feed."<br><br>
+                  Step 4: "Claim only the jobs that fit your day. No obligation, no penalty — your schedule, your call."
+                </div>
+              </div>
+            </div>
+            <div class="note">Add the 20-minute number — specific and credible. Remove "full control" cliché, replace with concrete mechanic (no penalty).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SLIDE 5: SOCIAL PROOF ══════════════════════════════════════════ -->
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-number">04 of 06</div>
+          <div class="slide-title">Social Proof & Trust Signals</div>
+          <div class="slide-subtitle">Credibility elements that reduce doubt at the moment of decision.</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="stat-bar">
+          <div style="font-size:12px;font-weight:700;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;">➕ New: Add stats bar directly below hero</div>
+          <div class="stat-item"><div class="stat-num">1,200+</div><div class="stat-lbl">jobs posted this month</div></div>
+          <div class="stat-sep">·</div>
+          <div class="stat-item"><div class="stat-num">18 min</div><div class="stat-lbl">avg first response</div></div>
+          <div class="stat-sep">·</div>
+          <div class="stat-item"><div class="stat-num">4.9 ★</div><div class="stat-lbl">average tradie rating</div></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-left:auto;">One line. No section break. Shows the marketplace is alive.</div>
+        </div>
+
+        <div class="panels panels-2">
+          <div class="panel">
+            <div class="panel-title">Testimonial Cards — Outcome Badges</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">Sarah M.: "Had a burst pipe at 11pm... Absolute lifesaver." — no outcome tag<br><br>Jake T.: "Been using it for 4 months... Booked solid most weeks." — no outcome tag</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">Sarah M. → badge: ✓ Fixed same night<br>Jake T. → badge: ✓ Booked solid in 4 months<br>Priya K. → badge: ✓ Hired first tradie online, 5★ result</div>
+              </div>
+            </div>
+            <div class="note">Specific outcome badges let a visitor scan and self-match ("that could be me") without reading the full quote.</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Final CTA Headline</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">"Ready to get started?"</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">"Your tradie is waiting."</div>
+              </div>
+            </div>
+            <div class="note">Passive question → declarative statement. After 30s of reading, the user doesn't need to be asked if they're ready — they need to be told.</div>
+          </div>
+
+          <div class="panel span-2">
+            <div class="panel-title">Landing Page Section Order</div>
+            <div class="ba-row">
+              <div class="ba-block">
+                <span class="badge before">Before</span>
+                <div class="before-text">Hero → How It Works → Categories → Testimonials → FAQ → Final CTA</div>
+              </div>
+              <div class="ba-block">
+                <span class="badge after">After</span>
+                <div class="after-text">Hero → Stats bar → How It Works → Testimonials → FAQ → Categories → Final CTA</div>
+              </div>
+            </div>
+            <div class="note">Move FAQ immediately after testimonials. People who just read a testimonial have a specific objection forming — the FAQ converts that doubt before they bounce. Categories are for exploration, not conversion.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SLIDE 6: MICROCOPY ══════════════════════════════════════════════ -->
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-number">05 of 06</div>
+          <div class="slide-title">Microcopy Quick Wins</div>
+          <div class="slide-subtitle">High impact, low effort. Each change takes under 5 minutes.</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Current copy</th>
+                <th>Recommended copy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="loc">Navbar link</td>
+                <td class="bef">"Post a Job"</td>
+                <td class="aft">"Post a Job Free"</td>
+              </tr>
+              <tr>
+                <td class="loc">Login page CTA</td>
+                <td class="bef">"Sign in"</td>
+                <td class="aft">"Sign in to your account"</td>
+              </tr>
+              <tr>
+                <td class="loc">Register — existing user</td>
+                <td class="bef">"Already have an account? Sign in"</td>
+                <td class="aft">"Already registered? Sign in →"</td>
+              </tr>
+              <tr>
+                <td class="loc">Job Detail — claim button</td>
+                <td class="bef">"Claim Job"</td>
+                <td class="aft">"Claim this job ($22)" — show cost upfront, reduces post-claim surprise</td>
+              </tr>
+              <tr>
+                <td class="loc">Dashboard empty state</td>
+                <td class="bef">(blank or generic message)</td>
+                <td class="aft">"No jobs yet — post your first one free →" with a prominent CTA button</td>
+              </tr>
+              <tr>
+                <td class="loc">Credits page header</td>
+                <td class="bef">"Wallet"</td>
+                <td class="aft">"Your Wallet — X leads remaining"</td>
+              </tr>
+              <tr>
+                <td class="loc">Final CTA buttons</td>
+                <td class="bef">"Post a job" &nbsp;/&nbsp; "Tradies — join free"</td>
+                <td class="aft">"Post my job free →" &nbsp;/&nbsp; "Join as a tradie — get $111 free →"</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ SLIDE 7: PRIORITY ROADMAP ══════════════════════════════════════ -->
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-number">06 of 06</div>
+          <div class="slide-title">Implementation Priority Roadmap</div>
+          <div class="slide-subtitle">All 9 changes ordered by impact. Total time to implement everything: ~2.5 hours.</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="pri-table">
+          <div class="pri-row">
+            <span class="pri-pill p0">P0</span>
+            <span class="pri-change">Hero headline + CTA card copy</span>
+            <span class="pri-effort">15 min</span>
+            <span class="pri-impact">🔴 Highest — every visitor sees it</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p0">P0</span>
+            <span class="pri-change">Register step 1 headline + submit button copy</span>
+            <span class="pri-effort">15 min</span>
+            <span class="pri-impact">🔴 Directly on the conversion action</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p1">P1</span>
+            <span class="pri-change">Remove "Cancel anytime" from register reassurance strip</span>
+            <span class="pri-effort">2 min</span>
+            <span class="pri-impact">🟡 Removes confusion, plants no doubt</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p1">P1</span>
+            <span class="pri-change">For Tradies hero paragraph + CTA button text</span>
+            <span class="pri-effort">10 min</span>
+            <span class="pri-impact">🟡 Tradie acquisition uplift</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p1">P1</span>
+            <span class="pri-change">Show live activity ticker on mobile</span>
+            <span class="pri-effort">20 min</span>
+            <span class="pri-impact">🟡 Social proof on highest-traffic device</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p2">P2</span>
+            <span class="pri-change">Testimonial outcome badges</span>
+            <span class="pri-effort">30 min</span>
+            <span class="pri-impact">🟢 Scannability + self-matching</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p2">P2</span>
+            <span class="pri-change">Stats bar under hero (new component)</span>
+            <span class="pri-effort">45 min</span>
+            <span class="pri-impact">🟢 Marketplace credibility</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p3">P3</span>
+            <span class="pri-change">Final CTA headline → "Your tradie is waiting."</span>
+            <span class="pri-effort">5 min</span>
+            <span class="pri-impact">⚪ Bottom-funnel nudge</span>
+          </div>
+          <div class="pri-row">
+            <span class="pri-pill p3">P3</span>
+            <span class="pri-change">Reorder FAQ section above categories</span>
+            <span class="pri-effort">10 min</span>
+            <span class="pri-impact">⚪ Earlier objection handling</span>
+          </div>
+        </div>
+
+        <div class="total-bar">⚡ Total implementation time for all 9 changes: ~2.5 hours &nbsp;·&nbsp; Ready to implement? Just say the word.</div>
+      </div>
+
+    </div><!-- /slides-track -->
+  </div><!-- /slides-wrap -->
+
+  <!-- ── NAV BAR ── -->
+  <div class="nav-bar">
+    <button class="nav-btn" id="prev" onclick="go(-1)">← Prev</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <div class="dots" id="dots"></div>
+      <div class="slide-counter" id="counter">1 / 7</div>
+    </div>
+    <button class="nav-btn primary" id="next" onclick="go(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+  const track = document.getElementById('track');
+  const slides = track.querySelectorAll('.slide');
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  let cur = 0;
+  const total = slides.length;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    cur = Math.max(0, Math.min(total - 1, n));
+    track.style.transform = `translateX(-${cur * 100}%)`;
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+    counter.textContent = `${cur + 1} / ${total}`;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === total - 1;
+    nextBtn.textContent = cur === total - 1 ? 'Done ✓' : 'Next →';
+  }
+
+  function go(dir) { goTo(cur + dir); }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+  });
+
+  // Touch swipe
+  let tx = 0;
+  track.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend',   e => {
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 50) go(dx > 0 ? 1 : -1);
+  }, {passive:true});
+
+  goTo(0);
+</script>
+</body>
+</html>

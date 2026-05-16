@@ -180,13 +180,13 @@ export default function RegisterPage() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.25 }}
               >
-                <h1 className="text-2xl font-black text-white text-center mb-1">Create account</h1>
+                <h1 className="text-2xl font-black text-white text-center mb-1">You're 30 seconds away</h1>
                 <p className="text-white/45 text-sm text-center mb-7">
                   {autosubmit
                     ? "Create a free account to post your job — takes 30 seconds"
                     : role === "tradie"
-                      ? "Get $111 AUD in free job leads every month — starts immediately"
-                      : "Join Australia's fastest-growing repair marketplace"}
+                      ? "Your $111 wallet credit is waiting. No credit card needed."
+                      : "Post a job free. Get your first quote in minutes."}
                 </p>
 
                 {/* Role toggle */}
@@ -272,7 +272,7 @@ export default function RegisterPage() {
                     type="submit"
                     className="w-full h-11 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-[15px] transition-colors mt-2 inline-flex items-center justify-center gap-2"
                   >
-                    Continue
+                    Next — pick your location
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </form>
@@ -318,12 +318,12 @@ export default function RegisterPage() {
                 </button>
 
                 <h1 className="text-2xl font-black text-white mb-1">
-                  {role === "tradie" ? "Your trade & location" : "Almost there"}
+                  {role === "tradie" ? "Your trade & location" : "Last step — where are you?"}
                 </h1>
                 <p className="text-white/45 text-sm mb-7">
                   {role === "tradie"
-                    ? "Help us match you to jobs in your area."
-                    : "Optional — helps us show tradies near you."}
+                    ? "Help us match you to the right jobs in your area."
+                    : "Helps us show you verified tradies nearby."}
                 </p>
 
                 <form onSubmit={handleStep2} className="space-y-4">
@@ -398,7 +398,7 @@ export default function RegisterPage() {
                       ? "Creating account…"
                       : role === "tradie"
                         ? "Claim $111 in free leads & join"
-                        : "Find my tradie — it's free"}
+                        : "Create account & find tradies"}
                   </button>
                 </form>
 
